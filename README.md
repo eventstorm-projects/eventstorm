@@ -1,4 +1,4 @@
-# eventstorm-core
+# eventStorm
 
 [![Build status](https://travis-ci.com/eventstorm-projects/eventstorm.svg?branch=master)](https://travis-ci.org/eventstorm-projects/eventstorm)
 [![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=eu.eventstorm%3Aeventstorm&metric=alert_status)](https://sonarcloud.io/dashboard?id=eu.eventstorm%3Aeventstorm)
