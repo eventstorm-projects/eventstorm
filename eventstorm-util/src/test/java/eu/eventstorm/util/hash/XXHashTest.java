@@ -1,5 +1,7 @@
 package eu.eventstorm.util.hash;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.jupiter.api.Test;
 
 import eu.eventstorm.util.hash.HashReader;
@@ -11,19 +13,12 @@ class XXHashTest {
 
 	@Test
 	void test() {
-
 		String value = "Hello World !";
-		System.out.println("---> [" + Hashing.xx(123456, value) + "]");
-
+		assertEquals(-7739591154577084421l, Hashing.xx(123456, value));
+		assertEquals(-7739591154577084421l, Hashing.xx(123456, new HashReader4String(UnsafeString.getChars(value))));
 	}
 
-	@Test
-	void tests() {
-
-		String value = "Hello World !";
-		System.out.println("2---> [" + Hashing.xx(123456, new HashReader4String(UnsafeString.getChars(value))) + "]");
-	}
-
+	@SuppressWarnings("restriction")
 	private static class HashReader4String extends HashReader {
 
 		private final char[] val;
@@ -58,4 +53,5 @@ class XXHashTest {
 			return UnsafeHelper.getUnsafe().getByte(val, adr++);
 		}
 	}
+	
 }
