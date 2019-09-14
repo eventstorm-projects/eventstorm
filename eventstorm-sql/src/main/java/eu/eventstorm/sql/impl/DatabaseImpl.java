@@ -1,5 +1,14 @@
 package eu.eventstorm.sql.impl;
 
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
+
+import javax.sql.DataSource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.ImmutableMap;
 
 import eu.eventstorm.sql.Database;
@@ -8,15 +17,6 @@ import eu.eventstorm.sql.Module;
 import eu.eventstorm.sql.desc.SqlTable;
 import eu.eventstorm.sql.dialect.Dialects;
 import eu.eventstorm.sql.tx.TransactionManager;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.annotation.PostConstruct;
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.SQLException;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -108,7 +108,6 @@ public final class DatabaseImpl implements Database {
         return this.tables.get(table);
     }
 
-    @PostConstruct
     public void postInit() {
         trace(dataSource, this.modules);
     }
