@@ -10,7 +10,7 @@ import eu.eventstorm.sql.M3SqlException;
 @SuppressWarnings("serial")
 public final class MapperException extends M3SqlException {
 
-    private static enum MapperExceptionEnum {
+    private enum MapperExceptionEnum {
         INSERT, UPDATE, SELECT;
     }
 

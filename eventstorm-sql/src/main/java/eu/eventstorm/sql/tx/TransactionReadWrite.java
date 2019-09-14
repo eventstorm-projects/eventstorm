@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
  */
 final class TransactionReadWrite extends AbstractTransaction {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(TransactionReadWrite.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TransactionReadWrite.class);
 
     private final Map<String, PreparedStatement> insertUpdate = new HashMap<>();
 
