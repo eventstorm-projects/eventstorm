@@ -9,6 +9,11 @@ import org.slf4j.LoggerFactory;
 public final class Buffers {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Buffers.class);
+    
+    private static final String JDK8_CLEANER = "sun.misc.Cleaner";
+    private static final String JDK9_CLEANER = "jdk.internal.ref.Cleaner";
+
+    
     /**
      * Sun specific mechanisms to clean up resources associated with direct byte buffers.
      */
@@ -24,7 +29,12 @@ public final class Buffers {
         Method cleanerClean = null;
         if (SUN_DIRECT_BUFFER != null) {
             bufferCleaner = lookupMethodQuietly(SUN_DIRECT_BUFFER, "cleaner");
-            cleanerClean = lookupMethodQuietly(lookupClassQuietly("sun.misc.Cleaner"), "clean");
+            
+            if (Jvm.isJava8()) {
+            	cleanerClean = lookupMethodQuietly(lookupClassQuietly(JDK8_CLEANER), "clean");
+            } else {
+            	cleanerClean = lookupMethodQuietly(lookupClassQuietly(JDK9_CLEANER), "clean");
+            }
         }
         SUN_BUFFER_CLEANER = bufferCleaner;
         SUN_CLEANER_CLEAN = cleanerClean;
