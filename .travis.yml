@@ -1,22 +1,17 @@
 dist: xenial
 language: java
-
-  
 sudo: false
-
 addons:
   sonarcloud:
-    organization: "eventstorm-projects"
+    organization: eventstorm-projects
     token:
       secure: $SONAR_TOKEN
-      
 jdk:
   - openjdk8
   - openjdk11
-
 cache:
   directories:
-    - $HOME/.m2
-          
+    - "$HOME/.m2"
+    - "$HOME/.sonar/cache"
 script:
-  - mvn -X clean verify sonar:sonar -Pcoverage -Dmaven.javadoc.skip=true -Dgpg.skip=true
+  - mvn clean verify sonar:sonar -Pcoverage -Dmaven.javadoc.skip=true -Dgpg.skip=true
