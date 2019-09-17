@@ -17,15 +17,18 @@ import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventsotrm.sql.apt.model.PojoDescriptor;
 import eu.eventsotrm.sql.apt.model.PojoPropertyDescriptor;
+import eu.eventstorm.util.ToStringBuilder;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 final class PojoImplementationGenerator implements Generator {
 
+	private static final String TO_STRING_BUILDER = ToStringBuilder.class.getName();
+	
 	private final Logger logger;
 	
-	PojoImplementationGenerator() {
+	PojoImplementationGenerator() {;
 		logger = LoggerFactory.getInstance().getLogger(PojoImplementationGenerator.class);
 	}
 	
@@ -171,7 +174,7 @@ final class PojoImplementationGenerator implements Generator {
         writeNewLine(writer);
         writer.write("    public String toString() {");
         writeNewLine(writer);
-        writer.write("        io.m3.util.ToStringBuilder builder = new io.m3.util.ToStringBuilder(this);");
+        writer.write("        " + TO_STRING_BUILDER + " builder = new " + TO_STRING_BUILDER + "(this);");
         writeNewLine(writer);
         for (PojoPropertyDescriptor ppd : descriptor.ids()) {
             writer.write("        builder.append(\"");

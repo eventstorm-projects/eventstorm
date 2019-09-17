@@ -33,7 +33,7 @@ import eu.eventstorm.sql.annotation.Table;
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
-@SupportedAnnotationTypes({"io.m3.sql.annotation.GlobalConfiguration","io.m3.sql.annotation.Table"})
+@SupportedAnnotationTypes({"eu.eventstorm.sql.annotation.GlobalConfiguration","eu.eventstorm.sql.annotation.Table"})
 public final class SqlProcessor extends AbstractProcessor {
 
     private ProcessingEnvironment processingEnvironment;

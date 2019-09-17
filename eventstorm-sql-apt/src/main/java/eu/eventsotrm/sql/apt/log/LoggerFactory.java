@@ -23,7 +23,7 @@ public final class LoggerFactory {
 	public void init(ProcessingEnvironment env) {
 		FileObject object;
 		try {
-			object = env.getFiler().createResource(StandardLocation.CLASS_OUTPUT, "io.m3.report","Output.txt");
+			object = env.getFiler().createResource(StandardLocation.CLASS_OUTPUT, "eu.eventstorm.report","Output.txt");
 			writer = object.openWriter();
 		} catch (IOException cause) {
 			throw new IllegalStateException(cause);

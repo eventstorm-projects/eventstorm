@@ -1,5 +1,6 @@
 package eu.eventsotrm.sql.apt.flyway;
 
+import java.sql.Date;
 import java.sql.Timestamp;
 
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
@@ -27,7 +28,18 @@ final class FlywayDialectH2 implements FlywayDialect {
 		if (Timestamp.class.getName().equals(javaType)) {
 			return "TIMESTAMP";
 		}
+		
+		if (Date.class.getName().equals(javaType)) {
+			return "DATE";
+		}
+		
+		if (double.class.getName().equals(javaType) || Double.class.getName().equals(javaType)) {
+			return "DOUBLE";
+		}
 
+		if (float.class.getName().equals(javaType) || Float.class.getName().equals(javaType)) {
+			return "REAL";
+		}
 		LoggerFactory.getInstance().getLogger(FlywayDialectH2.class).error("No sql type for java type [" + javaType + "]");
 		return null;
 	}
