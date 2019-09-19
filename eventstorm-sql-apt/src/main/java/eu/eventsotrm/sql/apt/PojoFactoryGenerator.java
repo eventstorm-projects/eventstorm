@@ -1,6 +1,5 @@
 package eu.eventsotrm.sql.apt;
 
-import static eu.eventsotrm.sql.apt.Helper.analyse;
 import static eu.eventsotrm.sql.apt.Helper.writeGenerated;
 import static eu.eventsotrm.sql.apt.Helper.writeNewLine;
 import static eu.eventsotrm.sql.apt.Helper.writePackage;
@@ -14,6 +13,8 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 
+import eu.eventsotrm.sql.apt.log.Logger;
+import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventsotrm.sql.apt.model.PojoDescriptor;
 
 /**
@@ -21,15 +22,22 @@ import eu.eventsotrm.sql.apt.model.PojoDescriptor;
  */
 final class PojoFactoryGenerator implements Generator {
 
-    public void generate(ProcessingEnvironment env, List<PojoDescriptor> descriptors, Map<String, Object> properties) {
-        Map<String, List<PojoDescriptor>> packages = analyse(env, descriptors);
-        for (Map.Entry<String, List<PojoDescriptor>> entry : packages.entrySet()) {
+
+    private final Logger logger;
+
+	PojoFactoryGenerator() {
+		logger = LoggerFactory.getInstance().getLogger(PojoMapperFactoryGenerator.class);
+	}
+
+    public void generate(ProcessingEnvironment env, SourceCode sourceCode) {
+
+        sourceCode.forEachByPackage((pack, descriptors) -> {
             try {
-                create(env, entry.getKey(), entry.getValue());
-            } catch (IOException cause) {
-                env.getMessager().printMessage(Diagnostic.Kind.ERROR, "PojoFactoryGenerator -> IOException for [" + entry + "] -> [" + cause.getMessage() + "]");
+                create(env, pack, descriptors);
+            } catch (Exception cause) {
+                logger.error("PojoFactoryGenerator -> Exception for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
             }
-        }
+        });
     }
 
 

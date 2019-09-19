@@ -25,17 +25,17 @@ import eu.eventstorm.util.ToStringBuilder;
 final class PojoImplementationGenerator implements Generator {
 
 	private static final String TO_STRING_BUILDER = ToStringBuilder.class.getName();
-	
+
 	private final Logger logger;
-	
+
 	PojoImplementationGenerator() {;
 		logger = LoggerFactory.getInstance().getLogger(PojoImplementationGenerator.class);
 	}
-	
+
     @Override
-    public void generate(ProcessingEnvironment processingEnvironment, List<PojoDescriptor> descriptors, Map<String, Object> properties) {
+    public void generate(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
         // generate Implementation class;
-        descriptors.forEach(t -> {
+        sourceCode.forEach(t -> {
             try {
                 generate(processingEnvironment, t);
             } catch (Exception cause) {
@@ -47,7 +47,7 @@ final class PojoImplementationGenerator implements Generator {
     }
 
     private void generate(ProcessingEnvironment env, PojoDescriptor descriptor) throws IOException {
-    	
+
         JavaFileObject object = env.getFiler().createSourceFile(descriptor.fullyQualidiedClassName() + "Impl");
         Writer writer = object.openWriter();
 

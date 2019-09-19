@@ -56,7 +56,7 @@ public final class SqlProcessor extends AbstractProcessor {
         }
 
     	LoggerFactory.getInstance().init(processingEnv);
-    	
+
     	Logger logger = LoggerFactory.getInstance().getLogger(SqlProcessor.class);
     	logger.info("SqlProcessor start");
 
@@ -64,63 +64,48 @@ public final class SqlProcessor extends AbstractProcessor {
 
     	logger.info("SqlProcessor end");
         this.firstTime = true;
-        
+
         LoggerFactory.getInstance().close();
-        
+
         return true;
     }
 
     private void doProcess(RoundEnvironment roundEnvironment) {
 
     	Logger logger = LoggerFactory.getInstance().getLogger(SqlProcessor.class);
-    	
+
         List<PojoDescriptor> descriptors = roundEnvironment.getElementsAnnotatedWith(Table.class)
                 .stream()
                 .map(new SqlInterfaceAnalyser())
                 .collect(Collectors.toList());
-        
+
         List<PojoDescriptor> joinTableDescriptors = roundEnvironment.getElementsAnnotatedWith(JoinTable.class)
                 .stream()
                 .map(new JoinTableAnalyser(descriptors))
                 .collect(Collectors.toList());
 
-        logger.info("Result Analysis -----------------------------------------------------------------------------------------");
-        logger.info("---------------------------------------------------------------------------------------------------------");
-        logger.info("Number of Pojo(s) found : " + descriptors.size());
-        descriptors.forEach(pojoDesc -> {
-        	logger.info("\t->" + pojoDesc);
-        });
-        logger.info("Number of Joint Table Pojo(s) found : " + joinTableDescriptors.size());
-        descriptors.forEach(pojoDesc -> {
-        	logger.info("\t->" + pojoDesc);
-        });
-        logger.info("---------------------------------------------------------------------------------------------------------");
-        
-        
-        List<PojoDescriptor> all = new ArrayList<>();
-        all.addAll(descriptors);
-        all.addAll(joinTableDescriptors);
-        
-        
-        Map<String, Object> properties = new HashMap<>();
-        new PojoImplementationGenerator().generate(this.processingEnv, all, properties);
-        new PojoFactoryGenerator().generate(this.processingEnv, all, properties);
-        new PojoDescriptorGenerator().generate(this.processingEnv, all, properties);
-        new RepositoryGenerator().generate(this.processingEnv, all, properties);
-        new MapperGenerator().generate(this.processingEnv, all, properties);
-        new PojoMapperFactoryGenerator().generate(this.processingEnv, all, properties);
-        new ModuleGenerator().generate(this.processingEnv, all, properties);
-        
-        
+        SourceCode sourceCode = new SourceCode(this.processingEnv, descriptors, joinTableDescriptors);
+
+
+        new PojoImplementationGenerator().generate(this.processingEnv, sourceCode);
+        new PojoFactoryGenerator().generate(this.processingEnv, sourceCode);
+        new PojoDescriptorGenerator().generate(this.processingEnv, sourceCode);
+        new RepositoryGenerator().generate(this.processingEnv, sourceCode);
+        new MapperGenerator().generate(this.processingEnv, sourceCode);
+        new PojoMapperFactoryGenerator().generate(this.processingEnv, sourceCode);
+        new ModuleGenerator().generate(this.processingEnv, sourceCode);
+
+
+
         Set<? extends Element> elements = roundEnvironment.getElementsAnnotatedWith(GlobalConfiguration.class);
 
         logger.info("Global configuration found : " + elements);
 
         List<GlobalConfigurationDescriptor> configs = roundEnvironment.getElementsAnnotatedWith(GlobalConfiguration.class)
             	.stream()
-            	.map(new GlobalConfigurationAnalyser(all))
+            	.map(new GlobalConfigurationAnalyser(sourceCode))
             	.collect(Collectors.toList());
-        
+
         new FlywayGenerator().generate(this.processingEnv, configs);
 
     }

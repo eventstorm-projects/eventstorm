@@ -56,25 +56,7 @@ public final class Helper {
         return builder.toString();
     }
 
-    public static Map<String, List<PojoDescriptor>> analyse(ProcessingEnvironment env, List<PojoDescriptor> descriptors) {
 
-        Map<String, List<PojoDescriptor>> map = new HashMap<>();
-
-        descriptors.forEach(desc -> {
-            String pack = env.getElementUtils().getPackageOf(desc.element()).toString();
-
-            List<PojoDescriptor> list = map.get(pack);
-
-            if (list == null) {
-                list = new ArrayList<>();
-                map.put(pack, list);
-            }
-
-            list.add(desc);
-        });
-
-        return map;
-    }
 
     public static String toUpperCase(String name) {
         StringBuilder builder = new StringBuilder();

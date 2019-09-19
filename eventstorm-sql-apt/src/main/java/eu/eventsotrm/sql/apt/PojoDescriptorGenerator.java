@@ -8,6 +8,7 @@ import static eu.eventsotrm.sql.apt.Helper.writePackage;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -47,25 +48,28 @@ final class PojoDescriptorGenerator implements Generator {
 
 	private final Logger logger;
 
+    private static final Map<String, Object> properties = new HashMap<>();
+
 	PojoDescriptorGenerator() {
 		logger = LoggerFactory.getInstance().getLogger(PojoImplementationGenerator.class);
 	}
 
-	public void generate(ProcessingEnvironment processingEnvironment, List<PojoDescriptor> descriptors,
-			Map<String, Object> properties) {
+	 public void generate(ProcessingEnvironment env, SourceCode sourceCode) {
 
 		// generate Implementation class;
-		descriptors.forEach(t -> {
+		sourceCode.forEach(t -> {
 			try {
-				generate(processingEnvironment, t, properties);
+				generate(env, t);
 			} catch (Exception cause) {
 				logger.error("PojoImplementationGenerator -> IOException for [" + t + "] -> [" + cause.getMessage() + "]", cause);
 			}
 		});
 
+        properties.clear();
+
 	}
 
-	private void generate(ProcessingEnvironment env, PojoDescriptor descriptor, Map<String, Object> properties)
+	private void generate(ProcessingEnvironment env, PojoDescriptor descriptor)
 			throws IOException {
 
 		JavaFileObject object = env.getFiler().createSourceFile(descriptor.fullyQualidiedClassName() + "Descriptor");
@@ -74,7 +78,7 @@ final class PojoDescriptorGenerator implements Generator {
 		writeHeader(writer, env, descriptor);
 		writeSingleton(writer, descriptor);
 		writeConstructor(writer, descriptor);
-		writeTable(writer, descriptor, properties);
+		writeTable(writer, descriptor);
 		writeSequence(writer, descriptor);
 		writePrimaryKeys(writer, descriptor);
 		writeProperties(writer, descriptor);
@@ -120,8 +124,7 @@ final class PojoDescriptorGenerator implements Generator {
 		writeNewLine(writer);
 	}
 
-	private static void writeTable(Writer writer, PojoDescriptor descriptor, Map<String, Object> properties)
-			throws IOException {
+	private static void writeTable(Writer writer, PojoDescriptor descriptor) throws IOException {
 		writeNewLine(writer);
 		writer.write("    // SQL TABLE DESCRIPTOR");
 		writeNewLine(writer);
@@ -130,13 +133,13 @@ final class PojoDescriptorGenerator implements Generator {
 		writer.write(" TABLE = new ");
 		writer.write(SqlTable.class.getName());
 		writer.write("(\"");
-		
+
 		if (descriptor.element().getAnnotation(Table.class) != null) {
 			writer.write(descriptor.element().getAnnotation(Table.class).value());
 		} else if (descriptor.element().getAnnotation(JoinTable.class) != null) {
 			writer.write(descriptor.element().getAnnotation(JoinTable.class).value());
 		}
-		
+
 		writer.write("\", \"");
 		writer.write(generateAlias(properties));
 		writer.write("\");");
@@ -193,13 +196,13 @@ final class PojoDescriptorGenerator implements Generator {
 			writer.write(" = new ");
 			writer.write(SqlPrimaryKey.class.getName());
 			writer.write("(TABLE, \"");
-			
+
 			if (id.getter().getAnnotation(PrimaryKey.class) != null) {
 				writer.write(id.getter().getAnnotation(PrimaryKey.class).value());
 			} else if (id.getter().getAnnotation(JoinColumn.class) != null) {
 				writer.write(id.getter().getAnnotation(JoinColumn.class).value());
 			}
-			
+
 			writer.write("\");");
 			writeNewLine(writer);
 		}
@@ -381,7 +384,7 @@ final class PojoDescriptorGenerator implements Generator {
 			builder.deleteCharAt(builder.length() - 1);
 			writer.write(builder.toString());
 		}
-		
+
 		writer.write(");");
 		writeNewLine(writer);
 
