@@ -5,11 +5,14 @@ import java.util.function.Function;
 import eu.eventstorm.util.unsafe.UnsafeHelper;
 import sun.misc.Unsafe;
 
+/**
+ * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
+ */
 @SuppressWarnings("all")
 final class CsvLineImpl implements CsvLine {
 
 	private final static Unsafe UNSAFE = UnsafeHelper.getUnsafe();
-	
+
 	private final long lineStart;
 	private final long[] columnAddress;
 	private final int line;

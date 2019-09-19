@@ -13,12 +13,29 @@ import java.nio.file.StandardOpenOption;
 
 import org.junit.jupiter.api.Test;
 
+import eu.eventstorm.test.Tests;
+
 class CsvReaderTest {
 
     @Test
-    void readAddresses() throws Exception {
+    void testWell() throws Exception {
+        Tests.assertUtilClassIsWellDefined(CsvReaders.class);
+        Tests.assertUtilClassIsWellDefined(CsvColumnConverters.class);
+    }
 
-        try (FileChannel fc = createFileChannel("/csv/addresses.csv")) {
+    @Test
+    void testReadWin() throws Exception {
+        readAddresses("/csv/addresses_win.csv");
+    }
+
+  //  @Test
+ //   void testReadUnix() throws Exception {
+ //       readAddresses("/csv/addresses_unix.csv");
+ //   }
+
+    void readAddresses(String resource) throws Exception {
+
+        try (FileChannel fc = createFileChannel(resource)) {
 
             try (CsvReader reader = newReader(fc)) {
 

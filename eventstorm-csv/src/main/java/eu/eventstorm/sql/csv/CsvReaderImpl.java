@@ -10,6 +10,9 @@ import eu.eventstorm.util.Buffers;
 import eu.eventstorm.util.unsafe.UnsafeHelper;
 import sun.misc.Unsafe;
 
+/**
+ * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
+ */
 @SuppressWarnings("restriction")
 final class CsvReaderImpl implements CsvReader {
 
@@ -42,8 +45,8 @@ final class CsvReaderImpl implements CsvReader {
 
         ByteOrderMark bom = ByteOrderMark.read(buffer);
         if (bom != null) {
-            buffer.position(bom.getValue().length);
-            this.offset += bom.getValue().length;
+            buffer.position(bom.length());
+            this.offset += bom.length();
         }
         fileEndOfLine = findEndOfLine();
 
