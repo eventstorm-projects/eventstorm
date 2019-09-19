@@ -2,8 +2,8 @@ package eu.eventstorm.util;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
+ * @see <a href="http://www.hackersdelight.org/divcMore.pdf">Doc</a>
  * 
- *         {@see http://www.hackersdelight.org/divcMore.pdf}
  */
 public final class Maths {
 

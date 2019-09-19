@@ -8,6 +8,16 @@
 	<packaging>pom</packaging>
 
 	<name>eventStorm</name>
+	<description>Library to simplify sql mapping and event sourcing</description>
+	<url>https://github.com/eventstorm-projects/eventstorm</url>
+
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -23,6 +33,32 @@
 		<org.mockito.version>3.0.0</org.mockito.version>
 		<org.flywaydb.version>6.0.2</org.flywaydb.version>
 	</properties>
+
+	<distributionManagement>
+		<snapshotRepository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+		<repository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+		</repository>
+	</distributionManagement>
+
+	<developers>
+		<developer>
+			<name>Jacques Militello</name>
+			<email>jacques.militello@gmail.com</email>
+		</developer>
+
+	</developers>
+	
+	<scm>
+		<connection>scm:git:git://github.com/eventstorm-projects/eventstorm.git</connection>
+		<developerConnection>scm:https://github.com/eventstorm-projects/eventstorm.git</developerConnection>
+		<url>https://github.com/eventstorm-projects/eventstorm</url>
+	</scm>
+
 
 	<dependencyManagement>
 		<dependencies>
@@ -136,6 +172,58 @@
 								<id>report</id>
 								<goals>
 									<goal>report</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>release</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-source-plugin</artifactId>
+						<version>3.1.0</version>
+						<executions>
+							<execution>
+								<id>attach-sources</id>
+								<goals>
+									<goal>jar-no-fork</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<version>3.1.1</version>
+						<configuration>
+							<additionalOptions>
+								<additionalOption>-Xdoclint:none</additionalOption>
+							</additionalOptions>
+						</configuration>
+						<executions>
+							<execution>
+								<id>attach-javadocs</id>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>1.6</version>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
 								</goals>
 							</execution>
 						</executions>
