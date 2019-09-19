@@ -14,6 +14,7 @@ import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.type.DeclaredType;
 
+import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventsotrm.sql.apt.model.PojoDescriptor;
 import eu.eventsotrm.sql.apt.model.PojoPropertyDescriptor;
 import eu.eventstorm.sql.annotation.AutoIncrement;
@@ -55,25 +56,7 @@ public final class Helper {
         return builder.toString();
     }
 
-    public static Map<String, List<PojoDescriptor>> analyse(ProcessingEnvironment env, List<PojoDescriptor> descriptors) {
 
-        Map<String, List<PojoDescriptor>> map = new HashMap<>();
-
-        descriptors.forEach(desc -> {
-            String pack = env.getElementUtils().getPackageOf(desc.element()).toString();
-
-            List<PojoDescriptor> list = map.get(pack);
-
-            if (list == null) {
-                list = new ArrayList<>();
-                map.put(pack, list);
-            }
-
-            list.add(desc);
-        });
-
-        return map;
-    }
 
     public static String toUpperCase(String name) {
         StringBuilder builder = new StringBuilder();
@@ -229,8 +212,8 @@ public final class Helper {
 
                         try {
                             clazz = Class.forName(type.toString());
-                        } catch (ClassNotFoundException e) {
-                            e.printStackTrace();
+                        } catch (ClassNotFoundException cause) {
+                            LoggerFactory.getInstance().getLogger(Helper.class).error("Failed to load class [" + type + "]", cause);
                         }
                     }
                 }

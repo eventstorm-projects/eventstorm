@@ -68,20 +68,20 @@ public enum ByteOrderMark {
      */
     GB_18030(new byte[]{(byte) 132, (byte) 49, (byte) 149, (byte) 51});
 
-    private final byte[] _value;
+    private final byte[] value;
 
     ByteOrderMark(byte[] value) {
-        _value = value;
+        this.value = value;
     }
 
-    public byte[] getValue() {
-        return _value;
-    }
+    public int length() {
+		return this.value.length;
+	}
 
     public static ByteOrderMark valueOf(byte[] tag) {
         if (tag != null) {
             for (ByteOrderMark t : ByteOrderMark.values()) {
-                if (Arrays.equals(tag, t.getValue())) {
+                if (Arrays.equals(tag, t.value)) {
                     return t;
                 }
             }
@@ -111,7 +111,7 @@ public enum ByteOrderMark {
         for (ByteOrderMark bom : ByteOrderMark.values()) {
             if (arrayContainsBom(potentialBom, bom)) {
                 if (toReturn != null) {
-                    if (bom.getValue().length > toReturn.getValue().length) {
+                    if (bom.value.length > toReturn.value.length) {
                         toReturn = bom;
                     }
                 } else {
@@ -123,12 +123,13 @@ public enum ByteOrderMark {
     }
 
     private static boolean arrayContainsBom(byte[] potentialBom, ByteOrderMark bom) {
-        int maxLength = potentialBom.length < bom.getValue().length ? potentialBom.length : bom.getValue().length;
+        int maxLength = potentialBom.length < bom.value.length ? potentialBom.length : bom.value.length;
         for (int i = 0; i < maxLength; i++) {
-            if (potentialBom[i] != bom.getValue()[i]) {
+            if (potentialBom[i] != bom.value[i]) {
                 return false;
             }
         }
         return true;
     }
+
 }

@@ -8,6 +8,7 @@ import java.util.function.Function;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 
+import eu.eventsotrm.sql.apt.SourceCode;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventsotrm.sql.apt.model.GlobalConfigurationDescriptor;
@@ -19,11 +20,11 @@ import eu.eventstorm.sql.annotation.GlobalConfiguration;
  */
 public final class GlobalConfigurationAnalyser implements Function<Element, GlobalConfigurationDescriptor> {
 
-	private final List<PojoDescriptor> descriptors;
+	private final SourceCode sourceCode;
 	private final Logger logger;
 
-	public GlobalConfigurationAnalyser(List<PojoDescriptor> descriptors) {
-		this.descriptors = new ArrayList<>(descriptors);
+	public GlobalConfigurationAnalyser(SourceCode sourceCode) {
+		this.sourceCode = sourceCode;
 		this.logger = LoggerFactory.getInstance().getLogger(GlobalConfigurationAnalyser.class);
 	}
 
@@ -40,9 +41,11 @@ public final class GlobalConfigurationAnalyser implements Function<Element, Glob
 		GlobalConfiguration gc = element.getAnnotation(GlobalConfiguration.class);
 
 		List<PojoDescriptor> found = new ArrayList<>();
+        List<PojoDescriptor> all = new ArrayList<>(sourceCode.all());
 
 		for (String pack : gc.flywayConfiguration().packages()) {
-			Iterator<PojoDescriptor> it = descriptors.iterator();
+
+			Iterator<PojoDescriptor> it = all.iterator();
 			while (it.hasNext()) {
 				PojoDescriptor desc = it.next();
 				if (desc.element().toString().startsWith(pack)) {
@@ -52,8 +55,8 @@ public final class GlobalConfigurationAnalyser implements Function<Element, Glob
 			}
 		}
 
-		descriptors.forEach(desc -> {
-			logger.error("No GlogalConfiguration found for " + desc.element().toString());
+		all.forEach(desc -> {
+			logger.error("No GlogalConfiguration found for " + desc.fullyQualidiedClassName());
 		});
 
 		return new GlobalConfigurationDescriptor(element, found, gc);

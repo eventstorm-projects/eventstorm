@@ -1,6 +1,5 @@
 package eu.eventsotrm.sql.apt;
 
-import static eu.eventsotrm.sql.apt.Helper.analyse;
 import static eu.eventsotrm.sql.apt.Helper.hasAutoIncrementPK;
 import static eu.eventsotrm.sql.apt.Helper.toUpperCase;
 import static eu.eventsotrm.sql.apt.Helper.writeGenerated;
@@ -16,6 +15,8 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 
+import eu.eventsotrm.sql.apt.log.Logger;
+import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventsotrm.sql.apt.model.PojoDescriptor;
 import eu.eventstorm.sql.jdbc.Mapper;
 import eu.eventstorm.sql.jdbc.MapperWithAutoIncrement;
@@ -25,16 +26,20 @@ import eu.eventstorm.sql.jdbc.MapperWithAutoIncrement;
  */
 final class PojoMapperFactoryGenerator implements Generator {
 
-    public void generate(ProcessingEnvironment env, List<PojoDescriptor> descriptors, Map<String, Object> properties) {
-        Map<String, List<PojoDescriptor>> packages = analyse(env, descriptors);
-        for (Map.Entry<String, List<PojoDescriptor>> entry : packages.entrySet()) {
+    private final Logger logger;
+
+	PojoMapperFactoryGenerator() {
+		logger = LoggerFactory.getInstance().getLogger(PojoMapperFactoryGenerator.class);
+	}
+
+    public void generate(ProcessingEnvironment env, SourceCode sourceCode) {
+        sourceCode.forEachByPackage((pack, descriptors) -> {
             try {
-                env.getMessager().printMessage(Diagnostic.Kind.NOTE, "generate Pojo Mapper for " + entry.getKey());
-                create(env, entry.getKey(), entry.getValue());
+                create(env, pack, descriptors);
             } catch (Exception cause) {
-                env.getMessager().printMessage(Diagnostic.Kind.ERROR, "PojoMapperFactoryGenerator -> IOException for [" + entry + "] -> [" + cause.getMessage() + "]");
+                logger.error("PojoMapperFactoryGenerator -> IOException for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
             }
-        }
+        });
     }
 
     private void create(ProcessingEnvironment env, String pack, List<PojoDescriptor> descriptors) throws IOException {

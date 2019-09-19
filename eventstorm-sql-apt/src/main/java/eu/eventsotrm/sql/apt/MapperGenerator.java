@@ -34,10 +34,10 @@ import eu.eventstorm.sql.jdbc.MapperWithAutoIncrement;
 final class MapperGenerator implements Generator {
 
     @Override
-    public void generate(ProcessingEnvironment processingEnvironment, List<PojoDescriptor> descriptors, Map<String, Object> properties) {
+    public void generate(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
 
         // generate Implementation class;
-        descriptors.forEach(t -> {
+        sourceCode.forEach(t -> {
             try {
                 generate(processingEnvironment, t);
             } catch (Exception cause) {
