@@ -14,6 +14,7 @@ import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.type.DeclaredType;
 
+import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventsotrm.sql.apt.model.PojoDescriptor;
 import eu.eventsotrm.sql.apt.model.PojoPropertyDescriptor;
 import eu.eventstorm.sql.annotation.AutoIncrement;
@@ -229,8 +230,8 @@ public final class Helper {
 
                         try {
                             clazz = Class.forName(type.toString());
-                        } catch (ClassNotFoundException e) {
-                            e.printStackTrace();
+                        } catch (ClassNotFoundException cause) {
+                            LoggerFactory.getInstance().getLogger(Helper.class).error("Failed to load class [" + type + "]", cause);
                         }
                     }
                 }
