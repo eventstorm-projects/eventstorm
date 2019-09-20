@@ -7,7 +7,6 @@ import static eu.eventstorm.sql.tx.EventstormTransactionException.Type.NO_CURREN
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Random;
 import java.util.function.BiFunction;
 
 import javax.sql.DataSource;
@@ -25,8 +24,6 @@ public final class TransactionManagerImpl implements TransactionManager {
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionManagerImpl.class);
 
-    private final Integer id;
-    
     private final DataSource dataSource;
     
     private final int defaultIsolationLevel;
@@ -44,7 +41,6 @@ public final class TransactionManagerImpl implements TransactionManager {
     }
 
     public TransactionManagerImpl(DataSource dataSource, BiFunction<PreparedStatement, TransactionLog, PreparedStatement> decorator) {
-        this.id = new Random().nextInt();
     	this.dataSource = dataSource;
         this.decorator = decorator;
         try (Connection conn = dataSource.getConnection()) {
@@ -52,13 +48,8 @@ public final class TransactionManagerImpl implements TransactionManager {
         } catch (SQLException cause) {
             throw new EventstormTransactionException(CONNECTION_ISOLATION, cause);
         }
-        TransactionSynchronizationManager.register(this);
         this.transactions = new ThreadLocal<AbstractTransaction>();
     }
-
-    public final Integer getId() {
-		return this.id;
-	}
 
     public void setEnforceReadOnly(boolean enforceReadOnly) {
         this.enforceReadOnly = enforceReadOnly;

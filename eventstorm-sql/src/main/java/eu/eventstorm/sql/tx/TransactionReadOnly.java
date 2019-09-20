@@ -28,7 +28,6 @@ final class TransactionReadOnly extends AbstractTransaction {
         throw new EventstormTransactionException(EventstormTransactionException.Type.READ_ONLY);
     }
 
-    @Override
     public Transaction innerTransaction(TransactionDefinition definition) {
         if (!definition.isReadOnly()) {
             throw new EventstormTransactionException(EventstormTransactionException.Type.READ_ONLY);

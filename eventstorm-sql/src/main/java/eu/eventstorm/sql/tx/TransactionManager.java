@@ -5,8 +5,6 @@ package eu.eventstorm.sql.tx;
  */
 public interface TransactionManager {
 
-	Integer getId();
-	
     Transaction newTransactionReadOnly();
 
     Transaction newTransactionReadWrite();

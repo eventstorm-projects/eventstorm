@@ -45,9 +45,4 @@ final class TransactionNested implements Transaction, TransactionContext {
         parent.addHook(runnable);
     }
 
-    @Override
-    public Transaction innerTransaction(TransactionDefinition definition) {
-        return null;
-    }
-
 }

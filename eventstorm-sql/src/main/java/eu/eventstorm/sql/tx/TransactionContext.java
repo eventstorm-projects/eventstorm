@@ -13,5 +13,4 @@ public interface TransactionContext {
 
 	void addHook(Runnable runnable);
 
-	Transaction innerTransaction(TransactionDefinition definition);
 }

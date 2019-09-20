@@ -128,6 +128,8 @@ abstract class AbstractTransaction implements Transaction, TransactionContext {
     }
 
     protected abstract void doCommit() throws SQLException;
+    
+    protected abstract Transaction innerTransaction(TransactionDefinition definition);
 
     @Override
     public final void addHook(Runnable runnable) {
