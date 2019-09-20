@@ -42,35 +42,23 @@ final class DatabaseSchemaChecker {
     }
 
     private static boolean checkColumn(DatabaseMetaData meta, Module module, SqlTable table, SqlPrimaryKey key) throws SQLException {
-        String catalog = Strings.isEmpty(module.catalog()) ? null : module.catalog().toUpperCase();
-        try (ResultSet res = meta.getColumns(catalog, null, table.name().toUpperCase(), key.name().toUpperCase() )) {
-            if (res.next()) {
-                return true;
-            } else {
-                return false;
-            }
+        String catalog = Strings.isEmpty(module.catalog()) ? null : module.catalog();
+        try (ResultSet res = meta.getColumns(catalog, null, table.name(), key.name())) {
+        	return res.next();
         }
     }
 
     private static boolean checkColumn(DatabaseMetaData meta, Module module, SqlTable table, SqlSingleColumn column) throws SQLException {
-        String catalog = Strings.isEmpty(module.catalog()) ? null : module.catalog().toUpperCase();
-        try (ResultSet res = meta.getColumns(catalog, null, table.name().toUpperCase(), column.name().toUpperCase() )) {
-            if (res.next()) {
-                return true;
-            } else {
-                return false;
-            }
+        String catalog = Strings.isEmpty(module.catalog()) ? null : module.catalog();
+        try (ResultSet res = meta.getColumns(catalog, null, table.name(), column.name())) {
+            return res.next();
         }
     }
 
     private static boolean checkTable(DatabaseMetaData meta, Module module, SqlTable table) throws SQLException {
-        String catalog = Strings.isEmpty(module.catalog()) ? null : module.catalog().toUpperCase();
-        try (ResultSet res = meta.getTables(catalog, null, table.name().toUpperCase(), null )) {
-            if (res.next()) {
-                return true;
-            } else {
-                return false;
-            }
+        String catalog = Strings.isEmpty(module.catalog()) ? null : module.catalog();
+        try (ResultSet res = meta.getTables(catalog, null, table.name(), null )) {
+        	return res.next();
         }
     }
 }

@@ -71,6 +71,8 @@ public final class DatabaseImpl implements Database {
             m.descriptors().forEach(d -> builder.put(d.table(), m));
         }
         tables = builder.build();
+        
+        postInit();
     }
 
     /**
