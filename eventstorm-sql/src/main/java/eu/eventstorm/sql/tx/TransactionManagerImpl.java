@@ -132,6 +132,11 @@ public final class TransactionManagerImpl implements TransactionManager {
 		this.transactions.remove();
 	}
 
+	@Override
+	public TransactionContext context() {
+		return this.transactions.get();
+	}
+
     /*
     @Override
     public void commit(TransactionStatus transactionStatus) throws TransactionException {

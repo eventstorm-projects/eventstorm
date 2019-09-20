@@ -10,5 +10,7 @@ public interface TransactionManager {
     Transaction newTransactionReadWrite();
 
     Transaction current();
+    
+    TransactionContext context();
 
 }
