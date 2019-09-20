@@ -23,9 +23,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
 
-import eu.eventstorm.sql.jdbc.M3PreparedStatement;
-
-final class M3PreparedStatementImpl implements M3PreparedStatement {
+final class M3PreparedStatementImpl implements PreparedStatement {
 
     private final PreparedStatement ps;
 
@@ -608,8 +606,4 @@ final class M3PreparedStatementImpl implements M3PreparedStatement {
         this.ps.setNClob(parameterIndex, reader);
     }
 
-    @Override
-    public void free() {
-
-    }
 }

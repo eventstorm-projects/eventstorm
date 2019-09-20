@@ -7,10 +7,8 @@ import static eu.eventsotrm.sql.apt.Helper.writePackage;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 
 import eu.eventsotrm.sql.apt.log.Logger;

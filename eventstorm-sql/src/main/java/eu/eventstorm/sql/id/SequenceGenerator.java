@@ -6,6 +6,7 @@ import java.sql.SQLException;
 
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.desc.SqlSequence;
+import eu.eventstorm.sql.tx.TransactionSynchronizationManager;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -22,7 +23,7 @@ public abstract class SequenceGenerator<T> implements Identifier<T> {
     }
 
     public final T next() {
-        PreparedStatement ps = database.transactionManager().current().read(this.sequence);
+        PreparedStatement ps = TransactionSynchronizationManager.current(database).read(this.sequence);
 
         try (ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {

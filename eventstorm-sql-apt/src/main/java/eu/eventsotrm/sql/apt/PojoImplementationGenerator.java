@@ -8,7 +8,6 @@ import static eu.eventsotrm.sql.apt.Helper.writePackage;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.JavaFileObject;
@@ -288,7 +287,7 @@ final class PojoImplementationGenerator implements Generator {
             writer.write(" == other.");
             writer.write(ppd.getter().toString());
         } else {
-            writer.write(".equals(");
+            writer.write(".equals(other.");
             writer.write(ppd.getter().toString());
             writer.write(")");
         }

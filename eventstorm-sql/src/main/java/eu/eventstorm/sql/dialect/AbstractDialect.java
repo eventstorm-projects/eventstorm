@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Dialect;
-import eu.eventstorm.sql.M3SqlException;
+import eu.eventstorm.sql.EventstormSqlException;
 import eu.eventstorm.sql.Module;
 import eu.eventstorm.sql.desc.SqlColumn;
 import eu.eventstorm.sql.desc.SqlTable;
@@ -28,7 +28,7 @@ abstract class AbstractDialect implements Dialect {
     final String prefix(SqlTable table) {
         Module module = this.database.getModule(table);
         if (module == null) {
-            throw new M3SqlException("Module not found for table [" + table + "]");
+            throw new EventstormSqlException("Module not found for table [" + table + "]");
         }
         requireNonNull(this.database.getModule(table), "table [" + table);
         if (Strings.isEmpty(module.catalog())) {

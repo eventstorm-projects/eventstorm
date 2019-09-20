@@ -2,13 +2,13 @@ package eu.eventstorm.sql.jdbc;
 
 import java.sql.SQLException;
 
-import eu.eventstorm.sql.M3SqlException;
+import eu.eventstorm.sql.EventstormSqlException;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 @SuppressWarnings("serial")
-public final class InsertMapperException extends M3SqlException{
+public final class InsertMapperException extends EventstormSqlException{
 
     public InsertMapperException(String sql, InsertMapper<?> im, Object o, SQLException cause) {
         super(buildMessage(sql, im, o, cause), cause);

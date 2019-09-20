@@ -1,9 +1,9 @@
 package eu.eventstorm.sql.tx;
 
-import static eu.eventstorm.sql.tx.M3TransactionException.Type.COMMIT;
-import static eu.eventstorm.sql.tx.M3TransactionException.Type.NOT_ACTIVE;
-import static eu.eventstorm.sql.tx.M3TransactionException.Type.PREPARED_STATEMENT;
-import static eu.eventstorm.sql.tx.M3TransactionException.Type.ROLLBACK;
+import static eu.eventstorm.sql.tx.EventstormTransactionException.Type.COMMIT;
+import static eu.eventstorm.sql.tx.EventstormTransactionException.Type.NOT_ACTIVE;
+import static eu.eventstorm.sql.tx.EventstormTransactionException.Type.PREPARED_STATEMENT;
+import static eu.eventstorm.sql.tx.EventstormTransactionException.Type.ROLLBACK;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-abstract class AbstractTransaction implements Transaction {
+abstract class AbstractTransaction implements Transaction, TransactionContext {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTransaction.class);
 
@@ -51,14 +51,14 @@ abstract class AbstractTransaction implements Transaction {
     @Override
     public final void close() {
 
-        M3TransactionException exception = null;
+        EventstormTransactionException exception = null;
         try (TransactionSpan span = this.transactionLog.close()) {
 
             if (active) {
                 LOGGER.info("call close() on a active transaction -> rollback");
                 try {
                     rollback();
-                } catch (M3TransactionException ex) {
+                } catch (EventstormTransactionException ex) {
                     exception = ex;
                 }
             }
@@ -94,16 +94,16 @@ abstract class AbstractTransaction implements Transaction {
         try (TransactionSpan span = this.transactionLog.rollback()) {
             
         	if (!this.active) {
-                 throw new M3TransactionException(NOT_ACTIVE, this, span);
+                 throw new EventstormTransactionException(NOT_ACTIVE, this, span);
             }
 
             try {
                 this.connection.rollback();
             } catch (SQLException cause) {
-                throw new M3TransactionException(ROLLBACK, this, span, cause);
+                throw new EventstormTransactionException(ROLLBACK, this, span, cause);
             } finally {
                 this.active = false;
-                TransactionSynchronizationManager.clear();
+                transactionManager.remove();
             }
         }
     }
@@ -113,16 +113,16 @@ abstract class AbstractTransaction implements Transaction {
         try (TransactionSpan span = this.transactionLog.commit()) {
         	
         	if (!this.active) {
-                throw new M3TransactionException(NOT_ACTIVE, this, span);
+                throw new EventstormTransactionException(NOT_ACTIVE, this, span);
             }
         	
             try {
                 doCommit();
             } catch (SQLException cause) {
-            	throw new M3TransactionException(COMMIT, this, span, cause);
+            	throw new EventstormTransactionException(COMMIT, this, span, cause);
             } finally {
                 this.active = false;
-                TransactionSynchronizationManager.clear();
+                transactionManager.remove();
             }
         }
     }
@@ -162,7 +162,7 @@ abstract class AbstractTransaction implements Transaction {
         	try {
         		ps = this.decorator.apply(this.connection.prepareStatement(sql, Statement.NO_GENERATED_KEYS), this.transactionLog);	
         	} catch (SQLException cause) {
-            	throw new M3TransactionException(PREPARED_STATEMENT, this, null, cause);
+            	throw new EventstormTransactionException(PREPARED_STATEMENT, this, null, cause);
             }
             cache.put(sql, ps);
         }

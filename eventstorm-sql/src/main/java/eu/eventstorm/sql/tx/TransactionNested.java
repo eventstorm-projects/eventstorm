@@ -2,11 +2,11 @@ package eu.eventstorm.sql.tx;
 
 import java.sql.PreparedStatement;
 
-final class TransactionNested implements Transaction {
+final class TransactionNested implements Transaction, TransactionContext {
 
-    private final Transaction parent;
+    private final AbstractTransaction parent;
 
-    TransactionNested(Transaction parent) {
+    TransactionNested(AbstractTransaction parent) {
         this.parent = parent;
     }
 

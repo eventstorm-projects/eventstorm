@@ -7,6 +7,6 @@ import java.sql.PreparedStatement;
  */
 public interface DeleteMapper<T> {
 
-
     void delete(PreparedStatement ps, T pojo);
+    
 }

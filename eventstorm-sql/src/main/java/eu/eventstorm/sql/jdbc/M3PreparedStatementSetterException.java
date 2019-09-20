@@ -2,13 +2,13 @@ package eu.eventstorm.sql.jdbc;
 
 import java.sql.SQLException;
 
-import eu.eventstorm.sql.M3SqlException;
+import eu.eventstorm.sql.EventstormSqlException;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 @SuppressWarnings("serial")
-public final class M3PreparedStatementSetterException extends M3SqlException{
+public final class M3PreparedStatementSetterException extends EventstormSqlException{
 
     public M3PreparedStatementSetterException(String sql, PreparedStatementSetter pss, SQLException cause) {
         super(buildMessage(sql, pss, cause), cause);

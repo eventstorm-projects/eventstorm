@@ -1,12 +1,13 @@
 package eu.eventstorm.sql.tx;
 
-import static eu.eventstorm.sql.tx.M3TransactionException.Type.CONNECTION_ISOLATION;
-import static eu.eventstorm.sql.tx.M3TransactionException.Type.CREATE;
-import static eu.eventstorm.sql.tx.M3TransactionException.Type.NO_CURRENT_TRANSACTION;
+import static eu.eventstorm.sql.tx.EventstormTransactionException.Type.CONNECTION_ISOLATION;
+import static eu.eventstorm.sql.tx.EventstormTransactionException.Type.CREATE;
+import static eu.eventstorm.sql.tx.EventstormTransactionException.Type.NO_CURRENT_TRANSACTION;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Random;
 import java.util.function.BiFunction;
 
 import javax.sql.DataSource;
@@ -24,9 +25,13 @@ public final class TransactionManagerImpl implements TransactionManager {
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionManagerImpl.class);
 
+    private final Integer id;
+    
     private final DataSource dataSource;
-
+    
     private final int defaultIsolationLevel;
+    
+    private final ThreadLocal<AbstractTransaction> transactions;
 
     private boolean enforceReadOnly = false;
 
@@ -39,14 +44,21 @@ public final class TransactionManagerImpl implements TransactionManager {
     }
 
     public TransactionManagerImpl(DataSource dataSource, BiFunction<PreparedStatement, TransactionLog, PreparedStatement> decorator) {
-        this.dataSource = dataSource;
+        this.id = new Random().nextInt();
+    	this.dataSource = dataSource;
         this.decorator = decorator;
         try (Connection conn = dataSource.getConnection()) {
             this.defaultIsolationLevel = conn.getTransactionIsolation();
         } catch (SQLException cause) {
-            throw new M3TransactionException(CONNECTION_ISOLATION, cause);
+            throw new EventstormTransactionException(CONNECTION_ISOLATION, cause);
         }
+        TransactionSynchronizationManager.register(this);
+        this.transactions = new ThreadLocal<AbstractTransaction>();
     }
+
+    public final Integer getId() {
+		return this.id;
+	}
 
     public void setEnforceReadOnly(boolean enforceReadOnly) {
         this.enforceReadOnly = enforceReadOnly;
@@ -64,18 +76,19 @@ public final class TransactionManagerImpl implements TransactionManager {
 
     @Override
     public Transaction current() {
-        Transaction transaction = TransactionSynchronizationManager.currentTransaction();
-        if (transaction == null) {
-            throw new M3TransactionException(NO_CURRENT_TRANSACTION);
+        //Transaction transaction = TransactionSynchronizationManager.current(this);
+    	Transaction transaction = this.transactions.get();
+    	if (transaction == null) {
+            throw new EventstormTransactionException(NO_CURRENT_TRANSACTION);
         }
         return transaction;
     }
 
-    public Transaction getTransaction(TransactionDefinition definition) throws M3TransactionException {
+    public Transaction getTransaction(TransactionDefinition definition) throws EventstormTransactionException {
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("getTransaction({})", definition);
         }
-        Transaction tx = TransactionSynchronizationManager.currentTransaction();
+        AbstractTransaction tx = this.transactions.get();
 
         if (tx != null) {
             //get TX inside another TX
@@ -87,7 +100,7 @@ public final class TransactionManagerImpl implements TransactionManager {
             conn = dataSource.getConnection();
             conn.setAutoCommit(false);
         } catch (SQLException cause) {
-            throw new M3TransactionException(CREATE, cause);
+            throw new EventstormTransactionException(CREATE, cause);
         }
 
         if (definition.isReadOnly()) {
@@ -114,7 +127,8 @@ public final class TransactionManagerImpl implements TransactionManager {
                 }
             });
         }*/
-        TransactionSynchronizationManager.setTransaction(tx);
+       // TransactionSynchronizationManager.setTransaction(tx);
+        this.transactions.set(tx);
         return tx;
         //return new SqlTransactionStatus(transaction, definition.isReadOnly());
     }
@@ -122,6 +136,10 @@ public final class TransactionManagerImpl implements TransactionManager {
     BiFunction<PreparedStatement, TransactionLog,PreparedStatement> getDecorator() {
         return this.decorator;
     }
+
+    void remove() {
+		this.transactions.remove();
+	}
 
     /*
     @Override

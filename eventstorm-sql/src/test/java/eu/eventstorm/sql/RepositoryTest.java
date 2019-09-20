@@ -25,7 +25,7 @@ import org.mockito.Mockito;
 
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.M3RepositoryException;
-import eu.eventstorm.sql.M3SqlException;
+import eu.eventstorm.sql.EventstormSqlException;
 import eu.eventstorm.sql.Repository;
 import eu.eventstorm.sql.builder.InsertBuilder;
 import eu.eventstorm.sql.builder.SelectBuilder;
@@ -35,7 +35,7 @@ import eu.eventstorm.sql.jdbc.MapperException;
 import eu.eventstorm.sql.jdbc.PreparedStatementSetter;
 import eu.eventstorm.sql.model.PojoI;
 import eu.eventstorm.sql.model.Pojos;
-import eu.eventstorm.sql.tx.M3TransactionException;
+import eu.eventstorm.sql.tx.EventstormTransactionException;
 import eu.eventstorm.sql.tx.Transaction;
 
 
@@ -114,8 +114,8 @@ class RepositoryTest {
 		SelectBuilder builder = repo.select(Pojos.FOLDER_ALL);
 		builder.from(Pojos.DESCRIPTOR_FOLDER.table());
 		try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
-			M3TransactionException ex = assertThrows(M3TransactionException.class, () -> repo.executeSelect(builder.build(), pss, map));
-			assertEquals(M3TransactionException.Type.PREPARED_STATEMENT, ex.getType());
+			EventstormTransactionException ex = assertThrows(EventstormTransactionException.class, () -> repo.executeSelect(builder.build(), pss, map));
+			assertEquals(EventstormTransactionException.Type.PREPARED_STATEMENT, ex.getType());
 			tx.rollback();
 		}
 		verify(conn).close();
@@ -148,7 +148,7 @@ class RepositoryTest {
 		SelectBuilder builder = repo.select(Pojos.FOLDER_ALL);
 		builder.from(Pojos.DESCRIPTOR_FOLDER.table());
 		try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
-			assertThrows(M3SqlException.class, () -> repo.executeSelect(builder.build(), pss, map));
+			assertThrows(EventstormSqlException.class, () -> repo.executeSelect(builder.build(), pss, map));
 			tx.rollback();
 		}
 		verify(conn).close();
@@ -166,7 +166,7 @@ class RepositoryTest {
 		SelectBuilder builder = repo.select(Pojos.FOLDER_ALL);
 		builder.from(Pojos.DESCRIPTOR_FOLDER.table());
 		try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
-			assertThrows(M3SqlException.class, () -> repo.executeSelect(builder.build(), pss, map));
+			assertThrows(EventstormSqlException.class, () -> repo.executeSelect(builder.build(), pss, map));
 		}
 	}
 
@@ -217,7 +217,7 @@ class RepositoryTest {
 		SelectBuilder builder = repo.select(Pojos.FOLDER_ALL);
 		builder.from(Pojos.DESCRIPTOR_FOLDER.table());
 		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
-			assertThrows(M3TransactionException.class, () -> repo.executeInsert(builder.build(), map, pojo));
+			assertThrows(EventstormTransactionException.class, () -> repo.executeInsert(builder.build(), map, pojo));
 			tx.rollback();
 		}
 
@@ -234,7 +234,7 @@ class RepositoryTest {
 		SelectBuilder builder = repo.select(Pojos.FOLDER_ALL);
 		builder.from(Pojos.DESCRIPTOR_FOLDER.table());
 		try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
-			assertThrows(M3SqlException.class, () -> repo.executeInsert(builder.build(), map, pojo));
+			assertThrows(EventstormSqlException.class, () -> repo.executeInsert(builder.build(), map, pojo));
 			tx.rollback();
 		}
 
@@ -250,7 +250,7 @@ class RepositoryTest {
 		SelectBuilder builder = repo.select(Pojos.FOLDER_ALL);
 		builder.from(Pojos.DESCRIPTOR_FOLDER.table());
 		try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
-			assertThrows(M3SqlException.class, () -> repo.executeInsert(builder.build(), map, pojo));
+			assertThrows(EventstormSqlException.class, () -> repo.executeInsert(builder.build(), map, pojo));
 			tx.rollback();
 		}
 	}
@@ -265,7 +265,7 @@ class RepositoryTest {
 		SelectBuilder builder = repo.select(Pojos.FOLDER_ALL);
 		builder.from(Pojos.DESCRIPTOR_FOLDER.table());
 		try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
-			assertThrows(M3SqlException.class, () -> repo.executeInsert(builder.build(), map, pojo));
+			assertThrows(EventstormSqlException.class, () -> repo.executeInsert(builder.build(), map, pojo));
 			tx.rollback();
 		}
 	}
@@ -299,7 +299,7 @@ class RepositoryTest {
 		SelectBuilder builder = repo.select(Pojos.FOLDER_ALL);
 		builder.from(Pojos.DESCRIPTOR_FOLDER.table());
 		try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
-			Assertions.assertThrows(M3TransactionException.class, () -> repo.executeUpdate(builder.build(), map, pojo));
+			Assertions.assertThrows(EventstormTransactionException.class, () -> repo.executeUpdate(builder.build(), map, pojo));
 		}
 	}
 
@@ -329,7 +329,7 @@ class RepositoryTest {
 		SelectBuilder builder = repo.select(Pojos.FOLDER_ALL);
 		builder.from(Pojos.DESCRIPTOR_FOLDER.table());
 		try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
-			assertThrows(M3SqlException.class, () -> repo.executeUpdate(builder.build(), map, pojo));
+			assertThrows(EventstormSqlException.class, () -> repo.executeUpdate(builder.build(), map, pojo));
 		}
 	}
 
