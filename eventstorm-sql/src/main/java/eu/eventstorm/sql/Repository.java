@@ -3,9 +3,20 @@ package eu.eventstorm.sql;
 import static com.google.common.collect.ImmutableMap.of;
 import static eu.eventstorm.sql.EventstormRepositoryException.Type.EXECUTE_QUERY;
 import static eu.eventstorm.sql.EventstormRepositoryException.Type.INSERT_GENERATED_KEYS;
-import static eu.eventstorm.sql.EventstormRepositoryException.Type.PREPARED_STATEMENT_SETTER;
+import static eu.eventstorm.sql.EventstormRepositoryException.Type.SELECT_PREPARED_STATEMENT_SETTER;
+import static eu.eventstorm.sql.EventstormRepositoryException.Type.DELETE_PREPARED_STATEMENT_SETTER;
+import static eu.eventstorm.sql.EventstormRepositoryException.Type.DELETE_EXECUTE_QUERY;
 import static eu.eventstorm.sql.EventstormRepositoryException.Type.RESULT_SET_MAPPER;
 import static eu.eventstorm.sql.EventstormRepositoryException.Type.RESULT_SET_NEXT;
+import static eu.eventstorm.sql.EventstormRepositoryException.Type.INSERT_MAPPER;
+import static eu.eventstorm.sql.EventstormRepositoryException.Type.INSERT_EXECUTE_QUERY;
+import static eu.eventstorm.sql.EventstormRepositoryException.Type.INSERT_RESULT;
+import static eu.eventstorm.sql.EventstormRepositoryException.Type.UPDATE_MAPPER;
+import static eu.eventstorm.sql.EventstormRepositoryException.Type.UPDATE_EXECUTE_QUERY;
+import static eu.eventstorm.sql.EventstormRepositoryException.Type.UPDATE_RESULT;
+import static eu.eventstorm.sql.EventstormRepositoryException.Type.BATCH_ADD;
+import static eu.eventstorm.sql.EventstormRepositoryException.Type.BATCH_EXECUTE_QUERY;
+import static eu.eventstorm.sql.EventstormRepositoryException.Type.BATCH_RESULT;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -33,11 +44,8 @@ import eu.eventstorm.sql.domain.Page;
 import eu.eventstorm.sql.domain.PageImpl;
 import eu.eventstorm.sql.domain.Pageable;
 import eu.eventstorm.sql.expression.AggregateFunction;
-import eu.eventstorm.sql.id.SequenceGenerator4Long;
 import eu.eventstorm.sql.jdbc.InsertMapper;
 import eu.eventstorm.sql.jdbc.InsertMapperWithAutoIncrement;
-import eu.eventstorm.sql.jdbc.M3PreparedStatementSetterException;
-import eu.eventstorm.sql.jdbc.MapperException;
 import eu.eventstorm.sql.jdbc.PreparedStatementSetter;
 import eu.eventstorm.sql.jdbc.ResultSetMapper;
 import eu.eventstorm.sql.jdbc.ResultSetMappers;
@@ -92,7 +100,7 @@ public abstract class Repository {
 		try {
 			pss.set(ps);
 		} catch (SQLException cause) {
-			throw new EventstormRepositoryException(PREPARED_STATEMENT_SETTER, of("sql", sql), cause);
+			throw new EventstormRepositoryException(SELECT_PREPARED_STATEMENT_SETTER, of("sql", sql), cause);
 		}
 		try (ResultSet rs = ps.executeQuery()) {
 			return map(rs, mapper, this.database.dialect());
@@ -101,6 +109,66 @@ public abstract class Repository {
 		}
 	}
 
+	protected final <E> void executeInsert(String sql, InsertMapper<E> im, E pojo) {
+		PreparedStatement ps = database.transactionManager().context().write(sql);
+		try {
+			im.insert(ps, pojo);
+		} catch (SQLException cause) {
+			throw new EventstormRepositoryException(INSERT_MAPPER, of("sql", sql, "pojo", pojo), cause);
+		}
+		int val;
+		try {
+			val = ps.executeUpdate();
+		} catch (SQLException cause) {
+			throw new EventstormRepositoryException(INSERT_EXECUTE_QUERY, of("sql", sql, "pojo", pojo), cause);
+		}
+		if (val != 1) {
+			throw new EventstormRepositoryException(INSERT_RESULT, of("sql", sql, "pojo", pojo));
+		}
+	}
+
+	protected final <E> void executeUpdate(String sql, UpdateMapper<E> um, E pojo) {
+
+		PreparedStatement ps = database.transactionManager().context().write(sql);
+
+		try {
+			um.update(ps, pojo);
+		} catch (SQLException cause) {
+			throw new EventstormRepositoryException(UPDATE_MAPPER, of("sql", sql, "pojo", pojo), cause);
+		}
+
+		int val;
+
+		try {
+			val = ps.executeUpdate();
+		} catch (SQLException cause) {
+			throw new EventstormRepositoryException(UPDATE_EXECUTE_QUERY, of("sql", sql, "pojo", pojo), cause);
+		}
+
+		if (val != 1) {
+			throw new EventstormRepositoryException(UPDATE_RESULT, of("sql", sql, "pojo", pojo));
+		}
+
+	}
+
+	protected final int executeDelete(String sql, PreparedStatementSetter pss) {
+
+		PreparedStatement ps = database.transactionManager().context().write(sql);
+
+		try {
+			pss.set(ps);
+		} catch (SQLException cause) {
+			throw new EventstormRepositoryException(DELETE_PREPARED_STATEMENT_SETTER, of("sql", sql), cause);
+		}
+
+		try {
+			return ps.executeUpdate();
+		} catch (SQLException cause) {
+			throw new EventstormRepositoryException(DELETE_EXECUTE_QUERY, of("sql", sql), cause);
+		}
+
+	}
+	
 	private static <T> T map(ResultSet rs, ResultSetMapper<T> mapper, Dialect dialect) {
 		boolean value;
 
@@ -121,25 +189,20 @@ public abstract class Repository {
 		}
 	}
 
-	protected final <E> void executeBatchInsert(String sql, InsertMapper<E> im, List<E> pojos, SequenceGenerator4Long generator) {
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("INSERT : [{}], pojo=[{}]", sql, pojos);
-		}
+	protected final <E> void executeBatchInsert(String sql, InsertMapper<E> im, List<E> pojos) {
 
 		PreparedStatement ps = database.transactionManager().context().write(sql);
-		for (E po : pojos) {
+		for (E pojo : pojos) {
 			try {
-				im.insert(ps, po);
+				im.insert(ps, pojo);
 			} catch (SQLException cause) {
-				throw new MapperException(sql, im, pojos, cause);
+				throw new EventstormRepositoryException(INSERT_MAPPER, of("sql", sql, "pojo", pojo), cause);
 			}
 			try {
 				ps.addBatch();
 			} catch (SQLException cause) {
-				throw new MapperException(sql, im, pojos, cause);
+				throw new EventstormRepositoryException(BATCH_ADD, of("sql", sql, "pojo", pojo), cause);
 			}
-
 		}
 
 		int[] vals;
@@ -147,15 +210,15 @@ public abstract class Repository {
 		try {
 			vals = ps.executeBatch();
 		} catch (SQLException cause) {
-			throw new EventstormSqlException("executeBatchInsert: cannot Insert", cause);
+			throw new EventstormRepositoryException(BATCH_EXECUTE_QUERY, of("sql", sql, "pojos", pojos), cause);
 		}
 
 		if (vals.length != pojos.size()) {
-			throw new EventstormSqlException("executeBatchInsert: should update " + pojos.size() + " elements but updated " + vals.length);
+			throw new EventstormRepositoryException(BATCH_RESULT, of("sql", sql, "pojos", pojos, "size", vals.length));
 		}
-		for (int value : vals) {
-			if (value == 0) {
-				throw new EventstormSqlException("executeBatchInsert: failed to insert one or more records");
+		for (int i = 0; i < vals.length; i++) {
+			if (vals[i] != 1) {
+				throw new EventstormRepositoryException(BATCH_RESULT, of("sql", sql, "pojos", pojos, "item", i, "return", vals[i]));
 			}
 		}
 
@@ -170,7 +233,7 @@ public abstract class Repository {
 		try {
 			pss.set(ps);
 		} catch (SQLException cause) {
-			throw new M3PreparedStatementSetterException(sql, pss, cause);
+			throw new EventstormRepositoryException(SELECT_PREPARED_STATEMENT_SETTER, of("sql", sql), cause);
 		}
 
 		ResultSet rs;
@@ -224,48 +287,6 @@ public abstract class Repository {
 
 	}
 
-	protected <E> void executeInsert(String sql, InsertMapper<E> im, E pojo) {
-		PreparedStatement ps = database.transactionManager().context().write(sql);
-		try {
-			im.insert(ps, pojo);
-		} catch (SQLException cause) {
-			throw new MapperException(sql, im, pojo, cause);
-		}
-		int val;
-		try {
-			val = ps.executeUpdate();
-		} catch (SQLException cause) {
-			throw new EventstormSqlException("executeInsert: cannot Insert", cause);
-		}
-		if (val != 1) {
-			throw new EventstormSqlException("executeInsert: should update 1 element but updated [" + val + "]");
-		}
-	}
-
-	protected <E> void executeUpdate(String sql, UpdateMapper<E> um, E pojo) {
-
-		PreparedStatement ps = database.transactionManager().context().write(sql);
-
-		try {
-			um.update(ps, pojo);
-		} catch (SQLException cause) {
-			throw new MapperException(sql, um, pojo, cause);
-		}
-
-		int val;
-
-		try {
-			val = ps.executeUpdate();
-		} catch (SQLException cause) {
-			throw new EventstormSqlException("executeUpdate: cannot executeUpdate", cause);
-		}
-
-		if (val != 1) {
-			throw new EventstormSqlException("executeUpdate: should update 1 element but updated [" + val + "]");
-		}
-
-	}
-
 	protected final <E> void executeInsertAutoIncrement(String sql, InsertMapperWithAutoIncrement<E> im, E pojo) {
 
 		PreparedStatement ps = database.transactionManager().context().write(sql);
@@ -273,18 +294,18 @@ public abstract class Repository {
 		try {
 			im.insert(ps, pojo);
 		} catch (SQLException cause) {
-			throw new MapperException(sql, im, pojo, cause);
+			throw new EventstormRepositoryException(INSERT_MAPPER, of("sql", sql, "pojo", pojo), cause);
 		}
 
 		int val;
 		try {
 			val = ps.executeUpdate();
 		} catch (SQLException cause) {
-			throw new EventstormSqlException("executeInsert: cannot Insert", cause);
+			//throw new EventstormSqlException("executeInsert: cannot Insert", cause);
 		}
-		if (val != 1) {
-			throw new EventstormSqlException("executeInsert: should update 1 element but updated [" + val + "]");
-		}
+		//if (val != 1) {
+			//throw new EventstormSqlException("executeInsert: should update 1 element but updated [" + val + "]");
+		//}
 
 		try (ResultSet rs = ps.getGeneratedKeys()) {
 			if (rs.next()) {
@@ -296,23 +317,7 @@ public abstract class Repository {
 
 	}
 
-	protected final void executeDelete(String sql, PreparedStatementSetter pss) {
-
-		PreparedStatement ps = database.transactionManager().context().write(sql);
-
-		try {
-			pss.set(ps);
-		} catch (SQLException cause) {
-			throw new M3PreparedStatementSetterException(sql, pss, cause);
-		}
-
-		try {
-			int val = ps.executeUpdate();
-		} catch (SQLException cause) {
-			throw new EventstormSqlException("executeUpdate: cannot executeUpdate", cause);
-		}
-
-	}
+	
 
 	protected final <T> Page<T> executeSelectPage(String countSql, String sql, ResultSetMapper<T> mapper, Pageable pageable) {
 

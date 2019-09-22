@@ -3,6 +3,7 @@ package eu.eventstorm.sql.tx;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,7 +35,7 @@ final class TransactionReadWrite extends AbstractTransaction {
 
     @Override
     public PreparedStatement write(String sql) {
-        return preparedStatement(sql, this.insertUpdate);
+        return preparedStatement(sql, this.insertUpdate, Statement.NO_GENERATED_KEYS);
     }
 
   /*  @Override

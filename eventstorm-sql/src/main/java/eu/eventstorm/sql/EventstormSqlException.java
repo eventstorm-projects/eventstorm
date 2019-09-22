@@ -6,7 +6,7 @@ import com.google.common.collect.ImmutableMap;
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 @SuppressWarnings("serial")
-public class EventstormSqlException extends RuntimeException {
+public abstract class EventstormSqlException extends RuntimeException {
 
 	private final EventstormSqlExceptionType type;
 	private final ImmutableMap<String, Object> values;

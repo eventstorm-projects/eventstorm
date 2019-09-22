@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Stream;
 
 import javax.sql.DataSource;
@@ -100,7 +102,7 @@ class RepositoryTest {
 		try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
 			EventstormRepositoryException ex = assertThrows(EventstormRepositoryException.class,
 			        () -> repo.executeSelect(builder.build(), ps -> ps.setString(1, "fake"), STUDENT));
-			assertEquals(EventstormRepositoryException.Type.PREPARED_STATEMENT_SETTER, ex.getType());
+			assertEquals(EventstormRepositoryException.Type.SELECT_PREPARED_STATEMENT_SETTER, ex.getType());
 			tx.rollback();
 		}
 
@@ -174,4 +176,52 @@ class RepositoryTest {
 		}
 	}
 
+	@Test
+	void testInsertException() {
+		InsertBuilder insertBuilder = repo.insert(StudentDescriptor.TABLE, StudentDescriptor.IDS, StudentDescriptor.COLUMNS);
+		Student student = new StudentImpl();
+		student.setId(1);
+		student.setAge(37);
+		student.setCode("Code1");
+		student.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
+			EventstormRepositoryException ex = assertThrows(EventstormRepositoryException.class, () -> repo.executeInsert(insertBuilder.build(), (ps, pojo) -> {
+				ps.setString(100, "hello");
+			}, student));
+			tx.rollback();
+		}
+
+	}
+	
+	
+	@Test
+	void testBatch() throws SQLException {
+
+		String insert = repo.insert(StudentDescriptor.TABLE, StudentDescriptor.IDS, StudentDescriptor.COLUMNS).build();
+		List<Student> students = new ArrayList<>();
+		for (int i = 1 ; i < 101 ; i ++) {
+			Student student = new StudentImpl();
+			student.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+			student.setId(i);
+			student.setAge(30 + i);
+			student.setCode("Code_" + i);
+			students.add(student);
+		}
+		
+		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
+			repo.executeBatchInsert(insert, STUDENT, students);
+			tx.commit();
+		}
+
+		String delete = repo.delete(StudentDescriptor.TABLE).where(eq(StudentDescriptor.ID)).build();
+		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
+			for (int i = 1 ; i < 101 ; i ++) {
+				final int j = i;
+				repo.executeDelete(delete, ps -> ps.setInt(1, j));	
+			}
+			tx.commit();
+		}
+	}
+	
+	
 }
