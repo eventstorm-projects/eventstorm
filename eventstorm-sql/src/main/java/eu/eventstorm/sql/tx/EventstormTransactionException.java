@@ -26,7 +26,7 @@ public final class EventstormTransactionException extends EventstormSqlException
     }
 
     EventstormTransactionException(Type type, AbstractTransaction transaction, TransactionSpan span, SQLException cause) {
-        super(cause);
+        super("");
         this.type = type;
     }
 
@@ -37,7 +37,7 @@ public final class EventstormTransactionException extends EventstormSqlException
     }
 
      EventstormTransactionException(Type type, SQLException cause) {
-        super(cause);
+        super("");
         this.type = type;
     }
 

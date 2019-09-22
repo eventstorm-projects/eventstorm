@@ -25,18 +25,21 @@ import java.util.Calendar;
 
 final class M3PreparedStatementImpl implements PreparedStatement {
 
+	public static final String TAG_SQL = "sql";
+	
     private final PreparedStatement ps;
 
     private final TransactionTracer tracer;
 
-    M3PreparedStatementImpl(PreparedStatement ps, TransactionLog tl) {
+    M3PreparedStatementImpl(PreparedStatement ps, TransactionTracer tracer) {
         this.ps = ps;
-        this.tracer = tl.getTransactionTracer();
+        this.tracer = tracer;
     }
 
     @Override
     public ResultSet executeQuery(String sql) throws SQLException {
-        try (TransactionSpan span = tracer.executeQuery(sql)){
+        try (TransactionSpan span = tracer.span()){
+        	span.tag(TAG_SQL, sql);
             try {
                 return this.ps.executeQuery(sql);
             } catch (SQLException cause) {
@@ -48,7 +51,8 @@ final class M3PreparedStatementImpl implements PreparedStatement {
 
     @Override
     public int executeUpdate(String sql) throws SQLException {
-        try (TransactionSpan span = tracer.executeUpdate(sql)){
+        try (TransactionSpan span = tracer.span()){
+        	span.tag(TAG_SQL, sql);
             try {
                 return this.ps.executeUpdate(sql);
             } catch (SQLException cause) {
@@ -60,7 +64,7 @@ final class M3PreparedStatementImpl implements PreparedStatement {
 
     @Override
     public void close() throws SQLException {
-        try (TransactionSpan span = tracer.sqlClose()){
+        try (TransactionSpan span = tracer.span()){
             try {
                 this.ps.close();
             } catch (SQLException cause) {
@@ -107,7 +111,7 @@ final class M3PreparedStatementImpl implements PreparedStatement {
 
     @Override
     public void cancel() throws SQLException {
-        try (TransactionSpan span = tracer.cancel()){
+        try (TransactionSpan span = tracer.span()){
             try {
                 this.ps.cancel();
             } catch (SQLException cause) {

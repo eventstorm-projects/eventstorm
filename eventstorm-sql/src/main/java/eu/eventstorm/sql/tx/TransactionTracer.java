@@ -5,24 +5,20 @@ package eu.eventstorm.sql.tx;
  */
 final class TransactionTracer {
 
-	public TransactionSpan executeQuery(String sql) {
+	public TransactionSpan rollback() {
 		return null;
 	}
 
-	public TransactionSpan executeUpdate(String sql) {
+	public TransactionSpan commit() {
 		return null;
 	}
 
-	public TransactionSpan sqlClose() {
+	public TransactionSpan close() {
 		return null;
 	}
 
-	public TransactionSpan cancel() {
+	public TransactionSpan span() {
 		return null;
 	}
-
-	public TransactionSpan preparedStatement() {
-		return null;
-	}
-
+	
 }

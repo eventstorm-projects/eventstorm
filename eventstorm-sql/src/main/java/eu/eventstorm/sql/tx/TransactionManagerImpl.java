@@ -32,15 +32,15 @@ public final class TransactionManagerImpl implements TransactionManager {
 
     private boolean enforceReadOnly = false;
 
-    private final BiFunction<PreparedStatement, TransactionLog,PreparedStatement> decorator;
+    private final BiFunction<PreparedStatement, TransactionTracer,PreparedStatement> decorator;
 
-    private static final BiFunction<PreparedStatement, TransactionLog,PreparedStatement> IDENTITY_DECORATOR = (ps,log) -> ps;
+    private static final BiFunction<PreparedStatement, TransactionTracer,PreparedStatement> IDENTITY_DECORATOR = (ps,log) -> ps;
 
     public TransactionManagerImpl(DataSource dataSource) {
         this(dataSource, IDENTITY_DECORATOR);
     }
 
-    public TransactionManagerImpl(DataSource dataSource, BiFunction<PreparedStatement, TransactionLog, PreparedStatement> decorator) {
+    public TransactionManagerImpl(DataSource dataSource, BiFunction<PreparedStatement, TransactionTracer, PreparedStatement> decorator) {
     	this.dataSource = dataSource;
         this.decorator = decorator;
         try (Connection conn = dataSource.getConnection()) {
@@ -124,7 +124,7 @@ public final class TransactionManagerImpl implements TransactionManager {
         //return new SqlTransactionStatus(transaction, definition.isReadOnly());
     }
 
-    BiFunction<PreparedStatement, TransactionLog,PreparedStatement> getDecorator() {
+    BiFunction<PreparedStatement, TransactionTracer,PreparedStatement> getDecorator() {
         return this.decorator;
     }
 

@@ -1,42 +1,30 @@
 package eu.eventstorm.sql;
 
+import static eu.eventstorm.sql.expression.Expressions.eq;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.Timestamp;
 
 import javax.sql.DataSource;
 
+import org.h2.jdbcx.JdbcConnectionPool;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
-import eu.eventstorm.sql.Database;
-import eu.eventstorm.sql.M3RepositoryException;
-import eu.eventstorm.sql.EventstormSqlException;
-import eu.eventstorm.sql.Repository;
+import eu.eventstorm.sql.builder.DeleteBuilder;
 import eu.eventstorm.sql.builder.InsertBuilder;
 import eu.eventstorm.sql.builder.SelectBuilder;
-import eu.eventstorm.sql.builder.UpdateBuilder;
-import eu.eventstorm.sql.jdbc.Mapper;
-import eu.eventstorm.sql.jdbc.MapperException;
+import eu.eventstorm.sql.impl.DatabaseImpl;
 import eu.eventstorm.sql.jdbc.PreparedStatementSetter;
-import eu.eventstorm.sql.model.PojoI;
-import eu.eventstorm.sql.model.Pojos;
-import eu.eventstorm.sql.tx.EventstormTransactionException;
+import eu.eventstorm.sql.model.ex001.Student;
+import eu.eventstorm.sql.model.ex001.StudentDescriptor;
+import eu.eventstorm.sql.model.ex001.StudentImpl;
+import eu.eventstorm.sql.model.ex001.StudentMapper;
 import eu.eventstorm.sql.tx.Transaction;
+import eu.eventstorm.sql.tx.TransactionManagerImpl;
 
 
 /**
@@ -44,67 +32,63 @@ import eu.eventstorm.sql.tx.Transaction;
  */
 class RepositoryTest {
 
-	private DataSource datasource;
-	private Connection conn;
-	private PreparedStatement ps;
+	public static final eu.eventstorm.sql.jdbc.Mapper<Student> STUDENT = new StudentMapper();
+
+	private DataSource ds;
 	private Database db;
-	private PreparedStatementSetter pss;
-	private ResultSet rs;
-	private Mapper<PojoI> map;
-	private PojoI pojo;
-
+	
 	@BeforeEach
-	void beforeEach() throws SQLException {
-		datasource = mock(DataSource.class);
-		conn = mock(Connection.class);
-		
-		when(datasource.getConnection()).thenReturn(conn);
-		
-		ps = mock(PreparedStatement.class);
-		@SuppressWarnings("unchecked")
-		Mapper<PojoI> mapTemp = mock(Mapper.class);
-		map = mapTemp;
-		pojo = mock(PojoI.class);
-
-		rs = mock(ResultSet.class);
-		pss = mock(PreparedStatementSetter.class);
-
-		when(conn.getTransactionIsolation()).thenReturn(1);
-		db = Pojos.mockDatabase(datasource);
-		
-		verify(conn).close();
-		reset(conn);
+	void before() {
+		ds = JdbcConnectionPool.create("jdbc:h2:mem:test;DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1;INIT=RUNSCRIPT FROM 'classpath:sql/ex001.sql'", "sa", "");
+		db = new DatabaseImpl(ds, Dialect.Name.H2, new TransactionManagerImpl(ds), "", new eu.eventstorm.sql.model.ex001.Module("txlog", null));
+	}
+	
+	@AfterEach() 
+	void after() throws SQLException{
+		ds.getConnection().createStatement().execute("SHUTDOWN");
 	}
 
 	@Test
 	void testSelect() {
-		Database db = Pojos.DATABASE;
-		DefaultRepository repo = new DefaultRepository(db);
-		SelectBuilder builder = repo.select(Pojos.FOLDER_ALL);
-		builder.from(Pojos.DESCRIPTOR_FOLDER.table());
-		assertEquals("SELECT id,parent_fk,path,full_path,created_at,created_by FROM folder", builder.build());
+		Repository repo = new Repository(db) {
+		};
+		SelectBuilder builder = repo.select(StudentDescriptor.ALL).from(StudentDescriptor.TABLE);
+		assertEquals("SELECT id,code,age,overall_rating,created_at,readonly FROM student", builder.build());
 	}
-
+	
 	@Test
-	void testExecuteSelect() throws SQLException {
-		when(ps.executeQuery()).thenReturn(rs);
-		when(conn.prepareStatement(anyString(),  anyInt())).thenReturn(ps);
-		when(rs.next()).thenReturn(true); // has result
-		when(map.map(Mockito.any(), Mockito.any())).thenReturn(mock(PojoI.class));
+	void testExecuteInsertSelect() throws SQLException {
 
-		DefaultRepository repo = new DefaultRepository(db);
-		SelectBuilder builder = repo.select(Pojos.FOLDER_ALL);
-		builder.from(Pojos.DESCRIPTOR_FOLDER.table());
+		Repository repo = new Repository(db) {
+		};
+		
+		InsertBuilder insertBuilder = repo.insert(StudentDescriptor.TABLE, StudentDescriptor.IDS, StudentDescriptor.COLUMNS);
+		Student student = new StudentImpl();
+        student.setId(1);
+        student.setAge(37);
+        student.setCode("Code1");
+        student.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
+			repo.executeInsert(insertBuilder.build(), STUDENT, student);
+			tx.commit();
+		}
+		
+		SelectBuilder builder = repo.select(StudentDescriptor.ALL).from(StudentDescriptor.TABLE);
 		try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
-			PojoI p = repo.executeSelect(builder.build(), pss, map);
-			Assertions.assertNotNull(p);
+			Student s = repo.executeSelect(builder.build(), PreparedStatementSetter.EMPTY, STUDENT);
+			Assertions.assertNotNull(s);
 			tx.rollback();
 		}
-		verify(ps).executeQuery();
-		verify(rs).next();
-		verify(map).map(db.dialect(), rs);
-		verify(conn).close();
+		
+		DeleteBuilder deleteBuilder = repo.delete(StudentDescriptor.TABLE).where(eq(StudentDescriptor.ID));
+		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
+			repo.executeDelete(deleteBuilder.build(), ps -> ps.setInt(1, 1));
+			tx.commit();
+		}
 	}
+	
+	/*
+	
 
 	@Test
 	void testExecuteSelectFailsOnPrepareStatement() throws SQLException {
@@ -190,24 +174,6 @@ class RepositoryTest {
 	}
 
 	// INSERT
-
-	@Test
-	void testExecuteInsert() throws SQLException {
-		
-		when(ps.executeUpdate()).thenReturn(1);// success
-		when(conn.prepareStatement(anyString(), anyInt())).thenReturn(ps);
-		
-		DefaultRepository repo = new DefaultRepository(db);
-		SelectBuilder builder = repo.select(Pojos.FOLDER_ALL);
-		builder.from(Pojos.DESCRIPTOR_FOLDER.table());
-		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
-			repo.executeInsert(builder.build(), map, pojo);
-			tx.commit();
-
-		}
-		verify(ps).executeUpdate();
-		verify(conn).close();
-	}
 
 	@Test
 	void testExecuteInsertFailsOnPrepareStatement() throws SQLException {
@@ -377,4 +343,6 @@ class RepositoryTest {
 		}
 
 	}
+	
+	*/
 }

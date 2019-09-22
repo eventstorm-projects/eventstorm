@@ -1,5 +1,7 @@
 package eu.eventstorm.sql.tx;
 
+import java.util.UUID;
+
 import javax.sql.DataSource;
 
 import org.h2.jdbcx.JdbcConnectionPool;
@@ -12,8 +14,9 @@ import eu.eventstorm.sql.model.ex001.AbstractStudentRepository;
 import eu.eventstorm.sql.model.ex001.Student;
 import eu.eventstorm.sql.model.ex001.StudentImpl;
 
-class TransactionLogTest {
+class TransactionTest {
 
+	@SuppressWarnings("all")
 	@Test
 	void simpleTest() {
 		DataSource ds = JdbcConnectionPool.create("jdbc:h2:mem:test;DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1;INIT=RUNSCRIPT FROM 'classpath:sql/ex001.sql'", "sa", "");
@@ -22,16 +25,19 @@ class TransactionLogTest {
 		AbstractStudentRepository repository = new AbstractStudentRepository(db) {
         };
 
+        UUID uuid;
+        
         try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
-            Student student = new StudentImpl();
+        	uuid = tx.getUuid();
+        	Student student = new StudentImpl();
             student.setId(1);
             student.setAge(37);
             student.setCode("Code1");
             repository.insert(student);
             tx.commit();
         }
-
-	
+        
+        
 	}
 
 }

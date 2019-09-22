@@ -1,12 +1,8 @@
 package eu.eventstorm.sql.model.ex001;
 
+public final class StudentMapper implements eu.eventstorm.sql.jdbc.Mapper<Student> {
 
-import javax.annotation.Generated;
-
-@Generated("eu.eventsotrm.sql.apt.MapperGenerator")
-final class StudentMapper implements eu.eventstorm.sql.jdbc.Mapper<Student> {
-
-    StudentMapper() {
+    public StudentMapper() {
     }
 
     public Student map(eu.eventstorm.sql.Dialect dialect, java.sql.ResultSet rs) throws java.sql.SQLException {

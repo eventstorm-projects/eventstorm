@@ -1,6 +1,7 @@
 package eu.eventstorm.sql.tx;
 
 import java.sql.PreparedStatement;
+import java.util.UUID;
 
 final class TransactionNested implements Transaction, TransactionContext {
 
@@ -44,5 +45,11 @@ final class TransactionNested implements Transaction, TransactionContext {
     public void addHook(Runnable runnable) {
         parent.addHook(runnable);
     }
+
+	@Override
+	public UUID getUuid() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

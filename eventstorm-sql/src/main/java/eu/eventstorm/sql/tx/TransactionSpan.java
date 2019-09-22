@@ -10,10 +10,14 @@ final class TransactionSpan implements AutoCloseable {
 	@Override
 	public void close() {
 
-
 	}
 
 	public void exception(SQLException cause) {
+	}
+
+	public void tag(String key, String value) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

@@ -9,10 +9,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.BiFunction;
 
 import org.slf4j.Logger;
@@ -26,8 +28,12 @@ abstract class AbstractTransaction implements Transaction, TransactionContext {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTransaction.class);
 
     private final TransactionManagerImpl transactionManager;
-
+    
     private final Connection connection;
+
+    private final UUID uuid;
+    
+    private final OffsetDateTime start;
 
     private boolean active;
 
@@ -35,24 +41,31 @@ abstract class AbstractTransaction implements Transaction, TransactionContext {
 
     private final List<Runnable> hooks;
 
-    private final TransactionLog transactionLog;
+    private final TransactionTracer tracer;
 
-    private final BiFunction<PreparedStatement, TransactionLog,PreparedStatement> decorator;
+    private final BiFunction<PreparedStatement, TransactionTracer,PreparedStatement> decorator;
 
     protected AbstractTransaction(TransactionManagerImpl transactionManager, Connection connection) {
         this.transactionManager = transactionManager;
         this.connection = connection;
+        this.uuid = UUID.randomUUID();
+        this.start = OffsetDateTime.now();
         this.active = true;
         this.hooks = new ArrayList<>();
-        this.transactionLog = new TransactionLog(this);
+        this.tracer = new TransactionTracer();
         this.decorator = transactionManager.getDecorator();
     }
-
+    
     @Override
+	public UUID getUuid() {
+    	return this.uuid;
+	}
+
+	@Override
     public final void close() {
 
         EventstormTransactionException exception = null;
-        try (TransactionSpan span = this.transactionLog.close()) {
+        try (TransactionSpan span = this.tracer.close()) {
 
             if (active) {
                 LOGGER.info("call close() on a active transaction -> rollback");
@@ -89,9 +102,9 @@ abstract class AbstractTransaction implements Transaction, TransactionContext {
         return preparedStatement(sql, this.select);
     }
 
-    @Override
+	@Override
     public final void rollback() {
-        try (TransactionSpan span = this.transactionLog.rollback()) {
+        try (TransactionSpan span = this.tracer.rollback()) {
             
         	if (!this.active) {
                  throw new EventstormTransactionException(NOT_ACTIVE, this, span);
@@ -110,7 +123,7 @@ abstract class AbstractTransaction implements Transaction, TransactionContext {
 
      @Override
     public final void commit() {
-        try (TransactionSpan span = this.transactionLog.commit()) {
+        try (TransactionSpan span = this.tracer.commit()) {
         	
         	if (!this.active) {
                 throw new EventstormTransactionException(NOT_ACTIVE, this, span);
@@ -162,7 +175,7 @@ abstract class AbstractTransaction implements Transaction, TransactionContext {
         PreparedStatement ps = cache.get(sql);
         if (ps == null) {
         	try {
-        		ps = this.decorator.apply(this.connection.prepareStatement(sql, Statement.NO_GENERATED_KEYS), this.transactionLog);	
+        		ps = this.decorator.apply(this.connection.prepareStatement(sql, Statement.NO_GENERATED_KEYS), this.tracer);	
         	} catch (SQLException cause) {
             	throw new EventstormTransactionException(PREPARED_STATEMENT, this, null, cause);
             }

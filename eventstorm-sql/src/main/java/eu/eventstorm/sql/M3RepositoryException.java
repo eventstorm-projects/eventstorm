@@ -17,7 +17,7 @@ public final class M3RepositoryException extends EventstormSqlException {
 	private final Type type;
 
 	public M3RepositoryException(Type type, SQLException exception) {
-		super(exception);
+		super("");
 		this.type = type;
 	}
 

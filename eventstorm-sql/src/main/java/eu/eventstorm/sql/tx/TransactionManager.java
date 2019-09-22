@@ -12,5 +12,5 @@ public interface TransactionManager {
     Transaction current();
     
     TransactionContext context();
-
+    
 }
