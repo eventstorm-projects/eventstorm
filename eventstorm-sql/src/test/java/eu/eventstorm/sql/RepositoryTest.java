@@ -2,6 +2,7 @@ package eu.eventstorm.sql;
 
 import static eu.eventstorm.sql.expression.Expressions.eq;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -84,6 +85,40 @@ class RepositoryTest {
 		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
 			repo.executeDelete(deleteBuilder.build(), ps -> ps.setInt(1, 1));
 			tx.commit();
+		}
+	}
+	
+	@Test
+	void testSelectException() {
+
+		Repository repo = new Repository(db) {
+		};
+		
+		SelectBuilder builder = repo.select(StudentDescriptor.ALL).from(StudentDescriptor.TABLE);
+		try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
+			EventstormRepositoryException ex = assertThrows(EventstormRepositoryException.class, () -> repo.executeSelect(builder.build(), ps -> ps.setString(1, "fake"), STUDENT));
+			assertEquals(EventstormRepositoryException.Type.PREPARED_STATEMENT_SETTER, ex.getType());
+			tx.rollback();
+		}
+		
+		InsertBuilder insertBuilder = repo.insert(StudentDescriptor.TABLE, StudentDescriptor.IDS, StudentDescriptor.COLUMNS);
+		Student student = new StudentImpl();
+        student.setId(1);
+        student.setAge(37);
+        student.setCode("Code1");
+        student.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
+			repo.executeInsert(insertBuilder.build(), STUDENT, student);
+			tx.commit();
+		}
+		
+		try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
+			EventstormRepositoryException ex = assertThrows(EventstormRepositoryException.class, () -> repo.executeSelect(builder.build(), PreparedStatementSetter.EMPTY, (dialect, rs) -> {
+				rs.getShort(100);
+				return null;
+			}));
+			assertEquals(EventstormRepositoryException.Type.RESULT_SET_MAPPER, ex.getType());
+			tx.rollback();
 		}
 	}
 	

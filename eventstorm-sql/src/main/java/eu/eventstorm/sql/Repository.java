@@ -1,10 +1,10 @@
 package eu.eventstorm.sql;
 
-import static eu.eventstorm.sql.M3RepositoryException.Type.EXECUTE_QUERY;
-import static eu.eventstorm.sql.M3RepositoryException.Type.INSERT_GENERATED_KEYS;
-import static eu.eventstorm.sql.M3RepositoryException.Type.PREPARED_STATEMENT_SETTER;
-import static eu.eventstorm.sql.M3RepositoryException.Type.RESULT_SET_MAPPER;
-import static eu.eventstorm.sql.M3RepositoryException.Type.RESULT_SET_NEXT;
+import static eu.eventstorm.sql.EventstormRepositoryException.Type.EXECUTE_QUERY;
+import static eu.eventstorm.sql.EventstormRepositoryException.Type.INSERT_GENERATED_KEYS;
+import static eu.eventstorm.sql.EventstormRepositoryException.Type.PREPARED_STATEMENT_SETTER;
+import static eu.eventstorm.sql.EventstormRepositoryException.Type.RESULT_SET_MAPPER;
+import static eu.eventstorm.sql.EventstormRepositoryException.Type.RESULT_SET_NEXT;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -92,12 +92,12 @@ public abstract class Repository {
         try {
             pss.set(ps);
         } catch (SQLException cause) {
-            throw new M3RepositoryException(PREPARED_STATEMENT_SETTER, cause);
+            throw new EventstormRepositoryException(PREPARED_STATEMENT_SETTER, cause);
         }
         try (ResultSet rs = ps.executeQuery()) {
             return map(rs, mapper, this.database.dialect());
         } catch (SQLException cause) {
-            throw new M3RepositoryException(EXECUTE_QUERY, cause);
+            throw new EventstormRepositoryException(EXECUTE_QUERY, cause);
         }
     }
 
@@ -107,14 +107,14 @@ public abstract class Repository {
     	try {
 			value = rs.next();
 		} catch (SQLException cause) {
-			throw new M3RepositoryException(RESULT_SET_NEXT, cause);
+			throw new EventstormRepositoryException(RESULT_SET_NEXT, cause);
 		}
     	
     	if (value) {
             try {
 				return mapper.map(dialect, rs);
 			} catch (SQLException cause) {
-				throw new M3RepositoryException(RESULT_SET_MAPPER, cause);
+				throw new EventstormRepositoryException(RESULT_SET_MAPPER, cause);
 			}
         } else {
             return null;
@@ -183,7 +183,7 @@ public abstract class Repository {
         try {
             rs = ps.executeQuery();
         } catch (SQLException cause) {
-        	throw new M3RepositoryException(EXECUTE_QUERY, cause);
+        	throw new EventstormRepositoryException(EXECUTE_QUERY, cause);
         }
 
         tc.addHook(() -> {
@@ -202,12 +202,12 @@ public abstract class Repository {
                         return false;
                     }
                 } catch (SQLException cause) {
-                	throw new M3RepositoryException(RESULT_SET_NEXT, cause);
+                	throw new EventstormRepositoryException(RESULT_SET_NEXT, cause);
                 }
                 try {
                     action.accept(mapper.map(database.dialect(), rs));
                 } catch (SQLException cause) {
-                	throw new M3RepositoryException(RESULT_SET_MAPPER, cause);
+                	throw new EventstormRepositoryException(RESULT_SET_MAPPER, cause);
                 }
                 return true;
             }
@@ -301,7 +301,7 @@ public abstract class Repository {
                 im.setId(pojo, rs);
             }
         } catch (SQLException cause) {
-            throw new M3RepositoryException(INSERT_GENERATED_KEYS, cause);
+            throw new EventstormRepositoryException(INSERT_GENERATED_KEYS, cause);
         }
 
     }
