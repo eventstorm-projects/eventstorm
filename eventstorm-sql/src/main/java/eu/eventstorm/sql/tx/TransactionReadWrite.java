@@ -34,9 +34,6 @@ final class TransactionReadWrite extends AbstractTransaction {
 
     @Override
     public PreparedStatement write(String sql) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("WRITE : [{}]", sql);
-        }
         return preparedStatement(sql, this.insertUpdate);
     }
 

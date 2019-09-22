@@ -16,8 +16,8 @@ public final class EventstormRepositoryException extends EventstormSqlException 
 		PREPARED_STATEMENT_SETTER, INSERT_GENERATED_KEYS, EXECUTE_QUERY, RESULT_SET_NEXT, RESULT_SET_MAPPER
 	}
 
-	public EventstormRepositoryException(Type type, SQLException cause) {
-		super(type, ImmutableMap.of(), cause);
+	public EventstormRepositoryException(Type type, ImmutableMap<String, Object> params, SQLException cause) {
+		super(type, params, cause);
 	}
 
 }
