@@ -3,22 +3,14 @@ package eu.eventstorm.sql.tx;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-final class TransactionTracer {
+public interface TransactionTracer {
 
-	public TransactionSpan rollback() {
-		return null;
-	}
+	TransactionSpan rollback();
 
-	public TransactionSpan commit() {
-		return null;
-	}
+	TransactionSpan commit();
 
-	public TransactionSpan close() {
-		return null;
-	}
+	TransactionSpan close();
 
-	public TransactionSpan span() {
-		return null;
-	}
+	TransactionSpan span();
 	
 }

@@ -23,7 +23,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
 
-final class M3PreparedStatementImpl implements PreparedStatement {
+final class EventstormPreparedStatement implements PreparedStatement {
 
 	public static final String TAG_SQL = "sql";
 	
@@ -31,7 +31,7 @@ final class M3PreparedStatementImpl implements PreparedStatement {
 
     private final TransactionTracer tracer;
 
-    M3PreparedStatementImpl(PreparedStatement ps, TransactionTracer tracer) {
+    EventstormPreparedStatement(PreparedStatement ps, TransactionTracer tracer) {
         this.ps = ps;
         this.tracer = tracer;
     }

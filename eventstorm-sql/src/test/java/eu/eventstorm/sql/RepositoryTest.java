@@ -30,6 +30,7 @@ import eu.eventstorm.sql.model.ex001.StudentDescriptor;
 import eu.eventstorm.sql.model.ex001.StudentImpl;
 import eu.eventstorm.sql.model.ex001.StudentMapper;
 import eu.eventstorm.sql.tx.Transaction;
+import eu.eventstorm.sql.tx.TransactionManager;
 import eu.eventstorm.sql.tx.TransactionManagerImpl;
 
 /**
@@ -46,7 +47,8 @@ class RepositoryTest {
 	@BeforeEach
 	void before() {
 		ds = JdbcConnectionPool.create("jdbc:h2:mem:test;DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1;INIT=RUNSCRIPT FROM 'classpath:sql/ex001.sql'", "sa", "");
-		db = new DatabaseImpl(ds, Dialect.Name.H2, new TransactionManagerImpl(ds), "", new eu.eventstorm.sql.model.ex001.Module("test", null));
+		TransactionManager transactionManager = new TransactionManagerImpl(ds);
+		db = new DatabaseImpl(ds, Dialect.Name.H2, transactionManager, "", new eu.eventstorm.sql.model.ex001.Module("test", null));
 		repo = new Repository(db) {
 		};
 	}

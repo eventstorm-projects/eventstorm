@@ -5,19 +5,13 @@ import java.sql.SQLException;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-final class TransactionSpan implements AutoCloseable {
+interface TransactionSpan extends AutoCloseable {
 
 	@Override
-	public void close() {
+	void close();
+	
+	void exception(SQLException cause);
 
-	}
-
-	public void exception(SQLException cause) {
-	}
-
-	public void tag(String key, String value) {
-		// TODO Auto-generated method stub
-		
-	}
+	void tag(String key, String value);
 
 }

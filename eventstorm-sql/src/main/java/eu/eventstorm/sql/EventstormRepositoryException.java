@@ -4,8 +4,6 @@ import java.sql.SQLException;
 
 import com.google.common.collect.ImmutableMap;
 
-import eu.eventstorm.sql.EventstormSqlException;
-
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */

@@ -5,9 +5,8 @@ import static eu.eventstorm.sql.tx.EventstormTransactionException.Type.CREATE;
 import static eu.eventstorm.sql.tx.EventstormTransactionException.Type.NO_CURRENT_TRANSACTION;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.function.BiFunction;
+import java.sql.Statement;
 
 import javax.sql.DataSource;
 
@@ -31,18 +30,20 @@ public final class TransactionManagerImpl implements TransactionManager {
     private final ThreadLocal<AbstractTransaction> transactions;
 
     private boolean enforceReadOnly = false;
+    
+    private final TransactionManagerConfiguration configuration;
 
-    private final BiFunction<PreparedStatement, TransactionTracer,PreparedStatement> decorator;
+//    private final BiFunction<PreparedStatement, TransactionTracer,PreparedStatement> decorator;
 
-    private static final BiFunction<PreparedStatement, TransactionTracer,PreparedStatement> IDENTITY_DECORATOR = (ps,log) -> ps;
+//    private static final BiFunction<PreparedStatement, TransactionTracer,PreparedStatement> IDENTITY_DECORATOR = (ps,log) -> ps;
 
     public TransactionManagerImpl(DataSource dataSource) {
-        this(dataSource, IDENTITY_DECORATOR);
+        this(dataSource, TransactionManagerConfiguration.DEFAULT);
     }
 
-    public TransactionManagerImpl(DataSource dataSource, BiFunction<PreparedStatement, TransactionTracer, PreparedStatement> decorator) {
+    public TransactionManagerImpl(DataSource dataSource, TransactionManagerConfiguration configuration) {
     	this.dataSource = dataSource;
-        this.decorator = decorator;
+    	this.configuration = configuration;
         try (Connection conn = dataSource.getConnection()) {
             this.defaultIsolationLevel = conn.getTransactionIsolation();
         } catch (SQLException cause) {
@@ -90,6 +91,7 @@ public final class TransactionManagerImpl implements TransactionManager {
         try {
             conn = dataSource.getConnection();
             conn.setAutoCommit(false);
+            prepareTransactionalConnection(conn, definition);
         } catch (SQLException cause) {
             throw new EventstormTransactionException(CREATE, cause);
         }
@@ -124,10 +126,6 @@ public final class TransactionManagerImpl implements TransactionManager {
         //return new SqlTransactionStatus(transaction, definition.isReadOnly());
     }
 
-    BiFunction<PreparedStatement, TransactionTracer,PreparedStatement> getDecorator() {
-        return this.decorator;
-    }
-
     void remove() {
 		this.transactions.remove();
 	}
@@ -135,6 +133,19 @@ public final class TransactionManagerImpl implements TransactionManager {
 	@Override
 	public TransactionContext context() {
 		return this.transactions.get();
+	}
+	
+	protected void prepareTransactionalConnection(Connection con, TransactionDefinition definition)
+            throws SQLException {
+        if (enforceReadOnly && definition.isReadOnly()) {
+            try (Statement stmt = con.createStatement()) {
+                stmt.executeUpdate("SET TRANSACTION READ ONLY");
+            }
+        }
+    }
+
+	public TransactionManagerConfiguration getConfiguration() {
+		return this.configuration;
 	}
 
     /*
