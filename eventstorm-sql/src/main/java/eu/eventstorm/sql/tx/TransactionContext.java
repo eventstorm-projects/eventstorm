@@ -10,6 +10,8 @@ public interface TransactionContext {
 	PreparedStatement read(String sql);
 
 	PreparedStatement write(String sql);
+	
+	PreparedStatement writeAutoIncrement(String sql);
 
 	void addHook(Runnable runnable);
 

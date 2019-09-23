@@ -52,4 +52,10 @@ final class TransactionNested implements Transaction, TransactionContext {
 		return null;
 	}
 
+	@Override
+	public PreparedStatement writeAutoIncrement(String sql) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

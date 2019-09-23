@@ -13,10 +13,12 @@ import eu.eventstorm.sql.EventstormSqlException;
 public final class EventstormRepositoryException extends EventstormSqlException {
 
 	public enum Type implements EventstormSqlExceptionType {
-		INSERT_GENERATED_KEYS, EXECUTE_QUERY, RESULT_SET_NEXT, RESULT_SET_MAPPER,
+		INSERT_GENERATED_KEYS,
 
 		// select
-		SELECT_PREPARED_STATEMENT_SETTER,
+		SELECT_PREPARED_STATEMENT_SETTER, SELECT_EXECUTE_QUERY, SELECT_NEXT, SELECT_MAPPER,
+		//stream
+		STREAM_PREPARED_STATEMENT_SETTER, STREAM_EXECUTE_QUERY, STREAM_NEXT, STREAM_MAPPER,
 	    // insert
 		INSERT_MAPPER, INSERT_EXECUTE_QUERY, INSERT_RESULT,
 	    // update

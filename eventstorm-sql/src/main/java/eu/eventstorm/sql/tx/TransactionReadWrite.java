@@ -17,7 +17,7 @@ final class TransactionReadWrite extends AbstractTransaction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionReadWrite.class);
 
-    private final Map<String, PreparedStatement> insertUpdate = new HashMap<>();
+    private final Map<String, PreparedStatement> writes = new HashMap<>();
 
     TransactionReadWrite(TransactionManagerImpl transactionManager, Connection connection) {
         super(transactionManager, connection);
@@ -35,44 +35,19 @@ final class TransactionReadWrite extends AbstractTransaction {
 
     @Override
     public PreparedStatement write(String sql) {
-        return preparedStatement(sql, this.insertUpdate, Statement.NO_GENERATED_KEYS);
+        return preparedStatement(sql, this.writes, Statement.NO_GENERATED_KEYS);
     }
+    
+    @Override
+   	public PreparedStatement writeAutoIncrement(String sql) {
+    	return preparedStatement(sql, this.writes, Statement.RETURN_GENERATED_KEYS);
+   	} 
 
-  /*  @Override
-    public M3PreparedStatement insertAutoIncrement(String sql) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("INSERT AutoIncrement : [{}]", sql);
-        }
-        try {
-            return new M3PreparedStatementImpl(this.connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS));
-        } catch (SQLException cause) {
-            throw new M3SqlException("Failed to prepare statement for SQL [" + sql + "]", cause);
-        }
-    }*/
-
-
-    public Transaction innerTransaction(TransactionDefinition definition) {
+	public Transaction innerTransaction(TransactionDefinition definition) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("innerTransaction : [{}]", definition);
         }
         return new TransactionNested(this);
-    }
-
-
-    private void shutdown() {
-
-       /* for (Runnable runnable : hooks) {
-
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Execute hook [{}]", runnable);
-            }
-            try {
-                runnable.run();
-            } catch (Exception cause) {
-                LOGGER.warn("Failed to run Hook [{}] -> skip", runnable);
-            }
-        }*/
-
     }
 
 }

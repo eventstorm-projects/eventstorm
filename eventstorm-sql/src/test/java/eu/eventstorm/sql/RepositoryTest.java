@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import eu.eventstorm.sql.builder.DeleteBuilder;
 import eu.eventstorm.sql.builder.InsertBuilder;
 import eu.eventstorm.sql.builder.SelectBuilder;
+import eu.eventstorm.sql.builder.UpdateBuilder;
 import eu.eventstorm.sql.impl.DatabaseImpl;
 import eu.eventstorm.sql.jdbc.PreparedStatementSetter;
 import eu.eventstorm.sql.model.ex001.Student;
@@ -87,6 +88,13 @@ class RepositoryTest {
 			Assertions.assertNotNull(s);
 			tx.rollback();
 		}
+		
+		UpdateBuilder update = repo.update(StudentDescriptor.TABLE, StudentDescriptor.COLUMNS, StudentDescriptor.IDS);
+		student.setAge(38);
+		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
+			repo.executeUpdate(update.build(), STUDENT, student);
+			tx.commit();
+		}
 
 		DeleteBuilder deleteBuilder = repo.delete(StudentDescriptor.TABLE).where(eq(StudentDescriptor.ID));
 		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
@@ -127,7 +135,7 @@ class RepositoryTest {
 				        rs.getShort(100);
 				        return null;
 			        }));
-			assertEquals(EventstormRepositoryException.Type.RESULT_SET_MAPPER, ex.getType());
+			assertEquals(EventstormRepositoryException.Type.SELECT_MAPPER, ex.getType());
 			tx.rollback();
 		}
 	}
@@ -137,7 +145,7 @@ class RepositoryTest {
 		try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
 			EventstormRepositoryException ex = assertThrows(EventstormRepositoryException.class,
 			        () -> repo.executeSelect("select nextval('Hello world')", PreparedStatementSetter.EMPTY, STUDENT));
-			assertEquals(EventstormRepositoryException.Type.EXECUTE_QUERY, ex.getType());
+			assertEquals(EventstormRepositoryException.Type.SELECT_EXECUTE_QUERY, ex.getType());
 			tx.rollback();
 		}
 	}
@@ -188,9 +196,25 @@ class RepositoryTest {
 			EventstormRepositoryException ex = assertThrows(EventstormRepositoryException.class, () -> repo.executeInsert(insertBuilder.build(), (ps, pojo) -> {
 				ps.setString(100, "hello");
 			}, student));
+			assertEquals(EventstormRepositoryException.Type.INSERT_MAPPER, ex.getType());
 			tx.rollback();
 		}
 
+	}
+	
+	@Test
+	void testDeleteException() {
+		String delete = repo.delete(StudentDescriptor.TABLE).where(eq(StudentDescriptor.ID)).build();
+		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
+			EventstormRepositoryException ex = assertThrows(EventstormRepositoryException.class, () -> repo.executeDelete(delete, (ps) -> {
+				ps.setString(100, "hello");
+			}));
+			assertEquals(EventstormRepositoryException.Type.DELETE_PREPARED_STATEMENT_SETTER, ex.getType());
+			
+			assertEquals(0, repo.executeDelete(delete, ps -> ps.setInt(1, 1)));
+			
+			tx.rollback();
+		}
 	}
 	
 	
