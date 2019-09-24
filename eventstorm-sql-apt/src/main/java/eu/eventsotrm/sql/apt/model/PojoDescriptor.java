@@ -14,13 +14,15 @@ public final class PojoDescriptor {
     private final Element element;
     private final List<PojoPropertyDescriptor> propertyDescriptors;
     private final List<PojoPropertyDescriptor> idDescriptors;
+    private final PojoPropertyDescriptor version;
 
-    public PojoDescriptor(Element element, List<PojoPropertyDescriptor> idDescriptors, List<PojoPropertyDescriptor> propertyDescriptors) {
+    public PojoDescriptor(Element element, List<PojoPropertyDescriptor> idDescriptors, PojoPropertyDescriptor version,List<PojoPropertyDescriptor> propertyDescriptors) {
         this.element = element;
         this.idDescriptors = idDescriptors;
         this.propertyDescriptors = propertyDescriptors;
+        this.version = version;
     }
-    
+
     public String getPackage() {
     	String fcqn = fullyQualidiedClassName();
     	return fcqn.substring(0, fcqn.lastIndexOf('.'));
@@ -47,16 +49,20 @@ public final class PojoDescriptor {
         return this.idDescriptors;
     }
 
+     public PojoPropertyDescriptor version() {
+        return this.version;
+    }
+
     public List<PojoPropertyDescriptor> businessKeys() {
         return propertyDescriptors.stream()
                 .filter(ppd -> ppd.getter().getAnnotation(BusinessKey.class) != null)
                 .collect(Collectors.toList());
     }
-    
+
     public Table getTable() {
     	return this.element.getAnnotation(Table.class);
     }
-    
+
     public JoinTable getJoinTable() {
     	return this.element.getAnnotation(JoinTable.class);
     }
@@ -76,6 +82,6 @@ public final class PojoDescriptor {
 		});
 		return builder.toString();
 	}
-    
-    
+
+
 }

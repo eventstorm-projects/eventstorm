@@ -28,7 +28,7 @@ public final class JoinTableAnalyser implements Function<Element, PojoDescriptor
     private final Logger logger;
 
     private final List<PojoDescriptor> descriptors;
-    
+
     public JoinTableAnalyser(List<PojoDescriptor> descriptors) {
     	this.logger = LoggerFactory.getInstance().getLogger(JoinTableAnalyser.class);
     	this.descriptors = descriptors;
@@ -41,7 +41,7 @@ public final class JoinTableAnalyser implements Function<Element, PojoDescriptor
         	logger.error("element [" + element + "] should be an interface");
             return null;
         }
-        
+
         logger.info("Analyse " + element);
 
         List<PojoPropertyDescriptor> ppds = new ArrayList<>();
@@ -72,13 +72,13 @@ public final class JoinTableAnalyser implements Function<Element, PojoDescriptor
             }
 
             if (executableElement.getSimpleName().toString().startsWith("get")) {
-            	
+
             	if (executableElement.getAnnotation(PrimaryKey.class) != null) {
             		logger.error("@PrimaryKey should not used for @JoinTable (" + executableElement + ")");
             	}
-            	
+
             	JoinColumn joinColumn = executableElement.getAnnotation(JoinColumn.class);
-               
+
             	if (joinColumn != null) {
 
                     validateJoinColumn(executableElement, joinColumn);
@@ -86,7 +86,7 @@ public final class JoinTableAnalyser implements Function<Element, PojoDescriptor
                     ids.add(new PojoPropertyDescriptor(executableElement));
                     continue;
                 }
-            	
+
                 Column column = executableElement.getAnnotation(Column.class);
                 if (column == null) {
                 	logger.error( "getter [" + method + "] in [" + element + "] should have @Column.");
@@ -121,7 +121,7 @@ public final class JoinTableAnalyser implements Function<Element, PojoDescriptor
             }
         });
 
-        return new PojoDescriptor(element, ids, ppds);
+        return new PojoDescriptor(element, ids, null, ppds);
     }
 
     private void validateJoinColumn(ExecutableElement executableElement, JoinColumn joinColumn) {

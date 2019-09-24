@@ -20,6 +20,7 @@ import eu.eventsotrm.sql.apt.model.PojoPropertyDescriptor;
 import eu.eventstorm.sql.annotation.Column;
 import eu.eventstorm.sql.annotation.PrimaryKey;
 import eu.eventstorm.sql.annotation.Sequence;
+import eu.eventstorm.sql.annotation.Version;
 import eu.eventstorm.sql.id.SequenceGenerator;
 
 /**
@@ -36,15 +37,30 @@ public final class SqlInterfaceAnalyser implements Function<Element, PojoDescrip
     @Override
     public PojoDescriptor apply(Element element) {
 
+        try {
+            return doApply(element);
+        } catch (AnalyserException cause) {
+            this.logger.error(cause.getMessage(), cause);
+            throw cause;
+        } catch (Exception cause) {
+            this.logger.error(cause.getMessage(), cause);
+            throw new AnalyserException(cause);
+        }
+
+    }
+
+    public PojoDescriptor doApply(Element element) {
+
         if (ElementKind.INTERFACE != element.getKind()) {
         	logger.error("element [" + element + "] should be an interface");
             return null;
         }
-        
+
         logger.info("Analyse " + element);
 
         List<PojoPropertyDescriptor> ppds = new ArrayList<>();
         List<PojoPropertyDescriptor> ids = new ArrayList<>();
+        PojoPropertyDescriptor version = null;
         List<ExecutableElement> setters = new ArrayList<>();
 
         for (Element method : element.getEnclosedElements()) {
@@ -73,12 +89,23 @@ public final class SqlInterfaceAnalyser implements Function<Element, PojoDescrip
             if (executableElement.getSimpleName().toString().startsWith("get")) {
                 PrimaryKey primaryKey = executableElement.getAnnotation(PrimaryKey.class);
                 if (primaryKey != null) {
-
                     validatePrimaryKey(executableElement, primaryKey);
-
                     ids.add(new PojoPropertyDescriptor(executableElement));
                     continue;
                 }
+
+                Version versionAnnotation = executableElement.getAnnotation(Version.class);
+                if (versionAnnotation != null) {
+                    if (version == null) {
+                        // only one version ...
+                    } else {
+                        validateVersion(executableElement, versionAnnotation);
+                        version = new PojoPropertyDescriptor(executableElement);
+                        continue;
+                    }
+                }
+
+
                 Column column = executableElement.getAnnotation(Column.class);
                 if (column == null) {
                 	logger.error( "getter [" + method + "] in [" + element + "] should have @Column.");
@@ -115,7 +142,7 @@ public final class SqlInterfaceAnalyser implements Function<Element, PojoDescrip
             }
         });
 
-        return new PojoDescriptor(element, ids, ppds);
+        return new PojoDescriptor(element, ids, version, ppds);
     }
 
     private void validatePrimaryKey(ExecutableElement executableElement, PrimaryKey primaryKey) {
@@ -125,11 +152,21 @@ public final class SqlInterfaceAnalyser implements Function<Element, PojoDescrip
         if (SequenceGenerator.class.isAssignableFrom(identifier)) {
             // check if @Sequence exist.
             if (executableElement.getAnnotation(Sequence.class) == null) {
-            	logger.error("PrimaryKey [" + primaryKey + "] in [" + executableElement.getEnclosingElement() + "]  type sequnce -> missing annotation @Sequence");
+            	logger.error("PrimaryKey [" + primaryKey + "] in [" + executableElement.getEnclosingElement() + "]  type sequence -> missing annotation @Sequence");
             }
         }
-
     }
+
+    private void validateVersion(ExecutableElement executableElement, Version Version) {
+        String type = executableElement.getReturnType().toString();
+         if ("int".equals(type) || "short".equals(type) || "long".equals(type) || "byte".equals(type)) {
+             // ok
+         } else {
+             throw new AnalyserException("@Version [" + executableElement + "] in [" + executableElement.getEnclosingElement() + "]  invalid type, support only [long,int, short, byte]");
+         }
+    }
+
+
 
 
     private void checkGetterAndSetterParamerts(PojoPropertyDescriptor ppd, ExecutableElement setter) {
