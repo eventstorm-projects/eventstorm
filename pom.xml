@@ -52,7 +52,7 @@
 		</developer>
 
 	</developers>
-	
+
 	<scm>
 		<connection>scm:git:git://github.com/eventstorm-projects/eventstorm.git</connection>
 		<developerConnection>scm:https://github.com/eventstorm-projects/eventstorm.git</developerConnection>
@@ -176,6 +176,40 @@
 							</execution>
 						</executions>
 					</plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.22.2</version>
+                        <configuration>
+                            <testFailureIgnore>false</testFailureIgnore>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>default-test</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>test</goal>
+                                </goals>
+                                <configuration>
+                                    <systemPropertyVariables>
+                                        <log4j2.level>ALL</log4j2.level>
+                                    </systemPropertyVariables>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>log-none</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>test</goal>
+                                </goals>
+                                <configuration>
+                                    <systemPropertyVariables>
+                                        <log4j2.level>OFF</log4j2.level>
+                                    </systemPropertyVariables>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
 				</plugins>
 			</build>
 		</profile>

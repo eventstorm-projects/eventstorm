@@ -18,6 +18,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import eu.eventstorm.sql.builder.DeleteBuilder;
 import eu.eventstorm.sql.builder.InsertBuilder;
@@ -32,10 +33,12 @@ import eu.eventstorm.sql.model.ex001.StudentMapper;
 import eu.eventstorm.sql.tx.Transaction;
 import eu.eventstorm.sql.tx.TransactionManager;
 import eu.eventstorm.sql.tx.TransactionManagerImpl;
+import eu.eventstorm.test.LoggerInstancePostProcessor;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
+@ExtendWith(LoggerInstancePostProcessor.class)
 class RepositoryTest {
 
 	public static final eu.eventstorm.sql.jdbc.Mapper<Student> STUDENT = new StudentMapper();
@@ -90,7 +93,7 @@ class RepositoryTest {
 			Assertions.assertNotNull(s);
 			tx.rollback();
 		}
-		
+
 		UpdateBuilder update = repo.update(StudentDescriptor.TABLE, StudentDescriptor.COLUMNS, StudentDescriptor.IDS);
 		student.setAge(38);
 		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
@@ -141,7 +144,7 @@ class RepositoryTest {
 			tx.rollback();
 		}
 	}
-	
+
 	@Test
 	void testSelectExceptionOnExecuteQuery() {
 		try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
@@ -180,7 +183,7 @@ class RepositoryTest {
 		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
 			for (int i = 1 ; i < 101 ; i ++) {
 				final int j = i;
-				repo.executeDelete(delete, ps -> ps.setInt(1, j));	
+				repo.executeDelete(delete, ps -> ps.setInt(1, j));
 			}
 			tx.commit();
 		}
@@ -203,7 +206,7 @@ class RepositoryTest {
 		}
 
 	}
-	
+
 	@Test
 	void testDeleteException() {
 		String delete = repo.delete(StudentDescriptor.TABLE).where(eq(StudentDescriptor.ID)).build();
@@ -212,14 +215,14 @@ class RepositoryTest {
 				ps.setString(100, "hello");
 			}));
 			assertEquals(EventstormRepositoryException.Type.DELETE_PREPARED_STATEMENT_SETTER, ex.getType());
-			
+
 			assertEquals(0, repo.executeDelete(delete, ps -> ps.setInt(1, 1)));
-			
+
 			tx.rollback();
 		}
 	}
-	
-	
+
+
 	@Test
 	void testBatch() throws SQLException {
 
@@ -233,7 +236,7 @@ class RepositoryTest {
 			student.setCode("Code_" + i);
 			students.add(student);
 		}
-		
+
 		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
 			repo.executeBatchInsert(insert, STUDENT, students);
 			tx.commit();
@@ -243,11 +246,11 @@ class RepositoryTest {
 		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
 			for (int i = 1 ; i < 101 ; i ++) {
 				final int j = i;
-				repo.executeDelete(delete, ps -> ps.setInt(1, j));	
+				repo.executeDelete(delete, ps -> ps.setInt(1, j));
 			}
 			tx.commit();
 		}
 	}
-	
-	
+
+
 }
