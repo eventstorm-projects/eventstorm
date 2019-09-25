@@ -3,15 +3,12 @@ package eu.eventsotrm.sql.apt;
 import static eu.eventsotrm.sql.apt.Helper.writeGenerated;
 import static eu.eventsotrm.sql.apt.Helper.writeNewLine;
 import static eu.eventsotrm.sql.apt.Helper.writePackage;
-import static java.lang.Character.toUpperCase;
 
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 
 import eu.eventsotrm.sql.apt.log.Logger;
@@ -80,17 +77,4 @@ final class ModuleGenerator implements Generator {
 
     }
 
-    private static String className(String pack) {
-
-        String[] parts = pack.split("\\.");
-        StringBuilder builder = new StringBuilder();
-        for (String part : parts) {
-            builder.append(toUpperCase(part.charAt(0)));
-            if (part.length() > 1) {
-                builder.append(part.substring(1));
-            }
-        }
-        builder.append("Module");
-        return builder.toString();
-    }
 }

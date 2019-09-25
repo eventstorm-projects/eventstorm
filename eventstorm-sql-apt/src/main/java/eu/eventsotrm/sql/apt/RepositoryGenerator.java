@@ -255,6 +255,10 @@ final class RepositoryGenerator implements Generator {
 
     private static void generateFindByBusinessKey(Writer writer, PojoDescriptor descriptor) throws IOException {
 
+        if (descriptor.getJoinTable() != null) {
+    		return;
+    	}
+
         List<PojoPropertyDescriptor> ppds = descriptor.businessKeys();
 
         if (ppds.size() == 0) {

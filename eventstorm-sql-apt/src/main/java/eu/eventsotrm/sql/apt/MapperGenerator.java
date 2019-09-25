@@ -13,13 +13,12 @@ import java.io.Writer;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
 
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 
+import eu.eventsotrm.sql.apt.log.Logger;
+import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventsotrm.sql.apt.model.PojoDescriptor;
 import eu.eventsotrm.sql.apt.model.PojoPropertyDescriptor;
 import eu.eventstorm.sql.Dialect;
@@ -33,6 +32,12 @@ import eu.eventstorm.sql.jdbc.MapperWithAutoIncrement;
  */
 final class MapperGenerator implements Generator {
 
+    private final Logger logger;
+
+	MapperGenerator() {
+		logger = LoggerFactory.getInstance().getLogger(MapperGenerator.class);
+	}
+
     @Override
     public void generate(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
 
@@ -41,7 +46,7 @@ final class MapperGenerator implements Generator {
             try {
                 generate(processingEnvironment, t);
             } catch (Exception cause) {
-                processingEnvironment.getMessager().printMessage(Diagnostic.Kind.ERROR, "MapperGenerator -> IOException for [" + t + "] -> [" + cause.getMessage() + "]");
+                logger.error("MapperGenerator -> IOException for [" + t + "] -> [" + cause.getMessage() + "]", cause);
             }
         });
 
