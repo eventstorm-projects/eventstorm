@@ -9,27 +9,27 @@ import eu.eventstorm.sql.desc.SqlTable;
  */
 public interface Dialect {
 
-    enum Name {
-        H2
-    }
+	enum Name {
+		H2, ORACLE, POSTGRES
+	}
 
-    String nextVal(SqlSequence sequence);
+	String nextVal(SqlSequence sequence);
 
-    void wrap(Appendable appendable, SqlTable table, boolean alias);
+	void wrap(Appendable appendable, SqlTable table, boolean alias);
 
-    void wrap(Appendable appendable, SqlColumn targetColumn, boolean alias);
+	void wrap(Appendable appendable, SqlColumn targetColumn, boolean alias);
 
-    String range(int offset, int limit);
+	String range(int offset, int limit);
 
-    /*
-    SqlXml fromJdbcSqlXml(ResultSet rs, int index) throws SQLException;
-
-    SqlJson fromJdbcSqlJson(ResultSet rs, int index) throws SQLException;
-
-    SqlXml toJdbcSqlXml(FastByteArrayInputStream is);
-
-    SqlJson createSqlJson(Map<String,String> value);
-
-    SqlJson createSqlJson(String value);
-    */
+	/*
+	 * SqlXml fromJdbcSqlXml(ResultSet rs, int index) throws SQLException;
+	 * 
+	 * SqlJson fromJdbcSqlJson(ResultSet rs, int index) throws SQLException;
+	 * 
+	 * SqlXml toJdbcSqlXml(FastByteArrayInputStream is);
+	 * 
+	 * SqlJson createSqlJson(Map<String,String> value);
+	 * 
+	 * SqlJson createSqlJson(String value);
+	 */
 }

@@ -83,7 +83,8 @@ public final class SqlProcessor extends AbstractProcessor {
 
         SourceCode sourceCode = new SourceCode(this.processingEnv, descriptors, joinTableDescriptors);
 
-
+        sourceCode.dump();
+        
         new PojoImplementationGenerator().generate(this.processingEnv, sourceCode);
         new PojoFactoryGenerator().generate(this.processingEnv, sourceCode);
         new PojoDescriptorGenerator().generate(this.processingEnv, sourceCode);

@@ -43,13 +43,17 @@ public final class SourceCode {
         descriptors.values().forEach(pojoDesc -> {
         	logger.info("\t->" + pojoDesc);
         });
+        logger.info("---------------------------------------------------------------------------------------------------------");
         logger.info("Number of Joint Table Pojo(s) found : " + joinTableDescriptors.size());
-        descriptors.values().forEach(pojoDesc -> {
+        joinTableDescriptors.values().forEach(pojoDesc -> {
         	logger.info("\t->" + pojoDesc);
         });
         logger.info("---------------------------------------------------------------------------------------------------------");
     }
 
+    public PojoDescriptor getPojoDescriptor(String name) {
+    	return this.descriptors.get(name);
+    }
 
 	public void forEach(Consumer<PojoDescriptor> consumer) {
         this.all.forEach(consumer);

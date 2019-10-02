@@ -14,6 +14,8 @@ import java.sql.Timestamp;
 import java.util.List;
 
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.type.MirroredTypeException;
+import javax.lang.model.type.TypeMirror;
 import javax.tools.JavaFileObject;
 
 import com.google.common.collect.ImmutableList;
@@ -42,7 +44,7 @@ import eu.eventstorm.sql.id.SequenceGenerator;
  */
 final class RepositoryGenerator implements Generator {
 
-	private final Logger logger;
+	private static Logger logger;
     private static SourceCode sourceCode;
 
 	RepositoryGenerator() {
@@ -64,6 +66,7 @@ final class RepositoryGenerator implements Generator {
             });
         } finally {
             sourceCode = null;
+            logger = null;
         }
 
     }
@@ -638,21 +641,28 @@ final class RepositoryGenerator implements Generator {
     		return;
     	}
 
-        for (PojoPropertyDescriptor ppd : descriptor.properties()) {
-            JoinColumn jc = ppd.getter().getAnnotation(JoinColumn.class);
-            if (jc == null) {
-                continue;
-            }
-
-            jc.target().toString();
-        }
-
-        writeNewLine(writer);
+    	writeNewLine(writer);
         writer.write("    public final void link(");
-        writer.write(descriptor.element().toString());
-        writer.write(" pojo) {");
+        StringBuilder builder = new StringBuilder();
+        for (PojoPropertyDescriptor ppd : descriptor.ids()) {
+            JoinColumn jc = ppd.getter().getAnnotation(JoinColumn.class);
+            PojoDescriptor target = sourceCode.getPojoDescriptor(getTarget(jc).toString());
+            builder.append(target.fullyQualidiedClassName());
+            builder.append(" ");
+            builder.append(target.simpleName().toLowerCase());
+            builder.append(", ");
+        }
+        
+        if (builder.length() > 2) {
+        	builder.deleteCharAt(builder.length() - 1);
+            builder.deleteCharAt(builder.length() - 1);
+        }
+        
+        
+        writer.write(builder.toString());
+        writer.write(") {");
 
-        for (PojoPropertyDescriptor property : descriptor.properties()) {
+      /*  for (PojoPropertyDescriptor property : descriptor.properties()) {
             if (property.getter().getAnnotation(UpdateTimestamp.class) != null) {
                 writeNewLine(writer);
                 writer.write("        // set update timestamp");
@@ -665,11 +675,30 @@ final class RepositoryGenerator implements Generator {
                 writeNewLine(writer);
             }
         }
-
+*/
         writeNewLine(writer);
-        writer.write("        // execute update");
+        writer.write("        // execute insert");
         writeNewLine(writer);
-        writer.write("        executeUpdate(this.update, Mappers.");
+        writer.write("        " + descriptor.fullyQualidiedClassName() + " pojo = new " + descriptor.fullyQualidiedClassName() + "Impl();");
+        writeNewLine(writer);
+        
+        for (PojoPropertyDescriptor ppd : descriptor.ids()) {
+            PojoDescriptor target = sourceCode.getPojoDescriptor(getTarget(ppd.getter().getAnnotation(JoinColumn.class)).toString());
+            for (PojoPropertyDescriptor targetId : target.ids()) {
+            	StringBuilder b = new StringBuilder();
+            	b.append("pojo.");
+            	
+            	b.append(ppd.setter().getSimpleName().toString()).append("(");
+            	b.append(target.simpleName().toLowerCase() + "."+ targetId.getter().toString());
+            	b.append(");");
+            	writer.write("        " + b.toString());	
+            	writeNewLine(writer);
+            }
+        	
+        }
+        
+        
+        writer.write("        executeUpdate(this.insert, Mappers.");
         writer.write(toUpperCase(descriptor.element().getSimpleName().toString()));
         writer.write(", pojo);");
 
@@ -678,4 +707,13 @@ final class RepositoryGenerator implements Generator {
         writeNewLine(writer);
 
     }
+
+	private static TypeMirror getTarget(JoinColumn annotation) {
+		try {
+			annotation.target(); // this should throw
+		} catch (MirroredTypeException mte) {
+			return mte.getTypeMirror();
+		}
+		return null; // can this ever happen ??
+	}
 }

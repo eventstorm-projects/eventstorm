@@ -20,6 +20,7 @@ public final class Logger {
 		builder.append(LocalDateTime.now().toString()).append(" [INFO] [").append(this.name).append("] ").append(msg).append('\n');
 		try {
 			this.writer.write(builder.toString());
+			this.writer.flush();
 		} catch (IOException cause) {
 			throw new IllegalStateException(cause);
 		}
@@ -30,6 +31,7 @@ public final class Logger {
 		builder.append(LocalDateTime.now().toString()).append(" [ERROR] [").append(this.name).append("] ").append(msg).append('\n');
 		try {
 			this.writer.write(builder.toString());
+			this.writer.flush();
 		} catch (IOException cause) {
 			throw new IllegalStateException(cause);
 		}
