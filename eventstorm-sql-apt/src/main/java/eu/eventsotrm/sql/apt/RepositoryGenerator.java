@@ -153,11 +153,15 @@ final class RepositoryGenerator implements Generator {
             writeNewLine(writer);
             writer.write("    private final String update;");
             writeNewLine(writer);
+            writer.write("    private final String delete;");
+            writeNewLine(writer);
         }
 
         JoinTable joinTable = descriptor.element().getAnnotation(JoinTable.class);
         if (joinTable != null) {
             writer.write("    private final String insert;");
+            writeNewLine(writer);
+            writer.write("    private final String delete;");
             writeNewLine(writer);
         }
 
@@ -204,6 +208,7 @@ final class RepositoryGenerator implements Generator {
         generateFindByBusinessKey(writer, descriptor);
         generateInsert(writer, descriptor);
         generateUpdate(writer, descriptor);
+        generateDelete(writer, descriptor);
 
 
         writer.write("    }");
@@ -319,6 +324,40 @@ final class RepositoryGenerator implements Generator {
         writeNewLine(writer);
 
     }
+    
+    private static void generateDelete(Writer writer, PojoDescriptor descriptor) throws IOException {
+
+    	if (descriptor.getTable() != null && descriptor.getTable().immutable()) {
+            return;
+        } 
+    	if (descriptor.getJoinTable() == null && descriptor.getTable() == null) {
+    		return;
+    	}
+
+    	 List<PojoPropertyDescriptor> ppds = descriptor.ids();
+
+    	 writer.write("        this.delete = delete(TABLE).where(");
+
+         if (ppds.size() > 1) {
+             writer.write("and(");
+         }
+         for (int i = 0; i < ppds.size(); i++) {
+             writer.write("eq(");
+             writer.write(Helper.toUpperCase(ppds.get(i).name()));
+             writer.write(')');
+             if (i + 1 < ppds.size()) {
+                 writer.write(", ");
+             }
+         }
+         if (ppds.size() > 1) {
+             writer.write(')');
+         }
+         writer.write(").build();");
+         
+    	
+        writeNewLine(writer);
+
+    }
 
 
     private static void writeMethods(Writer writer, PojoDescriptor descriptor) throws IOException {
@@ -330,6 +369,7 @@ final class RepositoryGenerator implements Generator {
         generateMethodFindByBusinessKey(writer, descriptor);
         generateMethodPage(writer, descriptor);
         generateMethodLink(writer, descriptor);
+        generateMethodUnlink(writer, descriptor);
     }
 
 
@@ -662,20 +702,6 @@ final class RepositoryGenerator implements Generator {
         writer.write(builder.toString());
         writer.write(") {");
 
-      /*  for (PojoPropertyDescriptor property : descriptor.properties()) {
-            if (property.getter().getAnnotation(UpdateTimestamp.class) != null) {
-                writeNewLine(writer);
-                writer.write("        // set update timestamp");
-                writeNewLine(writer);
-                writer.write("        pojo.");
-                writer.write(property.setter().getSimpleName().toString());
-                writer.write("(new ");
-                writer.write(Timestamp.class.getName());
-                writer.write("(System.currentTimeMillis()));");
-                writeNewLine(writer);
-            }
-        }
-*/
         writeNewLine(writer);
         writer.write("        // execute insert");
         writeNewLine(writer);
@@ -698,10 +724,72 @@ final class RepositoryGenerator implements Generator {
         }
         
         
-        writer.write("        executeUpdate(this.insert, Mappers.");
+        writer.write("        executeInsert(this.insert, Mappers.");
         writer.write(toUpperCase(descriptor.element().getSimpleName().toString()));
         writer.write(", pojo);");
 
+        writeNewLine(writer);
+        writer.write("    }");
+        writeNewLine(writer);
+
+    }
+    
+    private static void generateMethodUnlink(Writer writer, PojoDescriptor descriptor) throws IOException {
+
+    	if (descriptor.getJoinTable() == null) {
+    		return;
+    	}
+
+    	writeNewLine(writer);
+        writer.write("    public final void unlink(");
+        StringBuilder builder = new StringBuilder();
+        for (PojoPropertyDescriptor ppd : descriptor.ids()) {
+            JoinColumn jc = ppd.getter().getAnnotation(JoinColumn.class);
+            PojoDescriptor target = sourceCode.getPojoDescriptor(getTarget(jc).toString());
+            builder.append(target.fullyQualidiedClassName());
+            builder.append(" ");
+            builder.append(target.simpleName().toLowerCase());
+            builder.append(", ");
+        }
+        
+        if (builder.length() > 2) {
+        	builder.deleteCharAt(builder.length() - 1);
+            builder.deleteCharAt(builder.length() - 1);
+        }
+        
+        
+        writer.write(builder.toString());
+        writer.write(") {");
+
+        writeNewLine(writer);
+        writer.write("        // execute delete");
+        writeNewLine(writer);
+        writer.write("        executeDelete(this.delete, ps -> {"); 
+        writeNewLine(writer);
+        int index = 1;
+        for (PojoPropertyDescriptor ppd : descriptor.ids()) {
+            PojoDescriptor target = sourceCode.getPojoDescriptor(getTarget(ppd.getter().getAnnotation(JoinColumn.class)).toString());
+            for (PojoPropertyDescriptor targetId : target.ids()) {
+            	writer.write("           ps.");
+            	writer.write(Helper.preparedStatementSetter(targetId.getter().getReturnType().toString()));
+            	writer.write("(" + index++);
+            	writer.write(", ");
+            	writer.write(target.simpleName().toLowerCase());
+            	writer.write(".");
+            	writer.write(targetId.getter().toString());
+            	writer.write(");");
+            	//StringBuilder b = new StringBuilder();
+            	//b.append("pojo.");
+            	
+            	//b.append(ppd.setter().getSimpleName().toString()).append("(");
+            	//b.append(target.simpleName().toLowerCase() + "."+ targetId.getter().toString());
+            	//b.append(");");
+            	//writer.write("        " + b.toString());	
+            	writeNewLine(writer);
+            }
+        	
+        }
+        writer.write("        });");
         writeNewLine(writer);
         writer.write("    }");
         writeNewLine(writer);
