@@ -27,7 +27,7 @@ final class PojoImplementationGenerator implements Generator {
 
 	private final Logger logger;
 
-	PojoImplementationGenerator() {;
+	PojoImplementationGenerator() {
 		logger = LoggerFactory.getInstance().getLogger(PojoImplementationGenerator.class);
 	}
 
