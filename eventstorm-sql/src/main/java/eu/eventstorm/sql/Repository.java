@@ -133,8 +133,8 @@ public abstract class Repository {
 			throw new EventstormRepositoryException(INSERT_RESULT, of("sql", sql, "pojo", pojo));
 		}
 	}
-	
-	
+
+
 	protected final <E> void executeInsertAutoIncrement(String sql, InsertMapperWithAutoIncrement<E> im, E pojo) {
 
 		PreparedStatement ps = database.transactionManager().context().writeAutoIncrement(sql);
@@ -192,7 +192,7 @@ public abstract class Repository {
 		}
 
 	}
-	
+
 	private static <T> T map(ResultSet rs, ResultSetMapper<T> mapper, Dialect dialect) {
 		boolean value;
 
@@ -213,10 +213,11 @@ public abstract class Repository {
 		}
 	}
 
-	protected final <E> void executeBatchInsert(String sql, InsertMapper<E> im, List<E> pojos) {
+	protected final <E> void executeBatchInsert(String sql, InsertMapper<E> im, Iterable<E> pojos) {
 
 		PreparedStatement ps = database.transactionManager().context().write(sql);
-		for (E pojo : pojos) {
+        int count = 0;
+        for (E pojo : pojos) {
 			try {
 				im.insert(ps, pojo);
 			} catch (SQLException cause) {
@@ -226,7 +227,8 @@ public abstract class Repository {
 				ps.addBatch();
 			} catch (SQLException cause) {
 				throw new EventstormRepositoryException(BATCH_ADD, of("sql", sql, "pojo", pojo), cause);
-			}
+            }
+            count++;
 		}
 
 		int[] vals;
@@ -237,7 +239,7 @@ public abstract class Repository {
 			throw new EventstormRepositoryException(BATCH_EXECUTE_QUERY, of("sql", sql, "pojos", pojos), cause);
 		}
 
-		if (vals.length != pojos.size()) {
+		if (vals.length != count) {
 			throw new EventstormRepositoryException(BATCH_RESULT, of("sql", sql, "pojos", pojos, "size", vals.length));
 		}
 		for (int i = 0; i < vals.length; i++) {
@@ -311,8 +313,8 @@ public abstract class Repository {
 
 	}
 
-	
-	
+
+
 
 	protected final <T> Page<T> executeSelectPage(String countSql, String sql, ResultSetMapper<T> mapper, Pageable pageable) {
 

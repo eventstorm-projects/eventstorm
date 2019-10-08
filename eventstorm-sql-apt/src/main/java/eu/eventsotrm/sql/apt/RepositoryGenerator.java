@@ -376,7 +376,7 @@ final class RepositoryGenerator implements Generator {
         generateMethodFindByIdForUpdate(writer, descriptor);
         generateMethodInsert(writer, descriptor);
         generateMethodUpdate(writer, descriptor);
-       // generateMethodBatch(writer, descriptor);
+        generateMethodBatch(writer, descriptor);
         generateMethodFindByBusinessKey(writer, descriptor);
         generateMethodPage(writer, descriptor);
         generateMethodLink(writer, descriptor);
@@ -588,26 +588,31 @@ final class RepositoryGenerator implements Generator {
 
     }
 
-   /* private static void generateMethodBatch(Writer writer, PojoDescriptor descriptor) throws IOException {
+    private static void generateMethodBatch(Writer writer, PojoDescriptor descriptor) throws IOException {
 
         writeNewLine(writer);
         writer.write("    public final void batch(");
+        writer.write(Iterable.class.getName());
+        writer.write(">");
         writer.write(descriptor.element().toString());
-        writer.write(" pojo) {");
+        writer.write("> pojos) {");
 
 
         writeNewLine(writer);
         writer.write("        // add to batch");
         writeNewLine(writer);
-        writer.write("        addBatch(this.insert, Mappers.");
+
+        // todo check autoincrement ...
+
+        writer.write("        executeBatchInsert(this.insert, Mappers.");
         writer.write(toUpperCase(descriptor.element().getSimpleName().toString()));
-        writer.write(", pojo);");
+        writer.write(", pojos);");
 
         writeNewLine(writer);
         writer.write("    }");
         writeNewLine(writer);
 
-    }*/
+    }
 
     private static void generateMethodFindByBusinessKey(Writer writer, PojoDescriptor descriptor) throws IOException {
 
