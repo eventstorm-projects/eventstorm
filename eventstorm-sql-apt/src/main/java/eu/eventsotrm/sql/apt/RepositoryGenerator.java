@@ -593,7 +593,7 @@ final class RepositoryGenerator implements Generator {
         writeNewLine(writer);
         writer.write("    public final void batch(");
         writer.write(Iterable.class.getName());
-        writer.write(">");
+        writer.write("<");
         writer.write(descriptor.element().toString());
         writer.write("> pojos) {");
 
@@ -843,6 +843,8 @@ final class RepositoryGenerator implements Generator {
 		} catch (MirroredTypeException mte) {
 			return mte.getTypeMirror();
 		}
-		return null; // can this ever happen ??
+		 // can this ever happen ??
+		throw new IllegalStateException();
 	}
+	
 }

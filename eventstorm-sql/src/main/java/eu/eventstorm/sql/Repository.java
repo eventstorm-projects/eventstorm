@@ -25,7 +25,6 @@ import static eu.eventstorm.sql.EventstormRepositoryException.Type.UPDATE_RESULT
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
