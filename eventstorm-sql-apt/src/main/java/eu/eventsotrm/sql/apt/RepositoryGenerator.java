@@ -251,13 +251,24 @@ final class RepositoryGenerator implements Generator {
     	}
 
         writer.write("        this.findByIdForUpdate = select(ALL).from(TABLE).where(");
-        if (descriptor.ids().size() == 1) {
-            writer.write("eq(");
-            writer.write(toUpperCase(descriptor.ids().get(0).name()));
-            writer.write(")).forUpdate().build();");
-        } else {
-        }
-        writeNewLine(writer);
+		if (descriptor.ids().size() == 1) {
+			writer.write("eq(");
+			writer.write(toUpperCase(descriptor.ids().get(0).name()));
+			writer.write(")");
+		} else {
+			int max = descriptor.ids().size();
+			writer.write("and(");
+			for (int i = 0; i < max; i++) {
+				PojoPropertyDescriptor ppd = descriptor.ids().get(i);
+				writer.write("eq(");
+				writer.write(toUpperCase(ppd.name()));
+				writer.write(")");
+				writer.write(i < max - 1 ? ", " : "");
+			}
+			writer.write(")");
+		}
+		writer.write(").forUpdate().build();");
+		writeNewLine(writer);
 
     }
 
@@ -324,12 +335,12 @@ final class RepositoryGenerator implements Generator {
         writeNewLine(writer);
 
     }
-    
+
     private static void generateDelete(Writer writer, PojoDescriptor descriptor) throws IOException {
 
     	if (descriptor.getTable() != null && descriptor.getTable().immutable()) {
             return;
-        } 
+        }
     	if (descriptor.getJoinTable() == null && descriptor.getTable() == null) {
     		return;
     	}
@@ -353,8 +364,8 @@ final class RepositoryGenerator implements Generator {
              writer.write(')');
          }
          writer.write(").build();");
-         
-    	
+
+
         writeNewLine(writer);
 
     }
@@ -420,41 +431,66 @@ final class RepositoryGenerator implements Generator {
 
     private static void generateMethodFindByIdForUpdate(Writer writer, PojoDescriptor descriptor) throws IOException {
 
+    	if (descriptor.getTable() != null && descriptor.getTable().immutable()) {
+            return;
+        }
+
     	if (descriptor.getJoinTable() != null) {
     		return;
     	}
 
         writeNewLine(writer);
-        writer.write("    public final ");
-        writer.write(descriptor.element().toString());
-        writer.write(" findByIdForUpdate(");
+		writer.write("    public final ");
+		writer.write(descriptor.element().toString());
+		writer.write(" findByIdForUpdate(");
 
-        if (descriptor.ids().size() == 1) {
-            writer.write(descriptor.ids().get(0).getter().getReturnType().toString());
-            writer.write(" id");
-        } else {
+		if (descriptor.ids().size() == 1) {
+			writer.write(descriptor.ids().get(0).getter().getReturnType().toString());
+			writer.write(" id");
+		} else {
+			int max = descriptor.ids().size();
+			for (int i = 0; i < max; i++) {
+				PojoPropertyDescriptor ppd = descriptor.ids().get(i);
+				writer.write(ppd.getter().getReturnType().toString());
+				writer.write(" ");
+				writer.write(ppd.name());
+				if (i < max - 1) {
+					writer.write(", ");
+				}
+			}
+		}
 
-        }
+		writer.write(") {");
+		writeNewLine(writer);
+		writer.write("        return executeSelect(this.findByIdForUpdate, ps -> ");
 
-        writer.write(") {");
-        writeNewLine(writer);
-        writer.write("        return executeSelect(this.findByIdForUpdate, ps -> ");
+		if (descriptor.ids().size() == 1) {
+			PojoPropertyDescriptor ppd = descriptor.ids().get(0);
+			writer.write("ps.");
+			writer.write(preparedStatementSetter(ppd.getter().getReturnType().toString()));
+			writer.write("(1, id)");
+		} else {
+			writer.write("{ ");
+			for (int i = 0; i < descriptor.ids().size(); i++) {
+				PojoPropertyDescriptor ppd = descriptor.ids().get(i);
+				writer.write("ps.");
+				writer.write(preparedStatementSetter(ppd.getter().getReturnType().toString()));
+				writer.write("(");
+				int foo = i + 1;
+				writer.write("" + foo);
+				writer.write(", ");
+				writer.write(ppd.name());
+				writer.write("); ");
+			}
+			writer.write("}");
+		}
+		writer.write(", Mappers.");
+		writer.write(toUpperCase(descriptor.element().getSimpleName().toString()));
+		writer.write(");");
 
-        if (descriptor.ids().size() == 1) {
-            PojoPropertyDescriptor ppd = descriptor.ids().get(0);
-            writer.write("ps.");
-            writer.write(preparedStatementSetter(ppd.getter().getReturnType().toString()));
-            writer.write("(1, id)");
-        } else {
-
-        }
-        writer.write(", Mappers.");
-        writer.write(toUpperCase(descriptor.element().getSimpleName().toString()));
-        writer.write(");");
-
-        writeNewLine(writer);
-        writer.write("    }");
-        writeNewLine(writer);
+		writeNewLine(writer);
+		writer.write("    }");
+		writeNewLine(writer);
 
     }
 
@@ -692,13 +728,13 @@ final class RepositoryGenerator implements Generator {
             builder.append(target.simpleName().toLowerCase());
             builder.append(", ");
         }
-        
+
         if (builder.length() > 2) {
         	builder.deleteCharAt(builder.length() - 1);
             builder.deleteCharAt(builder.length() - 1);
         }
-        
-        
+
+
         writer.write(builder.toString());
         writer.write(") {");
 
@@ -707,23 +743,23 @@ final class RepositoryGenerator implements Generator {
         writeNewLine(writer);
         writer.write("        " + descriptor.fullyQualidiedClassName() + " pojo = new " + descriptor.fullyQualidiedClassName() + "Impl();");
         writeNewLine(writer);
-        
+
         for (PojoPropertyDescriptor ppd : descriptor.ids()) {
             PojoDescriptor target = sourceCode.getPojoDescriptor(getTarget(ppd.getter().getAnnotation(JoinColumn.class)).toString());
             for (PojoPropertyDescriptor targetId : target.ids()) {
             	StringBuilder b = new StringBuilder();
             	b.append("pojo.");
-            	
+
             	b.append(ppd.setter().getSimpleName().toString()).append("(");
             	b.append(target.simpleName().toLowerCase() + "."+ targetId.getter().toString());
             	b.append(");");
-            	writer.write("        " + b.toString());	
+            	writer.write("        " + b.toString());
             	writeNewLine(writer);
             }
-        	
+
         }
-        
-        
+
+
         writer.write("        executeInsert(this.insert, Mappers.");
         writer.write(toUpperCase(descriptor.element().getSimpleName().toString()));
         writer.write(", pojo);");
@@ -733,7 +769,7 @@ final class RepositoryGenerator implements Generator {
         writeNewLine(writer);
 
     }
-    
+
     private static void generateMethodUnlink(Writer writer, PojoDescriptor descriptor) throws IOException {
 
     	if (descriptor.getJoinTable() == null) {
@@ -751,20 +787,20 @@ final class RepositoryGenerator implements Generator {
             builder.append(target.simpleName().toLowerCase());
             builder.append(", ");
         }
-        
+
         if (builder.length() > 2) {
         	builder.deleteCharAt(builder.length() - 1);
             builder.deleteCharAt(builder.length() - 1);
         }
-        
-        
+
+
         writer.write(builder.toString());
         writer.write(") {");
 
         writeNewLine(writer);
         writer.write("        // execute delete");
         writeNewLine(writer);
-        writer.write("        executeDelete(this.delete, ps -> {"); 
+        writer.write("        executeDelete(this.delete, ps -> {");
         writeNewLine(writer);
         int index = 1;
         for (PojoPropertyDescriptor ppd : descriptor.ids()) {
@@ -780,14 +816,14 @@ final class RepositoryGenerator implements Generator {
             	writer.write(");");
             	//StringBuilder b = new StringBuilder();
             	//b.append("pojo.");
-            	
+
             	//b.append(ppd.setter().getSimpleName().toString()).append("(");
             	//b.append(target.simpleName().toLowerCase() + "."+ targetId.getter().toString());
             	//b.append(");");
-            	//writer.write("        " + b.toString());	
+            	//writer.write("        " + b.toString());
             	writeNewLine(writer);
             }
-        	
+
         }
         writer.write("        });");
         writeNewLine(writer);
