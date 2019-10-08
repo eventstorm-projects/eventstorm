@@ -5,6 +5,12 @@ package eu.eventstorm.util;
  */
 public final class Strings {
 
+    /**
+	 * Empty String.
+	 */
+	public static final String EMPTY = "";
+
+
     // private constructor.
     private Strings() {
     }

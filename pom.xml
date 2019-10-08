@@ -149,7 +149,8 @@
 		<module>eventstorm-util</module>
 		<module>eventstorm-csv</module>
 		<module>eventstorm-sql</module>
-		<module>eventstorm-sql-apt</module>
+        <module>eventstorm-sql-apt</module>
+        <module>eventstorm-bom</module>
 	</modules>
 
 	<profiles>
