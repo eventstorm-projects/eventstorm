@@ -29,9 +29,13 @@ public @interface Table {
      * enable support of page in repository
      */
     boolean pageable() default false;
-    
-    
+
+
     Flyway flyway() default @Flyway(version = "", description = "");
-    
+
+    /**
+     * (Optional) Indexes for the table.
+     */
+    Index[] indexes() default {};
 
 }
