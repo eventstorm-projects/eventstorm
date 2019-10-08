@@ -273,11 +273,6 @@ final class MapperGenerator implements Generator {
 
         int index = 1;
 
-//        for (PojoPropertyDescriptor ppd : descriptor.ids()) {
-//                writePsProperty(writer, ppd, index++);
-//                writeNewLine(writer);
-//        }
-
         for (PojoPropertyDescriptor ppd : descriptor.properties()) {
             if (ppd.getter().getAnnotation(Column.class).updatable()) {
                 writePsProperty(writer, ppd, index++);
@@ -308,6 +303,13 @@ final class MapperGenerator implements Generator {
             writer.write(" != null) {");
             writeNewLine(writer);
             writer.write("    ");
+        }
+        
+        if (Helper.isFushable(ppd.getter().getReturnType().toString())) {
+        	writer.write("        pojo.");
+        	writer.write(ppd.getter().getSimpleName().toString());
+            writer.write("().flush();");
+        	writeNewLine(writer);
         }
 
         writer.write("        ps.");

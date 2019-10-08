@@ -5,6 +5,7 @@ import java.sql.Timestamp;
 
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.sql.annotation.Column;
+import eu.eventstorm.sql.type.Json;
 
 final class FlywayDialectH2 implements FlywayDialect {
 
@@ -40,6 +41,11 @@ final class FlywayDialectH2 implements FlywayDialect {
 		if (float.class.getName().equals(javaType) || Float.class.getName().equals(javaType)) {
 			return "REAL";
 		}
+		
+		if (Json.class.getName().equals(javaType)) {
+			return "BLOB";
+		}
+		
 		LoggerFactory.getInstance().getLogger(FlywayDialectH2.class).error("No sql type for java type [" + javaType + "]");
 		return null;
 	}

@@ -16,6 +16,7 @@ import eu.eventsotrm.sql.apt.model.PojoPropertyDescriptor;
 import eu.eventstorm.sql.annotation.AutoIncrement;
 import eu.eventstorm.sql.annotation.PrimaryKey;
 import eu.eventstorm.sql.id.NoIdentifierGenerator;
+import eu.eventstorm.sql.type.Json;
 
 public final class Helper {
 
@@ -109,6 +110,10 @@ public final class Helper {
             return "setTimestamp";
         }
 
+        if (Json.class.getName().equals(type)) {
+			return "setObject";
+		}
+        
         throw new UnsupportedOperationException("Helper.preparedStatementSetter -> type not supported -> [" + type + "]");
     }
 
@@ -154,6 +159,9 @@ public final class Helper {
             return "getTimestamp";
         }
 
+        if (Json.class.getName().equals(type)) {
+			return "getObject";
+		}
         throw new UnsupportedOperationException("Helper.preparedStatementGetter -> type not supported -> [" + type + "]");
     }
 
@@ -248,10 +256,19 @@ public final class Helper {
             return "fromJdbcSqlXml";
         }
 
-        if ("io.m3.sql.jdbc.SqlJson".equals(type)) {
-            return "fromJdbcSqlJson";
+        if (Json.class.getName().equals(type)) {
+            return "fromJdbcJson";
         }
 
         return null;
+    }
+    
+    public static boolean isFushable(String type) {
+
+        if (Json.class.getName().equals(type)) {
+            return true;
+        }
+
+        return false;
     }
 }

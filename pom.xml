@@ -27,6 +27,7 @@
 		<org.slf4j.version>1.7.28</org.slf4j.version>
 		<org.apache.logging.log4j.version>2.12.1</org.apache.logging.log4j.version>
 		<com.google.guava.version>28.1-jre</com.google.guava.version>
+		<com.fasterxml.jackson.core.version>2.10.0.pr3</com.fasterxml.jackson.core.version>
 
 		<org.junit.jupiter.version>5.5.2</org.junit.jupiter.version>
 		<com.h2database.version>1.4.199</com.h2database.version>
@@ -77,6 +78,18 @@
 				<scope>import</scope>
 			</dependency>
 
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-databind</artifactId>
+				<version>${com.fasterxml.jackson.core.version}</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-core</artifactId>
+				<version>${com.fasterxml.jackson.core.version}</version>
+			</dependency>
+			
 			<!-- testing -->
 			<dependency>
 				<groupId>org.junit</groupId>
@@ -149,8 +162,8 @@
 		<module>eventstorm-util</module>
 		<module>eventstorm-csv</module>
 		<module>eventstorm-sql</module>
-        <module>eventstorm-sql-apt</module>
-        <module>eventstorm-bom</module>
+		<module>eventstorm-sql-apt</module>
+		<module>eventstorm-bom</module>
 	</modules>
 
 	<profiles>
@@ -177,40 +190,40 @@
 							</execution>
 						</executions>
 					</plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <version>2.22.2</version>
-                        <configuration>
-                            <testFailureIgnore>false</testFailureIgnore>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>default-test</id>
-                                <phase>test</phase>
-                                <goals>
-                                    <goal>test</goal>
-                                </goals>
-                                <configuration>
-                                    <systemPropertyVariables>
-                                        <log4j2.level>ALL</log4j2.level>
-                                    </systemPropertyVariables>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>log-none</id>
-                                <phase>test</phase>
-                                <goals>
-                                    <goal>test</goal>
-                                </goals>
-                                <configuration>
-                                    <systemPropertyVariables>
-                                        <log4j2.level>OFF</log4j2.level>
-                                    </systemPropertyVariables>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<version>2.22.2</version>
+						<configuration>
+							<testFailureIgnore>false</testFailureIgnore>
+						</configuration>
+						<executions>
+							<execution>
+								<id>default-test</id>
+								<phase>test</phase>
+								<goals>
+									<goal>test</goal>
+								</goals>
+								<configuration>
+									<systemPropertyVariables>
+										<log4j2.level>ALL</log4j2.level>
+									</systemPropertyVariables>
+								</configuration>
+							</execution>
+							<execution>
+								<id>log-none</id>
+								<phase>test</phase>
+								<goals>
+									<goal>test</goal>
+								</goals>
+								<configuration>
+									<systemPropertyVariables>
+										<log4j2.level>OFF</log4j2.level>
+									</systemPropertyVariables>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
 				</plugins>
 			</build>
 		</profile>
