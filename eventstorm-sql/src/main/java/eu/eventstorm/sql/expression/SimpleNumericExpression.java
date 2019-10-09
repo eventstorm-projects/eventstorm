@@ -7,10 +7,6 @@ import eu.eventstorm.sql.desc.SqlColumn;
  */
 final class SimpleNumericExpression extends SimpleExpression<Number> {
 
-	SimpleNumericExpression(SqlColumn column, String operation) {
-		super(column, operation);
-	}
-
 	SimpleNumericExpression(SqlColumn column, String operation, Number value) {
 		super(column, operation, value);
 	}

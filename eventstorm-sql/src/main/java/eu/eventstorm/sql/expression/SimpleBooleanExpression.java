@@ -7,10 +7,6 @@ import eu.eventstorm.sql.desc.SqlColumn;
  */
 final class SimpleBooleanExpression extends SimpleExpression<Boolean> {
 
-	SimpleBooleanExpression(SqlColumn column, String operation) {
-		super(column, operation);
-	}
-
 	SimpleBooleanExpression(SqlColumn column, String operation, Boolean value) {
 		super(column, operation, value);
 	}

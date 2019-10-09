@@ -11,7 +11,7 @@ public final class Expressions {
     }
 
     public static Expression eq(SqlColumn column) {
-        return new SimpleStringExpression(column, "=");
+        return new ParameterSimpleExpression(column, "=");
     }
 
     public static Expression eq(SqlColumn column, String value) {

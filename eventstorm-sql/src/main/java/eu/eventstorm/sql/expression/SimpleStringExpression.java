@@ -11,10 +11,6 @@ final class SimpleStringExpression extends SimpleExpression<String> {
 		super(column, operation, value);
 	}
 
-	SimpleStringExpression(SqlColumn column, String operation) {
-		super(column, operation);
-	}
-
 	@Override
 	protected void buildValue(StringBuilder builder, String value) {
 		builder.append('\'').append(value).append('\'');
