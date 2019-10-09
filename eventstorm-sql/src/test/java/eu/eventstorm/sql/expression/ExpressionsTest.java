@@ -34,15 +34,19 @@ class ExpressionsTest {
 
         assertEquals("a.number=123", Expressions.eq(number, 123).build(dialect, true));
         assertEquals("number=123", Expressions.eq(number, 123).build(dialect, false));
-
+        assertEquals("number=123", Expressions.eq(number, 123).toString());
+        
         assertEquals("a.number='ABCD'", Expressions.eq(number, "ABCD").build(dialect, true));
         assertEquals("number='ABCD'", Expressions.eq(number, "ABCD").build(dialect, false));
-
+        assertEquals("number='ABCD'", Expressions.eq(number, "ABCD").toString());
+        
         assertEquals("a.number=true", Expressions.eq(number, true).build(dialect, true));
         assertEquals("number=false", Expressions.eq(number, false).build(dialect, false));
+        assertEquals("number=false", Expressions.eq(number, false).toString());
 
         assertEquals("a.number=?", Expressions.eq(number).build(dialect, true));
         assertEquals("number=?", Expressions.eq(number).build(dialect, false));
+        assertEquals("number=?", Expressions.eq(number).toString());
 
     }
 }

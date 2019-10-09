@@ -87,7 +87,7 @@ public final class FastByteArrayInputStream extends InputStream {
 		// nothing to do -> heap space
 	}
 
-	public byte[] realAll() {
+	public byte[] readAll() {
 		byte[] bytes = new byte[limit - pos];
 		System.arraycopy(this.hb, pos, bytes, 0, limit - pos);
 		pos = limit;

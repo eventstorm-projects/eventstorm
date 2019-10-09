@@ -1,6 +1,8 @@
 package eu.eventstorm.util;
 
-import org.junit.jupiter.api.Assertions;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -11,66 +13,77 @@ import eu.eventstorm.test.LoggerInstancePostProcessor;
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 @ExtendWith(LoggerInstancePostProcessor.class)
-public class FastByteArrayInputStreamTest {
+class FastByteArrayInputStreamTest {
 
 	@Test
-	public void testRead() {
+	void testRead() {
 
 		try (FastByteArrayInputStream is = new FastByteArrayInputStream("hello".getBytes())) {
 			int value = is.read();
-			Assertions.assertEquals((int) 'h', value);
+			assertEquals((int) 'h', value);
 			value = is.read();
-			Assertions.assertEquals((int) 'e', value);
+			assertEquals((int) 'e', value);
 			value = is.read();
-			Assertions.assertEquals((int) 'l', value);
+			assertEquals((int) 'l', value);
 			value = is.read();
-			Assertions.assertEquals((int) 'l', value);
+			assertEquals((int) 'l', value);
 			value = is.read();
-			Assertions.assertEquals((int) 'o', value);
+			assertEquals((int) 'o', value);
 
+			assertEquals(5, is.pos());
+			
 			value = is.read();
-			Assertions.assertEquals(-1, value);
+			assertEquals(-1, value);
+			
+			assertEquals(5, is.pos());
+			
 			value = is.read();
-			Assertions.assertEquals(-1, value);
-
+			assertEquals(-1, value);
+			
+			assertEquals(5, is.pos());
+			assertEquals(5, is.size());
+		}
+		
+		try (FastByteArrayInputStream is = new FastByteArrayInputStream("hello".getBytes())) {
+			assertArrayEquals("hello".getBytes(),is.readAll());
 		}
 	}
 
 	@Test
-	public void testReadByteArray() {
+	void testReadByteArray() {
 
 		try (FastByteArrayInputStream is = new FastByteArrayInputStream("hello World !!".getBytes())) {
 			byte[] bytes = new byte[6];
 
 			is.read(bytes);
-			Assertions.assertEquals("hello ", new String(bytes));
+			assertEquals("hello ", new String(bytes));
 
 			is.read(bytes);
-			Assertions.assertEquals("World ", new String(bytes));
+			assertEquals("World ", new String(bytes));
 
 			int value = is.read(bytes);
-			Assertions.assertEquals("!!", new String(bytes, 0, value));
-			Assertions.assertEquals(2, value);
+			assertEquals("!!", new String(bytes, 0, value));
+			assertEquals(2, value);
 
-			Assertions.assertEquals(-1, is.read(bytes));
-			Assertions.assertEquals(-1, is.read(bytes));
-			Assertions.assertEquals(-1, is.read());
-			Assertions.assertEquals(-1, is.read(bytes, 0, 4));
+			assertEquals(-1, is.read(bytes));
+			assertEquals(-1, is.read(bytes));
+			assertEquals(-1, is.read());
+			assertEquals(-1, is.read(bytes, 0, 4));
 		}
 	}
 
 	@Test
-	public void testReadByteArrayReset() {
+	void testReadByteArrayReset() {
 
 		try (FastByteArrayInputStream is = new FastByteArrayInputStream("hello World !!".getBytes())) {
 			byte[] bytes = new byte[8];
 
 			is.read(bytes);
-			Assertions.assertEquals("hello Wo", new String(bytes));
+			assertEquals("hello Wo", new String(bytes));
 
 			is.reset();
 			is.read(bytes);
-			Assertions.assertEquals("hello Wo", new String(bytes));
+			assertEquals("hello Wo", new String(bytes));
 			
 			
 		}
