@@ -7,7 +7,7 @@ import eu.eventstorm.sql.desc.SqlColumn;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-final class SimpleExpression implements Expression {
+abstract class SimpleExpression<T> implements Expression {
 
     /**
      * Operation for this SQL (=, <, >, >=, <=).
@@ -22,13 +22,13 @@ final class SimpleExpression implements Expression {
     /**
      * value
      */
-    private final String value;
+    private final T value;
 
     public SimpleExpression(SqlColumn column, String operation) {
         this(column, operation, null);
     }
 
-    public SimpleExpression(SqlColumn column, String operation, String value) {
+    public SimpleExpression(SqlColumn column, String operation, T value) {
         this.operation = operation;
         this.column = column;
         this.value = value;
@@ -38,31 +38,26 @@ final class SimpleExpression implements Expression {
     /** {@inheritDoc} */
     @Override
     public String build(Dialect dialect, boolean alias) {
-        StringBuilder builder =  new StringBuilder(32);
+    	StringBuilder builder =  new StringBuilder(32);
 
-        if (alias) {
+    	if (alias) {
             builder.append(column.table().alias()).append('.');
         }
 
-        builder.append(column.name()).append(operation);
-        if (value == null) {
-            builder.append('?');
-        } else {
-            builder.append('\'').append(value).append('\'');
-        }
-        return builder.toString();
+    	builder.append(column.name()).append(operation);
+    	if (value == null) {
+    		builder.append('?');
+    	} else {
+    		buildValue(builder, value);
+    	}
+    	return builder.toString();
     }
 
     @Override
     public String toString() {
-        StringBuilder builder =  new StringBuilder(32);
-        builder.append(column.name()).append(operation);
-        if (value == null) {
-            builder.append('?');
-        } else {
-            builder.append('\'').append(value).append('\'');
-        }
-        return builder.toString();
+    	return build(null, false);
     }
+
+    protected abstract void buildValue(StringBuilder builder, T value);
 
 }
