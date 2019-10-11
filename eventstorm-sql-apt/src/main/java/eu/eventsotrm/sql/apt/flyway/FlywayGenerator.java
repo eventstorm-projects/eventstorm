@@ -197,6 +197,8 @@ public class FlywayGenerator {
 		}
 	}
 
+	
+
 	private void generateJoinTable(PojoDescriptor descriptor, FlywayDialect fd, List<Column> businessKeys, Writer writer,
 			JoinTable table) throws IOException {
 		StringBuilder builder = new StringBuilder();

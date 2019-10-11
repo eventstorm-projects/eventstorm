@@ -21,7 +21,7 @@ class InsertBuilderTest {
 
     private static final SqlTable TABLE_T1 = new SqlTable("T1", "a");
 
-    private static final SqlPrimaryKey COL_T1_01 = new SqlPrimaryKey(TABLE_T1, "col_T1_01");
+    private static final SqlPrimaryKey COL_T1_01 = new SqlPrimaryKey(TABLE_T1, null, "col_T1_01");
     private static final SqlSingleColumn COL_T1_02 = new SqlSingleColumn(TABLE_T1, "col_T1_02", false, true, true);
     private static final SqlSingleColumn COL_T1_03 = new SqlSingleColumn(TABLE_T1, "col_T1_03", true, true, true);
     private static final SqlSingleColumn COL_T1_04 = new SqlSingleColumn(TABLE_T1, "col_T1_04", true, false, true);

@@ -12,16 +12,13 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 
-import eu.eventsotrm.sql.apt.Helper;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventsotrm.sql.apt.model.PojoDescriptor;
 import eu.eventsotrm.sql.apt.model.PojoPropertyDescriptor;
 import eu.eventstorm.sql.annotation.Column;
 import eu.eventstorm.sql.annotation.PrimaryKey;
-import eu.eventstorm.sql.annotation.Sequence;
 import eu.eventstorm.sql.annotation.Version;
-import eu.eventstorm.sql.id.SequenceGenerator;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -89,7 +86,6 @@ public final class SqlInterfaceAnalyser implements Function<Element, PojoDescrip
             if (executableElement.getSimpleName().toString().startsWith("get")) {
                 PrimaryKey primaryKey = executableElement.getAnnotation(PrimaryKey.class);
                 if (primaryKey != null) {
-                    validatePrimaryKey(executableElement, primaryKey);
                     ids.add(new PojoPropertyDescriptor(executableElement));
                     continue;
                 }
@@ -145,7 +141,7 @@ public final class SqlInterfaceAnalyser implements Function<Element, PojoDescrip
         return new PojoDescriptor(element, ids, version, ppds);
     }
 
-    private void validatePrimaryKey(ExecutableElement executableElement, PrimaryKey primaryKey) {
+   /* private void validatePrimaryKey(ExecutableElement executableElement, PrimaryKey primaryKey) {
 
         Class<?> identifier = Helper.extractPrimaryKeyGenerator(executableElement);
 
@@ -155,7 +151,7 @@ public final class SqlInterfaceAnalyser implements Function<Element, PojoDescrip
             	logger.error("PrimaryKey [" + primaryKey + "] in [" + executableElement.getEnclosingElement() + "]  type sequence -> missing annotation @Sequence");
             }
         }
-    }
+    }*/
 
     private void validateVersion(ExecutableElement executableElement, Version Version) {
         String type = executableElement.getReturnType().toString();

@@ -3,19 +3,10 @@ package eu.eventsotrm.sql.apt;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Map;
 
-import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.AnnotationValue;
-import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.type.DeclaredType;
-
-import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventsotrm.sql.apt.model.PojoDescriptor;
 import eu.eventsotrm.sql.apt.model.PojoPropertyDescriptor;
 import eu.eventstorm.sql.annotation.AutoIncrement;
-import eu.eventstorm.sql.annotation.PrimaryKey;
-import eu.eventstorm.sql.id.NoIdentifierGenerator;
 import eu.eventstorm.sql.type.Json;
 
 public final class Helper {
@@ -202,36 +193,6 @@ public final class Helper {
         throw new UnsupportedOperationException("Helper.nullableType -> type not supported -> [" + type + "]");
 
     }
-
-
-    public static Class<?> extractPrimaryKeyGenerator(ExecutableElement ee) {
-        Class<?> clazz = null;
-        for (AnnotationMirror mirror : ee.getAnnotationMirrors()) {
-
-            if (PrimaryKey.class.getName().equals(mirror.getAnnotationType().toString())) {
-                for(Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : mirror.getElementValues().entrySet() ) {
-                    if ("generator()".equals(entry.getKey().toString())) {
-
-                        DeclaredType type = (DeclaredType) entry.getValue().getValue();
-
-                        try {
-                            clazz = Class.forName(type.toString());
-                        } catch (ClassNotFoundException cause) {
-                            LoggerFactory.getInstance().getLogger(Helper.class).error("Failed to load class [" + type + "]", cause);
-                        }
-                    }
-                }
-                if (clazz == null) {
-                    clazz = NoIdentifierGenerator.class;
-                }
-            }
-
-
-        }
-
-        return clazz;
-    }
-
 
     public static boolean hasAutoIncrementPK(PojoDescriptor desc) {
         for (PojoPropertyDescriptor ppd : desc.ids()) {

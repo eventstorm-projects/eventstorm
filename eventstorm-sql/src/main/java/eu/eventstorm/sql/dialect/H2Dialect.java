@@ -22,7 +22,7 @@ final class H2Dialect extends AbstractDialect {
 
     @Override
     public String nextVal(SqlSequence sequence) {
-        return "SELECT NEXTVAL('" + sequence.name() + "')";
+        return "SELECT NEXTVAL('" + prefix(sequence) + "')";
     }
 
     @Override

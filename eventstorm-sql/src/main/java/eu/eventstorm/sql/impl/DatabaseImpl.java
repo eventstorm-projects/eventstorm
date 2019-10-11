@@ -14,6 +14,8 @@ import com.google.common.collect.ImmutableMap;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Dialect;
 import eu.eventstorm.sql.Module;
+import eu.eventstorm.sql.desc.SqlPrimaryKey;
+import eu.eventstorm.sql.desc.SqlSequence;
 import eu.eventstorm.sql.desc.SqlTable;
 import eu.eventstorm.sql.dialect.Dialects;
 import eu.eventstorm.sql.tx.TransactionManager;
@@ -46,6 +48,8 @@ public final class DatabaseImpl implements Database {
     private final Module[] modules;
 
     private final ImmutableMap<SqlTable, Module> tables;
+    
+    private final ImmutableMap<SqlSequence, Module> sequences;
 
     /**
      * @param dataSource    the {@link DataSource}
@@ -67,10 +71,19 @@ public final class DatabaseImpl implements Database {
         }
 
         ImmutableMap.Builder<SqlTable, Module> builder = ImmutableMap.builder();
+        ImmutableMap.Builder<SqlSequence, Module> builderSequences = ImmutableMap.builder();
         for (Module m : this.modules) {
-            m.descriptors().forEach(d -> builder.put(d.table(), m));
+            m.descriptors().forEach(d -> {
+            	builder.put(d.table(), m);
+            	for (SqlPrimaryKey pk : d.ids()) {
+            		if (pk.sequence() != null) {
+            			builderSequences.put(pk.sequence(), m);
+            		}
+            	}
+            });
         }
         tables = builder.build();
+        sequences = builderSequences.build();
         
         postInit();
     }
@@ -106,9 +119,15 @@ public final class DatabaseImpl implements Database {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Module getModule(SqlTable table) {
         return this.tables.get(table);
     }
+    
+    @Override
+	public Module getModule(SqlSequence sequence) {
+		return this.sequences.get(sequence);
+	}
 
     public void postInit() {
         trace(dataSource, this.modules);

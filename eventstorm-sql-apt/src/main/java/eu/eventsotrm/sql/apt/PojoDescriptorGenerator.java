@@ -1,6 +1,5 @@
 package eu.eventsotrm.sql.apt;
 
-import static eu.eventsotrm.sql.apt.Helper.extractPrimaryKeyGenerator;
 import static eu.eventsotrm.sql.apt.Helper.toUpperCase;
 import static eu.eventsotrm.sql.apt.Helper.writeGenerated;
 import static eu.eventsotrm.sql.apt.Helper.writeNewLine;
@@ -32,8 +31,6 @@ import eu.eventstorm.sql.desc.SqlPrimaryKey;
 import eu.eventstorm.sql.desc.SqlSequence;
 import eu.eventstorm.sql.desc.SqlSingleColumn;
 import eu.eventstorm.sql.desc.SqlTable;
-import eu.eventstorm.sql.id.NoIdentifierGenerator;
-import eu.eventstorm.sql.id.SequenceGenerator;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -154,13 +151,7 @@ final class PojoDescriptorGenerator implements Generator {
 		boolean hasSequence = false;
 		for (PojoPropertyDescriptor id : descriptor.ids()) {
 
-			Class<?> identifier = extractPrimaryKeyGenerator(id.getter());
-
-			if (identifier.isAssignableFrom(NoIdentifierGenerator.class)) {
-				continue;
-			}
-
-			if (SequenceGenerator.class.isAssignableFrom(identifier)) {
+			if (id.getter().getAnnotation(Sequence.class) != null) {
 				if (hasSequence) {
 					throw new SqlProcessorException("Failed to generate PojoDescriptor for [" + descriptor
 							+ "] -> pojo has more than 1 sequence !");
@@ -194,11 +185,17 @@ final class PojoDescriptorGenerator implements Generator {
 			writer.write(toUpperCase(id.name()));
 			writer.write(" = new ");
 			writer.write(SqlPrimaryKey.class.getName());
-			writer.write("(TABLE, \"");
+			writer.write("(TABLE, ");
 
 			if (id.getter().getAnnotation(PrimaryKey.class) != null) {
+				if (id.getter().getAnnotation(Sequence.class) != null) {
+					writer.write(" SEQUENCE, \"");
+				} else {
+					writer.write(" null, \"");
+				}
 				writer.write(id.getter().getAnnotation(PrimaryKey.class).value());
 			} else if (id.getter().getAnnotation(JoinColumn.class) != null) {
+				writer.write(" null, \"");
 				writer.write(id.getter().getAnnotation(JoinColumn.class).value());
 			}
 

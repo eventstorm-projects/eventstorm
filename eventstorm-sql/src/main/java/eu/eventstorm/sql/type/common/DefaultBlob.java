@@ -9,7 +9,7 @@ import eu.eventstorm.util.FastByteArrayInputStream;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-public abstract class DefaultBlob implements Blob {
+abstract class DefaultBlob implements Blob {
 
 	private static final byte[] EMTPY = new byte[0]; 
 	

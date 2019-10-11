@@ -1,5 +1,6 @@
 package eu.eventstorm.sql.dialect;
 
+import static com.google.common.collect.ImmutableMap.of;
 import static java.util.Objects.requireNonNull;
 
 import java.io.IOException;
@@ -7,12 +8,11 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableMap;
-
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Dialect;
 import eu.eventstorm.sql.Module;
 import eu.eventstorm.sql.desc.SqlColumn;
+import eu.eventstorm.sql.desc.SqlSequence;
 import eu.eventstorm.sql.desc.SqlTable;
 import eu.eventstorm.util.Strings;
 
@@ -29,16 +29,27 @@ abstract class AbstractDialect implements Dialect {
 	final String prefix(SqlTable table) {
 		Module module = this.database.getModule(table);
 		if (module == null) {
-			throw new EventstormDialectException(EventstormDialectException.Type.MODULE_NOT_FOUND, ImmutableMap.of("table", table));
+			throw new EventstormDialectException(EventstormDialectException.Type.MODULE_NOT_FOUND, of("table", table));
 		}
-		requireNonNull(this.database.getModule(table), "table [" + table);
 		if (Strings.isEmpty(module.catalog())) {
 			return table.name();
 		} else {
 			return module.catalog().concat(".").concat(table.name());
 		}
 	}
-
+	
+	protected final String prefix(SqlSequence sequence) {
+		Module module = requireNonNull(this.database.getModule(sequence));
+		if (module == null) {
+			throw new EventstormDialectException(EventstormDialectException.Type.MODULE_NOT_FOUND, of("sequence", sequence));
+		}
+		if (Strings.isEmpty(module.catalog())) {
+			return sequence.name();
+		} else {
+			return module.catalog().concat(".").concat(sequence.name());
+		}
+	}
+	
 	@Override
 	public void wrap(Appendable appendable, SqlTable table, boolean alias) {
 		try {

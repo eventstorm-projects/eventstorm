@@ -1,6 +1,5 @@
 package eu.eventsotrm.sql.apt;
 
-import static eu.eventsotrm.sql.apt.Helper.extractPrimaryKeyGenerator;
 import static eu.eventsotrm.sql.apt.Helper.hasAutoIncrementPK;
 import static eu.eventsotrm.sql.apt.Helper.preparedStatementSetter;
 import static eu.eventsotrm.sql.apt.Helper.toUpperCase;
@@ -30,14 +29,15 @@ import eu.eventstorm.sql.annotation.AutoIncrement;
 import eu.eventstorm.sql.annotation.CreateTimestamp;
 import eu.eventstorm.sql.annotation.JoinColumn;
 import eu.eventstorm.sql.annotation.JoinTable;
+import eu.eventstorm.sql.annotation.Sequence;
 import eu.eventstorm.sql.annotation.Table;
 import eu.eventstorm.sql.annotation.UpdateTimestamp;
 import eu.eventstorm.sql.domain.Page;
 import eu.eventstorm.sql.domain.Pageable;
 import eu.eventstorm.sql.expression.AggregateFunctions;
 import eu.eventstorm.sql.expression.Expressions;
-import eu.eventstorm.sql.id.NoIdentifierGenerator;
-import eu.eventstorm.sql.id.SequenceGenerator;
+import eu.eventstorm.sql.id.SequenceGenerator4Integer;
+import eu.eventstorm.sql.id.SequenceGenerator4Long;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -167,22 +167,20 @@ final class RepositoryGenerator implements Generator {
 
 
         for (PojoPropertyDescriptor id : descriptor.ids()) {
-            Class<?> identifier = extractPrimaryKeyGenerator(id.getter());
-
-            if (identifier == null ) {
-            	// case of JointTable
-            	continue;
-            }
-
-            if (identifier.isAssignableFrom(NoIdentifierGenerator.class)) {
-                continue;
-            }
-            if (SequenceGenerator.class.isAssignableFrom(identifier)) {
+        	if (id.getter().getAnnotation(Sequence.class) != null) {
                 writeNewLine(writer);
                 writer.write("    private final ");
-                writer.write(identifier.getName());
+                String sequenceClass;
+                if ("int".equals(id.getter().getReturnType().toString())) {
+                	sequenceClass = SequenceGenerator4Integer.class.getName();
+                } else if ("long".equals(id.getter().getReturnType().toString())) {
+                	sequenceClass = SequenceGenerator4Long.class.getName();
+                } else {
+                	throw new IllegalStateException();
+                }
+                writer.write(sequenceClass);
                 writer.write(" idGenerator = new ");
-                writer.write(identifier.getName());
+                writer.write(sequenceClass);
                 writer.write("(database(), ");
                 writer.write(descriptor.fullyQualidiedClassName() + "Descriptor.SEQUENCE");
                 writer.write(");");
@@ -502,11 +500,7 @@ final class RepositoryGenerator implements Generator {
         writer.write(" pojo) {");
 
         for (PojoPropertyDescriptor id : descriptor.ids()) {
-            Class<?> identifier = extractPrimaryKeyGenerator(id.getter());
-            if (identifier == null || identifier.isAssignableFrom(NoIdentifierGenerator.class)) {
-                continue;
-            }
-            if (SequenceGenerator.class.isAssignableFrom(identifier)) {
+        	if (id.getter().getAnnotation(Sequence.class) != null) {
                 writeNewLine(writer);
                 writer.write("        // generate identifier");
                 writeNewLine(writer);

@@ -5,13 +5,20 @@ package eu.eventstorm.sql.desc;
  */
 public final class SqlPrimaryKey extends SqlColumn {
 
-    public SqlPrimaryKey(SqlTable table, String name) {
+	private final SqlSequence sequence;
+	
+    public SqlPrimaryKey(SqlTable table, SqlSequence sequence, String name) {
         super(table, name);
+        this.sequence = sequence;
     }
-
 
     @Override
     protected SqlColumn newColumFromAlias(SqlTable targetTable) {
-        return new SqlPrimaryKey(targetTable, this.name());
+        return new SqlPrimaryKey(targetTable, this.sequence, this.name());
     }
+    
+    public SqlSequence sequence() {
+    	return this.sequence;
+    }
+    
 }

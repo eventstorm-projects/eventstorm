@@ -6,12 +6,12 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.Set;
 
 import javax.sql.DataSource;
 
 import org.h2.jdbcx.JdbcConnectionPool;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -76,8 +76,28 @@ class JsonTest {
 		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
 			Span s2 = repo.findById(2);
 			s2.getContent().put("key1", "val01__update");
+			for (int i = 0 ; i < 100 ; i++) {
+				s2.getContent().put("key__" + i, "val" + i);
+			}
 			repo.update(s2);
 			tx.commit();
+		}
+		
+		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
+			Span s2 = repo.findById(2);
+			assertEquals("val01__update", s2.getContent().get("key1", String.class));
+			assertEquals("val01__update",s2.getContent().remove("key1"));
+			repo.update(s2);
+			tx.commit();
+		}
+		
+		try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
+			Span s2 = repo.findById(2);
+			assertEquals(100, s2.getContent().keys().size());
+			for (String key : s2.getContent().keys()) {
+				assertEquals("val" + key.substring(5), s2.getContent().get(key, String.class));
+			}
+			tx.rollback();
 		}
 		
 	}

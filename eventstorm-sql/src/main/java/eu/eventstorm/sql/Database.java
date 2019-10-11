@@ -2,6 +2,7 @@ package eu.eventstorm.sql;
 
 import javax.sql.DataSource;
 
+import eu.eventstorm.sql.desc.SqlSequence;
 import eu.eventstorm.sql.desc.SqlTable;
 import eu.eventstorm.sql.tx.TransactionManager;
 
@@ -19,4 +20,7 @@ public interface Database {
     boolean isMonoSchema();
 
     Module getModule(SqlTable table);
+    
+    Module getModule(SqlSequence sequence);
+    
 }

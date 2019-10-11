@@ -14,7 +14,7 @@ public final class SpanDescriptor implements eu.eventstorm.sql.Descriptor {
     public static final eu.eventstorm.sql.desc.SqlTable TABLE = new eu.eventstorm.sql.desc.SqlTable("span", "a");
 
     // SQL PRIMARY KEY
-    public static final eu.eventstorm.sql.desc.SqlPrimaryKey ID = new eu.eventstorm.sql.desc.SqlPrimaryKey(TABLE, "id");
+    public static final eu.eventstorm.sql.desc.SqlPrimaryKey ID = new eu.eventstorm.sql.desc.SqlPrimaryKey(TABLE, null, "id");
 
     // SQL PROPERTIES
     public static final eu.eventstorm.sql.desc.SqlSingleColumn CONTENT = new eu.eventstorm.sql.desc.SqlSingleColumn(TABLE, "content", false, true, true);
