@@ -1,7 +1,6 @@
 package eu.eventstorm.sql.dialect;
 
 import static com.google.common.collect.ImmutableMap.of;
-import static java.util.Objects.requireNonNull;
 
 import java.io.IOException;
 
@@ -39,7 +38,7 @@ abstract class AbstractDialect implements Dialect {
 	}
 	
 	protected final String prefix(SqlSequence sequence) {
-		Module module = requireNonNull(this.database.getModule(sequence));
+		Module module = this.database.getModule(sequence);
 		if (module == null) {
 			throw new EventstormDialectException(EventstormDialectException.Type.MODULE_NOT_FOUND, of("sequence", sequence));
 		}
