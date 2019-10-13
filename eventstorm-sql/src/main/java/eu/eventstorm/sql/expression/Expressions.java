@@ -26,6 +26,10 @@ public final class Expressions {
 		return new SimpleBooleanExpression(column, "=", value);
     }
 
+    public static Expression notEq(SqlColumn column) {
+		return new ParameterSimpleExpression(column, "<>");
+    }
+    
     public static Expression notEq(SqlColumn column, String value) {
 		return new SimpleStringExpression(column, "<>", value);
     }

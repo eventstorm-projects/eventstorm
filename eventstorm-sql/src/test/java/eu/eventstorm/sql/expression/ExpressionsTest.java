@@ -49,4 +49,27 @@ class ExpressionsTest {
         assertEquals("number=?", Expressions.eq(number).toString());
 
     }
+    
+    @Test
+    void testNotEq() {
+
+        SqlColumn number = new SqlSingleColumn(table, "number", false, true, true);
+
+        assertEquals("a.number<>123", Expressions.notEq(number, 123).build(dialect, true));
+        assertEquals("number<>123", Expressions.notEq(number, 123).build(dialect, false));
+        assertEquals("number<>123", Expressions.notEq(number, 123).toString());
+        
+        assertEquals("a.number<>'ABCD'", Expressions.notEq(number, "ABCD").build(dialect, true));
+        assertEquals("number<>'ABCD'", Expressions.notEq(number, "ABCD").build(dialect, false));
+        assertEquals("number<>'ABCD'", Expressions.notEq(number, "ABCD").toString());
+        
+        assertEquals("a.number<>true", Expressions.notEq(number, true).build(dialect, true));
+        assertEquals("number<>false", Expressions.notEq(number, false).build(dialect, false));
+        assertEquals("number<>false", Expressions.notEq(number, false).toString());
+
+        assertEquals("a.number<>?", Expressions.notEq(number).build(dialect, true));
+        assertEquals("number<>?", Expressions.notEq(number).build(dialect, false));
+        assertEquals("number<>?", Expressions.notEq(number).toString());
+
+    }
 }
