@@ -42,6 +42,38 @@ public final class Expressions {
 		return new SimpleBooleanExpression(column, "<>", value);
 	}
 
+    public static Expression ge(SqlColumn column) {
+		return new ParameterSimpleExpression(column, ">=");
+    }
+    
+    public static Expression ge(SqlColumn column, Number value) {
+		return new SimpleNumericExpression(column, ">=", value);
+    }
+    
+    public static Expression le(SqlColumn column) {
+		return new ParameterSimpleExpression(column, "<=");
+    }
+    
+    public static Expression le(SqlColumn column, Number value) {
+		return new SimpleNumericExpression(column, "<=", value);
+    }
+    
+    public static Expression gt(SqlColumn column) {
+		return new ParameterSimpleExpression(column, ">");
+    }
+    
+    public static Expression gt(SqlColumn column, Number value) {
+		return new SimpleNumericExpression(column, ">", value);
+    }
+
+    public static Expression lt(SqlColumn column) {
+		return new ParameterSimpleExpression(column, "<");
+    }
+    
+    public static Expression lt(SqlColumn column, Number value) {
+		return new SimpleNumericExpression(column, "<", value);
+    }
+    
     public static Expression and(Expression left, Expression right, Expression... others) {
         return new LogicalExpression("AND", left, right, others);
     }

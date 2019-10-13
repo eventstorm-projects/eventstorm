@@ -72,4 +72,64 @@ class ExpressionsTest {
         assertEquals("number<>?", Expressions.notEq(number).toString());
 
     }
+
+    @Test
+    void testGe() {
+
+        SqlColumn number = new SqlSingleColumn(table, "number", false, true, true);
+
+        assertEquals("a.number>=123", Expressions.ge(number, 123).build(dialect, true));
+        assertEquals("number>=123", Expressions.ge(number, 123).build(dialect, false));
+        assertEquals("number>=123", Expressions.ge(number, 123).toString());
+        
+        assertEquals("a.number>=?", Expressions.ge(number).build(dialect, true));
+        assertEquals("number>=?", Expressions.ge(number).build(dialect, false));
+        assertEquals("number>=?", Expressions.ge(number).toString());
+
+    }
+    
+    @Test
+    void testLe() {
+
+        SqlColumn number = new SqlSingleColumn(table, "number", false, true, true);
+
+        assertEquals("a.number<=123", Expressions.le(number, 123).build(dialect, true));
+        assertEquals("number<=123", Expressions.le(number, 123).build(dialect, false));
+        assertEquals("number<=123", Expressions.le(number, 123).toString());
+        
+        assertEquals("a.number<=?", Expressions.le(number).build(dialect, true));
+        assertEquals("number<=?", Expressions.le(number).build(dialect, false));
+        assertEquals("number<=?", Expressions.le(number).toString());
+
+    }
+    
+    @Test
+    void testGt() {
+
+        SqlColumn number = new SqlSingleColumn(table, "number", false, true, true);
+
+        assertEquals("a.number>123", Expressions.gt(number, 123).build(dialect, true));
+        assertEquals("number>123", Expressions.gt(number, 123).build(dialect, false));
+        assertEquals("number>123", Expressions.gt(number, 123).toString());
+        
+        assertEquals("a.number>?", Expressions.gt(number).build(dialect, true));
+        assertEquals("number>?", Expressions.gt(number).build(dialect, false));
+        assertEquals("number>?", Expressions.gt(number).toString());
+
+    }
+    
+    @Test
+    void testLt() {
+
+        SqlColumn number = new SqlSingleColumn(table, "number", false, true, true);
+
+        assertEquals("a.number<123", Expressions.lt(number, 123).build(dialect, true));
+        assertEquals("number<123", Expressions.lt(number, 123).build(dialect, false));
+        assertEquals("number<123", Expressions.lt(number, 123).toString());
+        
+        assertEquals("a.number<?", Expressions.lt(number).build(dialect, true));
+        assertEquals("number<?", Expressions.lt(number).build(dialect, false));
+        assertEquals("number<?", Expressions.lt(number).toString());
+
+    }
 }
