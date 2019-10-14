@@ -23,6 +23,9 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
 
+import eu.eventstorm.sql.tx.tracer.TransactionSpan;
+import eu.eventstorm.sql.tx.tracer.TransactionTracer;
+
 final class EventstormPreparedStatement implements PreparedStatement {
 
 	public static final String TAG_SQL = "sql";

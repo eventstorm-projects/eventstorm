@@ -28,11 +28,12 @@
 		<org.apache.logging.log4j.version>2.12.1</org.apache.logging.log4j.version>
 		<com.google.guava.version>28.1-jre</com.google.guava.version>
 		<com.fasterxml.jackson.core.version>2.10.0.pr3</com.fasterxml.jackson.core.version>
+		<io.zipkin.brave.version>5.8.0</io.zipkin.brave.version>
 
 		<org.junit.jupiter.version>5.5.2</org.junit.jupiter.version>
 		<com.h2database.version>1.4.199</com.h2database.version>
 		<org.mockito.version>3.0.0</org.mockito.version>
-		<org.flywaydb.version>6.0.4</org.flywaydb.version>
+		<org.flywaydb.version>6.0.6</org.flywaydb.version>
 	</properties>
 
 	<distributionManagement>
@@ -79,17 +80,25 @@
 			</dependency>
 
 			<dependency>
+				<groupId>io.zipkin.brave</groupId>
+				<artifactId>brave-bom</artifactId>
+				<version>${io.zipkin.brave.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+
+			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-databind</artifactId>
 				<version>${com.fasterxml.jackson.core.version}</version>
 			</dependency>
-			
+
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-core</artifactId>
 				<version>${com.fasterxml.jackson.core.version}</version>
 			</dependency>
-			
+
 			<!-- testing -->
 			<dependency>
 				<groupId>org.junit</groupId>

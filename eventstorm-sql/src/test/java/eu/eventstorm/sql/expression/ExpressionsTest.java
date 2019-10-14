@@ -1,5 +1,8 @@
 package eu.eventstorm.sql.expression;
 
+import static eu.eventstorm.sql.expression.Expressions.and;
+import static eu.eventstorm.sql.expression.Expressions.eq;
+import static eu.eventstorm.sql.expression.Expressions.or;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
@@ -132,4 +135,21 @@ class ExpressionsTest {
         assertEquals("number<?", Expressions.lt(number).toString());
 
     }
+    
+    @Test
+    void testAnd() {
+        SqlColumn number = new SqlSingleColumn(table, "number", false, true, true);
+        assertEquals("(a.number=123 AND a.number=124)", and(eq(number, 123),eq(number, 124)).build(dialect, true));
+        assertEquals("(number=123 AND number=124)", and(eq(number, 123),eq(number, 124)).build(dialect, false));
+        assertEquals("(number=123 AND number=124)", and(eq(number, 123),eq(number, 124)).toString());
+    }
+    
+    @Test
+    void testOr() {
+        SqlColumn number = new SqlSingleColumn(table, "number", false, true, true);
+        assertEquals("(a.number=123 OR a.number=124)", or(eq(number, 123),eq(number, 124)).build(dialect, true));
+        assertEquals("(number=123 OR number=124)", or(eq(number, 123),eq(number, 124)).build(dialect, false));
+        assertEquals("(number=123 OR number=124)", or(eq(number, 123),eq(number, 124)).toString());
+    }
+    
 }

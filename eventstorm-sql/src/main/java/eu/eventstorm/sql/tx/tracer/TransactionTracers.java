@@ -1,18 +1,15 @@
-package eu.eventstorm.sql.tx;
+package eu.eventstorm.sql.tx.tracer;
 
-import java.sql.SQLException;
+public final class TransactionTracers {
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-final class TransactionTracers {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(TransactionSpan.class);
-	private static final Logger LOGGER_TRACER = LoggerFactory.getLogger(TransactionTracer.class);
 	private TransactionTracers() {
 	}
 	
-	public static final TransactionSpan TRANSACTION_SPAN_LOGGER = new TransactionSpan() {
+	public static TransactionTracer noOp() {
+		return new NoOpTracer();
+	}
+	
+	/*public static final TransactionSpan TRANSACTION_SPAN_LOGGER = new TransactionSpan() {
 		
 		@Override
 		public void tag(String key, String value) {
@@ -54,5 +51,5 @@ final class TransactionTracers {
 			LOGGER_TRACER.debug("close()");
 			return TRANSACTION_SPAN_LOGGER;
 		}
-	};
+	};*/
 }

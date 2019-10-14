@@ -19,6 +19,9 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.eventstorm.sql.tx.tracer.TransactionSpan;
+import eu.eventstorm.sql.tx.tracer.TransactionTracer;
+
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */

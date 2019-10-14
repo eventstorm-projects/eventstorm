@@ -39,7 +39,7 @@ final class JoinClause extends AbstractBuilder {
         this.expression = expression;
     }
 
-    public void build(SelectBuilder selectBuilder, StringBuilder builder) {
+    public void build(StringBuilder builder) {
 
         builder.append(' ');
         builder.append(this.type.name()).append(" JOIN ");

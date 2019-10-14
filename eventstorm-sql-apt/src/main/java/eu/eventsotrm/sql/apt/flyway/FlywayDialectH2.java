@@ -22,6 +22,10 @@ final class FlywayDialectH2 implements FlywayDialect {
 			return "BIGINT";
 		}
 
+		if (boolean.class.getName().equals(javaType) || Boolean.class.getName().equals(javaType)) {
+			return "BOOLEAN";
+		}
+		
 		if (String.class.getName().equals(javaType)) {
 			return "VARCHAR(" + column.length() + ")";
 		}

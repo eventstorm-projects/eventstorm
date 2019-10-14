@@ -33,10 +33,6 @@ public final class TransactionManagerImpl implements TransactionManager {
     
     private final TransactionManagerConfiguration configuration;
 
-//    private final BiFunction<PreparedStatement, TransactionTracer,PreparedStatement> decorator;
-
-//    private static final BiFunction<PreparedStatement, TransactionTracer,PreparedStatement> IDENTITY_DECORATOR = (ps,log) -> ps;
-
     public TransactionManagerImpl(DataSource dataSource) {
         this(dataSource, TransactionManagerConfiguration.DEFAULT);
     }
@@ -68,7 +64,6 @@ public final class TransactionManagerImpl implements TransactionManager {
 
     @Override
     public Transaction current() {
-        //Transaction transaction = TransactionSynchronizationManager.current(this);
     	Transaction transaction = this.transactions.get();
     	if (transaction == null) {
             throw new EventstormTransactionException(NO_CURRENT_TRANSACTION);
@@ -102,28 +97,8 @@ public final class TransactionManagerImpl implements TransactionManager {
             tx = new TransactionReadWrite(this, conn);
         }
 
-
-       /* if (definition.getIsolationLevel() != TransactionDefinition.ISOLATION_DEFAULT) {
-            try {
-                conn.setTransactionIsolation(definition.getIsolationLevel());
-            } catch (SQLException cause) {
-                transaction.close();
-                throw new TransactionSystemException(
-                        "Cannot set specific TransactionIsolationLevel [" + definition.getIsolationLevel() + "]",
-                        cause);
-            }
-            transaction.addHook(() -> {
-                try {
-                    conn.setTransactionIsolation(defaultIsolationLevel);
-                } catch (SQLException cause) {
-                    throw new TransactionSystemException("Cannot reset TransactionIsolationLevel", cause);
-                }
-            });
-        }*/
-       // TransactionSynchronizationManager.setTransaction(tx);
         this.transactions.set(tx);
         return tx;
-        //return new SqlTransactionStatus(transaction, definition.isReadOnly());
     }
 
     void remove() {
@@ -148,113 +123,4 @@ public final class TransactionManagerImpl implements TransactionManager {
 		return this.configuration;
 	}
 
-    /*
-    @Override
-    public void commit(TransactionStatus transactionStatus) throws TransactionException {
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("commit({})", transactionStatus);
-        }
-        if (!transactionStatus.isNewTransaction()) {
-            // It's a txStatus inside another txStatus
-            return;
-        }
-        if (((SqlTransactionStatus) transactionStatus).isReadOnly()) {
-            if (LOGGER.isTraceEnabled()) {
-                LOGGER.trace("Commit a read-only -> rollback");
-                rollback(transactionStatus);
-                return;
-            }
-        }
-        try {
-            TransactionImpl tx = this.transactions.get();
-            try {
-                tx.commit();
-            } finally {
-                tx.close();
-            }
-        } finally {
-            this.transactions.remove();
-        }
-    }
-
-    @Override
-    public Transaction openNewReadOnly() {
-        DefaultTransactionDefinition def = new DefaultTransactionDefinition();
-        def.setReadOnly(true);
-        return getTransaction(def).getTransaction();
-    }
-
-    @Override
-    public SqlTransactionStatus getTransaction(TransactionDefinition definition) throws TransactionException {
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("getTransaction({})", definition);
-        }
-        TransactionImpl tx = transactions.get();
-        if (tx != null) {
-            // get TX inside another TX
-            return new SqlTransactionStatus(tx, definition.isReadOnly(), false);
-        }
-        final Connection conn;
-        try {
-            conn = dataSource.getConnection();
-            prepareTransactionalConnection(conn, definition);
-            conn.setAutoCommit(false);
-        } catch (SQLException cause) {
-            throw new CannotCreateTransactionException("Error during Datasource.getConnection", cause);
-        }
-        TransactionImpl transaction = new TransactionImpl(conn, interceptor);
-        if (definition.getIsolationLevel() != TransactionDefinition.ISOLATION_DEFAULT) {
-            try {
-                conn.setTransactionIsolation(definition.getIsolationLevel());
-            } catch (SQLException cause) {
-                transaction.close();
-                throw new TransactionSystemException(
-                        "Cannot set specific TransactionIsolationLevel [" + definition.getIsolationLevel() + "]",
-                        cause);
-            }
-            transaction.addHook(() -> {
-                try {
-                    conn.setTransactionIsolation(defaultIsolationLevel);
-                } catch (SQLException cause) {
-                    throw new TransactionSystemException("Cannot reset TransactionIsolationLevel", cause);
-                }
-            });
-        }
-        this.transactions.set(transaction);
-        return new SqlTransactionStatus(transaction, definition.isReadOnly());
-    }
-
-    @Override
-    public void rollback(TransactionStatus transactionStatus) throws TransactionException {
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("rollback({})", transactionStatus);
-        }
-        if (!transactionStatus.isNewTransaction()) {
-            // a transaction inside another one.
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("rollback({}) -> skip", transactionStatus);
-            }
-            return;
-        }
-        try {
-            TransactionImpl tx = this.transactions.get();
-            try {
-                tx.rollback();
-            } finally {
-                tx.close();
-            }
-        } finally {
-            this.transactions.remove();
-        }
-    }
-
-    protected void prepareTransactionalConnection(Connection con, TransactionDefinition definition)
-            throws SQLException {
-        if (enforceReadOnly && definition.isReadOnly()) {
-            try (Statement stmt = con.createStatement()) {
-                stmt.executeUpdate("SET TRANSACTION READ ONLY");
-            }
-        }
-    }
-    */
 }

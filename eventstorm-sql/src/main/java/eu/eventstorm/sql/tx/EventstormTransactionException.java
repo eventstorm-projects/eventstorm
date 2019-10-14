@@ -4,6 +4,7 @@ import java.sql.SQLException;
 
 import eu.eventstorm.sql.EventstormSqlException;
 import eu.eventstorm.sql.EventstormSqlExceptionType;
+import eu.eventstorm.sql.tx.tracer.TransactionSpan;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>

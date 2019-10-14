@@ -3,9 +3,12 @@ package eu.eventstorm.sql.tx;
 import java.sql.PreparedStatement;
 import java.util.function.UnaryOperator;
 
+import eu.eventstorm.sql.tx.tracer.TransactionTracer;
+import eu.eventstorm.sql.tx.tracer.TransactionTracers;
+
 public final class TransactionManagerConfiguration {
 	
-	static final TransactionManagerConfiguration DEFAULT = new TransactionManagerConfiguration(TransactionTracers.TRANSACTION_TRACER_LOGGER , UnaryOperator.identity());
+	protected static final TransactionManagerConfiguration DEFAULT = new TransactionManagerConfiguration(TransactionTracers.noOp(), ps -> ps);
 	
 	private final TransactionTracer tracer;
 	

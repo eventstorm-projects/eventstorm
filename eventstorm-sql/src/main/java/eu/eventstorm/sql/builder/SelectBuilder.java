@@ -262,7 +262,7 @@ public final class SelectBuilder extends AbstractBuilder {
             return;
         }
         for (JoinClause clause : joins) {
-            clause.build(this, builder);
+            clause.build(builder);
         }
     }
 

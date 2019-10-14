@@ -69,7 +69,7 @@ public class FlywayGenerator {
 				if (flyway.version().trim().length() > 0) {
 					FlywayDialect fd = FlywayDialects.get(db);
 					try {
-						generate(env, pojo, flyway, fd);
+						generate(env, pojo, flyway, fd, db);
 					} catch (IOException cause) {
 						logger.error("Failed to generate [" + flyway + "] -> " + db, cause);
 					}
@@ -88,7 +88,7 @@ public class FlywayGenerator {
 	}
 
 
-	private void generate(ProcessingEnvironment env, PojoDescriptor descriptor, Flyway flyway, FlywayDialect fd) throws IOException {
+	private void generate(ProcessingEnvironment env, PojoDescriptor descriptor, Flyway flyway, FlywayDialect fd, Database db) throws IOException {
 
 		List<Column> businessKeys = new ArrayList<>();
 
@@ -97,7 +97,7 @@ public class FlywayGenerator {
 		Tuple<FileObject, Writer> tuple = holders.get(filename);
 
 		if (tuple == null) {
-			FileObject object = env.getFiler().createResource(StandardLocation.SOURCE_OUTPUT, "db.migration", filename);
+			FileObject object = env.getFiler().createResource(StandardLocation.SOURCE_OUTPUT, "db.migration." + db.name().toLowerCase(), filename);
 			Writer writer = object.openWriter();
 			tuple = new Tuple<>(object, writer);
 			this.holders.put(filename, tuple);
@@ -144,7 +144,7 @@ public class FlywayGenerator {
 			}
 			builder.append(",");
 
-			primaryKey.append(fd.wrap(anno.value())).append("),");
+			primaryKey.append(fd.wrap(anno.value())).append(',');
 
 			if (id.getter().getAnnotation(Sequence.class) != null) {
 				sequence = generateSequence(id.getter().getAnnotation(Sequence.class), fd);
@@ -180,8 +180,9 @@ public class FlywayGenerator {
 
 		builder.append("\n   ");
 		builder.append(primaryKey);
+		builder.deleteCharAt(builder.length()-1);
+		builder.append(')');
 
-		builder.deleteCharAt(builder.length() - 1);
 		builder.append("\n);\n");
 
 		writer.append(builder.toString());
