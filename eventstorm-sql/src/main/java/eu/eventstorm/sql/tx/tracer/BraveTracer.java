@@ -1,5 +1,6 @@
 package eu.eventstorm.sql.tx.tracer;
 
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import brave.ScopedSpan;
@@ -58,6 +59,11 @@ final class BraveTracer implements TransactionTracer {
 	@Override
 	public TransactionSpan span() {
 		return new BraveTransactionSpan(tracer.startScopedSpan("span"));
+	}
+
+	@Override
+	public PreparedStatement decorate(PreparedStatement prepareStatement) {
+		return new EventstormPreparedStatement(prepareStatement, this);
 	}
 
 }

@@ -1,5 +1,6 @@
 package eu.eventstorm.sql.tx.tracer;
 
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import org.slf4j.Logger;
@@ -12,7 +13,7 @@ final class DebugTracer implements TransactionTracer {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(DebugTracer.class);
 
-	private final static TransactionSpan NO_OP_SPAN = new TransactionSpan() {
+	private static final TransactionSpan NO_OP_SPAN = new TransactionSpan() {
 		@Override
 		public void tag(String key, String value) {
 			LOGGER.debug("tag({},{})", key, value);
@@ -48,6 +49,12 @@ final class DebugTracer implements TransactionTracer {
 	public TransactionSpan span() {
 		LOGGER.debug("span()");
 		return NO_OP_SPAN;
+	}
+	
+	@Override
+	public PreparedStatement decorate(PreparedStatement prepareStatement) {
+		LOGGER.debug("decorate({})", prepareStatement);
+		return prepareStatement;
 	}
 
 }

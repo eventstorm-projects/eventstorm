@@ -1,5 +1,6 @@
 package eu.eventstorm.sql.tx.tracer;
 
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
@@ -36,6 +37,11 @@ final class NoOpTracer implements TransactionTracer {
 	@Override
 	public TransactionSpan span() {
 		return NO_OP_SPAN;
+	}
+
+	@Override
+	public PreparedStatement decorate(PreparedStatement prepareStatement) {
+		return prepareStatement;
 	}
 
 }

@@ -1,4 +1,4 @@
-package eu.eventstorm.sql.tx;
+package eu.eventstorm.sql.tx.tracer;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -22,9 +22,6 @@ import java.sql.SQLXML;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
-
-import eu.eventstorm.sql.tx.tracer.TransactionSpan;
-import eu.eventstorm.sql.tx.tracer.TransactionTracer;
 
 final class EventstormPreparedStatement implements PreparedStatement {
 
