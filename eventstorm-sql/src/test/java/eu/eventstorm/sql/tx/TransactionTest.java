@@ -1,5 +1,8 @@
 package eu.eventstorm.sql.tx;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.sql.SQLException;
 import java.util.UUID;
 
@@ -57,5 +60,33 @@ class TransactionTest {
 
 
 	}
+	
+	@Test
+	void readTest() {
+		
+		try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
+			
+			assertEquals(true, tx.isReadOnly());
+			assertThrows(EventstormTransactionException.class, () -> tx.commit());
+			assertThrows(EventstormTransactionException.class, () -> ((TransactionReadOnly)tx).write("XXX"));
+			assertThrows(EventstormTransactionException.class, () -> ((TransactionReadOnly)tx).writeAutoIncrement("XXX"));
+			assertThrows(EventstormTransactionException.class, () -> ((TransactionReadOnly)tx).innerTransaction(new TransactionDefinitionReadWrite()));
+			
+		}
+	}
 
+	@Test
+	void writeTest() {
+		
+		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
+
+			assertEquals(false, tx.isReadOnly());
+			
+			try(TransactionNested tn = (TransactionNested) ((TransactionReadWrite)tx).innerTransaction(new TransactionDefinitionReadWrite())) {
+				tn.rollback();	
+			}
+			
+			tx.rollback();
+		}
+	}
 }
