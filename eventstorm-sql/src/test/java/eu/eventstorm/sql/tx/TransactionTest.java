@@ -14,12 +14,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import brave.Tracer;
+import brave.Tracing;
+import brave.sampler.Sampler;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Dialect;
 import eu.eventstorm.sql.impl.DatabaseImpl;
 import eu.eventstorm.sql.model.ex001.AbstractStudentRepository;
 import eu.eventstorm.sql.model.ex001.Student;
 import eu.eventstorm.sql.model.ex001.StudentImpl;
+import eu.eventstorm.sql.tx.tracer.LoggingBraveReporter;
+import eu.eventstorm.sql.tx.tracer.TransactionTracers;
 import eu.eventstorm.test.LoggerInstancePostProcessor;
 
 @ExtendWith(LoggerInstancePostProcessor.class)
@@ -30,8 +35,9 @@ class TransactionTest {
 
 	@BeforeEach
 	void before() {
+		Tracer tracer = Tracing.newBuilder().sampler(Sampler.ALWAYS_SAMPLE).spanReporter(new LoggingBraveReporter()).build().tracer();
 		ds = JdbcConnectionPool.create("jdbc:h2:mem:test;DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1;INIT=RUNSCRIPT FROM 'classpath:sql/ex001.sql'", "sa", "");
-		db = new DatabaseImpl(ds, Dialect.Name.H2, new TransactionManagerImpl(ds), "", new eu.eventstorm.sql.model.ex001.Module("test", null));
+		db = new DatabaseImpl(ds, Dialect.Name.H2, new TransactionManagerImpl(ds, new TransactionManagerConfiguration(TransactionTracers.brave(tracer))), "", new eu.eventstorm.sql.model.ex001.Module("test", null));
 	}
 
 	@AfterEach()

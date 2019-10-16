@@ -54,7 +54,7 @@ public final class TransactionManagerImpl implements TransactionManager {
 
     @Override
     public Transaction newTransactionReadOnly() {
-        return getTransaction(new TransactionDefinitionReadOnly());
+        return this.getTransaction(new TransactionDefinitionReadOnly());
     }
 
     @Override
