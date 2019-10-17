@@ -6,6 +6,8 @@ import java.sql.SQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.eventstorm.sql.tx.Transaction;
+
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
@@ -27,16 +29,19 @@ final class DebugTracer implements TransactionTracer {
 			LOGGER.debug("close()");
 		}
 	};
+	
 	@Override
-	public TransactionSpan rollback() {
-		LOGGER.debug("rollback()");
+	public TransactionSpan begin(Transaction transaction) {
+		LOGGER.debug("begin({})", transaction);
 		return NO_OP_SPAN;
 	}
 
-	@Override
-	public TransactionSpan commit() {
-		LOGGER.debug("commit()");
-		return NO_OP_SPAN;
+	public void rollback(Transaction transaction) {
+		LOGGER.debug("rollback({})", transaction);
+	}
+
+	public void commit(Transaction transaction) {
+		LOGGER.debug("commit({})", transaction);
 	}
 
 	@Override
@@ -52,8 +57,8 @@ final class DebugTracer implements TransactionTracer {
 	}
 	
 	@Override
-	public PreparedStatement decorate(PreparedStatement prepareStatement) {
-		LOGGER.debug("decorate({})", prepareStatement);
+	public PreparedStatement decorate(String sql, PreparedStatement prepareStatement) {
+		LOGGER.debug("decorate({})->({})", prepareStatement, sql);
 		return prepareStatement;
 	}
 

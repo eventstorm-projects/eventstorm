@@ -2,12 +2,12 @@ package eu.eventstorm.sql.id;
 
 import static com.google.common.collect.ImmutableMap.of;
 
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.desc.SqlSequence;
+import eu.eventstorm.sql.tx.TransactionQueryContext;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -24,12 +24,12 @@ public abstract class SequenceGenerator<T> implements Identifier<T> {
 	}
 
 	public final T next() {
-		PreparedStatement ps = database.transactionManager().context().read(this.sequence);
-
-		try (ResultSet rs = ps.executeQuery()) {
-			return next(rs);
-		} catch (SQLException cause) {
-			throw new IdentifierException(IdentifierException.Type.SEQUENCE_EXECUTE_QUERY, of("sequence", sequence), cause);
+		try (TransactionQueryContext tqc = database.transactionManager().context().read(this.sequence)) {
+			try (ResultSet rs = tqc.getPreparedStatement().executeQuery()) {
+				return next(rs);
+			} catch (SQLException cause) {
+				throw new IdentifierException(IdentifierException.Type.SEQUENCE_EXECUTE_QUERY, of("sequence", sequence), cause);
+			}	
 		}
 	}
 

@@ -1,17 +1,15 @@
 package eu.eventstorm.sql.tx;
 
-import java.sql.PreparedStatement;
-
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 public interface TransactionContext {
 
-	PreparedStatement read(String sql);
+	TransactionQueryContext read(String sql);
 
-	PreparedStatement write(String sql);
+	TransactionQueryContext write(String sql);
 	
-	PreparedStatement writeAutoIncrement(String sql);
+	TransactionQueryContext writeAutoIncrement(String sql);
 
 	void addHook(Runnable runnable);
 

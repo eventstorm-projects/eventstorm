@@ -5,6 +5,7 @@ import java.sql.SQLException;
 
 import brave.ScopedSpan;
 import brave.Tracer;
+import eu.eventstorm.sql.tx.Transaction;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -42,16 +43,6 @@ final class BraveTracer implements TransactionTracer {
 	}
 	
 	@Override
-	public TransactionSpan rollback() {
-		return new BraveTransactionSpan(tracer.startScopedSpan("rollback"));
-	}
-
-	@Override
-	public TransactionSpan commit() {
-		return new BraveTransactionSpan(tracer.startScopedSpan("commit"));
-	}
-
-	@Override
 	public TransactionSpan close() {
 		return new BraveTransactionSpan(tracer.startScopedSpan("close"));
 	}
@@ -62,8 +53,15 @@ final class BraveTracer implements TransactionTracer {
 	}
 
 	@Override
-	public PreparedStatement decorate(PreparedStatement prepareStatement) {
+	public PreparedStatement decorate(String sql, PreparedStatement prepareStatement) {
+		this.tracer.currentSpan().tag("sql", sql);
 		return new EventstormPreparedStatement(prepareStatement, this);
+	}
+
+	@Override
+	public TransactionSpan begin(Transaction transaction) {
+		return new BraveTransactionSpan(tracer.startScopedSpan("transaction"));
+		
 	}
 
 }

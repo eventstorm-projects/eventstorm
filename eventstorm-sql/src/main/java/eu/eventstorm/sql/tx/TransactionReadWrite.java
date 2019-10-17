@@ -34,12 +34,12 @@ final class TransactionReadWrite extends AbstractTransaction {
     }
 
     @Override
-    public PreparedStatement write(String sql) {
+    public TransactionQueryContext write(String sql) {
         return preparedStatement(sql, this.writes, Statement.NO_GENERATED_KEYS);
     }
     
     @Override
-   	public PreparedStatement writeAutoIncrement(String sql) {
+   	public TransactionQueryContext writeAutoIncrement(String sql) {
     	return preparedStatement(sql, this.writes, Statement.RETURN_GENERATED_KEYS);
    	} 
 

@@ -3,6 +3,8 @@ package eu.eventstorm.sql.tx.tracer;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+import eu.eventstorm.sql.tx.Transaction;
+
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
@@ -19,13 +21,9 @@ final class NoOpTracer implements TransactionTracer {
 		public void close() {
 		}
 	};
+	
 	@Override
-	public TransactionSpan rollback() {
-		return NO_OP_SPAN;
-	}
-
-	@Override
-	public TransactionSpan commit() {
+	public TransactionSpan begin(Transaction transaction) {
 		return NO_OP_SPAN;
 	}
 
@@ -40,8 +38,9 @@ final class NoOpTracer implements TransactionTracer {
 	}
 
 	@Override
-	public PreparedStatement decorate(PreparedStatement prepareStatement) {
+	public PreparedStatement decorate(String sql, PreparedStatement prepareStatement) {
 		return prepareStatement;
 	}
+
 
 }

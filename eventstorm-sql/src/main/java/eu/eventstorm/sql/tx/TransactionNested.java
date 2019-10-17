@@ -32,12 +32,12 @@ final class TransactionNested implements Transaction, TransactionContext {
     }
 
     @Override
-    public PreparedStatement read(String sql) {
+    public TransactionQueryContext read(String sql) {
         return this.parent.read(sql);
     }
 
     @Override
-    public PreparedStatement write(String sql) {
+    public TransactionQueryContext write(String sql) {
         return this.parent.write(sql);
     }
 
@@ -53,7 +53,7 @@ final class TransactionNested implements Transaction, TransactionContext {
 	}
 
 	@Override
-	public PreparedStatement writeAutoIncrement(String sql) {
+	public TransactionQueryContext writeAutoIncrement(String sql) {
 		// TODO Auto-generated method stub
 		return null;
 	}

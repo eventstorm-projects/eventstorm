@@ -1,7 +1,6 @@
 package eu.eventstorm.sql.tx;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -23,7 +22,7 @@ final class TransactionReadOnly extends AbstractTransaction {
 	}
 
 	@Override
-	public PreparedStatement write(String sql) {
+	public TransactionQueryContext write(String sql) {
 		throw new EventstormTransactionException(EventstormTransactionException.Type.READ_ONLY);
 	}
 
@@ -35,7 +34,7 @@ final class TransactionReadOnly extends AbstractTransaction {
 	}
 
 	@Override
-	public PreparedStatement writeAutoIncrement(String sql) {
+	public TransactionQueryContext writeAutoIncrement(String sql) {
 		throw new EventstormTransactionException(EventstormTransactionException.Type.READ_ONLY);
 	}
 
