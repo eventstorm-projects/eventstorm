@@ -1,5 +1,6 @@
 package eu.eventstorm.sql.tx.tracer;
 
+import eu.eventstorm.sql.EventstormSqlException;
 import java.sql.SQLException;
 
 /**
@@ -9,8 +10,10 @@ public interface TransactionSpan extends AutoCloseable {
 
 	@Override
 	void close();
-	
-	void exception(SQLException cause);
+
+    void exception(EventstormSqlException cause);
+
+    void exception(SQLException cause);
 
 	void tag(String key, String value);
 

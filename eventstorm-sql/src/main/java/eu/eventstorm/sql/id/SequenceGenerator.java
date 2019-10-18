@@ -25,23 +25,23 @@ public abstract class SequenceGenerator<T> implements Identifier<T> {
 
 	public final T next() {
 		try (TransactionQueryContext tqc = database.transactionManager().context().read(this.sequence)) {
-			try (ResultSet rs = tqc.getPreparedStatement().executeQuery()) {
+			try (ResultSet rs = tqc.preparedStatement().executeQuery()) {
 				return next(rs);
 			} catch (SQLException cause) {
 				throw new IdentifierException(IdentifierException.Type.SEQUENCE_EXECUTE_QUERY, of("sequence", sequence), cause);
-			}	
+			}
 		}
 	}
 
 	private T next(ResultSet rs) {
-		
-		boolean next; 
+
+		boolean next;
 		try {
 			next = rs.next();
 		} catch (SQLException cause) {
 			throw new IdentifierException(IdentifierException.Type.SEQUENCE_RESULT_SET_NEXT, of("sequence", sequence), cause);
 		}
-		
+
 		if (next) {
 			try {
 				return extractResult(rs);
