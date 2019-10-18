@@ -17,6 +17,9 @@ class DefaultBlobTest {
     void testEmptyBlob() {
         DefaultBlob blob = new DefaultBlob(null);
         assertEquals(0, blob.length());
+
+        blob.free();
+        // do nothing ...
     }
 
     @Test

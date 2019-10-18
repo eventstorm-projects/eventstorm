@@ -74,6 +74,7 @@ class DefaultBlob implements Blob {
 
 	@Override
 	public void free() {
+        // Do nothing because heap memory blob.
 	}
 
 	@Override
