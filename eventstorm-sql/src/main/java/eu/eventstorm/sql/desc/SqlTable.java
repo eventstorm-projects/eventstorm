@@ -49,13 +49,13 @@ public final class SqlTable {
         if (this == o) {
             return true;
         }
-        if (o == null || !(o instanceof SqlTable)) {
-            return false;
+
+        if (o instanceof SqlTable) {
+            return Objects.equals(name(), ((SqlTable) o).name());
         }
 
-        SqlTable that = (SqlTable) o;
+        return false;
 
-        return Objects.equals(name(), that.name());
     }
 
     /**
