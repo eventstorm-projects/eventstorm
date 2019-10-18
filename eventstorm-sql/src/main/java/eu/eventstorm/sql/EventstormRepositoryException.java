@@ -10,6 +10,11 @@ import com.google.common.collect.ImmutableMap;
 @SuppressWarnings("serial")
 public final class EventstormRepositoryException extends EventstormSqlException {
 
+    public static final String PARAM_SQL = "sql";
+    public static final String PARAM_POJO = "pojo";
+    public static final String PARAM_SIZE = "size";
+    public static final String PARAM_POJOS = "pojos";
+
 	public enum Type implements EventstormSqlExceptionType {
 		INSERT_GENERATED_KEYS,
 
@@ -22,7 +27,7 @@ public final class EventstormRepositoryException extends EventstormSqlException 
 	    // update
 		UPDATE_MAPPER, UPDATE_EXECUTE_QUERY, UPDATE_RESULT,
 		// delete
-		DELETE_PREPARED_STATEMENT_SETTER, DELETE_EXECUTE_QUERY, 
+		DELETE_PREPARED_STATEMENT_SETTER, DELETE_EXECUTE_QUERY,
 		// batch
 		BATCH_ADD, BATCH_EXECUTE_QUERY, BATCH_RESULT,
 		;
@@ -37,3 +42,4 @@ public final class EventstormRepositoryException extends EventstormSqlException 
 	}
 
 }
+

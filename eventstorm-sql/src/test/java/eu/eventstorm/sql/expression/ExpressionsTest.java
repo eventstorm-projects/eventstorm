@@ -38,11 +38,11 @@ class ExpressionsTest {
         assertEquals("a.number=123", Expressions.eq(number, 123).build(dialect, true));
         assertEquals("number=123", Expressions.eq(number, 123).build(dialect, false));
         assertEquals("number=123", Expressions.eq(number, 123).toString());
-        
+
         assertEquals("a.number='ABCD'", Expressions.eq(number, "ABCD").build(dialect, true));
         assertEquals("number='ABCD'", Expressions.eq(number, "ABCD").build(dialect, false));
         assertEquals("number='ABCD'", Expressions.eq(number, "ABCD").toString());
-        
+
         assertEquals("a.number=true", Expressions.eq(number, true).build(dialect, true));
         assertEquals("number=false", Expressions.eq(number, false).build(dialect, false));
         assertEquals("number=false", Expressions.eq(number, false).toString());
@@ -52,7 +52,7 @@ class ExpressionsTest {
         assertEquals("number=?", Expressions.eq(number).toString());
 
     }
-    
+
     @Test
     void testNotEq() {
 
@@ -61,11 +61,11 @@ class ExpressionsTest {
         assertEquals("a.number<>123", Expressions.notEq(number, 123).build(dialect, true));
         assertEquals("number<>123", Expressions.notEq(number, 123).build(dialect, false));
         assertEquals("number<>123", Expressions.notEq(number, 123).toString());
-        
+
         assertEquals("a.number<>'ABCD'", Expressions.notEq(number, "ABCD").build(dialect, true));
         assertEquals("number<>'ABCD'", Expressions.notEq(number, "ABCD").build(dialect, false));
         assertEquals("number<>'ABCD'", Expressions.notEq(number, "ABCD").toString());
-        
+
         assertEquals("a.number<>true", Expressions.notEq(number, true).build(dialect, true));
         assertEquals("number<>false", Expressions.notEq(number, false).build(dialect, false));
         assertEquals("number<>false", Expressions.notEq(number, false).toString());
@@ -84,13 +84,13 @@ class ExpressionsTest {
         assertEquals("a.number>=123", Expressions.ge(number, 123).build(dialect, true));
         assertEquals("number>=123", Expressions.ge(number, 123).build(dialect, false));
         assertEquals("number>=123", Expressions.ge(number, 123).toString());
-        
+
         assertEquals("a.number>=?", Expressions.ge(number).build(dialect, true));
         assertEquals("number>=?", Expressions.ge(number).build(dialect, false));
         assertEquals("number>=?", Expressions.ge(number).toString());
 
     }
-    
+
     @Test
     void testLe() {
 
@@ -99,13 +99,13 @@ class ExpressionsTest {
         assertEquals("a.number<=123", Expressions.le(number, 123).build(dialect, true));
         assertEquals("number<=123", Expressions.le(number, 123).build(dialect, false));
         assertEquals("number<=123", Expressions.le(number, 123).toString());
-        
+
         assertEquals("a.number<=?", Expressions.le(number).build(dialect, true));
         assertEquals("number<=?", Expressions.le(number).build(dialect, false));
         assertEquals("number<=?", Expressions.le(number).toString());
 
     }
-    
+
     @Test
     void testGt() {
 
@@ -114,13 +114,13 @@ class ExpressionsTest {
         assertEquals("a.number>123", Expressions.gt(number, 123).build(dialect, true));
         assertEquals("number>123", Expressions.gt(number, 123).build(dialect, false));
         assertEquals("number>123", Expressions.gt(number, 123).toString());
-        
+
         assertEquals("a.number>?", Expressions.gt(number).build(dialect, true));
         assertEquals("number>?", Expressions.gt(number).build(dialect, false));
         assertEquals("number>?", Expressions.gt(number).toString());
 
     }
-    
+
     @Test
     void testLt() {
 
@@ -129,21 +129,23 @@ class ExpressionsTest {
         assertEquals("a.number<123", Expressions.lt(number, 123).build(dialect, true));
         assertEquals("number<123", Expressions.lt(number, 123).build(dialect, false));
         assertEquals("number<123", Expressions.lt(number, 123).toString());
-        
+
         assertEquals("a.number<?", Expressions.lt(number).build(dialect, true));
         assertEquals("number<?", Expressions.lt(number).build(dialect, false));
         assertEquals("number<?", Expressions.lt(number).toString());
 
     }
-    
+
     @Test
     void testAnd() {
         SqlColumn number = new SqlSingleColumn(table, "number", false, true, true);
         assertEquals("(a.number=123 AND a.number=124)", and(eq(number, 123),eq(number, 124)).build(dialect, true));
+        assertEquals("(a.number=123 AND a.number=124 AND a.number=125)", and(eq(number, 123),eq(number, 124),eq(number, 125)).build(dialect, true));
         assertEquals("(number=123 AND number=124)", and(eq(number, 123),eq(number, 124)).build(dialect, false));
         assertEquals("(number=123 AND number=124)", and(eq(number, 123),eq(number, 124)).toString());
+        assertEquals("(number=123 AND number=124 AND number=125)", and(eq(number, 123),eq(number, 124),eq(number, 125)).toString());
     }
-    
+
     @Test
     void testOr() {
         SqlColumn number = new SqlSingleColumn(table, "number", false, true, true);
@@ -151,5 +153,5 @@ class ExpressionsTest {
         assertEquals("(number=123 OR number=124)", or(eq(number, 123),eq(number, 124)).build(dialect, false));
         assertEquals("(number=123 OR number=124)", or(eq(number, 123),eq(number, 124)).toString());
     }
-    
+
 }

@@ -1,6 +1,11 @@
 package eu.eventstorm.sql.id;
 
 import static com.google.common.collect.ImmutableMap.of;
+import static eu.eventstorm.sql.id.IdentifierException.PARAM_SEQUENCE;
+import static eu.eventstorm.sql.id.IdentifierException.Type.SEQUENCE_EXECUTE_QUERY;
+import static eu.eventstorm.sql.id.IdentifierException.Type.SEQUENCE_EXTRACT;
+import static eu.eventstorm.sql.id.IdentifierException.Type.SEQUENCE_NO_RESULT;
+import static eu.eventstorm.sql.id.IdentifierException.Type.SEQUENCE_RESULT_SET_NEXT;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -28,7 +33,7 @@ public abstract class SequenceGenerator<T> implements Identifier<T> {
 			try (ResultSet rs = tqc.preparedStatement().executeQuery()) {
 				return next(rs);
 			} catch (SQLException cause) {
-				throw new IdentifierException(IdentifierException.Type.SEQUENCE_EXECUTE_QUERY, of("sequence", sequence), cause);
+				throw tqc.exception(new IdentifierException(SEQUENCE_EXECUTE_QUERY, of(PARAM_SEQUENCE, sequence), cause));
 			}
 		}
 	}
@@ -39,17 +44,17 @@ public abstract class SequenceGenerator<T> implements Identifier<T> {
 		try {
 			next = rs.next();
 		} catch (SQLException cause) {
-			throw new IdentifierException(IdentifierException.Type.SEQUENCE_RESULT_SET_NEXT, of("sequence", sequence), cause);
+			throw new IdentifierException(SEQUENCE_RESULT_SET_NEXT, of(PARAM_SEQUENCE, sequence), cause);
 		}
 
 		if (next) {
 			try {
 				return extractResult(rs);
 			} catch (SQLException cause) {
-				throw new IdentifierException(IdentifierException.Type.SEQUENCE_EXTRACT, of("sequence", sequence), cause);
+				throw new IdentifierException(SEQUENCE_EXTRACT, of(PARAM_SEQUENCE, sequence), cause);
 			}
 		} else {
-			throw new IdentifierException(IdentifierException.Type.SEQUENCE_NO_RESULT, of("sequence", sequence));
+			throw new IdentifierException(SEQUENCE_NO_RESULT, of(PARAM_SEQUENCE, sequence));
 		}
 	}
 

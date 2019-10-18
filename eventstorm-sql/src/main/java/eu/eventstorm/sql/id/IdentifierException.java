@@ -11,14 +11,16 @@ import eu.eventstorm.sql.EventstormSqlExceptionType;
 @SuppressWarnings("serial")
 public final class IdentifierException extends EventstormSqlException {
 
+    public static final String PARAM_SEQUENCE = "sequence";
+
 	public enum Type implements EventstormSqlExceptionType {
 		SEQUENCE_EXECUTE_QUERY, SEQUENCE_RESULT_SET_NEXT, SEQUENCE_EXTRACT, SEQUENCE_NO_RESULT
 	}
-	
+
     public IdentifierException(Type type, ImmutableMap<String, Object> values, Exception exception) {
         super(type, values, exception);
     }
-    
+
     public IdentifierException(Type type, ImmutableMap<String, Object> values) {
         super(type, values);
     }

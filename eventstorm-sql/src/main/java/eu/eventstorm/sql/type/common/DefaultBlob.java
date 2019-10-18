@@ -9,20 +9,20 @@ import eu.eventstorm.util.FastByteArrayInputStream;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-abstract class DefaultBlob implements Blob {
+class DefaultBlob implements Blob {
 
-	private static final byte[] EMTPY = new byte[0]; 
-	
+	private static final byte[] EMTPY = new byte[0];
+
 	private byte[] buf;
-	
+
 	public DefaultBlob(byte[] buf) {
 		if (buf == null) {
 			this.buf = EMTPY;
 		} else {
-			this.buf = buf.clone();	
+			this.buf = buf.clone();
 		}
 	}
-	
+
 	protected final void setBuf(byte[] buf) {
 		this.buf = buf;
 	}
@@ -73,7 +73,7 @@ abstract class DefaultBlob implements Blob {
 	}
 
 	@Override
-	public void free() {		
+	public void free() {
 	}
 
 	@Override

@@ -32,7 +32,6 @@ final class H2Dialect extends AbstractDialect {
 
 	@Override
 	public Json createSqlJson(Map<String, Object> value) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

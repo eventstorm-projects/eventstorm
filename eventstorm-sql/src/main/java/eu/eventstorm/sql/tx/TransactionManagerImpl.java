@@ -24,13 +24,13 @@ public final class TransactionManagerImpl implements TransactionManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionManagerImpl.class);
 
     private final DataSource dataSource;
-    
+
     private final int defaultIsolationLevel;
-    
+
     private final ThreadLocal<AbstractTransaction> transactions;
 
     private boolean enforceReadOnly = false;
-    
+
     private final TransactionManagerConfiguration configuration;
 
     public TransactionManagerImpl(DataSource dataSource) {
@@ -45,7 +45,7 @@ public final class TransactionManagerImpl implements TransactionManager {
         } catch (SQLException cause) {
             throw new EventstormTransactionException(CONNECTION_ISOLATION, cause);
         }
-        this.transactions = new ThreadLocal<AbstractTransaction>();
+        this.transactions = new ThreadLocal<>();
     }
 
     public void setEnforceReadOnly(boolean enforceReadOnly) {
@@ -71,7 +71,7 @@ public final class TransactionManagerImpl implements TransactionManager {
         return transaction;
     }
 
-    public Transaction getTransaction(TransactionDefinition definition) throws EventstormTransactionException {
+    public Transaction getTransaction(TransactionDefinition definition) {
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("getTransaction({})", definition);
         }
@@ -109,7 +109,7 @@ public final class TransactionManagerImpl implements TransactionManager {
 	public TransactionContext context() {
 		return this.transactions.get();
 	}
-	
+
 	protected void prepareTransactionalConnection(Connection con, TransactionDefinition definition)
             throws SQLException {
         if (enforceReadOnly && definition.isReadOnly()) {
