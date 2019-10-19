@@ -63,6 +63,11 @@ class TransactionTest {
             repository.insert(student);
             tx.commit();
         }
+        
+        try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
+        	Student student = repository.findById(1);
+        	tx.rollback();
+        }
 
 
 	}

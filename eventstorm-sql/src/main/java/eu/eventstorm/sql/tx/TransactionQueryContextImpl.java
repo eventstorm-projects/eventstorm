@@ -14,7 +14,7 @@ final class TransactionQueryContextImpl implements TransactionQueryContext {
 	private final PreparedStatement ps;
 
 	public TransactionQueryContextImpl(PreparedStatement ps, String sql, TransactionManagerConfiguration configuration) {
-		this.span = configuration.getTracer().span();
+		this.span = configuration.getTracer().span("query");
 		this.span.tag("sql", sql);
 		this.ps = ps;
 	}

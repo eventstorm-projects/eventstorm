@@ -22,8 +22,8 @@ public final class TransactionManagerConfiguration {
 		return this.tracer;
 	}
 
-	public PreparedStatement preparedStatement(String sql, PreparedStatement prepareStatement) {
-		return tracer.decorate(sql, prepareStatement);
+	public PreparedStatement preparedStatement(PreparedStatement prepareStatement) {
+		return tracer.decorate(prepareStatement);
 	}
 
 	

@@ -24,6 +24,9 @@ final class NoOpTracer implements TransactionTracer {
         @Override
 		public void close() {
 		}
+		@Override
+		public void annotate(String annotation) {
+		}
 	};
 
 	@Override
@@ -32,17 +35,12 @@ final class NoOpTracer implements TransactionTracer {
 	}
 
 	@Override
-	public TransactionSpan close() {
+	public TransactionSpan span(String name) {
 		return NO_OP_SPAN;
 	}
 
 	@Override
-	public TransactionSpan span() {
-		return NO_OP_SPAN;
-	}
-
-	@Override
-	public PreparedStatement decorate(String sql, PreparedStatement prepareStatement) {
+	public PreparedStatement decorate( PreparedStatement prepareStatement) {
 		return prepareStatement;
 	}
 

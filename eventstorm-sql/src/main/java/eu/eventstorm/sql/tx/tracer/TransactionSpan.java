@@ -16,5 +16,6 @@ public interface TransactionSpan extends AutoCloseable {
     void exception(SQLException cause);
 
 	void tag(String key, String value);
-
+	
+	void annotate(String annotation);
 }

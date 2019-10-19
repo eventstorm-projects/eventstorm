@@ -11,10 +11,8 @@ public interface TransactionTracer {
 
 	TransactionSpan begin(Transaction transaction);
 	
-	TransactionSpan close();
+	TransactionSpan span(String name);
 
-	TransactionSpan span();
-
-	PreparedStatement decorate(String sql, PreparedStatement prepareStatement);
+	PreparedStatement decorate(PreparedStatement prepareStatement);
 	
 }

@@ -46,24 +46,21 @@ final class BraveTracer implements TransactionTracer {
 			this.scopedSpan.tag(key, value);
 		}
 
-
+		@Override
+		public void annotate(String annotation) {
+			this.scopedSpan.annotate(annotation);
+		}
 
 	}
 
 	@Override
-	public TransactionSpan close() {
-		return new BraveTransactionSpan(tracer.startScopedSpan("close"));
+	public TransactionSpan span(String name) {
+		return new BraveTransactionSpan(tracer.startScopedSpan(name));
 	}
 
 	@Override
-	public TransactionSpan span() {
-		return new BraveTransactionSpan(tracer.startScopedSpan("span"));
-	}
-
-	@Override
-	public PreparedStatement decorate(String sql, PreparedStatement prepareStatement) {
-		this.tracer.currentSpan().tag("sql", sql);
-		return new EventstormPreparedStatement(prepareStatement, this);
+	public PreparedStatement decorate(PreparedStatement prepareStatement) {
+		return new BravePreparedStatement(prepareStatement, this);
 	}
 
 	@Override

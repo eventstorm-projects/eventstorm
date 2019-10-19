@@ -23,7 +23,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
 
-final class EventstormPreparedStatement implements PreparedStatement {
+final class BravePreparedStatement implements PreparedStatement {
 
 	public static final String TAG_SQL = "sql";
 	
@@ -31,14 +31,14 @@ final class EventstormPreparedStatement implements PreparedStatement {
 
     private final TransactionTracer tracer;
 
-    EventstormPreparedStatement(PreparedStatement ps, TransactionTracer tracer) {
+	BravePreparedStatement(PreparedStatement ps, TransactionTracer tracer) {
         this.ps = ps;
         this.tracer = tracer;
     }
 
     @Override
     public ResultSet executeQuery(String sql) throws SQLException {
-        try (TransactionSpan span = tracer.span()){
+        try (TransactionSpan span = tracer.span("ps.executeQuery")){
         	span.tag(TAG_SQL, sql);
             try {
                 return this.ps.executeQuery(sql);
@@ -51,7 +51,7 @@ final class EventstormPreparedStatement implements PreparedStatement {
 
     @Override
     public int executeUpdate(String sql) throws SQLException {
-        try (TransactionSpan span = tracer.span()){
+        try (TransactionSpan span = tracer.span("ps.executeUpdate")){
         	span.tag(TAG_SQL, sql);
             try {
                 return this.ps.executeUpdate(sql);
@@ -64,7 +64,7 @@ final class EventstormPreparedStatement implements PreparedStatement {
 
     @Override
     public void close() throws SQLException {
-        try (TransactionSpan span = tracer.span()){
+        try (TransactionSpan span = tracer.span("ps.close")){
             try {
                 this.ps.close();
             } catch (SQLException cause) {
@@ -111,7 +111,7 @@ final class EventstormPreparedStatement implements PreparedStatement {
 
     @Override
     public void cancel() throws SQLException {
-        try (TransactionSpan span = tracer.span()){
+        try (TransactionSpan span = tracer.span("ps.cancel")){
             try {
                 this.ps.cancel();
             } catch (SQLException cause) {
@@ -288,7 +288,8 @@ final class EventstormPreparedStatement implements PreparedStatement {
 
     @Override
     public ResultSet executeQuery() throws SQLException {
-        return this.ps.executeQuery();
+    	return new BraveResultSet(ps.executeQuery(), tracer.span("ps.executeQuery"));	
+        
     }
 
     @Override

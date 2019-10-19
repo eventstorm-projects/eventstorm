@@ -33,6 +33,10 @@ final class DebugTracer implements TransactionTracer {
 		public void close() {
 			LOGGER.debug("close()");
 		}
+		@Override
+		public void annotate(String annotation) {
+			LOGGER.debug("annotate({})", annotation);
+		}
 	};
 
 	@Override
@@ -50,20 +54,14 @@ final class DebugTracer implements TransactionTracer {
 	}
 
 	@Override
-	public TransactionSpan close() {
-		LOGGER.debug("close()");
+	public TransactionSpan span(String name) {
+		LOGGER.debug("span({})", name);
 		return NO_OP_SPAN;
 	}
-
+	
 	@Override
-	public TransactionSpan span() {
-		LOGGER.debug("span()");
-		return NO_OP_SPAN;
-	}
-
-	@Override
-	public PreparedStatement decorate(String sql, PreparedStatement prepareStatement) {
-		LOGGER.debug("decorate({})->({})", prepareStatement, sql);
+	public PreparedStatement decorate( PreparedStatement prepareStatement) {
+		LOGGER.debug("decorate({})", prepareStatement);
 		return prepareStatement;
 	}
 
