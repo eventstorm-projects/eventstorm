@@ -66,7 +66,9 @@ final class BraveTracer implements TransactionTracer {
 	@Override
 	public TransactionSpan begin(Transaction transaction) {
 		return new BraveTransactionSpan(tracer.startScopedSpan("transaction"));
-
 	}
 
+	Tracer getTracer() {
+		return this.tracer;
+	}
 }
