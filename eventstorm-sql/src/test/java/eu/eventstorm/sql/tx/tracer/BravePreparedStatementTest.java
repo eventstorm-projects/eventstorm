@@ -1,8 +1,10 @@
 package eu.eventstorm.sql.tx.tracer;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,8 +18,10 @@ import java.sql.Clob;
 import java.sql.Date;
 import java.sql.JDBCType;
 import java.sql.NClob;
+import java.sql.ParameterMetaData;
 import java.sql.PreparedStatement;
 import java.sql.Ref;
+import java.sql.ResultSetMetaData;
 import java.sql.RowId;
 import java.sql.SQLException;
 import java.sql.SQLXML;
@@ -37,11 +41,21 @@ class BravePreparedStatementTest {
 	private Tracer tracer = Tracing.newBuilder().sampler(Sampler.ALWAYS_SAMPLE).spanReporter(new LoggingBraveReporter()).build().tracer();
 
 	@Test
-	void testExecuteQuery() throws SQLException {
+	void testExecute() throws SQLException {
 		PreparedStatement preparedStatement = mock(PreparedStatement.class);
 		try (BravePreparedStatement ps = new BravePreparedStatement(preparedStatement, (BraveTracer)TransactionTracers.brave(tracer))) {
 			
+			ps.execute();
+			verify(preparedStatement, times(1)).execute();
 			
+			ps.executeUpdate();
+			verify(preparedStatement, times(1)).executeUpdate();
+		
+			ps.executeQuery();
+			verify(preparedStatement, times(1)).executeQuery();
+			
+			ps.addBatch();
+			verify(preparedStatement, times(1)).addBatch();
 
 		}
 	}
@@ -200,6 +214,27 @@ class BravePreparedStatementTest {
 			verify(preparedStatement, times(1)).setURL(75, url);
 		}
 	}
+	
+	
+	@Test
+	void testMisc() throws SQLException {
+		
+		PreparedStatement preparedStatement = mock(PreparedStatement.class);
+		try (BravePreparedStatement ps = new BravePreparedStatement(preparedStatement, (BraveTracer)TransactionTracers.brave(tracer))) {
+		
+			ResultSetMetaData resultSetMetaData = mock(ResultSetMetaData.class);
+			when(preparedStatement.getMetaData()).thenReturn(resultSetMetaData);
+			assertEquals(resultSetMetaData, ps.getMetaData());
+			
+			ParameterMetaData parameterMetaData = mock(ParameterMetaData.class);
+			when(preparedStatement.getParameterMetaData()).thenReturn(parameterMetaData);
+			assertEquals(parameterMetaData, ps.getParameterMetaData());
+			
+			ps.clearParameters();
+			verify(preparedStatement, times(1)).clearParameters();
+		}
+	}
+		
 	
 	/*
 	

@@ -362,11 +362,13 @@ final class BravePreparedStatement extends BraveStatement implements PreparedSta
 		this.ps.setNClob(parameterIndex, reader);
 	}
 
+	@Override
 	public void setObject(int parameterIndex, Object x, SQLType targetSqlType) throws SQLException {
 		this.getBraveTracer().getTracer().currentSpanCustomizer().annotate(parameterIndex + "->(setObject," + targetSqlType + ")->[" + x + "]");
 		this.ps.setObject(parameterIndex, x, targetSqlType);
 	}
 
+	@Override
 	public void setObject(int parameterIndex, Object x, SQLType targetSqlType, int scaleOrLength) throws SQLException {
 		this.getBraveTracer().getTracer().currentSpanCustomizer()
 		        .annotate(parameterIndex + "->(setObject," + targetSqlType + "," + scaleOrLength + ")->[" + x + "]");
