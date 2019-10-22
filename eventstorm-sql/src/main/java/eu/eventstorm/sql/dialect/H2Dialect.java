@@ -10,7 +10,10 @@ import java.util.Map;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.desc.SqlSequence;
 import eu.eventstorm.sql.type.Json;
-import eu.eventstorm.sql.type.common.BlobSqlJson;
+import eu.eventstorm.sql.type.Xml;
+import eu.eventstorm.sql.type.common.BlobJson;
+import eu.eventstorm.sql.type.common.BlobXml;
+import eu.eventstorm.util.FastByteArrayInputStream;
 
 final class H2Dialect extends AbstractDialect {
 
@@ -34,17 +37,32 @@ final class H2Dialect extends AbstractDialect {
     }
 
 	@Override
-	public Json createSqlJson(Map<String, Object> value) {
+	public Json createJson(Map<String, Object> value) {
 		try {
-			return new BlobSqlJson(value);
+			return new BlobJson(value);
 		} catch (IOException cause) {
 			throw new EventstormDialectException(EventstormDialectException.Type.FAILED_TO_WRITE_JSON, of("map", value), cause);
 		}
 	}
+	
+	@Override
+	public Json createJson(byte[] value) {
+		return new BlobJson(value);
+	}
 
 	@Override
 	public Json fromJdbcJson(ResultSet rs, int index) throws SQLException {
-		return new BlobSqlJson(rs.getBytes(index));
+		return new BlobJson(rs.getBytes(index));
 	}
 
+	@Override
+	public Xml fromJdbcSqlXml(ResultSet rs, int index) throws SQLException {
+		return new BlobXml(rs.getBytes(index));
+	}
+
+	@Override
+	public Xml createXml(FastByteArrayInputStream fbais) {
+		return new BlobXml(fbais.readAll());
+	}
+	
 }

@@ -15,7 +15,7 @@ import eu.eventstorm.sql.type.SqlTypeException;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-public final class BlobSqlJson extends DefaultBlob implements Json {
+public final class BlobJson extends DefaultBlob implements Json {
 	
 	private static final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -23,11 +23,11 @@ public final class BlobSqlJson extends DefaultBlob implements Json {
 
 	private boolean isModified = false;
 
-	public BlobSqlJson(byte[] buf) {
+	public BlobJson(byte[] buf) {
 		super(buf);
 	}
 
-	public BlobSqlJson(Map<String, Object> value) throws IOException {
+	public BlobJson(Map<String, Object> value) throws IOException {
 		super(MAPPER.writeValueAsBytes(value));
 		this.map = value;
 	}

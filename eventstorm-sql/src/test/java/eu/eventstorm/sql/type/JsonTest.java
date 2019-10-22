@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.Set;
 
 import javax.sql.DataSource;
 
@@ -23,7 +22,6 @@ import eu.eventstorm.sql.model.json.Span;
 import eu.eventstorm.sql.model.json.SpanRepository;
 import eu.eventstorm.sql.tx.Transaction;
 import eu.eventstorm.sql.tx.TransactionManagerImpl;
-import eu.eventstorm.sql.type.common.BlobSqlJson;
 import eu.eventstorm.test.LoggerInstancePostProcessor;
 
 @ExtendWith(LoggerInstancePostProcessor.class)
@@ -53,11 +51,11 @@ class JsonTest {
 		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
         	Span span = new Span();
         	span.setId(1);
-        	span.setContent(new BlobSqlJson(new HashMap<>()));
+        	span.setContent(db.dialect().createJson(new HashMap<>()));
         	
         	Span span2 = new Span();
         	span2.setId(2);
-        	span2.setContent(new BlobSqlJson("{\"key1\":\"val01\"}".getBytes()) );
+        	span2.setContent(db.dialect().createJson("{\"key1\":\"val01\"}".getBytes()));
         	
         	
         	repo.insert(span);

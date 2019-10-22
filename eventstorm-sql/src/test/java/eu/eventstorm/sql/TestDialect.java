@@ -9,6 +9,8 @@ import eu.eventstorm.sql.desc.SqlColumn;
 import eu.eventstorm.sql.desc.SqlSequence;
 import eu.eventstorm.sql.desc.SqlTable;
 import eu.eventstorm.sql.type.Json;
+import eu.eventstorm.sql.type.Xml;
+import eu.eventstorm.util.FastByteArrayInputStream;
 
 /**
  * Created by jmilitello on 26/03/2017.
@@ -35,12 +37,30 @@ public class TestDialect implements Dialect {
     }
 
 	@Override
-	public Json createSqlJson(Map<String, Object> value) {
+	public Json createJson(Map<String, Object> value) {
 		return null;
 	}
 
 	@Override
 	public Json fromJdbcJson(ResultSet rs, int index) throws SQLException {
+		return null;
+	}
+
+	@Override
+	public Json createJson(byte[] value) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Xml fromJdbcSqlXml(ResultSet rs, int index) throws SQLException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Xml createXml(FastByteArrayInputStream fbais) {
+		// TODO Auto-generated method stub
 		return null;
 	}
 }
