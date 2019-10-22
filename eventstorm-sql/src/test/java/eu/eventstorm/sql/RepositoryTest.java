@@ -24,8 +24,10 @@ import eu.eventstorm.sql.builder.DeleteBuilder;
 import eu.eventstorm.sql.builder.InsertBuilder;
 import eu.eventstorm.sql.builder.SelectBuilder;
 import eu.eventstorm.sql.builder.UpdateBuilder;
+import eu.eventstorm.sql.expression.AggregateFunctions;
 import eu.eventstorm.sql.impl.DatabaseImpl;
 import eu.eventstorm.sql.jdbc.PreparedStatementSetter;
+import eu.eventstorm.sql.jdbc.ResultSetMappers;
 import eu.eventstorm.sql.model.ex001.Student;
 import eu.eventstorm.sql.model.ex001.StudentDescriptor;
 import eu.eventstorm.sql.model.ex001.StudentImpl;
@@ -240,7 +242,17 @@ class RepositoryTest {
 		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
 			repo.executeBatchInsert(insert, STUDENT, students);
 			tx.commit();
-		}
+        }
+
+         String select  = repo.select(AggregateFunctions.count(StudentDescriptor.ID))
+                .from(StudentDescriptor.TABLE)
+                .build();
+
+        try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
+            long count = repo.executeSelect(select, PreparedStatementSetter.EMPTY, ResultSetMappers.SINGLE_LONG);
+            assertEquals(100, count);
+			tx.rollback();
+        }
 
 		String delete = repo.delete(StudentDescriptor.TABLE).where(eq(StudentDescriptor.ID)).build();
 		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
@@ -249,7 +261,13 @@ class RepositoryTest {
 				repo.executeDelete(delete, ps -> ps.setInt(1, j));
 			}
 			tx.commit();
-		}
+        }
+
+        try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
+            long count = repo.executeSelect(select, PreparedStatementSetter.EMPTY, ResultSetMappers.SINGLE_LONG);
+            assertEquals(0, count);
+			tx.rollback();
+        }
 	}
 
 

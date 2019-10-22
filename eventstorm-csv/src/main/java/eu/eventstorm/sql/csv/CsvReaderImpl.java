@@ -54,13 +54,13 @@ final class CsvReaderImpl implements CsvReader {
     }
 
     private FileEndOfLine findEndOfLine() {
-        long offset = this.offset;
-        for (; offset < addressMax; offset++) {
-            byte b = UNSAFE.getByte(offset);
+        long off = this.offset;
+        for (; off < addressMax; off++) {
+            byte b = UNSAFE.getByte(off);
 
             if (b == CR) {
-                if (offset + 1 < addressMax) {
-                    b = UNSAFE.getByte(offset + 1);
+                if (off + 1 < addressMax) {
+                    b = UNSAFE.getByte(off + 1);
                     if (b == LF) {
                         return FileEndOfLine.WIN;
                     } else {
@@ -81,29 +81,29 @@ final class CsvReaderImpl implements CsvReader {
 
         long[] cols = new long[64];
         boolean quoted = false;
-        long offset = this.offset;
+        long off = this.offset;
         int i = 0;
-        for (; offset < addressMax; offset++) {
-            byte b = UNSAFE.getByte(offset);
+        for (; off < addressMax; off++) {
+            byte b = UNSAFE.getByte(off);
 
             if (QUOTE == b) {
                 quoted = !quoted;
             }
 
             if (COMMA == b && !quoted) {
-                cols[i++] = offset - 1;
+                cols[i++] = off - 1;
             }
 
             if (CR == b) {
                 if (FileEndOfLine.MAC == this.fileEndOfLine) {
-                    cols[i++] = offset - 1;
+                    cols[i++] = off - 1;
                     CsvLine csvLine = new CsvLineImpl(this.offset, cols, line++, i);
-                    this.offset = offset;
+                    this.offset = off;
                     return csvLine;
                 } else if (FileEndOfLine.WIN == this.fileEndOfLine) {
-                    cols[i++] = offset - 1;
+                    cols[i++] = off - 1;
                     CsvLine csvLine = new CsvLineImpl(this.offset, cols, line++, i);
-                    this.offset = offset + 2;
+                    this.offset = off + 2;
                     return csvLine;
                 } else {
 
@@ -112,9 +112,9 @@ final class CsvReaderImpl implements CsvReader {
 
             if (LF == b) {
                 if (FileEndOfLine.UNIX == this.fileEndOfLine) {
-                    cols[i++] = offset - 1;
+                    cols[i++] = off - 1;
                     CsvLine csvLine = new CsvLineImpl(this.offset, cols, line++, i);
-                    this.offset = offset + 1;
+                    this.offset = off + 1;
                     return csvLine;
                 } else {
                     throw new IllegalStateException();
