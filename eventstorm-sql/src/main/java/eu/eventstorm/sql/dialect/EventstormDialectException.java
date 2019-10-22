@@ -12,11 +12,15 @@ import eu.eventstorm.sql.EventstormSqlExceptionType;
 public final class EventstormDialectException extends EventstormSqlException {
 
 	public enum Type implements EventstormSqlExceptionType {
-		MODULE_NOT_FOUND
+		MODULE_NOT_FOUND, FAILED_TO_WRITE_JSON
 	}
 
 	public EventstormDialectException(Type type, ImmutableMap<String, Object> params) {
 		super(type, params);
+	}
+	
+	public EventstormDialectException(Type type, ImmutableMap<String, Object> params, Throwable cause) {
+		super(type, params, cause);
 	}
 
 }

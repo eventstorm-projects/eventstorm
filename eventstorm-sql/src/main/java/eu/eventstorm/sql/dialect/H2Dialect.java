@@ -1,5 +1,8 @@
 package eu.eventstorm.sql.dialect;
 
+import static com.google.common.collect.ImmutableMap.of;
+
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
@@ -32,7 +35,11 @@ final class H2Dialect extends AbstractDialect {
 
 	@Override
 	public Json createSqlJson(Map<String, Object> value) {
-		return null;
+		try {
+			return new BlobSqlJson(value);
+		} catch (IOException cause) {
+			throw new EventstormDialectException(EventstormDialectException.Type.FAILED_TO_WRITE_JSON, of("map", value), cause);
+		}
 	}
 
 	@Override

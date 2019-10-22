@@ -491,9 +491,25 @@ final class RepositoryGenerator implements Generator {
 		writeNewLine(writer);
 
     }
+    
+    private static boolean checkCUD(PojoDescriptor descriptor) {
+    	if (descriptor.getTable() != null && descriptor.getTable().immutable()) {
+            return false;
+        }
+
+    	if (descriptor.getJoinTable() != null) {
+    		return false;
+    	}
+    	
+    	return true;
+    }
 
     private static void generateMethodInsert(Writer writer, PojoDescriptor descriptor) throws IOException {
 
+    	if (!checkCUD(descriptor)) {
+    		return;
+    	}
+    	
         writeNewLine(writer);
         writer.write("    public final void insert(");
         writer.write(descriptor.element().toString());
@@ -546,7 +562,7 @@ final class RepositoryGenerator implements Generator {
 
     private static void generateMethodUpdate(Writer writer, PojoDescriptor descriptor) throws IOException {
 
-    	if (descriptor.getJoinTable() != null) {
+    	if (!checkCUD(descriptor)) {
     		return;
     	}
 
@@ -584,6 +600,10 @@ final class RepositoryGenerator implements Generator {
 
     private static void generateMethodBatch(Writer writer, PojoDescriptor descriptor) throws IOException {
 
+    	if (!checkCUD(descriptor)) {
+    		return;
+    	}
+    	
         writeNewLine(writer);
         writer.write("    public final void batch(");
         writer.write(Iterable.class.getName());
