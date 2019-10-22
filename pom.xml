@@ -172,6 +172,7 @@
 		<module>eventstorm-csv</module>
 		<module>eventstorm-sql</module>
 		<module>eventstorm-sql-apt</module>
+		<module>eventstorm-sql-spring</module>
 		<module>eventstorm-bom</module>
 	</modules>
 
@@ -183,7 +184,7 @@
 					<plugin>
 						<groupId>org.jacoco</groupId>
 						<artifactId>jacoco-maven-plugin</artifactId>
-						<version>0.8.4</version>
+						<version>0.8.5</version>
 						<executions>
 							<execution>
 								<id>prepare-agent</id>
