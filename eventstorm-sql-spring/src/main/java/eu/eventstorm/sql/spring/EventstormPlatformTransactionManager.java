@@ -28,7 +28,7 @@ public final class EventstormPlatformTransactionManager implements PlatformTrans
             LOGGER.trace("getTransaction({})", transactionDefinition);
         }
 
-        if (transactionManager.current() != null) {
+        if (transactionManager.hasCurrent()) {
             // get TX inside another TX
             return new EventstormTransactionStatus(transactionManager.current(), transactionDefinition.isReadOnly(), false, null);
         }
@@ -64,15 +64,15 @@ public final class EventstormPlatformTransactionManager implements PlatformTrans
 			}
 			return;
 		}
-		
+
 		EventstormTransactionStatus status = (EventstormTransactionStatus)transactionStatus;
-		
+
 		try {
-			status.getTransaction().rollback();	
+			status.getTransaction().rollback();
 		} finally {
 			status.getTransaction().close();
 		}
-		
+
 		//if (((EventstormTransactionStatus)transactionStatus).getPreviousTransaction() != null) {
 		//	TransactionSynchronizer.bind(this.name, ((EventstormTransactionStatus)transactionStatus).getPreviousTransaction());
 		//}
