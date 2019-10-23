@@ -56,7 +56,7 @@ final class H2Dialect extends AbstractDialect {
 	}
 
 	@Override
-	public Xml fromJdbcSqlXml(ResultSet rs, int index) throws SQLException {
+	public Xml fromJdbcXml(ResultSet rs, int index) throws SQLException {
 		return new BlobXml(rs.getBytes(index));
 	}
 

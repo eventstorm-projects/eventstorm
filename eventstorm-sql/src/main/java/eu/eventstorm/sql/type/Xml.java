@@ -8,5 +8,5 @@ import java.io.InputStream;
 public interface Xml {
 
 	InputStream getBinaryStream();
-	
+
 }

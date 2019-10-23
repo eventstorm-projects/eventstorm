@@ -11,6 +11,8 @@ import eu.eventstorm.sql.type.Json;
 
 public final class Helper {
 
+	private Helper() {
+	}
 
     public static void writeNewLine(Writer writer) throws IOException {
         writer.write(System.getProperty("line.separator"));
@@ -61,19 +63,19 @@ public final class Helper {
 
     public static String preparedStatementSetter(String type) {
 
-        if ("int".equals(type) || "java.lang.Integer".equals(type)) {
+        if (isInteger(type)) {
             return "setInt";
         }
 
-        if ("long".equals(type) || "java.lang.Long".equals(type)) {
+        if (isLong(type)) {
             return "setLong";
         }
 
-        if ("short".equals(type) || "java.lang.Short".equals(type)) {
+        if (isShort(type)) {
             return "setShort";
         }
 
-        if ("byte".equals(type) || "java.lang.Byte".equals(type)) {
+        if (isByte(type)) {
             return "setByte";
         }
 
@@ -110,19 +112,19 @@ public final class Helper {
 
     public static String preparedStatementGetter(String type) {
 
-        if ("int".equals(type) || "java.lang.Integer".equals(type)) {
+        if (isInteger(type)) {
             return "getInt";
         }
 
-        if ("long".equals(type) || "java.lang.Long".equals(type)) {
+        if (isLong(type)) {
             return "getLong";
         }
 
-        if ("short".equals(type) || "java.lang.Short".equals(type)) {
+        if (isShort(type)) {
             return "getShort";
         }
 
-        if ("byte".equals(type) || "java.lang.Byte".equals(type)) {
+        if (isByte(type)) {
             return "getByte";
         }
 
@@ -231,5 +233,21 @@ public final class Helper {
         }
 
         return false;
+    }
+    
+    private static boolean isInteger(String type) {
+    	return  ("int".equals(type) || "java.lang.Integer".equals(type));
+    }
+    
+    private static boolean isLong(String type) {
+    	return  ("long".equals(type) || "java.lang.Long".equals(type));
+    }
+    
+    private static boolean isShort(String type) {
+    	return  ("short".equals(type) || "java.lang.Short".equals(type));
+    }
+   
+    private static boolean isByte(String type) {
+    	return  ("byte".equals(type) || "java.lang.Byte".equals(type));
     }
 }

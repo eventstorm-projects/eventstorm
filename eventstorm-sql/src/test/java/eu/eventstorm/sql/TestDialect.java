@@ -53,7 +53,7 @@ public class TestDialect implements Dialect {
 	}
 
 	@Override
-	public Xml fromJdbcSqlXml(ResultSet rs, int index) throws SQLException {
+	public Xml fromJdbcXml(ResultSet rs, int index) throws SQLException {
 		// TODO Auto-generated method stub
 		return null;
 	}

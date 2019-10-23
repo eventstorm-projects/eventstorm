@@ -29,7 +29,7 @@ public interface Dialect {
 	// use for mapper.
 	Json fromJdbcJson(ResultSet rs, int index) throws SQLException;
 	
-	Xml fromJdbcSqlXml(ResultSet rs, int index) throws SQLException;
+	Xml fromJdbcXml(ResultSet rs, int index) throws SQLException;
 	
 	Json createJson(Map<String,Object> value);
 	

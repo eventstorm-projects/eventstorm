@@ -1,13 +1,17 @@
-package eu.eventstorm.sql.model.json;
+package eu.eventstorm.sql.model.xml;
 
+import static com.google.common.collect.ImmutableList.of;
 import static eu.eventstorm.sql.expression.Expressions.eq;
-import static eu.eventstorm.sql.model.json.SpanDescriptor.ALL;
-import static eu.eventstorm.sql.model.json.SpanDescriptor.COLUMNS;
-import static eu.eventstorm.sql.model.json.SpanDescriptor.ID;
-import static eu.eventstorm.sql.model.json.SpanDescriptor.IDS;
-import static eu.eventstorm.sql.model.json.SpanDescriptor.TABLE;
+import static eu.eventstorm.sql.model.xml.SpanDescriptor.ALL;
+import static eu.eventstorm.sql.model.xml.SpanDescriptor.COLUMNS;
+import static eu.eventstorm.sql.model.xml.SpanDescriptor.ID;
+import static eu.eventstorm.sql.model.xml.SpanDescriptor.TABLE;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import eu.eventstorm.sql.jdbc.Batch;
+
 
 public class SpanRepository extends eu.eventstorm.sql.Repository {
 
@@ -16,42 +20,36 @@ public class SpanRepository extends eu.eventstorm.sql.Repository {
     private final String findById;
     private final String findByIdForUpdate;
     private final String insert;
-    private final String update;
 
     protected SpanRepository(eu.eventstorm.sql.Database database){
         super(database);
         this.findById = select(ALL).from(TABLE).where(eq(ID)).build();
         this.findByIdForUpdate = select(ALL).from(TABLE).where(eq(ID)).forUpdate().build();
-        this.insert = insert(TABLE, IDS, COLUMNS).build();
-        this.update = update(TABLE, COLUMNS, IDS).build();
+        this.insert = insert(TABLE, of(), COLUMNS).build();
     }
 
-    public final eu.eventstorm.sql.model.json.Span findById(int id) {
+    public final Span findById(int id) {
         return executeSelect(this.findById, ps -> {
            ps.setInt(1, id);
         }, SPAN);
     }
 
-    public final eu.eventstorm.sql.model.json.Span findByIdForUpdate(int id) {
+    public final Span findByIdForUpdate(int id) {
         return executeSelect(this.findByIdForUpdate, ps -> ps.setInt(1, id), SPAN);
     }
 
-    public final void insert(eu.eventstorm.sql.model.json.Span pojo) {
+    public final void insert(Span pojo) {
         // execute insert
-        executeInsert(this.insert, SPAN, pojo);
+        executeInsertAutoIncrement(this.insert, SPAN, pojo);
     }
 
-    public final void update(eu.eventstorm.sql.model.json.Span pojo) {
-        // execute update
-        executeUpdate(this.update, SPAN, pojo);
-    }
 
-    public final Batch<eu.eventstorm.sql.model.json.Span> batch() {
+    public final Batch<Span> batch() {
         // add to batch
         return super.batch(this.insert, SPAN);
     }
 
-    static final class SpanMapper implements eu.eventstorm.sql.jdbc.Mapper<Span> {
+    static final class SpanMapper implements eu.eventstorm.sql.jdbc.MapperWithAutoIncrement<Span> {
 
         SpanMapper() {
         }
@@ -59,23 +57,24 @@ public class SpanRepository extends eu.eventstorm.sql.Repository {
         public Span map(eu.eventstorm.sql.Dialect dialect, java.sql.ResultSet rs) throws java.sql.SQLException {
             Span pojo = new Span();
             pojo.setId(rs.getInt(1));
-            pojo.setContent(dialect.fromJdbcJson(rs,2));
+            pojo.setContent(dialect.fromJdbcXml(rs,2));
             return pojo;
         }
 
         public void insert(java.sql.PreparedStatement ps, Span pojo) throws java.sql.SQLException {
-            ps.setInt(1,  pojo.getId());
-            pojo.getContent().flush();
-            ps.setObject(2,  pojo.getContent());
+            ps.setObject(1,  pojo.getContent());
         }
 
         public void update(java.sql.PreparedStatement ps, Span pojo) throws java.sql.SQLException {
-            pojo.getContent().flush();
             ps.setObject(1,  pojo.getContent());
             //set primary key
             ps.setInt(2,  pojo.getId());
-
         }
+
+		@Override
+		public void setId(Span pojo, ResultSet rs) throws SQLException {
+			pojo.setId(rs.getInt(1));
+		}
 
     }
 }
