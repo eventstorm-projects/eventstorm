@@ -13,7 +13,6 @@ public final class EventstormRepositoryException extends EventstormSqlException 
     public static final String PARAM_SQL = "sql";
     public static final String PARAM_POJO = "pojo";
     public static final String PARAM_SIZE = "size";
-    public static final String PARAM_POJOS = "pojos";
 
 	public enum Type implements EventstormSqlExceptionType {
 		INSERT_GENERATED_KEYS,

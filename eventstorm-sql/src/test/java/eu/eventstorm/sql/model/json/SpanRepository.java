@@ -9,12 +9,14 @@ import static eu.eventstorm.sql.model.json.SpanDescriptor.TABLE;
 
 import javax.annotation.Generated;
 
+import eu.eventstorm.sql.jdbc.Batch;
+
 
 @Generated("eu.eventsotrm.sql.apt.RepositoryGenerator")
 public class SpanRepository extends eu.eventstorm.sql.Repository {
 
 	private static final SpanMapper SPAN = new SpanMapper();
-	
+
     private final String findById;
     private final String findByIdForUpdate;
     private final String insert;
@@ -50,9 +52,9 @@ public class SpanRepository extends eu.eventstorm.sql.Repository {
         executeUpdate(this.update, SPAN, pojo);
     }
 
-    public final void batch(java.lang.Iterable<eu.eventstorm.sql.model.json.Span> pojos) {
+    public final Batch<eu.eventstorm.sql.model.json.Span> batch() {
         // add to batch
-        executeBatchInsert(this.insert, SPAN, pojos);
+        return super.batch(this.insert, SPAN);
     }
 
     static final class SpanMapper implements eu.eventstorm.sql.jdbc.Mapper<Span> {

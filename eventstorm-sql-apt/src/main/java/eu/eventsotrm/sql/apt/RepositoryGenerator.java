@@ -38,6 +38,7 @@ import eu.eventstorm.sql.expression.AggregateFunctions;
 import eu.eventstorm.sql.expression.Expressions;
 import eu.eventstorm.sql.id.SequenceGenerator4Integer;
 import eu.eventstorm.sql.id.SequenceGenerator4Long;
+import eu.eventstorm.sql.jdbc.Batch;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -491,7 +492,7 @@ final class RepositoryGenerator implements Generator {
 		writeNewLine(writer);
 
     }
-    
+
     private static boolean checkCUD(PojoDescriptor descriptor) {
     	if (descriptor.getTable() != null && descriptor.getTable().immutable()) {
             return false;
@@ -500,7 +501,7 @@ final class RepositoryGenerator implements Generator {
     	if (descriptor.getJoinTable() != null) {
     		return false;
     	}
-    	
+
     	return true;
     }
 
@@ -509,7 +510,7 @@ final class RepositoryGenerator implements Generator {
     	if (!checkCUD(descriptor)) {
     		return;
     	}
-    	
+
         writeNewLine(writer);
         writer.write("    public final void insert(");
         writer.write(descriptor.element().toString());
@@ -603,24 +604,16 @@ final class RepositoryGenerator implements Generator {
     	if (!checkCUD(descriptor)) {
     		return;
     	}
-    	
-        writeNewLine(writer);
-        writer.write("    public final void batch(");
-        writer.write(Iterable.class.getName());
-        writer.write("<");
-        writer.write(descriptor.element().toString());
-        writer.write("> pojos) {");
-
 
         writeNewLine(writer);
-        writer.write("        // add to batch");
+        writer.write("    public final "+ Batch.class +"<"+ descriptor.element().toString() +"> batch()");
         writeNewLine(writer);
+
+        writer.write("        return batch(this.insert, Mappers.");
 
         // todo check autoincrement ...
-
-        writer.write("        executeBatchInsert(this.insert, Mappers.");
         writer.write(toUpperCase(descriptor.element().getSimpleName().toString()));
-        writer.write(", pojos);");
+        writer.write(");");
 
         writeNewLine(writer);
         writer.write("    }");
@@ -860,5 +853,5 @@ final class RepositoryGenerator implements Generator {
 		 // can this ever happen ??
 		throw new IllegalStateException();
 	}
-	
+
 }

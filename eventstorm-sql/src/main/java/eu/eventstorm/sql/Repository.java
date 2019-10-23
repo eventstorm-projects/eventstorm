@@ -3,7 +3,6 @@ package eu.eventstorm.sql;
 import static com.google.common.collect.ImmutableMap.of;
 import static eu.eventstorm.sql.EventstormRepositoryException.PARAM_SQL;
 import static eu.eventstorm.sql.EventstormRepositoryException.PARAM_POJO;
-import static eu.eventstorm.sql.EventstormRepositoryException.PARAM_POJOS;
 import static eu.eventstorm.sql.EventstormRepositoryException.PARAM_SIZE;
 import static eu.eventstorm.sql.EventstormRepositoryException.Type.BATCH_ADD;
 import static eu.eventstorm.sql.EventstormRepositoryException.Type.BATCH_EXECUTE_QUERY;
@@ -51,6 +50,7 @@ import eu.eventstorm.sql.domain.Page;
 import eu.eventstorm.sql.domain.PageImpl;
 import eu.eventstorm.sql.domain.Pageable;
 import eu.eventstorm.sql.expression.AggregateFunction;
+import eu.eventstorm.sql.jdbc.Batch;
 import eu.eventstorm.sql.jdbc.InsertMapper;
 import eu.eventstorm.sql.jdbc.InsertMapperWithAutoIncrement;
 import eu.eventstorm.sql.jdbc.PreparedStatementSetter;
@@ -220,46 +220,11 @@ public abstract class Repository {
 		} else {
 			return null;
 		}
-	}
+    }
 
-	protected final <E> void executeBatchInsert(String sql, InsertMapper<E> im, Iterable<E> pojos) {
-
-		try (TransactionQueryContext tqc = database.transactionManager().context().write(sql)) {
-			int count = 0;
-	        for (E pojo : pojos) {
-				try {
-					im.insert(tqc.preparedStatement(), pojo);
-				} catch (SQLException cause) {
-					throw tqc.exception(new EventstormRepositoryException(INSERT_MAPPER, of(PARAM_SQL, sql, PARAM_POJO, pojo), cause));
-				}
-				try {
-					tqc.preparedStatement().addBatch();
-				} catch (SQLException cause) {
-					throw tqc.exception(new EventstormRepositoryException(BATCH_ADD, of(PARAM_SQL, sql, PARAM_POJO, pojo), cause));
-	            }
-	            count++;
-			}
-
-			int[] vals;
-
-			try {
-				vals = tqc.preparedStatement().executeBatch();
-			} catch (SQLException cause) {
-				throw tqc.exception(new EventstormRepositoryException(BATCH_EXECUTE_QUERY, of(PARAM_SQL, sql, PARAM_POJOS, pojos), cause));
-			}
-
-			if (vals.length != count) {
-				throw tqc.exception(new EventstormRepositoryException(BATCH_RESULT, of(PARAM_SQL, sql, PARAM_POJOS, pojos, PARAM_SIZE, vals.length)));
-			}
-			for (int i = 0; i < vals.length; i++) {
-				if (vals[i] != 1) {
-					throw tqc.exception(new EventstormRepositoryException(BATCH_RESULT, of(PARAM_SQL, sql, PARAM_POJOS, pojos, "item", i, "return", vals[i])));
-				}
-			}
-		}
-
-
-	}
+    protected final <E> Batch<E> batch(String sql, InsertMapper<E> im) {
+        return new BatchImpl<E>(sql, im);
+    }
 
 	protected final <T> Stream<T> stream(String sql, PreparedStatementSetter pss, ResultSetMapper<T> mapper) {
 
@@ -325,10 +290,7 @@ public abstract class Repository {
 			}
 		}, false);
 
-	}
-
-
-
+    }
 
 	protected final <T> Page<T> executeSelectPage(String countSql, String sql, ResultSetMapper<T> mapper, Pageable pageable) {
 
@@ -350,4 +312,64 @@ public abstract class Repository {
 
 	}
 
+
+    private final class BatchImpl<E> implements Batch<E> {
+
+        private final String sql;
+        private final TransactionQueryContext tqc;
+        private final InsertMapper<E> im;
+        private int count;
+
+        private BatchImpl(String sql, InsertMapper<E> im) {
+            this.sql = sql;
+            this.tqc = database.transactionManager().context().write(sql);
+            this.im = im;
+        }
+
+		@Override
+		public void close() {
+            try {
+                doClose();
+            } finally {
+                tqc.close();
+            }
+
+		}
+
+		@Override
+		public void add(E pojo) {
+            try {
+                im.insert(tqc.preparedStatement(), pojo);
+            } catch (SQLException cause) {
+                throw tqc.exception(new EventstormRepositoryException(INSERT_MAPPER, of(PARAM_SQL, sql, PARAM_POJO, pojo), cause));
+            }
+
+            try {
+                tqc.preparedStatement().addBatch();
+            } catch (SQLException cause) {
+                throw tqc.exception(new EventstormRepositoryException(BATCH_ADD, of(PARAM_SQL, sql, PARAM_POJO, pojo), cause));
+            }
+            count++;
+        }
+
+        private void doClose() {
+            int[] vals;
+
+			try {
+				vals = tqc.preparedStatement().executeBatch();
+			} catch (SQLException cause) {
+				throw tqc.exception(new EventstormRepositoryException(BATCH_EXECUTE_QUERY, of(PARAM_SQL, sql), cause));
+			}
+
+			if (vals.length != count) {
+				throw tqc.exception(new EventstormRepositoryException(BATCH_RESULT, of(PARAM_SQL, sql, PARAM_SIZE, vals.length)));
+			}
+			for (int i = 0; i < vals.length; i++) {
+				if (vals[i] != 1) {
+					throw tqc.exception(new EventstormRepositoryException(BATCH_RESULT, of(PARAM_SQL, sql, "item", i, "return", vals[i])));
+				}
+			}
+		}
+
+    }
 }

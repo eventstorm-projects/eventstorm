@@ -26,6 +26,7 @@ import eu.eventstorm.sql.builder.SelectBuilder;
 import eu.eventstorm.sql.builder.UpdateBuilder;
 import eu.eventstorm.sql.expression.AggregateFunctions;
 import eu.eventstorm.sql.impl.DatabaseImpl;
+import eu.eventstorm.sql.jdbc.Batch;
 import eu.eventstorm.sql.jdbc.PreparedStatementSetter;
 import eu.eventstorm.sql.jdbc.ResultSetMappers;
 import eu.eventstorm.sql.model.ex001.Student;
@@ -229,18 +230,18 @@ class RepositoryTest {
 	void testBatch() throws SQLException {
 
 		String insert = repo.insert(StudentDescriptor.TABLE, StudentDescriptor.IDS, StudentDescriptor.COLUMNS).build();
-		List<Student> students = new ArrayList<>();
-		for (int i = 1 ; i < 101 ; i ++) {
-			Student student = new StudentImpl();
-			student.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-			student.setId(i);
-			student.setAge(30 + i);
-			student.setCode("Code_" + i);
-			students.add(student);
-		}
 
 		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
-			repo.executeBatchInsert(insert, STUDENT, students);
+            try (Batch<Student> batch = repo.batch(insert, STUDENT)) {
+                for (int i = 1 ; i < 101 ; i ++) {
+                    Student student = new StudentImpl();
+			        student.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+			        student.setId(i);
+			        student.setAge(30 + i);
+			        student.setCode("Code_" + i);
+                    batch.add(student);
+                }
+            }
 			tx.commit();
         }
 
