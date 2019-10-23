@@ -71,6 +71,11 @@ public final class TransactionManagerImpl implements TransactionManager {
         return transaction;
     }
 
+    @Override
+	public boolean hasCurrent() {
+		return this.transactions.get() != null;
+	}
+
     public Transaction getTransaction(TransactionDefinition definition) {
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("getTransaction({})", definition);

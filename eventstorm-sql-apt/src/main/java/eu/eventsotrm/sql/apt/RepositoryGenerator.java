@@ -606,7 +606,7 @@ final class RepositoryGenerator implements Generator {
     	}
 
         writeNewLine(writer);
-        writer.write("    public final "+ Batch.class +"<"+ descriptor.element().toString() +"> batch()");
+        writer.write("    public final "+ Batch.class.getName() +"<"+ descriptor.element().toString() +"> batch() {");
         writeNewLine(writer);
 
         writer.write("        return batch(this.insert, Mappers.");
