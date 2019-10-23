@@ -3,6 +3,7 @@ package eu.eventstorm.sql.tx.tracer;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -14,7 +15,6 @@ import java.sql.SQLWarning;
 import java.sql.Statement;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import brave.Tracer;
 import brave.Tracing;
@@ -35,7 +35,10 @@ class BraveStatementTest {
 
 			when(statement.executeUpdate("FAKE")).thenReturn(25);
 			assertEquals(25, ps.executeUpdate("FAKE"));
-
+			
+			when(statement.execute("FAKE")).thenReturn(true);
+			assertEquals(true, ps.execute("FAKE"));
+			
 			when(statement.execute("FAKE", 1)).thenReturn(false);
 			assertEquals(false, ps.execute("FAKE", 1));
 
@@ -68,6 +71,10 @@ class BraveStatementTest {
 
 			when(statement.executeUpdate("FAKE")).thenThrow(SQLException.class);
 			assertThrows(SQLException.class, () -> ps.executeUpdate("FAKE"));
+			
+			when(statement.getGeneratedKeys()).thenReturn(rs);
+			assertEquals(rs, ps.getGeneratedKeys());
+
 		}
 	}
 
@@ -215,7 +222,7 @@ class BraveStatementTest {
 			ps.cancel();
 			verify(statement, times(1)).cancel();
 
-			Mockito.doThrow(SQLException.class).when(statement).cancel();
+			doThrow(SQLException.class).when(statement).cancel();
 			assertThrows(SQLException.class, () -> ps.cancel());
 
 			ps.setCursorName("CURSOR");
@@ -259,4 +266,21 @@ class BraveStatementTest {
 		}
 	}
 
+	@Test
+	void testClose() throws SQLException {
+		
+		Statement statement = mock(Statement.class);
+		doThrow(SQLException.class).when(statement).close();
+		
+		assertThrows(SQLException.class, () -> new BraveStatement(statement, (BraveTracer) TransactionTracers.brave(tracer)).close());
+
+		Statement st = mock(Statement.class);
+
+		try (BraveStatement ps = new BraveStatement(st, (BraveTracer) TransactionTracers.brave(tracer))) {
+		
+			when(st.isClosed()).thenReturn(false);
+			assertEquals(false, ps.isClosed());
+		}
+			
+	}
 }
