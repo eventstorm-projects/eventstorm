@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
  */
 class BuffersTest {
 
+	@SuppressWarnings("restriction")
 	@Test
 	void testClean() {
 

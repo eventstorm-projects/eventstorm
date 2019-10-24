@@ -47,8 +47,6 @@ public final class Helper {
         return builder.toString();
     }
 
-
-
     public static String toUpperCase(String name) {
         StringBuilder builder = new StringBuilder();
         builder.append(Character.toUpperCase(name.charAt(0)));
@@ -80,15 +78,15 @@ public final class Helper {
             return "setByte";
         }
 
-        if ("float".equals(type) || "java.lang.Float".equals(type)) {
+        if (isFloat(type)) {
             return "setFloat";
         }
 
-        if ("double".equals(type) || "java.lang.Double".equals(type)) {
+        if (isDouble(type)) {
             return "setDouble";
         }
 
-        if ("boolean".equals(type) || "java.lang.Boolean".equals(type)) {
+        if (isBoolean(type)) {
             return "setBoolean";
         }
 
@@ -129,15 +127,15 @@ public final class Helper {
             return "getByte";
         }
 
-        if ("float".equals(type) || "java.lang.Float".equals(type)) {
+        if (isFloat(type)) {
             return "getFloat";
         }
 
-        if ("double".equals(type) || "java.lang.Double".equals(type)) {
+        if (isDouble(type)) {
             return "getDouble";
         }
 
-        if ("boolean".equals(type) || "java.lang.Boolean".equals(type)) {
+        if (isBoolean(type)) {
             return "getBoolean";
         }
 
@@ -160,11 +158,8 @@ public final class Helper {
     }
 
     public static boolean isPrimitiveType(String type) {
-        if ("int".equals(type) || "short".equals(type) || "long".equals(type) || "byte".equals(type) ||
-                "float".equals(type) || "double".equals(type) || "boolean".equals(type)) {
-            return true;
-        }
-        return false;
+        return ("int".equals(type) || "short".equals(type) || "long".equals(type) || "byte".equals(type) ||
+                "float".equals(type) || "double".equals(type) || "boolean".equals(type));
     }
 
     public static String nullableType(String type) {
@@ -228,7 +223,7 @@ public final class Helper {
 
     public static String isDialectType(String type) {
 
-        if (Xml.class.equals(type)) {
+        if (Xml.class.getName().equals(type)) {
             return "fromJdbcSqlXml";
         }
 
@@ -262,5 +257,17 @@ public final class Helper {
 
     private static boolean isByte(String type) {
     	return  ("byte".equals(type) || "java.lang.Byte".equals(type));
+    }
+    
+    private static boolean isBoolean(String type) {
+    	return  ("boolean".equals(type) || "java.lang.Boolean".equals(type));
+    }
+    
+    private static boolean isFloat(String type) {
+    	return  ("float".equals(type) || "java.lang.Float".equals(type));
+    }
+    
+    private static boolean isDouble(String type) {
+    	return  ("double".equals(type) || "java.lang.Double".equals(type));
     }
 }
