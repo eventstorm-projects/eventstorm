@@ -47,13 +47,19 @@ public final class EventstormPlatformTransactionManager implements PlatformTrans
             LOGGER.trace("commit({})", transactionStatus);
         }
 
+        EventstormTransactionStatus status = (EventstormTransactionStatus)transactionStatus;
+
+		try {
+			status.getTransaction().commit();
+		} finally {
+			status.getTransaction().close();
+		}
 
 
     }
 
     @Override
     public void rollback(TransactionStatus transactionStatus) throws TransactionException {
-
     	if (LOGGER.isTraceEnabled()) {
 			LOGGER.trace("rollback({})", transactionStatus);
 		}

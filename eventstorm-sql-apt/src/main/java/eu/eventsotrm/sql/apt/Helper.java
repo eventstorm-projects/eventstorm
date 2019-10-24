@@ -8,6 +8,7 @@ import eu.eventsotrm.sql.apt.model.PojoDescriptor;
 import eu.eventsotrm.sql.apt.model.PojoPropertyDescriptor;
 import eu.eventstorm.sql.annotation.AutoIncrement;
 import eu.eventstorm.sql.type.Json;
+import eu.eventstorm.sql.type.Xml;
 
 public final class Helper {
 
@@ -106,7 +107,7 @@ public final class Helper {
         if (Json.class.getName().equals(type)) {
 			return "setObject";
 		}
-        
+
         throw new UnsupportedOperationException("Helper.preparedStatementSetter -> type not supported -> [" + type + "]");
     }
 
@@ -180,16 +181,28 @@ public final class Helper {
             return "java.sql.Types.VARCHAR";
         }
 
-        if ("short".equals(type) || "java.lang.Short".equals(type)) {
+        if ("java.lang.Short".equals(type)) {
             return "java.sql.Types.SMALLINT";
         }
 
-        if ("byte".equals(type) || "java.lang.Byte".equals(type)) {
+        if ("java.lang.Byte".equals(type)) {
             return"java.sql.Types.TINYINT";
         }
 
         if ("java.sql.Timestamp".equals(type)) {
             return"java.sql.Types.TIMESTAMP";
+        }
+
+         if ("java.lang.Boolean".equals(type)) {
+            return"java.sql.Types.BOOLEAN";
+        }
+
+        if ("eu.eventstorm.sql.type.Json".equals(type)) {
+            return"java.sql.Types.BLOB";
+        }
+
+        if ("eu.eventstorm.sql.type.Xml".equals(type)) {
+            return"java.sql.Types.SQLXML";
         }
 
         throw new UnsupportedOperationException("Helper.nullableType -> type not supported -> [" + type + "]");
@@ -215,7 +228,7 @@ public final class Helper {
 
     public static String isDialectType(String type) {
 
-        if ("io.m3.sql.jdbc.SqlXml".equals(type)) {
+        if (Xml.class.equals(type)) {
             return "fromJdbcSqlXml";
         }
 
@@ -225,7 +238,7 @@ public final class Helper {
 
         return null;
     }
-    
+
     public static boolean isFushable(String type) {
 
         if (Json.class.getName().equals(type)) {
@@ -234,19 +247,19 @@ public final class Helper {
 
         return false;
     }
-    
+
     private static boolean isInteger(String type) {
     	return  ("int".equals(type) || "java.lang.Integer".equals(type));
     }
-    
+
     private static boolean isLong(String type) {
     	return  ("long".equals(type) || "java.lang.Long".equals(type));
     }
-    
+
     private static boolean isShort(String type) {
     	return  ("short".equals(type) || "java.lang.Short".equals(type));
     }
-   
+
     private static boolean isByte(String type) {
     	return  ("byte".equals(type) || "java.lang.Byte".equals(type));
     }
