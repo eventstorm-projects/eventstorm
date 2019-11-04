@@ -2,6 +2,7 @@ package eu.eventstorm.sql;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 
 import eu.eventstorm.sql.desc.SqlColumn;
@@ -28,15 +29,17 @@ public interface Dialect {
 
 	// use for mapper.
 	Json fromJdbcJson(ResultSet rs, int index) throws SQLException;
-	
+
 	Xml fromJdbcXml(ResultSet rs, int index) throws SQLException;
-	
-	Json createJson(Map<String,Object> value);
-	
+
+    Json createJson(Map<String, Object> value);
+
+    Json createJson(List<Object> value);
+
 	Json createJson(byte[] value);
-	
+
 	Xml createXml(FastByteArrayInputStream fbais);
-	
+
 	String range(int offset, int limit);
 
 }

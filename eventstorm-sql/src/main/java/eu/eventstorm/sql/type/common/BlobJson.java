@@ -1,87 +1,55 @@
 package eu.eventstorm.sql.type.common;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-
 import eu.eventstorm.sql.type.Json;
-import eu.eventstorm.sql.type.SqlTypeException;
+import eu.eventstorm.sql.type.JsonList;
+import eu.eventstorm.sql.type.JsonMap;
+
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 public final class BlobJson extends DefaultBlob implements Json {
-	
-	private static final ObjectMapper MAPPER = new ObjectMapper();
 
-	private Map<String, Object> map;
-
-	private boolean isModified = false;
+    private BlobJsonAdaptee adaptee;
 
 	public BlobJson(byte[] buf) {
-		super(buf);
-	}
+        super(buf);
+        adaptee = null;
+    }
 
-	public BlobJson(Map<String, Object> value) throws IOException {
-		super(MAPPER.writeValueAsBytes(value));
-		this.map = value;
+    public BlobJson(BlobJsonAdaptee adaptee) {
+        super(DefaultBlob.EMTPY);
+        this.adaptee = adaptee;
+    }
+
+	@Override
+	public JsonMap asMap() {
+        if (adaptee == null) {
+            this.adaptee = new BlobJsonMap(this.getBuf());
+        }
+        if (adaptee instanceof JsonMap) {
+            return JsonMap.class.cast(adaptee);
+        }
+		throw new IllegalStateException();
 	}
 
 	@Override
-	public Set<String> keys() {
-		checkInit();
-		return ImmutableSet.copyOf(this.map.keySet());
+	public JsonList asList() {
+		  if (adaptee == null) {
+            this.adaptee = new BlobJsonList(this.getBuf());
+        }
+        if (adaptee instanceof JsonMap) {
+            return JsonList.class.cast(adaptee);
+        }
+		throw new IllegalStateException();
 	}
 
-	@Override
-	public void put(String key, Object value) {
-		isModified = true;
-		checkInit();
-		this.map.put(key, value);
-	}
-
-	@Override
-	public Object remove(String key) {
-		isModified = true;
-		checkInit();
-		return this.map.remove(key);
-	}
-
-	@SuppressWarnings("unchecked")
-	private void checkInit() {
-		if (this.map == null) {
-			if (this.length() == 0) {
-				this.map = new HashMap<>();
-				return;
-			}
-			try (InputStream is = super.getBinaryStream())  {
-				this.map = MAPPER.readValue(is, Map.class);
-			} catch (IOException cause) {
-				throw new SqlTypeException(SqlTypeException.Type.READ_JSON, ImmutableMap.of("map", map), cause);
-			}
-		}
-
-	}
-
-	@Override
+    @Override
 	public void flush() {
-		if (isModified) {
-			try {
-				setBuf(MAPPER.writeValueAsBytes(this.map));
-			} catch (IOException cause) {
-				throw new SqlTypeException(SqlTypeException.Type.WRITE_JSON, ImmutableMap.of("map", map), cause);
-			}
-		}
-	}
-
-	@Override
-	public <T> T get(String key, Class<T> clazz) {
-		checkInit();
-		return clazz.cast(this.map.get(key));
+        if (adaptee != null) {
+            byte[] content = this.adaptee.write();
+            if (content != null) {
+                setBuf(content);
+            }
+        }
 	}
 }

@@ -1,10 +1,8 @@
 package eu.eventstorm.sql.dialect;
 
-import static com.google.common.collect.ImmutableMap.of;
-
-import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 
 import eu.eventstorm.sql.Database;
@@ -12,6 +10,8 @@ import eu.eventstorm.sql.desc.SqlSequence;
 import eu.eventstorm.sql.type.Json;
 import eu.eventstorm.sql.type.Xml;
 import eu.eventstorm.sql.type.common.BlobJson;
+import eu.eventstorm.sql.type.common.BlobJsonList;
+import eu.eventstorm.sql.type.common.BlobJsonMap;
 import eu.eventstorm.sql.type.common.BlobXml;
 import eu.eventstorm.util.FastByteArrayInputStream;
 
@@ -38,13 +38,14 @@ final class H2Dialect extends AbstractDialect {
 
 	@Override
 	public Json createJson(Map<String, Object> value) {
-		try {
-			return new BlobJson(value);
-		} catch (IOException cause) {
-			throw new EventstormDialectException(EventstormDialectException.Type.FAILED_TO_WRITE_JSON, of("map", value), cause);
-		}
+		return new BlobJson(new BlobJsonMap(value));
 	}
-	
+
+    @Override
+	public Json createJson(List<Object> value) {
+	    return new BlobJson(new BlobJsonList(value));
+	}
+
 	@Override
 	public Json createJson(byte[] value) {
 		return new BlobJson(value);
@@ -64,5 +65,5 @@ final class H2Dialect extends AbstractDialect {
 	public Xml createXml(FastByteArrayInputStream fbais) {
 		return new BlobXml(fbais.readAll());
 	}
-	
+
 }

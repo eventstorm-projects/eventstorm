@@ -11,7 +11,7 @@ import eu.eventstorm.util.FastByteArrayInputStream;
  */
 class DefaultBlob implements Blob {
 
-	private static final byte[] EMTPY = new byte[0];
+	static final byte[] EMTPY = new byte[0];
 
 	private byte[] buf;
 
@@ -25,7 +25,11 @@ class DefaultBlob implements Blob {
 
 	protected final void setBuf(byte[] buf) {
 		this.buf = buf;
-	}
+    }
+
+    protected final byte[] getBuf() {
+		return this.buf;
+    }
 
 	@Override
 	public final long length() {

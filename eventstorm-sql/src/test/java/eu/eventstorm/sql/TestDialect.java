@@ -2,6 +2,7 @@ package eu.eventstorm.sql;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 
 import eu.eventstorm.sql.Dialect;
@@ -48,19 +49,21 @@ public class TestDialect implements Dialect {
 
 	@Override
 	public Json createJson(byte[] value) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Xml fromJdbcXml(ResultSet rs, int index) throws SQLException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Xml createXml(FastByteArrayInputStream fbais) {
-		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Json createJson(List<Object> value) {
 		return null;
 	}
 }

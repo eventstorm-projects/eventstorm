@@ -29,7 +29,7 @@ class JsonTest {
 
 	private DataSource ds;
 	private Database db;
-	
+
 	@BeforeEach
 	void before() {
 		ds = JdbcConnectionPool.create("jdbc:h2:mem:test;DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1;INIT=RUNSCRIPT FROM 'classpath:sql/json.sql'", "sa", "");
@@ -44,7 +44,7 @@ class JsonTest {
 	@SuppressWarnings("all")
 	@Test
 	void simpleTest() throws IOException {
-		
+
 		SpanRepository repo = new SpanRepository(db) {
 		};
 
@@ -52,51 +52,51 @@ class JsonTest {
         	Span span = new Span();
         	span.setId(1);
         	span.setContent(db.dialect().createJson(new HashMap<>()));
-        	
+
         	Span span2 = new Span();
         	span2.setId(2);
         	span2.setContent(db.dialect().createJson("{\"key1\":\"val01\"}".getBytes()));
-        	
-        	
+
+
         	repo.insert(span);
         	repo.insert(span2);
         	tx.commit();
         }
-		
+
 		try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
 			Span s = repo.findById(1);
 			Span s2 = repo.findById(2);
-			assertNull(s.getContent().get("toto", String.class));
-			assertEquals("val01", s2.getContent().get("key1", String.class));
+			assertNull(s.getContent().asMap().get("toto", String.class));
+			assertEquals("val01", s2.getContent().asMap().get("key1", String.class));
 			tx.rollback();
 		}
-		
+
 		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
 			Span s2 = repo.findById(2);
-			s2.getContent().put("key1", "val01__update");
+			s2.getContent().asMap().put("key1", "val01__update");
 			for (int i = 0 ; i < 100 ; i++) {
-				s2.getContent().put("key__" + i, "val" + i);
+				s2.getContent().asMap().put("key__" + i, "val" + i);
 			}
 			repo.update(s2);
 			tx.commit();
 		}
-		
+
 		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
 			Span s2 = repo.findById(2);
-			assertEquals("val01__update", s2.getContent().get("key1", String.class));
-			assertEquals("val01__update",s2.getContent().remove("key1"));
+			assertEquals("val01__update", s2.getContent().asMap().get("key1", String.class));
+			assertEquals("val01__update",s2.getContent().asMap().remove("key1"));
 			repo.update(s2);
 			tx.commit();
 		}
-		
+
 		try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
 			Span s2 = repo.findById(2);
-			assertEquals(100, s2.getContent().keys().size());
-			for (String key : s2.getContent().keys()) {
-				assertEquals("val" + key.substring(5), s2.getContent().get(key, String.class));
+			assertEquals(100, s2.getContent().asMap().keys().size());
+			for (String key : s2.getContent().asMap().keys()) {
+				assertEquals("val" + key.substring(5), s2.getContent().asMap().get(key, String.class));
 			}
 			tx.rollback();
 		}
-		
+
 	}
 }
