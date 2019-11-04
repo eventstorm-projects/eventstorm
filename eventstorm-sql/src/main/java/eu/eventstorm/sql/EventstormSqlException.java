@@ -32,8 +32,16 @@ public abstract class EventstormSqlException extends RuntimeException {
 		return values;
 	}
 
-	private static String build(EventstormSqlExceptionType type, ImmutableMap<String, Object> values, Throwable cause) {
-		return null;
+	private static String build(EventstormSqlExceptionType type, ImmutableMap<String, Object> params, Throwable cause) {
+		StringBuilder builder = new StringBuilder(256);
+		builder.append("type=[").append(type).append("]");
+		params.forEach((key, value) -> {
+			builder.append(" [").append(key).append("]=[").append(value).append("]");
+		});
+		if (cause != null) {
+			builder.append(" cause=[").append(cause.getMessage()).append("]");
+		}
+		return builder.toString();
 	}
 
 	@Deprecated

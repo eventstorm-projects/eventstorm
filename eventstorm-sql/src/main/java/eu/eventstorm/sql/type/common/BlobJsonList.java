@@ -1,8 +1,8 @@
 package eu.eventstorm.sql.type.common;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,12 +26,12 @@ public final class BlobJsonList extends BlobJsonAdaptee implements JsonList {
     @SuppressWarnings("unchecked")
 	public BlobJsonList(byte[] content) {
         if (content == null || content.length == 0) {
-            this.list = new ArrayList<Object>();
+            this.list = new ArrayList<>();
         } else {
             try {
                 this.list = MAPPER.readValue(content, List.class);
             } catch (IOException cause) {
-                throw new SqlTypeException(SqlTypeException.Type.READ_JSON, ImmutableMap.of("content", Arrays.toString(content)), cause);
+                throw new SqlTypeException(SqlTypeException.Type.READ_JSON, ImmutableMap.of("content", new String(content, StandardCharsets.UTF_8)), cause);
             }
         }
 	}

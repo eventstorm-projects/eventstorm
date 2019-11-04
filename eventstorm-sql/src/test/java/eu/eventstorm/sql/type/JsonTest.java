@@ -2,6 +2,7 @@ package eu.eventstorm.sql.type;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -142,14 +143,6 @@ class JsonTest {
 			tx.commit();
 		}
 
-		/*try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
-			Span s2 = repo.findById(2);
-			assertEquals("val01__update", s2.getContent().asMap().get("key1", String.class));
-			assertEquals("val01__update",s2.getContent().asMap().remove("key1"));
-			repo.update(s2);
-			tx.commit();
-		}*/
-
 		try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
 			Span s = repo.findById(1);
 			assertEquals(100, s.getContent().asList().size());
@@ -158,6 +151,36 @@ class JsonTest {
 			}
 			tx.rollback();
 		}
+		
+		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
+			Span s = repo.findById(2);
+			assertEquals("val40", s.getContent().asList().remove(40, String.class));
+			assertEquals("val20", s.getContent().asList().remove(20, String.class));
+			repo.update(s);
+			tx.commit();
+		}
 
 	}
+    
+    @Test
+    void jsonListExceptionTest() throws IOException {
+    	
+    	Json json = db.dialect().createJson("bad json".getBytes());
+    	
+    	SqlTypeException ex = assertThrows(SqlTypeException.class, () -> json.asList());
+    	assertEquals(SqlTypeException.Type.READ_JSON, ex.getType());
+    	
+    	Json json2 = db.dialect().createJson("[]".getBytes());
+    	json2.asList().add(new Pojo());
+    	
+    	ex = assertThrows(SqlTypeException.class, () -> json2.flush());
+    	assertEquals(SqlTypeException.Type.WRITE_JSON, ex.getType());
+    	
+    }
+    
+    private static class Pojo {
+    	public int getFlow() {
+    		throw new RuntimeException();
+    	}
+    }
 }
