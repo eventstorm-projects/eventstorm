@@ -34,10 +34,10 @@ public final class BlobJson extends DefaultBlob implements Json {
 
 	@Override
 	public JsonList asList() {
-		  if (adaptee == null) {
+		if (adaptee == null) {
             this.adaptee = new BlobJsonList(this.getBuf());
         }
-        if (adaptee instanceof JsonMap) {
+        if (adaptee instanceof JsonList) {
             return JsonList.class.cast(adaptee);
         }
 		throw new IllegalStateException();

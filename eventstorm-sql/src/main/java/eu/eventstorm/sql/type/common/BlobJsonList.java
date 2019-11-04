@@ -60,4 +60,9 @@ public final class BlobJsonList extends BlobJsonAdaptee implements JsonList {
        return  clazz.cast(this.list.remove(index));
     }
 
+	@Override
+	public int size() {
+		return this.list.size();
+	}
+
 }

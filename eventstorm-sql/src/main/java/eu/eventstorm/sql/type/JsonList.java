@@ -12,4 +12,6 @@ public interface JsonList {
 
     <T> T remove(int index, Class<T> clazz);
 
+	int size();
+
 }
