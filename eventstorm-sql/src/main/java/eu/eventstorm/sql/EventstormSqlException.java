@@ -10,20 +10,20 @@ public abstract class EventstormSqlException extends RuntimeException {
 
 	private final EventstormSqlExceptionType type;
 	private final ImmutableMap<String, Object> values;
-	
-	
+
+
 	public EventstormSqlException(EventstormSqlExceptionType type, ImmutableMap<String, Object> values) {
 		super(build(type, values, null));
 		this.type = type;
 		this.values = values;
 	}
-	
+
 	public EventstormSqlException(EventstormSqlExceptionType type, ImmutableMap<String, Object> values, Throwable cause) {
 		super(build(type, values, cause), cause);
 		this.type = type;
 		this.values = values;
 	}
-	
+
 	public EventstormSqlExceptionType getType() {
 		return type;
 	}
@@ -34,10 +34,12 @@ public abstract class EventstormSqlException extends RuntimeException {
 
 	private static String build(EventstormSqlExceptionType type, ImmutableMap<String, Object> params, Throwable cause) {
 		StringBuilder builder = new StringBuilder(256);
-		builder.append("type=[").append(type).append("]");
-		params.forEach((key, value) -> {
-			builder.append(" [").append(key).append("]=[").append(value).append("]");
-		});
+        builder.append("type=[").append(type).append("]");
+        if (params != null) {
+    		params.forEach((key, value) -> {
+	    		builder.append(" [").append(key).append("]=[").append(value).append("]");
+		    });
+        }
 		if (cause != null) {
 			builder.append(" cause=[").append(cause.getMessage()).append("]");
 		}

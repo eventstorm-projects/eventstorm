@@ -151,9 +151,9 @@ class JsonTest {
 			}
 			tx.rollback();
 		}
-		
+
 		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
-			Span s = repo.findById(2);
+            Span s = repo.findById(1);
 			assertEquals("val40", s.getContent().asList().remove(40, String.class));
 			assertEquals("val20", s.getContent().asList().remove(20, String.class));
 			repo.update(s);
@@ -161,23 +161,23 @@ class JsonTest {
 		}
 
 	}
-    
+
     @Test
     void jsonListExceptionTest() throws IOException {
-    	
+
     	Json json = db.dialect().createJson("bad json".getBytes());
-    	
+
     	SqlTypeException ex = assertThrows(SqlTypeException.class, () -> json.asList());
     	assertEquals(SqlTypeException.Type.READ_JSON, ex.getType());
-    	
+
     	Json json2 = db.dialect().createJson("[]".getBytes());
     	json2.asList().add(new Pojo());
-    	
+
     	ex = assertThrows(SqlTypeException.class, () -> json2.flush());
     	assertEquals(SqlTypeException.Type.WRITE_JSON, ex.getType());
-    	
+
     }
-    
+
     private static class Pojo {
     	public int getFlow() {
     		throw new RuntimeException();

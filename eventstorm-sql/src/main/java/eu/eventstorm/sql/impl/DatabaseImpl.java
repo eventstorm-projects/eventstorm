@@ -48,7 +48,7 @@ public final class DatabaseImpl implements Database {
     private final Module[] modules;
 
     private final ImmutableMap<SqlTable, Module> tables;
-    
+
     private final ImmutableMap<SqlSequence, Module> sequences;
 
     /**
@@ -84,7 +84,7 @@ public final class DatabaseImpl implements Database {
         }
         tables = builder.build();
         sequences = builderSequences.build();
-        
+
         postInit();
     }
 
@@ -123,7 +123,7 @@ public final class DatabaseImpl implements Database {
     public Module getModule(SqlTable table) {
         return this.tables.get(table);
     }
-    
+
     @Override
 	public Module getModule(SqlSequence sequence) {
 		return this.sequences.get(sequence);

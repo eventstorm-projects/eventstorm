@@ -13,6 +13,10 @@ public final class ResultSetMappers {
         return value;
     };
 
+    public static final ResultSetMapper<String> STRING = (dialect, rs) -> {
+        return rs.getString(1);
+    };
+
     private ResultSetMappers() {
     }
 
