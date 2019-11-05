@@ -22,6 +22,7 @@ import eu.eventstorm.sql.annotation.BusinessKey;
 import eu.eventstorm.sql.annotation.Column;
 import eu.eventstorm.sql.annotation.Database;
 import eu.eventstorm.sql.annotation.Flyway;
+import eu.eventstorm.sql.annotation.Index;
 import eu.eventstorm.sql.annotation.JoinColumn;
 import eu.eventstorm.sql.annotation.JoinTable;
 import eu.eventstorm.sql.annotation.PrimaryKey;
@@ -265,6 +266,24 @@ public class FlywayGenerator {
 
 	}
 
+	private void generateIndex(Table table, Writer writer) throws IOException {
+		
+		for (Index index : table.indexes()) {
+			StringBuilder builder = new StringBuilder();
+			builder.append("CREATE INDEX ");
+			builder.append(index.name());
+			builder.append(" ON ");
+			builder.append(table.value());
+			builder.append("(");
+			for (String column : index.columns()) {
+				builder.append(column).append(',');				
+			}
+			builder.deleteCharAt(builder.length() - 1);
+			builder.append(");\n");
+
+			writer.append(builder.toString());
+		}
+	}
 	private void generateUniqueIndex(Table table, List<Column> businessKeys, Writer writer) throws IOException {
 
 		StringBuilder builder = new StringBuilder();
