@@ -6,7 +6,9 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import eu.eventstorm.sql.tx.Transaction;
 import eu.eventstorm.sql.tx.TransactionManager;
 
 /**
@@ -14,53 +16,105 @@ import eu.eventstorm.sql.tx.TransactionManager;
  */
 public final class EventstormPlatformTransactionManager implements PlatformTransactionManager {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(EventstormPlatformTransactionManager.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(EventstormPlatformTransactionManager.class);
 
-    private final TransactionManager transactionManager;
+	private final TransactionManager transactionManager;
 
-    public EventstormPlatformTransactionManager(TransactionManager transactionManager) {
-        this.transactionManager = transactionManager;
-    }
+	public EventstormPlatformTransactionManager(TransactionManager transactionManager) {
+		this.transactionManager = transactionManager;
+	}
 
-    @Override
-    public TransactionStatus getTransaction(TransactionDefinition transactionDefinition) throws TransactionException {
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("getTransaction({})", transactionDefinition);
-        }
-
-        if (transactionManager.hasCurrent()) {
-            // get TX inside another TX
-            return new EventstormTransactionStatus(transactionManager.current(), transactionDefinition.isReadOnly(), false, null);
-        }
-
-        if (transactionDefinition.isReadOnly()) {
-            return new EventstormTransactionStatus(transactionManager.newTransactionReadOnly(), true, true, null);
-        } else {
-            return new EventstormTransactionStatus(transactionManager.newTransactionReadWrite(), false, true, null);
-        }
-
-    }
-
-    @Override
-    public void commit(TransactionStatus transactionStatus) throws TransactionException {
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("commit({})", transactionStatus);
-        }
-
-        EventstormTransactionStatus status = (EventstormTransactionStatus)transactionStatus;
-
-		try {
-			status.getTransaction().commit();
-		} finally {
-			status.getTransaction().close();
+	@Override
+	public TransactionStatus getTransaction(TransactionDefinition definition) throws TransactionException {
+		if (LOGGER.isTraceEnabled()) {
+			LOGGER.trace("getTransaction({})", definition);
 		}
 
+		/*
+		 * if (transactionManager.hasCurrent()) { // get TX inside another TX return new
+		 * EventstormTransactionStatus(transactionManager.current(),
+		 * transactionDefinition.isReadOnly(), false, null); }
+		 * 
+		 * if (transactionDefinition.isReadOnly()) { return new
+		 * EventstormTransactionStatus(transactionManager.newTransactionReadOnly(),
+		 * true, true, null); } else { return new
+		 * EventstormTransactionStatus(transactionManager.newTransactionReadWrite(),
+		 * false, true, null); }
+		 */
 
-    }
+		if (transactionManager.hasCurrent()) {
 
-    @Override
-    public void rollback(TransactionStatus transactionStatus) throws TransactionException {
-    	if (LOGGER.isTraceEnabled()) {
+			EventstormTransactionStatus currentStatus = (EventstormTransactionStatus) TransactionSynchronizationManager.getResource(EventstormTransactionStatus.class);
+
+			// get TX inside another TX
+			if (definition.getPropagationBehavior() == TransactionDefinition.PROPAGATION_REQUIRES_NEW) {
+				// create a requires_new inside a existing one.
+				return doBegin(definition, currentStatus);
+			}
+
+			// if (tx.getPropagation() == TransactionDefinition.PROPAGATION_REQUIRES_NEW) {
+			// return new SqlTransactionStatus(tx, definition.isReadOnly(), false, null);
+			// }
+
+			// if newTX required (0) < currentTX (1)
+			if (definition.getPropagationBehavior() < currentStatus.getDefinition().getPropagationBehavior()) {
+				// -> create new TX
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.trace("create new TX inside another one due to propagation : current [{}], new [{}]", currentStatus.getDefinition().getPropagationBehavior(),
+					        definition.getPropagationBehavior());
+				}
+
+				return doBegin(definition, currentStatus);
+
+			} else {
+				return new EventstormTransactionStatus(transactionManager.current(), definition, true, null);
+			}
+
+		} else {
+			return doBegin(definition, null);
+		}
+	}
+
+	@Override
+	public void commit(TransactionStatus transactionStatus) throws TransactionException {
+		if (LOGGER.isTraceEnabled()) {
+			LOGGER.trace("commit({})", transactionStatus);
+		}
+
+		if (!transactionStatus.isNewTransaction()) {
+			// It's a txStatus inside another txStatus
+			return;
+		}
+
+		EventstormTransactionStatus status = (EventstormTransactionStatus) transactionStatus;
+
+		if (status.isReadOnly()) {
+			if (LOGGER.isTraceEnabled()) {
+				LOGGER.trace("Commit a read-only -> rollback");
+				rollback(transactionStatus);
+				return;
+			}
+		}
+
+		try {
+			try {
+				status.getTransaction().commit();
+			} finally {
+				status.getTransaction().close();
+			}	
+		} finally {
+			TransactionSynchronizationManager.unbindResource(EventstormTransactionStatus.class);
+		}
+		
+		if (status.getPreviousTransaction() != null) {
+			TransactionSynchronizationManager.bindResource(EventstormTransactionStatus.class, status);
+		}
+
+	}
+
+	@Override
+	public void rollback(TransactionStatus transactionStatus) throws TransactionException {
+		if (LOGGER.isTraceEnabled()) {
 			LOGGER.trace("rollback({})", transactionStatus);
 		}
 		if (!transactionStatus.isNewTransaction()) {
@@ -71,16 +125,44 @@ public final class EventstormPlatformTransactionManager implements PlatformTrans
 			return;
 		}
 
-		EventstormTransactionStatus status = (EventstormTransactionStatus)transactionStatus;
+		EventstormTransactionStatus status = (EventstormTransactionStatus) transactionStatus;
 
 		try {
-			status.getTransaction().rollback();
+			try {
+				status.getTransaction().rollback();
+			} finally {
+				status.getTransaction().close();
+			}	
 		} finally {
-			status.getTransaction().close();
+			TransactionSynchronizationManager.unbindResource(EventstormTransactionStatus.class);
+		}
+		
+
+		// if (((EventstormTransactionStatus)transactionStatus).getPreviousTransaction()
+		// != null) {
+		// TransactionSynchronizer.bind(this.name,
+		// ((EventstormTransactionStatus)transactionStatus).getPreviousTransaction());
+		// }
+	}
+
+	private EventstormTransactionStatus doBegin(TransactionDefinition definition, EventstormTransactionStatus parent) {
+
+		Transaction transaction;
+		if (definition.isReadOnly()) {
+			transaction = this.transactionManager.newTransactionReadOnly();
+		} else {
+			transaction = this.transactionManager.newTransactionReadWrite();
 		}
 
-		//if (((EventstormTransactionStatus)transactionStatus).getPreviousTransaction() != null) {
-		//	TransactionSynchronizer.bind(this.name, ((EventstormTransactionStatus)transactionStatus).getPreviousTransaction());
-		//}
-    }
+		EventstormTransactionStatus status = new EventstormTransactionStatus(transaction, definition, true, parent);
+		
+		if (parent != null) {
+			TransactionSynchronizationManager.unbindResource(EventstormTransactionStatus.class);
+		}
+		
+		TransactionSynchronizationManager.bindResource(EventstormTransactionStatus.class, status);
+
+		return status;
+	}
+
 }

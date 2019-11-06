@@ -1,5 +1,6 @@
 package eu.eventstorm.sql.spring;
 
+import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.TransactionStatus;
 
@@ -16,15 +17,14 @@ final class EventstormTransactionStatus implements TransactionStatus {
 	
 	private final Transaction tx;
 	
-	/** The read only. */
-	private final boolean readOnly;
+	private final TransactionDefinition definition;
 	
-	private final Transaction previous;
+	private final EventstormTransactionStatus previous;
 	
-	public EventstormTransactionStatus(Transaction tx, boolean readOnly, boolean newTransaction, Transaction previous) {
+	public EventstormTransactionStatus(Transaction tx, TransactionDefinition definition, boolean newTransaction, EventstormTransactionStatus previous) {
 		this.newTransaction = newTransaction;
 		this.tx = tx;
-		this.readOnly = readOnly;
+		this.definition = definition;
 		this.previous = previous;
 	}
 
@@ -79,14 +79,18 @@ final class EventstormTransactionStatus implements TransactionStatus {
 	 * @return true, if is read only
 	 */
 	public boolean isReadOnly() {
-		return this.readOnly;
+		return this.definition.isReadOnly();
+	}
+	
+	public TransactionDefinition getDefinition() {
+		return definition;
 	}
 
 	@Override
 	public String toString() {
 		ToStringBuilder builder = new ToStringBuilder(true);
 		builder.append("newTransaction", newTransaction);
-		builder.append("readonly", readOnly);
+		builder.append("definition", definition);
 		builder.append("transaction", tx);
 		builder.append("previous", previous);
 		return builder.toString();
@@ -96,7 +100,7 @@ final class EventstormTransactionStatus implements TransactionStatus {
 		return this.tx;
 	}
 
-	public Transaction getPreviousTransaction() {
+	public EventstormTransactionStatus getPreviousTransaction() {
 		return previous;
 	}
 

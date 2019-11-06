@@ -81,7 +81,7 @@ class TransactionTest {
 			assertThrows(EventstormTransactionException.class, () -> tx.commit());
 			assertThrows(EventstormTransactionException.class, () -> ((TransactionReadOnly)tx).write("XXX"));
 			assertThrows(EventstormTransactionException.class, () -> ((TransactionReadOnly)tx).writeAutoIncrement("XXX"));
-			assertThrows(EventstormTransactionException.class, () -> ((TransactionReadOnly)tx).innerTransaction(new TransactionDefinitionReadWrite()));
+			//assertThrows(EventstormTransactionException.class, () -> ((TransactionReadOnly)tx).innerTransaction(new TransactionDefinitionReadWrite()));
 			
 		}
 	}
@@ -93,7 +93,7 @@ class TransactionTest {
 
 			assertEquals(false, tx.isReadOnly());
 			
-			try(TransactionNested tn = (TransactionNested) ((TransactionReadWrite)tx).innerTransaction(new TransactionDefinitionReadWrite())) {
+			try(TransactionNested tn = (TransactionNested) ((TransactionReadWrite)tx).innerTransaction(TransactionDefinition.READ_WRITE)) {
 				tn.rollback();	
 			}
 			

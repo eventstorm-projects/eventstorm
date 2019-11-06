@@ -8,6 +8,8 @@ public interface TransactionManager {
     Transaction newTransactionReadOnly();
 
     Transaction newTransactionReadWrite();
+    
+    Transaction newTransactionForceReadWrite();
 
     Transaction current();
 

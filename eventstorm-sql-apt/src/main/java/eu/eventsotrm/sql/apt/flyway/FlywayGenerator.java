@@ -197,6 +197,8 @@ public class FlywayGenerator {
 		if (businessKeys.size() > 0) {
 			generateUniqueIndex(table, businessKeys, writer);
 		}
+		
+		generateIndex(table, writer);
 	}
 
 	

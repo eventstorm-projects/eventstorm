@@ -54,13 +54,18 @@ public final class TransactionManagerImpl implements TransactionManager {
 
     @Override
     public Transaction newTransactionReadOnly() {
-        return this.getTransaction(new TransactionDefinitionReadOnly());
+        return this.getTransaction(TransactionDefinition.READ_ONLY);
     }
 
     @Override
     public Transaction newTransactionReadWrite() {
-        return getTransaction(new TransactionDefinitionReadWrite());
+        return getTransaction(TransactionDefinition.READ_WRITE);
     }
+    
+    @Override
+	public Transaction newTransactionForceReadWrite() {
+    	return getTransaction(TransactionDefinition.ISOLATED_READ_WRITE);
+	}
 
     @Override
     public Transaction current() {
@@ -80,14 +85,36 @@ public final class TransactionManagerImpl implements TransactionManager {
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("getTransaction({})", definition);
         }
-        AbstractTransaction tx = this.transactions.get();
+		AbstractTransaction tx = this.transactions.get();
 
-        if (tx != null) {
-            //get TX inside another TX
-            return tx.innerTransaction(definition);
-        }
+		if (tx != null) {
 
-        final Connection conn;
+			if (TransactionDefinition.ISOLATED_READ_WRITE == definition) {
+				tx = new TransactionIsolatedReadWrite(this, doBegin(definition), tx);
+			} else {
+				// get TX inside another TX
+				return tx.innerTransaction(definition);
+			}
+		} else {
+			switch (definition) {
+			case READ_ONLY:
+				tx = new TransactionReadOnly(this, doBegin(definition));
+				break;
+			case ISOLATED_READ_WRITE:
+				tx = new TransactionIsolatedReadWrite(this, doBegin(definition), null);
+				break;
+			case READ_WRITE:
+				tx = new TransactionReadWrite(this, doBegin(definition));
+				break;
+			}
+		}
+        
+        this.transactions.set(tx);
+        return tx;
+    }
+    
+    Connection doBegin(TransactionDefinition definition) {
+    	final Connection conn;
         try {
             conn = dataSource.getConnection();
             conn.setAutoCommit(false);
@@ -96,14 +123,7 @@ public final class TransactionManagerImpl implements TransactionManager {
             throw new EventstormTransactionException(CREATE, cause);
         }
 
-        if (definition.isReadOnly()) {
-            tx = new TransactionReadOnly(this, conn);
-        } else {
-            tx = new TransactionReadWrite(this, conn);
-        }
-
-        this.transactions.set(tx);
-        return tx;
+        return conn;
     }
 
     void remove() {
@@ -127,5 +147,6 @@ public final class TransactionManagerImpl implements TransactionManager {
 	public TransactionManagerConfiguration getConfiguration() {
 		return this.configuration;
 	}
+
 
 }
