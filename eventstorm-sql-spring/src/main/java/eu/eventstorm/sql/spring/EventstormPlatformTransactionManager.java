@@ -31,45 +31,15 @@ public final class EventstormPlatformTransactionManager implements PlatformTrans
 		}
 
         if (transactionManager.hasCurrent()) {
-
+        	
             // get TX inside another TX
 			if (definition.getPropagationBehavior() == TransactionDefinition.PROPAGATION_REQUIRES_NEW) {
 				// create a requires_new inside a existing one.
 				return doBegin(definition, this.transactionManager.current());
 			}
-
-
-        } else {
-            doBegin(definition, null);
-        }
-
-		/*
-		 * if (transactionManager.hasCurrent()) { // get TX inside another TX return new
-		 * EventstormTransactionStatus(transactionManager.current(),
-		 * transactionDefinition.isReadOnly(), false, null); }
-		 *
-		 * if (transactionDefinition.isReadOnly()) { return new
-		 * EventstormTransactionStatus(transactionManager.newTransactionReadOnly(),
-		 * true, true, null); } else { return new
-		 * EventstormTransactionStatus(transactionManager.newTransactionReadWrite(),
-		 * false, true, null); }
-		 */
-/*
-		if (transactionManager.hasCurrent()) {
-
-			//EventstormTransactionStatus currentStatus = (EventstormTransactionStatus) TransactionSynchronizationManager.getResource(EventstormTransactionStatus.class);
-
-			// get TX inside another TX
-			if (definition.getPropagationBehavior() == TransactionDefinition.PROPAGATION_REQUIRES_NEW) {
-				// create a requires_new inside a existing one.
-				return doBegin(definition, currentStatus);
-			}
-
-			// if (tx.getPropagation() == TransactionDefinition.PROPAGATION_REQUIRES_NEW) {
-			// return new SqlTransactionStatus(tx, definition.isReadOnly(), false, null);
-			// }
-
-			// if newTX required (0) < currentTX (1)
+			
+			EventstormTransactionStatus currentStatus = (EventstormTransactionStatus) TransactionSynchronizationManager.getResource(EventstormTransactionStatus.class);
+			
 			if (definition.getPropagationBehavior() < currentStatus.getDefinition().getPropagationBehavior()) {
 				// -> create new TX
 				if (LOGGER.isDebugEnabled()) {
@@ -77,17 +47,17 @@ public final class EventstormPlatformTransactionManager implements PlatformTrans
 					        definition.getPropagationBehavior());
 				}
 
-				return doBegin(definition, currentStatus);
+				return doBegin(definition, transactionManager.current());
 
 			} else {
-				return new EventstormTransactionStatus(transactionManager.current(), definition, true, null);
+				return new EventstormTransactionStatus(transactionManager.current(), definition, false, null);
 			}
 
-		} else {
-			return doBegin(definition, null);
-        }*/
 
-        return null;
+        } else {
+            return doBegin(definition, null);
+        }
+
 	}
 
 	@Override
@@ -118,11 +88,11 @@ public final class EventstormPlatformTransactionManager implements PlatformTrans
 				status.getTransaction().close();
 			}
 		} finally {
-			//TransactionSynchronizationManager.unbindResource(EventstormTransactionStatus.class);
+			TransactionSynchronizationManager.unbindResource(EventstormTransactionStatus.class);
 		}
 
 		if (status.getPreviousTransaction() != null) {
-			//TransactionSynchronizationManager.bindResource(EventstormTransactionStatus.class, status);
+			TransactionSynchronizationManager.bindResource(EventstormTransactionStatus.class, status);
 		}
 
 	}
@@ -142,38 +112,43 @@ public final class EventstormPlatformTransactionManager implements PlatformTrans
 
 		EventstormTransactionStatus status = (EventstormTransactionStatus) transactionStatus;
 
-//		try {
+		try {
 			try {
 				status.getTransaction().rollback();
 			} finally {
 				status.getTransaction().close();
 			}
-//		} finally {
-			//TransactionSynchronizationManager.unbindResource(EventstormTransactionStatus.class);
-  //      }
+		} finally {
+			TransactionSynchronizationManager.unbindResource(EventstormTransactionStatus.class);
+        }
 
-		// if (((EventstormTransactionStatus)transactionStatus).getPreviousTransaction()
-		// != null) {
-		// TransactionSynchronizer.bind(this.name,
-		// ((EventstormTransactionStatus)transactionStatus).getPreviousTransaction());
-		// }
+		if (status.getPreviousTransaction() != null) {
+			TransactionSynchronizationManager.bindResource(EventstormTransactionStatus.class, status);
+		}
+		
 	}
 
 	private TransactionStatus doBegin(TransactionDefinition definition, Transaction parent) {
 
-        if (definition.getPropagationBehavior() == TransactionDefinition.PROPAGATION_REQUIRES_NEW) {
-            return new EventstormTransactionStatus(this.transactionManager.newTransactionForceReadWrite(), definition, false, parent);
+		EventstormTransactionStatus status = null;
+		
+		if (definition.getPropagationBehavior() == TransactionDefinition.PROPAGATION_SUPPORTS) {
+        	status = new EventstormTransactionStatus(this.transactionManager.newTransactionReadOnly(), definition, true, parent);
+        } else if (definition.getPropagationBehavior() == TransactionDefinition.PROPAGATION_REQUIRED) {
+	        	status = new EventstormTransactionStatus(this.transactionManager.newTransactionReadWrite(), definition, true, parent);
+	    } else if (definition.getPropagationBehavior() == TransactionDefinition.PROPAGATION_REQUIRES_NEW) {
+        	status = new EventstormTransactionStatus(this.transactionManager.newTransactionIsolatedReadWrite(), definition, true, parent);
         }
 
-        if (definition.getPropagationBehavior() == TransactionDefinition.PROPAGATION_REQUIRED) {
-            return new EventstormTransactionStatus(this.transactionManager.newTransactionReadWrite(), definition, false, parent);
+		if (parent != null) {
+			TransactionSynchronizationManager.unbindResource(EventstormTransactionStatus.class);
+		}
+		
+        if (status != null) {
+        	TransactionSynchronizationManager.bindResource(EventstormTransactionStatus.class, status);
         }
-
-        if (definition.getPropagationBehavior() == TransactionDefinition.PROPAGATION_SUPPORTS) {
-            return new EventstormTransactionStatus(this.transactionManager.newTransactionReadOnly(), definition, false, parent);
-        }
-
-        throw new IllegalStateException();
+        
+        return status;
     }
 }
 

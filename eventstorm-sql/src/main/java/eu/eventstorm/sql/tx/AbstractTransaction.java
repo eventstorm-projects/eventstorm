@@ -113,7 +113,7 @@ abstract class AbstractTransaction implements Transaction, TransactionContext {
 
 	@Override
 	public final void rollback() {
-		this.span.tag("result", "rolllack");
+		//this.span.tag("result", "rolllack");
 		if (!this.active) {
 			throw new EventstormTransactionException(NOT_ACTIVE, this, null);
 		}
@@ -130,7 +130,7 @@ abstract class AbstractTransaction implements Transaction, TransactionContext {
 
 	@Override
 	public final void commit() {
-		this.span.tag("result", "commit");
+		//this.span.tag("result", "commit");
 		if (!this.active) {
 			throw new EventstormTransactionException(NOT_ACTIVE, this, null);
 		}
@@ -143,10 +143,13 @@ abstract class AbstractTransaction implements Transaction, TransactionContext {
 			this.active = false;
 			transactionManager.remove();
 		}
-
 	}
 
 	protected abstract void doCommit() throws SQLException;
+
+	protected void onFinallyCommit() {
+		
+	}
 
 	protected abstract Transaction innerTransaction(TransactionDefinition definition);
 

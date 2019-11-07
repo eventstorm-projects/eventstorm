@@ -9,7 +9,7 @@ public interface TransactionManager {
 
     Transaction newTransactionReadWrite();
     
-    Transaction newTransactionForceReadWrite();
+    Transaction newTransactionIsolatedReadWrite();
 
     Transaction current();
 

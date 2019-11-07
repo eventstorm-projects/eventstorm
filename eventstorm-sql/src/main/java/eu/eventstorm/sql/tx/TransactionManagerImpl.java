@@ -63,7 +63,7 @@ public final class TransactionManagerImpl implements TransactionManager {
     }
     
     @Override
-	public Transaction newTransactionForceReadWrite() {
+	public Transaction newTransactionIsolatedReadWrite() {
     	return getTransaction(TransactionDefinition.ISOLATED_READ_WRITE);
 	}
 

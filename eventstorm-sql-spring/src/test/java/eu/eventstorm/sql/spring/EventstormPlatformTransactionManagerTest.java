@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,7 +38,7 @@ class EventstormPlatformTransactionManagerTest {
 		};
 	}
 
-	//@Test
+	@Test
 	void testNormalFlow() {
 
 		TransactionTemplate template = new TransactionTemplate(transactionManager);
@@ -62,8 +61,10 @@ class EventstormPlatformTransactionManagerTest {
 
 	@Test
 	void testRequiredNew() {
-
 		TransactionTemplate template = new TransactionTemplate(transactionManager);
+		TransactionTemplate templateRequiredNew = new TransactionTemplate(transactionManager);
+		templateRequiredNew.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+		
 		try {
 			template.execute((status) -> {
 				Student student = new StudentImpl();
@@ -71,9 +72,7 @@ class EventstormPlatformTransactionManagerTest {
 				student.setAge(37);
 				student.setCode("Code2");
 				repository.insert(student);
-
-				TransactionTemplate templateRequiredNew = new TransactionTemplate(transactionManager);
-				templateRequiredNew.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+				
 				templateRequiredNew.execute((status2) -> {
 					Student student2 = new StudentImpl();
 					student2.setId(3);
@@ -82,7 +81,6 @@ class EventstormPlatformTransactionManagerTest {
 					repository.insert(student2);
 					return null;
 				});
-
 				throw new RuntimeException();
 			});
 		} catch (RuntimeException cause) {
@@ -96,4 +94,42 @@ class EventstormPlatformTransactionManagerTest {
 		fail();
 
 	}
+	
+	@Test
+	void testRequiredNew2() {
+		TransactionTemplate template = new TransactionTemplate(transactionManager);
+		TransactionTemplate templateRequiredNew = new TransactionTemplate(transactionManager);
+		templateRequiredNew.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+		
+		for (int i = 10; i < 110; i+=2) {
+			int id = i;
+			template.execute((status) -> {
+				Student student = new StudentImpl();
+				student.setId(id);
+				student.setAge(37);
+				student.setCode("Code2");
+				repository.insert(student);
+				
+				templateRequiredNew.execute((status2) -> {
+					Student student2 = new StudentImpl();
+					student2.setId(id + 1);
+					student2.setAge(39);
+					student2.setCode("Code3");
+					repository.insert(student2);
+					return null;
+				});
+				return null;
+			});
+		}
+		
+		for (int i = 10; i < 110; i++) {
+			int id = i;
+			TransactionTemplate temp = new TransactionTemplate(transactionManager);
+			temp.setPropagationBehavior(TransactionDefinition.PROPAGATION_SUPPORTS);
+			temp.setReadOnly(true);
+			assertNotNull(temp.execute((status) -> repository.findById(id)));
+		}
+
+	}
+	
 }
