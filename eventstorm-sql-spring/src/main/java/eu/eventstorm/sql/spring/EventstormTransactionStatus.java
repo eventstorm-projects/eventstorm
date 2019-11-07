@@ -14,14 +14,14 @@ final class EventstormTransactionStatus implements TransactionStatus {
 
 	/** The new transction. */
 	private boolean newTransaction;
-	
+
 	private final Transaction tx;
-	
+
 	private final TransactionDefinition definition;
-	
-	private final EventstormTransactionStatus previous;
-	
-	public EventstormTransactionStatus(Transaction tx, TransactionDefinition definition, boolean newTransaction, EventstormTransactionStatus previous) {
+
+	private final Transaction previous;
+
+	public EventstormTransactionStatus(Transaction tx, TransactionDefinition definition, boolean newTransaction, Transaction previous) {
 		this.newTransaction = newTransaction;
 		this.tx = tx;
 		this.definition = definition;
@@ -81,7 +81,7 @@ final class EventstormTransactionStatus implements TransactionStatus {
 	public boolean isReadOnly() {
 		return this.definition.isReadOnly();
 	}
-	
+
 	public TransactionDefinition getDefinition() {
 		return definition;
 	}
@@ -95,12 +95,12 @@ final class EventstormTransactionStatus implements TransactionStatus {
 		builder.append("previous", previous);
 		return builder.toString();
 	}
-	
+
 	public Transaction getTransaction() {
 		return this.tx;
 	}
 
-	public EventstormTransactionStatus getPreviousTransaction() {
+	public Transaction getPreviousTransaction() {
 		return previous;
 	}
 

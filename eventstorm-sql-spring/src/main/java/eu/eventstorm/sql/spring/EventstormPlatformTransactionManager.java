@@ -30,21 +30,34 @@ public final class EventstormPlatformTransactionManager implements PlatformTrans
 			LOGGER.trace("getTransaction({})", definition);
 		}
 
+        if (transactionManager.hasCurrent()) {
+
+            // get TX inside another TX
+			if (definition.getPropagationBehavior() == TransactionDefinition.PROPAGATION_REQUIRES_NEW) {
+				// create a requires_new inside a existing one.
+				return doBegin(definition, this.transactionManager.current());
+			}
+
+
+        } else {
+            doBegin(definition, null);
+        }
+
 		/*
 		 * if (transactionManager.hasCurrent()) { // get TX inside another TX return new
 		 * EventstormTransactionStatus(transactionManager.current(),
 		 * transactionDefinition.isReadOnly(), false, null); }
-		 * 
+		 *
 		 * if (transactionDefinition.isReadOnly()) { return new
 		 * EventstormTransactionStatus(transactionManager.newTransactionReadOnly(),
 		 * true, true, null); } else { return new
 		 * EventstormTransactionStatus(transactionManager.newTransactionReadWrite(),
 		 * false, true, null); }
 		 */
-
+/*
 		if (transactionManager.hasCurrent()) {
 
-			EventstormTransactionStatus currentStatus = (EventstormTransactionStatus) TransactionSynchronizationManager.getResource(EventstormTransactionStatus.class);
+			//EventstormTransactionStatus currentStatus = (EventstormTransactionStatus) TransactionSynchronizationManager.getResource(EventstormTransactionStatus.class);
 
 			// get TX inside another TX
 			if (definition.getPropagationBehavior() == TransactionDefinition.PROPAGATION_REQUIRES_NEW) {
@@ -72,7 +85,9 @@ public final class EventstormPlatformTransactionManager implements PlatformTrans
 
 		} else {
 			return doBegin(definition, null);
-		}
+        }*/
+
+        return null;
 	}
 
 	@Override
@@ -101,13 +116,13 @@ public final class EventstormPlatformTransactionManager implements PlatformTrans
 				status.getTransaction().commit();
 			} finally {
 				status.getTransaction().close();
-			}	
+			}
 		} finally {
-			TransactionSynchronizationManager.unbindResource(EventstormTransactionStatus.class);
+			//TransactionSynchronizationManager.unbindResource(EventstormTransactionStatus.class);
 		}
-		
+
 		if (status.getPreviousTransaction() != null) {
-			TransactionSynchronizationManager.bindResource(EventstormTransactionStatus.class, status);
+			//TransactionSynchronizationManager.bindResource(EventstormTransactionStatus.class, status);
 		}
 
 	}
@@ -127,16 +142,15 @@ public final class EventstormPlatformTransactionManager implements PlatformTrans
 
 		EventstormTransactionStatus status = (EventstormTransactionStatus) transactionStatus;
 
-		try {
+//		try {
 			try {
 				status.getTransaction().rollback();
 			} finally {
 				status.getTransaction().close();
-			}	
-		} finally {
-			TransactionSynchronizationManager.unbindResource(EventstormTransactionStatus.class);
-		}
-		
+			}
+//		} finally {
+			//TransactionSynchronizationManager.unbindResource(EventstormTransactionStatus.class);
+  //      }
 
 		// if (((EventstormTransactionStatus)transactionStatus).getPreviousTransaction()
 		// != null) {
@@ -145,24 +159,21 @@ public final class EventstormPlatformTransactionManager implements PlatformTrans
 		// }
 	}
 
-	private EventstormTransactionStatus doBegin(TransactionDefinition definition, EventstormTransactionStatus parent) {
+	private TransactionStatus doBegin(TransactionDefinition definition, Transaction parent) {
 
-		Transaction transaction;
-		if (definition.isReadOnly()) {
-			transaction = this.transactionManager.newTransactionReadOnly();
-		} else {
-			transaction = this.transactionManager.newTransactionReadWrite();
-		}
+        if (definition.getPropagationBehavior() == TransactionDefinition.PROPAGATION_REQUIRES_NEW) {
+            return new EventstormTransactionStatus(this.transactionManager.newTransactionForceReadWrite(), definition, false, parent);
+        }
 
-		EventstormTransactionStatus status = new EventstormTransactionStatus(transaction, definition, true, parent);
-		
-		if (parent != null) {
-			TransactionSynchronizationManager.unbindResource(EventstormTransactionStatus.class);
-		}
-		
-		TransactionSynchronizationManager.bindResource(EventstormTransactionStatus.class, status);
+        if (definition.getPropagationBehavior() == TransactionDefinition.PROPAGATION_REQUIRED) {
+            return new EventstormTransactionStatus(this.transactionManager.newTransactionReadWrite(), definition, false, parent);
+        }
 
-		return status;
-	}
+        if (definition.getPropagationBehavior() == TransactionDefinition.PROPAGATION_SUPPORTS) {
+            return new EventstormTransactionStatus(this.transactionManager.newTransactionReadOnly(), definition, false, parent);
+        }
 
+        throw new IllegalStateException();
+    }
 }
+

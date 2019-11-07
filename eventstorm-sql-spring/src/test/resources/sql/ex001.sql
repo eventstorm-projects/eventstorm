@@ -7,4 +7,5 @@ CREATE TABLE "student" (
    "readonly"                VARCHAR(255)    ,
    PRIMARY KEY ("id")
 );
-CREATE INDEX student_bk ON student(code);
+
+CREATE INDEX student_bk ON "student"("code");

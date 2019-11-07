@@ -7,8 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Stream;
 
 import javax.sql.DataSource;
