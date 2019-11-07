@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>eu.eventstorm</groupId>
@@ -24,16 +25,17 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 
-		<org.slf4j.version>1.7.28</org.slf4j.version>
+		<org.slf4j.version>1.7.29</org.slf4j.version>
 		<org.apache.logging.log4j.version>2.12.1</org.apache.logging.log4j.version>
 		<com.google.guava.version>28.1-jre</com.google.guava.version>
 		<com.fasterxml.jackson.core.version>2.10.0.pr3</com.fasterxml.jackson.core.version>
-		<io.zipkin.brave.version>5.8.0</io.zipkin.brave.version>
+		<io.zipkin.brave.version>5.9.0</io.zipkin.brave.version>
 
 		<org.junit.jupiter.version>5.5.2</org.junit.jupiter.version>
-		<com.h2database.version>1.4.199</com.h2database.version>
+		<com.h2database.version>1.4.200</com.h2database.version>
 		<org.mockito.version>3.0.0</org.mockito.version>
 		<org.flywaydb.version>6.0.8</org.flywaydb.version>
+		<com.zaxxer.version>3.4.1</com.zaxxer.version>
 	</properties>
 
 	<distributionManagement>
@@ -134,6 +136,13 @@
 				<version>${org.flywaydb.version}</version>
 			</dependency>
 
+			<dependency>
+				<groupId>com.zaxxer</groupId>
+				<artifactId>HikariCP</artifactId>
+				<version>${com.zaxxer.version}</version>
+				<scope>test</scope>
+			</dependency>
+
 		</dependencies>
 	</dependencyManagement>
 
@@ -175,7 +184,7 @@
 		<module>eventstorm-sql-spring</module>
 		<module>eventstorm-core</module>
 		<module>eventstorm-bom</module>
-  </modules>
+	</modules>
 
 	<profiles>
 		<profile>
