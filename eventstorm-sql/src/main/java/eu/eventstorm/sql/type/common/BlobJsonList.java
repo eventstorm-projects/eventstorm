@@ -20,6 +20,7 @@ public final class BlobJsonList extends BlobJsonAdaptee implements JsonList {
 	private List<Object> list;
 
     public BlobJsonList(List<Object> list) {
+        setModified();
         this.list = list;
     }
 

@@ -21,6 +21,7 @@ public final class BlobJsonMap extends BlobJsonAdaptee implements JsonMap {
 	private Map<String, Object> map;
 
     public BlobJsonMap(Map<String, Object> map) {
+        setModified();
         this.map = map;
     }
 
