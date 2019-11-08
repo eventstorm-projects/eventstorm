@@ -24,6 +24,9 @@ import eu.eventstorm.sql.model.json.Span;
 import eu.eventstorm.sql.model.json.SpanRepository;
 import eu.eventstorm.sql.tx.Transaction;
 import eu.eventstorm.sql.tx.TransactionManagerImpl;
+import eu.eventstorm.sql.type.common.BlobJson;
+import eu.eventstorm.sql.type.common.BlobJsonList;
+import eu.eventstorm.sql.type.common.BlobJsonMap;
 import eu.eventstorm.test.LoggerInstancePostProcessor;
 
 @ExtendWith(LoggerInstancePostProcessor.class)
@@ -162,6 +165,22 @@ class JsonTest {
 
 	}
 
+    @Test
+    void mapListException() {
+    	
+    	BlobJson blobJson = new BlobJson(new BlobJsonMap(new HashMap<>()));
+    	
+    	SqlTypeException ex = assertThrows(SqlTypeException.class, () -> blobJson.asList());
+    	assertEquals(SqlTypeException.Type.AS_LIST_INVALID, ex.getType());
+    	assertEquals(BlobJsonMap.class, ex.getValues().get(SqlTypeException.PARAM_ADAPTEE).getClass());
+    	
+    	BlobJson blobListJson = new BlobJson(new BlobJsonList(new ArrayList<>()));
+    	ex = assertThrows(SqlTypeException.class, () -> blobListJson.asMap());
+    	assertEquals(SqlTypeException.Type.AS_MAP_INVALID, ex.getType());
+    	assertEquals(BlobJsonList.class, ex.getValues().get(SqlTypeException.PARAM_ADAPTEE).getClass());
+    }
+    
+    
     @Test
     void jsonListExceptionTest() throws IOException {
 

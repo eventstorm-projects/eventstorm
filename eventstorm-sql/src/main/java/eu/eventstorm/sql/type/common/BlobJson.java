@@ -1,8 +1,12 @@
 package eu.eventstorm.sql.type.common;
 
+import static com.google.common.collect.ImmutableMap.of;
+import static eu.eventstorm.sql.type.SqlTypeException.PARAM_ADAPTEE;
+
 import eu.eventstorm.sql.type.Json;
 import eu.eventstorm.sql.type.JsonList;
 import eu.eventstorm.sql.type.JsonMap;
+import eu.eventstorm.sql.type.SqlTypeException;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -29,7 +33,7 @@ public final class BlobJson extends DefaultBlob implements Json {
         if (adaptee instanceof JsonMap) {
             return JsonMap.class.cast(adaptee);
         }
-		throw new IllegalStateException();
+		throw new SqlTypeException(SqlTypeException.Type.AS_MAP_INVALID, of(PARAM_ADAPTEE, adaptee));
 	}
 
 	@Override
@@ -40,7 +44,7 @@ public final class BlobJson extends DefaultBlob implements Json {
         if (adaptee instanceof JsonList) {
             return JsonList.class.cast(adaptee);
         }
-		throw new IllegalStateException();
+		throw new SqlTypeException(SqlTypeException.Type.AS_LIST_INVALID, of(PARAM_ADAPTEE, adaptee));
 	}
 
     @Override

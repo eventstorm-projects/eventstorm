@@ -1,12 +1,14 @@
 package eu.eventstorm.sql.type.common;
 
+import static com.google.common.collect.ImmutableMap.of;
+import static eu.eventstorm.sql.type.SqlTypeException.PARAM_CONTENT;
+import static eu.eventstorm.sql.type.SqlTypeException.PARAM_CONTENT_OBJECT;
+
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
 
 import eu.eventstorm.sql.type.JsonList;
 import eu.eventstorm.sql.type.SqlTypeException;
@@ -32,7 +34,7 @@ public final class BlobJsonList extends BlobJsonAdaptee implements JsonList {
             try {
                 this.list = MAPPER.readValue(content, List.class);
             } catch (IOException cause) {
-                throw new SqlTypeException(SqlTypeException.Type.READ_JSON, ImmutableMap.of("content", new String(content, StandardCharsets.UTF_8)), cause);
+                throw new SqlTypeException(SqlTypeException.Type.READ_JSON, of(PARAM_CONTENT, content), cause);
             }
         }
 	}
@@ -41,7 +43,7 @@ public final class BlobJsonList extends BlobJsonAdaptee implements JsonList {
         try {
             return MAPPER.writeValueAsBytes(this.list);
         } catch (IOException cause) {
-            throw new SqlTypeException(SqlTypeException.Type.WRITE_JSON, ImmutableMap.of("list", list), cause);
+            throw new SqlTypeException(SqlTypeException.Type.WRITE_JSON, of(PARAM_CONTENT_OBJECT, list), cause);
         }
 	}
 

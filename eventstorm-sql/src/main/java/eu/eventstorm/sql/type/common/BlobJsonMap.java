@@ -1,12 +1,15 @@
 package eu.eventstorm.sql.type.common;
 
+import static com.google.common.collect.ImmutableMap.of;
+import static eu.eventstorm.sql.type.SqlTypeException.PARAM_CONTENT;
+import static eu.eventstorm.sql.type.SqlTypeException.PARAM_CONTENT_OBJECT;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
 import eu.eventstorm.sql.type.JsonMap;
@@ -28,12 +31,12 @@ public final class BlobJsonMap extends BlobJsonAdaptee implements JsonMap {
     @SuppressWarnings("unchecked")
 	public BlobJsonMap(byte[] content) {
         if (content == null || content.length == 0) {
-            this.map = new HashMap<String, Object>();
+            this.map = new HashMap<>();
         } else {
             try {
                 this.map = MAPPER.readValue(content, Map.class);
             } catch (IOException cause) {
-                throw new SqlTypeException(SqlTypeException.Type.READ_JSON, ImmutableMap.of("map", map), cause);
+                throw new SqlTypeException(SqlTypeException.Type.READ_JSON, of(PARAM_CONTENT, content), cause);
             }
         }
 	}
@@ -59,7 +62,7 @@ public final class BlobJsonMap extends BlobJsonAdaptee implements JsonMap {
         try {
             return MAPPER.writeValueAsBytes(this.map);
         } catch (IOException cause) {
-            throw new SqlTypeException(SqlTypeException.Type.WRITE_JSON, ImmutableMap.of("map", map), cause);
+            throw new SqlTypeException(SqlTypeException.Type.WRITE_JSON, of(PARAM_CONTENT_OBJECT, map), cause);
         }
 	}
 
