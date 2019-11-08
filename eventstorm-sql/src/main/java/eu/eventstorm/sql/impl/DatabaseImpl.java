@@ -13,11 +13,13 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Dialect;
+import eu.eventstorm.sql.JsonMapper;
 import eu.eventstorm.sql.Module;
 import eu.eventstorm.sql.desc.SqlPrimaryKey;
 import eu.eventstorm.sql.desc.SqlSequence;
 import eu.eventstorm.sql.desc.SqlTable;
 import eu.eventstorm.sql.dialect.Dialects;
+import eu.eventstorm.sql.json.JacksonJsonMapper;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -44,15 +46,21 @@ public final class DatabaseImpl implements Database {
     private final ImmutableMap<SqlTable, Module> tables;
 
     private final ImmutableMap<SqlSequence, Module> sequences;
+    
+    private final JsonMapper jsonMapper;
 
+    public DatabaseImpl(Dialect.Name dialect, TransactionManager transactionManager, String defaultSchema, Module module, Module... modules) {
+    	this(dialect, transactionManager, new JacksonJsonMapper(), defaultSchema, module, modules);
+    }
     /**
      * @param dataSource    the {@link DataSource}
      * @param dialect
      * @param defaultSchema
      */
-    public DatabaseImpl(Dialect.Name dialect, TransactionManager transactionManager, String defaultSchema, Module module, Module... modules) {
+    public DatabaseImpl(Dialect.Name dialect, TransactionManager transactionManager, JsonMapper jsonMapper, String defaultSchema, Module module, Module... modules) {
         this.dialect = Dialects.dialect(dialect, this);
         this.transactionManager = transactionManager;
+        this.jsonMapper = jsonMapper;
         this.modules = new Module[1 + modules.length];
         this.modules[0] = module;
         if (modules.length > 0) {
@@ -112,6 +120,11 @@ public final class DatabaseImpl implements Database {
     @Override
 	public Module getModule(SqlSequence sequence) {
 		return this.sequences.get(sequence);
+	}
+    
+    @Override
+	public JsonMapper jsonMapper() {
+		return jsonMapper;
 	}
 
     public void postInit() {

@@ -19,4 +19,6 @@ public interface Database {
     
     Module getModule(SqlSequence sequence);
     
+    JsonMapper jsonMapper();
+    
 }

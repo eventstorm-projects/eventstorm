@@ -38,22 +38,22 @@ final class H2Dialect extends AbstractDialect {
 
 	@Override
 	public Json createJson(Map<String, Object> value) {
-		return new BlobJson(new BlobJsonMap(value));
+		return new BlobJson(getDatabase().jsonMapper(), new BlobJsonMap(value));
 	}
 
     @Override
 	public Json createJson(List<Object> value) {
-	    return new BlobJson(new BlobJsonList(value));
+	    return new BlobJson(getDatabase().jsonMapper(),new BlobJsonList(value));
 	}
 
 	@Override
 	public Json createJson(byte[] value) {
-		return new BlobJson(value);
+		return new BlobJson(getDatabase().jsonMapper(), value);
 	}
 
 	@Override
 	public Json fromJdbcJson(ResultSet rs, int index) throws SQLException {
-		return new BlobJson(rs.getBytes(index));
+		return new BlobJson(getDatabase().jsonMapper(), rs.getBytes(index));
 	}
 
 	@Override

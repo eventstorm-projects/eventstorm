@@ -25,6 +25,10 @@ abstract class AbstractDialect implements Dialect {
 		this.database = database;
 	}
 
+	final Database getDatabase() {
+		return this.database;
+	}
+	
 	final String prefix(SqlTable table) {
 		Module module = this.database.getModule(table);
 		if (module == null) {

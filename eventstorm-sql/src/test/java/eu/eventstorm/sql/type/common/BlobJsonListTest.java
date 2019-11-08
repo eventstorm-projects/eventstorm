@@ -1,6 +1,5 @@
 package eu.eventstorm.sql.type.common;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -9,6 +8,8 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import eu.eventstorm.sql.JsonMapper;
+import eu.eventstorm.sql.json.JacksonJsonMapper;
 import eu.eventstorm.sql.type.SqlTypeException;
 
 /**
@@ -16,13 +17,7 @@ import eu.eventstorm.sql.type.SqlTypeException;
  */
 class BlobJsonListTest {
 
-	@Test
-	void testBadJsonListConstructor() {
-
-		SqlTypeException ex = assertThrows(SqlTypeException.class, () -> new BlobJsonList("BAD".getBytes()));
-		assertEquals(SqlTypeException.Type.READ_JSON, ex.getType());
-		assertArrayEquals("BAD".getBytes(), (byte[]) ex.getValues().get(SqlTypeException.PARAM_CONTENT));
-	}
+	private JsonMapper mapper = new JacksonJsonMapper();
 
 	@SuppressWarnings("unchecked")
 	@Test
@@ -33,7 +28,7 @@ class BlobJsonListTest {
 		BadPojo badPojo = new BadPojo();
 		list.add(badPojo);
 		
-		SqlTypeException ex = assertThrows(SqlTypeException.class, () -> list.write());
+		SqlTypeException ex = assertThrows(SqlTypeException.class, () -> list.write(mapper));
 		assertEquals(SqlTypeException.Type.WRITE_JSON, ex.getType());
 		assertEquals(badPojo, (BadPojo) ((List<Object>)ex.getValues().get(SqlTypeException.PARAM_CONTENT_OBJECT)).get(0));
 	}
