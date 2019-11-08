@@ -18,7 +18,6 @@ import eu.eventstorm.sql.desc.SqlPrimaryKey;
 import eu.eventstorm.sql.desc.SqlSequence;
 import eu.eventstorm.sql.desc.SqlTable;
 import eu.eventstorm.sql.dialect.Dialects;
-import eu.eventstorm.sql.tx.TransactionManager;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -29,11 +28,6 @@ public final class DatabaseImpl implements Database {
      * SLF4J Logger.
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseImpl.class);
-
-    /**
-     * SQL Datasource
-     */
-    private final DataSource dataSource;
 
     /**
      * Dialect for the given datasource.
@@ -56,14 +50,9 @@ public final class DatabaseImpl implements Database {
      * @param dialect
      * @param defaultSchema
      */
-    public DatabaseImpl(DataSource dataSource, Dialect.Name dialect, TransactionManager transactionManager, String defaultSchema, Module module, Module... modules) {
-        this.dataSource = dataSource;
+    public DatabaseImpl(Dialect.Name dialect, TransactionManager transactionManager, String defaultSchema, Module module, Module... modules) {
         this.dialect = Dialects.dialect(dialect, this);
         this.transactionManager = transactionManager;
-
-        if (module == null) {
-            throw new DatabaseConfigurationException("module is null");
-        }
         this.modules = new Module[1 + modules.length];
         this.modules[0] = module;
         if (modules.length > 0) {
@@ -104,10 +93,6 @@ public final class DatabaseImpl implements Database {
         return this.transactionManager;
     }
 
-    public DataSource dataSource() {
-        return this.dataSource;
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -130,7 +115,10 @@ public final class DatabaseImpl implements Database {
 	}
 
     public void postInit() {
-        trace(dataSource, this.modules);
+    	if (transactionManager instanceof TransactionManagerImpl) {
+    		trace(((TransactionManagerImpl)transactionManager).getDataSource(), this.modules);
+    	}
+    			
     }
 
     private static void trace(DataSource dataSource, Module[] modules) {

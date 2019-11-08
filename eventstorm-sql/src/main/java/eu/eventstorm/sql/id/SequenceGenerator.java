@@ -12,7 +12,7 @@ import java.sql.SQLException;
 
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.desc.SqlSequence;
-import eu.eventstorm.sql.tx.TransactionQueryContext;
+import eu.eventstorm.sql.impl.TransactionQueryContext;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>

@@ -19,11 +19,11 @@ import brave.sampler.Sampler;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Dialect;
 import eu.eventstorm.sql.impl.DatabaseImpl;
-import eu.eventstorm.sql.tx.TransactionManager;
-import eu.eventstorm.sql.tx.TransactionManagerConfiguration;
-import eu.eventstorm.sql.tx.TransactionManagerImpl;
-import eu.eventstorm.sql.tx.tracer.LoggingBraveReporter;
-import eu.eventstorm.sql.tx.tracer.TransactionTracers;
+import eu.eventstorm.sql.impl.TransactionManager;
+import eu.eventstorm.sql.impl.TransactionManagerConfiguration;
+import eu.eventstorm.sql.impl.TransactionManagerImpl;
+import eu.eventstorm.sql.tracer.LoggingBraveReporter;
+import eu.eventstorm.sql.tracer.TransactionTracers;
 
 @Configuration
 public class EventstormPlatformTransactionManagerConfigurationTest {
@@ -65,7 +65,7 @@ public class EventstormPlatformTransactionManagerConfigurationTest {
 
 	@Bean
 	Database database(DataSource ds, TransactionManager transactionManager) {
-		return new DatabaseImpl(ds, Dialect.Name.H2, transactionManager, "", new eu.eventstorm.sql.spring.ex001.Module("test", null));
+		return new DatabaseImpl(Dialect.Name.H2, transactionManager, "", new eu.eventstorm.sql.spring.ex001.Module("test", null));
 
 	}
 

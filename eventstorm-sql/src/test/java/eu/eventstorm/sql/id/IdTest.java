@@ -19,10 +19,10 @@ import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Module;
 import eu.eventstorm.sql.desc.SqlSequence;
 import eu.eventstorm.sql.dialect.Dialects;
-import eu.eventstorm.sql.tx.Transaction;
-import eu.eventstorm.sql.tx.TransactionManagerConfiguration;
-import eu.eventstorm.sql.tx.TransactionManagerImpl;
-import eu.eventstorm.sql.tx.tracer.TransactionTracers;
+import eu.eventstorm.sql.impl.Transaction;
+import eu.eventstorm.sql.impl.TransactionManagerConfiguration;
+import eu.eventstorm.sql.impl.TransactionManagerImpl;
+import eu.eventstorm.sql.tracer.TransactionTracers;
 import eu.eventstorm.test.LoggerInstancePostProcessor;
 
 @ExtendWith(LoggerInstancePostProcessor.class)

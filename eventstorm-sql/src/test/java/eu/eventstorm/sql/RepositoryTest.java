@@ -24,6 +24,9 @@ import eu.eventstorm.sql.builder.SelectBuilder;
 import eu.eventstorm.sql.builder.UpdateBuilder;
 import eu.eventstorm.sql.expression.AggregateFunctions;
 import eu.eventstorm.sql.impl.DatabaseImpl;
+import eu.eventstorm.sql.impl.Transaction;
+import eu.eventstorm.sql.impl.TransactionManager;
+import eu.eventstorm.sql.impl.TransactionManagerImpl;
 import eu.eventstorm.sql.jdbc.Batch;
 import eu.eventstorm.sql.jdbc.PreparedStatementSetter;
 import eu.eventstorm.sql.jdbc.ResultSetMappers;
@@ -31,9 +34,6 @@ import eu.eventstorm.sql.model.ex001.Student;
 import eu.eventstorm.sql.model.ex001.StudentDescriptor;
 import eu.eventstorm.sql.model.ex001.StudentImpl;
 import eu.eventstorm.sql.model.ex001.StudentMapper;
-import eu.eventstorm.sql.tx.Transaction;
-import eu.eventstorm.sql.tx.TransactionManager;
-import eu.eventstorm.sql.tx.TransactionManagerImpl;
 import eu.eventstorm.test.LoggerInstancePostProcessor;
 
 /**
@@ -52,7 +52,7 @@ class RepositoryTest {
 	void before() {
 		ds = JdbcConnectionPool.create("jdbc:h2:mem:test;DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1;INIT=RUNSCRIPT FROM 'classpath:sql/ex001.sql'", "sa", "");
 		TransactionManager transactionManager = new TransactionManagerImpl(ds);
-		db = new DatabaseImpl(ds, Dialect.Name.H2, transactionManager, "", new eu.eventstorm.sql.model.ex001.Module("test", null));
+		db = new DatabaseImpl(Dialect.Name.H2, transactionManager, "", new eu.eventstorm.sql.model.ex001.Module("test", null));
 		repo = new Repository(db) {
 		};
 	}
