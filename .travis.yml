@@ -13,6 +13,5 @@ git:
 cache:
   directories:
     - "$HOME/.m2"
-    - "$HOME/.sonar/cache"
 script:
   - mvn clean verify sonar:sonar -Pcoverage -Dmaven.javadoc.skip=true -Dgpg.skip=true
