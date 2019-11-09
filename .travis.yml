@@ -6,8 +6,8 @@ addons:
   sonarcloud:
     organization: "eventstorm-projects"
     token:
-      secure: "i6+Y4Th8XOkuLYIQRfUNSddLHCaAZKtagyQstfHZXoUvw47tmtI5iqT8ERmHgDYsf+l/28YlkncTNuH66NxKmn1VqgEwpdOLvYPdMgojNj8WUYkJlLbeYD/Vo55pFxLuExbN19tWgnhmJgs+3C4N4+QHZmbSJcUXPUhoUOOPRKtqkq+qXPzD/AgKZb12uKR1xlObzSyPJK1R7YuTS/labnW80Cul038Cuh86M9zB18nmWOLmJRHpDFBNszFev13+1+Y6b7gxiSLQOsjakoy+O9qhfJ8ncaXKq5N7guMoPgpffFhe1tH3rB2yczWeXaUUHqeFpPTPPqiWG46KhyI389T9eF4zLhKfe7Z8aeaZNoZbwukV/9RFLS5fBKJLxkuyPg80Hw6KVbY1H1h0argfZqxgvClB0zKYG4np5xpDTmeOBeOOF9OIdI9qX93txw9Moeq/Z3ge2s+tVbZbj5hJrcKw4D6xA6zEmrpFTIxIT5EMecSQlOD99+Yh1YBkTT0I9G0Nmyd4GweYXG4u4Kwa3Lycz40TDpyp3+CuNbKgbaRoA3EeM26jXt0eSzJN+M95GMM0BjpCh6YfPhW4hn4nSOZcijjCErBrKNiRDTRZiJLF0ETYz496h+wV9dZYkRle1itb66dN11Ke1m6gJxBf811g3AQ4B/d0Z61O3cXtfRk="
-
+      secure: $SONAR_TOKEN
+      
 jdk:
   - openjdk8
   
@@ -19,4 +19,4 @@ cache:
     - '$HOME/.m2/repository'
 
 script:
-  - sonar-scanner -Dsonar.verbose=true -X
+  - sonar-scanner -Dsonar.verbose=true -X -Dsonar.projectKey=eu.eventstorm:eventstorm -Dsonar.login=$SONAR_TOKEN
