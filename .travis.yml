@@ -4,7 +4,7 @@ sudo: false
 
 addons:
   sonarcloud:
-    organization: "eventstorm-projects"
+    organization: eventstorm-projects
     token:
       secure: $SONAR_TOKEN
 
