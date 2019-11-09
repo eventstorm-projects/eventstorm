@@ -6,7 +6,7 @@ addons:
   sonarcloud:
     organization: "eventstorm-projects"
     token:
-      secure: $SONAR_TOKEN
+      secure: "Lw4+xv3sV67rw7xPgQM6z6es/SBKNr1esEY6H2+9ZKaieqyQI7/rNx5rpYa8Ov+rdeY3zmOwZ+b2OMFVU6L+8sCQWj0XWRj5br9D752Sr/JoXQJNkjk+gaBb0NI4ctOQMAsghNDY2AeejLUAr53QwTk5l56EOGBNWiUq5faOeBGmEHOSEE5osJ8tVMhR/yKI7nPgs4LVztr6WPr/Uc+UvLOWuAbsJ+QtoQxiS6XR75dm5uDb8oGyoxzmv016egUsU5daf+y2sDb/mgKtkY4H3l+dZ+APNtpFY1mh+51LXs+kK6btylII3dXAUTaZhjGOH6+JpfgkKsX6/Vc2+2jw34IR76ZRTgCKiOu0GxKys3H7OoGpe+fNt/ysVz+UhwncvbaVjsdMYjk1mEI43C5dFfmOui9Sbhp1mZNbRHg381Jlq0LEjUVpCX2IdsebuMf8IRfgqKtdfFb5hcoOcQjncLeYw4pk1uXq0Cqldy/4ptKeXU6FOB6dLON8Rvv8BMQyj5qmPGwjM+HUNf9DZGBcx4a+u+m0qeXXJCSomkTvG541tvraCN1RQY/HNsOIT7H4qewvNHT8cuWaLGMXcYLiF9uiEnVYOlaEuwXMtrarSMZqyn0AzN6H485UNZM2dU9Cqt97F+U2DktLzWYJ0/40Qh06I8HrxAji991fKDIIXTE="
       
 jdk:
   - openjdk8
@@ -19,4 +19,4 @@ cache:
     - '$HOME/.m2/repository'
 
 script:
-  - sonar-scanner -Dsonar.verbose=true -X -Dsonar.projectKey=$SONAR_PROJECT_KEY -Dsonar.login=$SONAR_TOKEN
+  - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -Pcoverage -Dmaven.javadoc.skip=true -Dgpg.skip=true 
