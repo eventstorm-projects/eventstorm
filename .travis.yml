@@ -19,4 +19,4 @@ cache:
     - "$HOME/.m2"
 
 script:
-  - mvn -X clean verify sonar:sonar -Pcoverage -Dmaven.javadoc.skip=true -Dgpg.skip=true
+  - mvn -X clean verify sonar:sonar -Pcoverage -Dmaven.javadoc.skip=true -Dgpg.skip=true -Dsonar.login=$SONAR_TOKEN
