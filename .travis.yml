@@ -20,4 +20,5 @@ cache:
     - '$HOME/.sonar/cache'
 
 script:
-  - mvn -X clean verify sonar:sonar -Pcoverage -Dmaven.javadoc.skip=true -Dgpg.skip=true -Dsonar.verbose=true
+  - mvn clean test -Pcoverage -Dmaven.javadoc.skip=true -Dgpg.skip=true -Dsonar.verbose=true
+  - sonar-scanner -Dsonar.verbose=true -X
