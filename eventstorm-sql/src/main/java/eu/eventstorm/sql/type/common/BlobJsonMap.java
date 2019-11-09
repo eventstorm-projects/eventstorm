@@ -41,7 +41,8 @@ public final class BlobJsonMap extends BlobJsonAdaptee implements JsonMap {
 		return this.map.remove(key);
 	}
 
-	protected byte[] doWrite(JsonMapper mapper) {
+	@Override
+	protected byte[] write(JsonMapper mapper) {
         try {
             return mapper.write(this.map);
         } catch (IOException cause) {

@@ -74,11 +74,8 @@ public final class BlobJson extends DefaultBlob implements Json {
 
     @Override
 	public void flush() {
-        if (adaptee != null) {
-            byte[] content = this.adaptee.write(this.mapper);
-            if (content != null) {
-                setBuf(content);
-            }
+        if (adaptee != null && this.adaptee.isModified()) {
+        	 setBuf(this.adaptee.write(this.mapper));
         }
 	}
 }

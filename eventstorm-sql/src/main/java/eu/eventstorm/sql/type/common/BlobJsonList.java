@@ -21,7 +21,8 @@ public final class BlobJsonList extends BlobJsonAdaptee implements JsonList {
         this.list = list;
     }
 
-	protected byte[] doWrite(JsonMapper mapper) {
+    @Override
+	protected byte[] write(JsonMapper mapper) {
         try {
             return mapper.write(this.list);
         } catch (IOException cause) {

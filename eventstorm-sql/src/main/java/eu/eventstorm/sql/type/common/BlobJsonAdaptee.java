@@ -9,18 +9,14 @@ abstract class BlobJsonAdaptee {
 
 	private boolean isModified = false;
 
-	byte[] write(JsonMapper mapper) {
-		if (isModified) {
-			return doWrite(mapper);
-		} else {
-			return null;
-		}
-	}
-
 	protected final void setModified() {
 		this.isModified = true;
 	}
 
-	protected abstract byte[] doWrite(JsonMapper mapper);
+	protected final boolean isModified() {
+		return this.isModified ;
+	}
+
+	abstract byte[] write(JsonMapper mapper);
 
 }
