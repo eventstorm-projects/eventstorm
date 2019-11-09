@@ -6,7 +6,7 @@ addons:
   sonarcloud:
     organization: eventstorm-projects
     token:
-      secure: $SONAR_TOKEN
+      secure: ${SONAR_TOKEN}
 
 jdk:
   - openjdk8
@@ -20,5 +20,4 @@ cache:
     - '$HOME/.sonar/cache'
 
 script:
-  - mvn clean test -Pcoverage -Dmaven.javadoc.skip=true -Dgpg.skip=true -Dsonar.verbose=true
   - sonar-scanner -Dsonar.verbose=true -X
