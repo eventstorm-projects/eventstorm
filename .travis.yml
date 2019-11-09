@@ -19,4 +19,4 @@ cache:
     - '$HOME/.m2/repository'
 
 script:
-  - sonar-scanner -Dsonar.verbose=true -X -Dsonar.projectKey=eu.eventstorm:eventstorm -Dsonar.login=$SONAR_TOKEN
+  - sonar-scanner -Dsonar.verbose=true -X -Dsonar.projectKey=$SONAR_PROJECT_KEY -Dsonar.login=$SONAR_TOKEN
