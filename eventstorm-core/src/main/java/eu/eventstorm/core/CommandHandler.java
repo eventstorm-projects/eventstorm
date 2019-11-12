@@ -5,6 +5,6 @@ package eu.eventstorm.core;
  */
 public interface CommandHandler<C extends Command> {
 
-    Event handle(C command);
+    void handle(C command);
 
 }

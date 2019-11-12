@@ -12,11 +12,11 @@ import eu.eventstorm.core.ex001.gen.domain.UserAggregateId;
 import eu.eventstorm.core.ex001.gen.event.UserCreatedEventImpl;
 import eu.eventstorm.core.impl.AbstractCommandHandler;
 
-public class CreateUserCommandHandler extends AbstractCommandHandler implements CommandHandler<CreateUserCommand> {
+public class UpdateUserMailCommandHandler extends AbstractCommandHandler implements CommandHandler<CreateUserCommand> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UpdateUserMailCommandHandler.class);
 
-	public CreateUserCommandHandler(EventStore eventStore, EventBus eventBus) {
+	public UpdateUserMailCommandHandler(EventStore eventStore, EventBus eventBus) {
 		super(eventStore, eventBus);
 	}
 
@@ -32,10 +32,10 @@ public class CreateUserCommandHandler extends AbstractCommandHandler implements 
 		UserCreatedEventImpl event = new UserCreatedEventImpl();
 
 		getEventStore().store(new UserAggregateId(), event);
+		
+		//event.applyOn(domainModel);
 
 		getEventBus().publish(event);
-
 	}
-
 
 }

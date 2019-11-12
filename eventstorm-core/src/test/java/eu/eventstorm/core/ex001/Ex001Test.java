@@ -49,7 +49,8 @@ class Ex001Test {
         EventStore eventStore = new InMemoryEventStore();
         
         CommandHandlerRegistry registry = new CommandHandlerRegistryBuilder()
-        		.add(CreateUserCommandImpl.class, new CreateUserCommandHandler(eventStore))
+        		.add(CreateUserCommandImpl.class, new CreateUserCommandHandler(eventStore, eventBus))
+        		//.add(CreateUserCommandImpl.class, new CreateUserCommandHandler(eventStore, eventBus))
         		.build();
 
          

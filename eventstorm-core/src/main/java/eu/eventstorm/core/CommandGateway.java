@@ -29,15 +29,14 @@ public class CommandGateway {
             LOGGER.debug("dispatch [{}]", command);
         }
 
-
         // 1. retrieve command handler
         CommandHandler<T> ch = (CommandHandler<T>) registry.get(command.getClass());
 
         // 2. handler
-        Event event = ch.handle(command);
+        ch.handle(command);
 
         // 3. dispatch
-        eventBus.publish(event);
+        //eventBus.publish(event);
 
 
     }

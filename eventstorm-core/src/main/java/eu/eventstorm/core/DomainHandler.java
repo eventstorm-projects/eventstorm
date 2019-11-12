@@ -1,12 +1,9 @@
 package eu.eventstorm.core;
 
-import com.google.common.collect.ImmutableList;
-
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-public interface Command {
+public interface DomainHandler<T extends DomainModel> {
 
-	ImmutableList<String> domains();
-	
+	void on(T domainModel);
 }

@@ -5,6 +5,8 @@ package eu.eventstorm.core;
  */
 public interface EventStore {
 
-	void store(Event event);
+	EventStream load(AggregateId aggregateId);
+	
+	void store(AggregateId id, Event event);
 
 }

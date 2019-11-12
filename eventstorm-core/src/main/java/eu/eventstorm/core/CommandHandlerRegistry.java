@@ -14,7 +14,7 @@ public final class CommandHandlerRegistry {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T extends Command> CommandHandler<T> get(Class<T> command) {
+	public <T extends Command, E extends Event> CommandHandler<T> get(Class<T> command) {
 		return (CommandHandler<T>) this.handlers.get(command);
 	}
 
