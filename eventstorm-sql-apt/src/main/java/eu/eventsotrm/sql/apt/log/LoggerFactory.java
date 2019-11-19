@@ -20,10 +20,10 @@ public final class LoggerFactory {
 		return INSTANCE;
 	}
 
-	public void init(ProcessingEnvironment env) {
+	public void init(ProcessingEnvironment env, String packageName, String file) {
 		FileObject object;
 		try {
-			object = env.getFiler().createResource(StandardLocation.CLASS_OUTPUT, "eu.eventstorm.report","Output.txt");
+			object = env.getFiler().createResource(StandardLocation.CLASS_OUTPUT, packageName, file);
 			writer = object.openWriter();
 		} catch (IOException cause) {
 			throw new IllegalStateException(cause);
@@ -44,6 +44,5 @@ public final class LoggerFactory {
 	public Logger getLogger(Class<?> clazz) {
 		return new Logger(clazz, this.writer);
 	}
-
 
 }

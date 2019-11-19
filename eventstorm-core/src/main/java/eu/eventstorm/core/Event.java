@@ -1,18 +1,58 @@
 package eu.eventstorm.core;
 
-import com.google.common.collect.ImmutableList;
+import java.time.OffsetDateTime;
 
-/**
- * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
- */
-public interface Event {
+import eu.eventstorm.util.ToStringBuilder;
 
-	AggregateId getAggregateId();
+public class Event<T extends EventData> {
 
-	int getVersion();
+	private final AggregateId aggregateId;
+	
+	private final String aggreateType;
+	
+	private final int version;
+	
+	private final T eventData;
 
-	String getEventType();
+	private final OffsetDateTime timestamp;
+	
+	public Event(AggregateId aggregateId, String aggreateType, OffsetDateTime timestamp, int version, T eventData) {
+		this.aggregateId = aggregateId;
+		this.aggreateType = aggreateType;
+		this.timestamp = timestamp;
+		this.version = version;
+		this.eventData = eventData;
+	}
 
-	//ImmutableList<String> getDomains();
+	public AggregateId getAggregateId() {
+		return aggregateId;
+	}
+
+	public String getAggreateType() {
+		return aggreateType;
+	}
+
+	public int getVersion() {
+		return version;
+	}
+
+	public T getEventData() {
+		return eventData;
+	}
+
+	public OffsetDateTime getTimestamp() {
+		return timestamp;
+	}
+
+	@Override
+	public String toString() {
+		return new ToStringBuilder(true)
+				.append("aggregateId",aggregateId )
+				.append("aggreateType", aggreateType)
+				.append("version", version)
+				.append("timestamp", timestamp)
+				.append("eventData", eventData)
+				.toString();
+	}
 	
 }

@@ -1,12 +1,16 @@
 package eu.eventstorm.core.eventbus;
 
+import java.util.List;
+import java.util.function.Consumer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.eventbus.Subscribe;
+import com.google.common.collect.ImmutableList;
 
 import eu.eventstorm.core.Event;
 import eu.eventstorm.core.EventBus;
+import eu.eventstorm.core.EventData;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -14,34 +18,45 @@ import eu.eventstorm.core.EventBus;
 public final class InMemoryEventBus implements EventBus {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(InMemoryEventBus.class);
-	
-	private final com.google.common.eventbus.EventBus bus;
-	
-	public InMemoryEventBus() {
-		this.bus = new com.google.common.eventbus.EventBus();
-		this.bus.register(this);
+
+	private final ImmutableList<Consumer<Event<? extends EventData>>> consumers;
+
+	InMemoryEventBus(ImmutableList<Consumer<Event<? extends EventData>>> consumers) {
+		this.consumers = consumers;
 	}
-	
+
 	@Override
-	public void publish(Event event) {
+	public void publish(List<Event<? extends EventData>> events) {
+		if (LOGGER.isDebugEnabled()) { LOGGER.debug("InMemoryEventBus.publish({})",events); }
 		
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("InMemoryEventBus.publish({})", event);
-		}
-		
-		bus.post(event);
-		
+		this.consumers.forEach(consumer -> {
+			events.forEach( event -> {
+				consumer.accept(event);
+			});
+		});
 	}
 
 	
-	@Subscribe
-	public void listener(Event event) {
+	public static Builder builder() {
+		return new Builder();
+	}
+	
+	public static class Builder {
 		
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("InMemoryEventBus.listener({})", event);
+		private final ImmutableList.Builder<Consumer<Event<? extends EventData>>> builder;
+		
+		private Builder() {
+			this.builder = ImmutableList.builder();
 		}
 		
+		public Builder add(Consumer<Event<? extends EventData>> consumer) {
+			this.builder.add(consumer);
+			return this;
+		}
 		
-
+		public InMemoryEventBus build() {
+			return new InMemoryEventBus(builder.build());
+		}
 	}
+
 }

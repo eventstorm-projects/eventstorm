@@ -5,6 +5,4 @@ package eu.eventstorm.core;
  */
 public interface AggregateId {
 
-	String name();
-	
 }

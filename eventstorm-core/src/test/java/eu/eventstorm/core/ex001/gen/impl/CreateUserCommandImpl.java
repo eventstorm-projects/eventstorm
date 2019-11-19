@@ -1,14 +1,9 @@
 package eu.eventstorm.core.ex001.gen.impl;
 
-import com.google.common.collect.ImmutableList;
-
 import eu.eventstorm.core.ex001.command.CreateUserCommand;
 
-//TODO generated
 public final class CreateUserCommandImpl implements CreateUserCommand {
 
-	private static final ImmutableList<String> DOMAINS = ImmutableList.of("user");
-	
     private String name;
     private int age;
     private String email;
@@ -41,8 +36,4 @@ public final class CreateUserCommandImpl implements CreateUserCommand {
         this.email = email;
     }
 
-	@Override
-	public ImmutableList<String> domains() {
-		return DOMAINS;
-	}
 }

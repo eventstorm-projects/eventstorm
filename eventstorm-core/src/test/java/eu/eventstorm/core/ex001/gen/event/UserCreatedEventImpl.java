@@ -1,42 +1,33 @@
 package eu.eventstorm.core.ex001.gen.event;
 
-
-import eu.eventstorm.core.AggregateId;
-import eu.eventstorm.core.DomainModel;
 import eu.eventstorm.core.ex001.event.UserCreatedEvent;
-import eu.eventstorm.core.ex001.gen.domain.UserDomainHandler;
 
 // Created + UserCommand + Event
 public final class UserCreatedEventImpl implements UserCreatedEvent {
 
-	@Override
-	public AggregateId getAggregateId() {
-		return null;
+	private final String name;
+	private final String email;
+	private final int age;
+
+	public UserCreatedEventImpl(String name, String email, int age) {
+		this.name = name;
+		this.email = email;
+		this.age = age;
 	}
 
 	@Override
-	public int getVersion() {
-		return 1;
+	public String getName() {
+		return this.name;
 	}
 
 	@Override
-	public String getEventType() {
-		return "UserCreatedEvent";
+	public int getAge() {
+		return this.age;
 	}
 
-	public void applyOn(UserDomainHandler domainHandler) {
-		domainHandler.apply(this);
+	@Override
+	public String getEmail() {
+		return this.email;
 	}
-
-//	@Override
-//	public void applyOn(UserDomain domain) {
-//		domain.apply(this);
-//	}
-
-	/*public UserCreatedEvent(String id, OffsetDateTime timestamp, String type, String contentType) {
-		super(id, timestamp, type, contentType);
-	}
-*/
-    
 
 }

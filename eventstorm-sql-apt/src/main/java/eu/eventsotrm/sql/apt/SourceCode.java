@@ -18,7 +18,7 @@ import eu.eventsotrm.sql.apt.model.PojoDescriptor;
 
 public final class SourceCode {
 
-    private final Logger logger = LoggerFactory.getInstance().getLogger(SqlProcessor.class);
+    private final Logger logger = LoggerFactory.getInstance().getLogger(SourceCode.class);
 
     private final ImmutableList<PojoDescriptor> all;
 

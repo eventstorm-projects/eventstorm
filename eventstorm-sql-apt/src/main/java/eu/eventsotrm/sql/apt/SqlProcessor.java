@@ -52,7 +52,7 @@ public final class SqlProcessor extends AbstractProcessor {
             return false;
         }
 
-    	LoggerFactory.getInstance().init(processingEnv);
+    	LoggerFactory.getInstance().init(processingEnv, "eu.eventstorm.report","sql-output.txt");
 
     	Logger logger = LoggerFactory.getInstance().getLogger(SqlProcessor.class);
     	logger.info("SqlProcessor start");

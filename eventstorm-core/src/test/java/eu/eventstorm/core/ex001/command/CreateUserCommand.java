@@ -1,12 +1,9 @@
 package eu.eventstorm.core.ex001.command;
 
-import static eu.eventstorm.core.annotation.CqrsCommandType.CREATE;
-
 import eu.eventstorm.core.Command;
 import eu.eventstorm.core.annotation.CqrsCommand;
-import eu.eventstorm.core.annotation.Domain;
 
-@CqrsCommand(type = CREATE, domains = @Domain( name = "user"))
+@CqrsCommand
 public interface CreateUserCommand extends Command {
 
     String getName();
