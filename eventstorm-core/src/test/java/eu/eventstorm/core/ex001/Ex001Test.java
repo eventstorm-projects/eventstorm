@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import eu.eventstorm.core.CommandGateway;
 import eu.eventstorm.core.CommandHandlerRegistry;
@@ -21,7 +22,9 @@ import eu.eventstorm.core.ex001.gen.impl.CreateUserCommandImpl;
 import eu.eventstorm.core.ex001.handler.CreateUserCommandHandler;
 import eu.eventstorm.core.id.AggregateIdGenerator;
 import eu.eventstorm.core.id.AggregateIdGeneratorFactory;
+import eu.eventstorm.test.LoggerInstancePostProcessor;
 
+@ExtendWith(LoggerInstancePostProcessor.class)
 class Ex001Test {
 
 	//private JdbcConnectionPool ds;
@@ -37,7 +40,7 @@ class Ex001Test {
 		// Flyway flyway = Flyway.configure().dataSource(ds).load();
 		// flyway.migrate();
 	}
-
+	
 	@Test
 	void test() {
 

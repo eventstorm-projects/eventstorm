@@ -28,7 +28,7 @@
 		<org.slf4j.version>1.7.29</org.slf4j.version>
 		<org.apache.logging.log4j.version>2.12.1</org.apache.logging.log4j.version>
 		<com.google.guava.version>28.1-jre</com.google.guava.version>
-		<com.fasterxml.jackson.core.version>2.10.0.pr3</com.fasterxml.jackson.core.version>
+		<com.fasterxml.jackson.core.version>2.10.1</com.fasterxml.jackson.core.version>
 		<io.zipkin.brave.version>5.9.0</io.zipkin.brave.version>
 
 		<org.junit.jupiter.version>5.5.2</org.junit.jupiter.version>
@@ -36,6 +36,7 @@
 		<org.mockito.version>3.0.0</org.mockito.version>
 		<org.flywaydb.version>6.0.8</org.flywaydb.version>
 		<com.zaxxer.version>3.4.1</com.zaxxer.version>
+		<org.skyscreamer.jsonassert.version>1.5.0</org.skyscreamer.jsonassert.version>
 	</properties>
 
 	<distributionManagement>
@@ -140,6 +141,13 @@
 				<groupId>com.zaxxer</groupId>
 				<artifactId>HikariCP</artifactId>
 				<version>${com.zaxxer.version}</version>
+				<scope>test</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>org.skyscreamer</groupId>
+				<artifactId>jsonassert</artifactId>
+				<version>${org.skyscreamer.jsonassert.version}</version>
 				<scope>test</scope>
 			</dependency>
 

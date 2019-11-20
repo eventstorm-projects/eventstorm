@@ -136,7 +136,11 @@ public final class ToStringBuilder {
 			if (value.getClass().isArray()) {
 				insertRaw(getChars(toString((Object[])value)));
 			} else {
-				insertValue(getChars(value.toString()));
+				if (Number.class.isAssignableFrom(value.getClass())) {
+					insertRaw(getChars(value.toString()));
+				} else {
+					insertValue(getChars(value.toString()));
+				}
 			}
 		}
 		return this;

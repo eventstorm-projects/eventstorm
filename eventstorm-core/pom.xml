@@ -11,18 +11,18 @@
 	<name>eventstorm-core</name>
 
 	<dependencies>
-		
+
 		<dependency>
 			<groupId>eu.eventstorm</groupId>
 			<artifactId>eventstorm-sql</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>eu.eventstorm</groupId>
 			<artifactId>eventstorm-test</artifactId>
@@ -35,7 +35,13 @@
 			<artifactId>h2</artifactId>
 			<scope>test</scope>
 		</dependency>
-		
+
+		<dependency>
+			<groupId>org.skyscreamer</groupId>
+			<artifactId>jsonassert</artifactId>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
-	
+
 </project>

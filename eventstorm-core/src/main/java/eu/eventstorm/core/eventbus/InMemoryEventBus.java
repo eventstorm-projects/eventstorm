@@ -27,35 +27,31 @@ public final class InMemoryEventBus implements EventBus {
 
 	@Override
 	public void publish(List<Event<? extends EventData>> events) {
-		if (LOGGER.isDebugEnabled()) { LOGGER.debug("InMemoryEventBus.publish({})",events); }
-		
-		this.consumers.forEach(consumer -> {
-			events.forEach( event -> {
-				consumer.accept(event);
-			});
-		});
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("InMemoryEventBus.publish({})", events);
+		}
+		this.consumers.forEach(consumer -> events.forEach(consumer::accept));
 	}
 
-	
 	public static Builder builder() {
 		return new Builder();
 	}
-	
+
 	public static class Builder {
-		
-		private final ImmutableList.Builder<Consumer<Event<? extends EventData>>> builder;
-		
+
+		private final ImmutableList.Builder<Consumer<Event<? extends EventData>>> eventBusBuilder;
+
 		private Builder() {
-			this.builder = ImmutableList.builder();
+			this.eventBusBuilder = ImmutableList.builder();
 		}
-		
+
 		public Builder add(Consumer<Event<? extends EventData>> consumer) {
-			this.builder.add(consumer);
+			this.eventBusBuilder.add(consumer);
 			return this;
 		}
-		
+
 		public InMemoryEventBus build() {
-			return new InMemoryEventBus(builder.build());
+			return new InMemoryEventBus(eventBusBuilder.build());
 		}
 	}
 
