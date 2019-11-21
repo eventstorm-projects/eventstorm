@@ -11,6 +11,8 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableMap;
+
 import eu.eventstorm.core.AggregateId;
 import eu.eventstorm.core.Event;
 import eu.eventstorm.core.EventData;
@@ -28,18 +30,18 @@ public final class InMemoryEventStore implements EventStore {
 	private final List<Event<?>> events = new LinkedList<>();
 
 	@Override
-	public Stream<Event<? extends EventData>> readStream(String stream, AggregateId aggregateId) {
+	public Stream<Event<? extends EventData>> readStream(String streamId, AggregateId aggregateId) {
 
-		Map<AggregateId, List<Event<?>>> eventsByType = map.get(stream);
+		Map<AggregateId, List<Event<?>>> stream = map.get(streamId);
 
-		if (eventsByType == null) {
-			return null;
+		if (stream == null) {
+			throw new EventStoreException(EventStoreException.Type.STREAM_NOT_FOUND, ImmutableMap.of("stream",streamId));
 		}
 
-		List<Event<?>> events = eventsByType.get(aggregateId);
+		List<Event<?>> events = stream.get(aggregateId);
 
 		if (events == null) {
-			return null;
+			return Stream.empty();
 		}
 
 		return events.stream();

@@ -4,18 +4,21 @@ import java.time.OffsetDateTime;
 
 import eu.eventstorm.util.ToStringBuilder;
 
+/**
+ * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
+ */
 public class Event<T extends EventData> {
 
 	private final AggregateId aggregateId;
-	
+
 	private final String aggreateType;
-	
+
 	private final int version;
-	
+
 	private final T eventData;
 
 	private final OffsetDateTime timestamp;
-	
+
 	public Event(AggregateId aggregateId, String aggreateType, OffsetDateTime timestamp, int version, T eventData) {
 		this.aggregateId = aggregateId;
 		this.aggreateType = aggreateType;
@@ -46,13 +49,8 @@ public class Event<T extends EventData> {
 
 	@Override
 	public String toString() {
-		return new ToStringBuilder(true)
-				.append("aggregateId",aggregateId )
-				.append("aggreateType", aggreateType)
-				.append("version", version)
-				.append("timestamp", timestamp)
-				.append("eventData", eventData)
-				.toString();
+		return new ToStringBuilder(true).append("aggregateId", aggregateId).append("aggreateType", aggreateType).append("version", version)
+		        .append("timestamp", timestamp).append("eventData", eventData).toString();
 	}
-	
+
 }
