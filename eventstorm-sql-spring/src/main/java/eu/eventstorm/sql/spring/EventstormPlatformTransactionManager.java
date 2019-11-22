@@ -75,10 +75,10 @@ public final class EventstormPlatformTransactionManager implements PlatformTrans
 
 		if (status.isReadOnly()) {
 			if (LOGGER.isTraceEnabled()) {
-				LOGGER.trace("Commit a read-only -> rollback");
-				rollback(transactionStatus);
-				return;
-			}
+				LOGGER.trace("Commit a read-only -> rollback");				
+            }
+            rollback(transactionStatus);
+			return;
 		}
 
 		try {
