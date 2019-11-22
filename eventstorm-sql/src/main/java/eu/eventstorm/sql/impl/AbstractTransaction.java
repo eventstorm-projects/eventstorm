@@ -113,42 +113,54 @@ abstract class AbstractTransaction implements Transaction, TransactionContext {
 
 	@Override
 	public final void rollback() {
-		//this.span.tag("result", "rolllack");
-		if (!this.active) {
-			throw new EventstormTransactionException(NOT_ACTIVE, this, null);
-		}
+        
+        try {
+            if (!this.active) {
+                throw new EventstormTransactionException(NOT_ACTIVE, this, null);
+            }
 
-		try {
-			this.connection.rollback();
-		} catch (SQLException cause) {
-			throw new EventstormTransactionException(ROLLBACK, this, null, cause);
-		} finally {
-			this.active = false;
-			transactionManager.remove();
-		}
+            try {
+                this.connection.rollback();
+            } catch (SQLException cause) {
+                throw new EventstormTransactionException(ROLLBACK, this, null, cause);
+            } finally {
+                this.active = false;
+                transactionManager.remove();
+            }
+        } finally {
+            afterRollback();
+        }
+		
 	}
 
 	@Override
 	public final void commit() {
-		//this.span.tag("result", "commit");
-		if (!this.active) {
-			throw new EventstormTransactionException(NOT_ACTIVE, this, null);
-		}
+        
+        try {
+          if (!this.active) {
+                throw new EventstormTransactionException(NOT_ACTIVE, this, null);
+            }
 
-		try {
-			doCommit();
-		} catch (SQLException cause) {
-			throw new EventstormTransactionException(COMMIT, this, null, cause);
-		} finally {
-			this.active = false;
-			transactionManager.remove();
-		}
+            try {
+                doCommit();
+            } catch (SQLException cause) {
+                throw new EventstormTransactionException(COMMIT, this, null, cause);
+            } finally {
+                this.active = false;
+                transactionManager.remove();
+            }
+        } finally {
+            afterCommit();
+        }
+  
 	}
 
 	protected abstract void doCommit() throws SQLException;
 
-	protected void onFinallyCommit() {
-		
+	protected void afterCommit() {		
+    }
+    
+    protected void afterRollback() {		
 	}
 
 	protected abstract Transaction innerTransaction(TransactionDefinition definition);

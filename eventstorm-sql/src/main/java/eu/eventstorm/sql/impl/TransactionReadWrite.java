@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-final class TransactionReadWrite extends AbstractTransaction {
+class TransactionReadWrite extends AbstractTransaction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionReadWrite.class);
 
@@ -24,26 +24,26 @@ final class TransactionReadWrite extends AbstractTransaction {
     }
 
     @Override
-    public boolean isReadOnly() {
+    public final boolean isReadOnly() {
         return false;
     }
 
     @Override
-    protected void doCommit() throws SQLException {
+    protected final void doCommit() throws SQLException {
         getConnection().commit();
     }
 
     @Override
-    public TransactionQueryContext write(String sql) {
+    public final TransactionQueryContext write(String sql) {
         return preparedStatement(sql, this.writes, Statement.NO_GENERATED_KEYS);
     }
     
     @Override
-   	public TransactionQueryContext writeAutoIncrement(String sql) {
+   	public final TransactionQueryContext writeAutoIncrement(String sql) {
     	return preparedStatement(sql, this.writes, Statement.RETURN_GENERATED_KEYS);
    	} 
 
-	public Transaction innerTransaction(TransactionDefinition definition) {
+	public final Transaction innerTransaction(TransactionDefinition definition) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("innerTransaction : [{}]", definition);
         }

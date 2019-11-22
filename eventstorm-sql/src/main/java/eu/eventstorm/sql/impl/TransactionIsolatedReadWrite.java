@@ -1,24 +1,12 @@
 package eu.eventstorm.sql.impl;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-final class TransactionIsolatedReadWrite extends AbstractTransaction {
+final class TransactionIsolatedReadWrite extends TransactionReadWrite {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TransactionIsolatedReadWrite.class);
-
-    private final Map<String, PreparedStatement> writes = new HashMap<>();
-    
     private final AbstractTransaction parent;
 
     TransactionIsolatedReadWrite(TransactionManagerImpl transactionManager, Connection connection, AbstractTransaction parent) {
@@ -26,31 +14,12 @@ final class TransactionIsolatedReadWrite extends AbstractTransaction {
         this.parent = parent;
     }
 
-    @Override
-    public boolean isReadOnly() {
-        return false;
-    }
-
-    @Override
-    protected void doCommit() throws SQLException {
-        getConnection().commit();
-    }
-
-    @Override
-    public TransactionQueryContext write(String sql) {
-        return preparedStatement(sql, this.writes, Statement.NO_GENERATED_KEYS);
+    protected void afterCommit() {
+		getTransactionManager().restart(parent);
     }
     
-    @Override
-   	public TransactionQueryContext writeAutoIncrement(String sql) {
-    	return preparedStatement(sql, this.writes, Statement.RETURN_GENERATED_KEYS);
-   	} 
-
-	public Transaction innerTransaction(TransactionDefinition definition) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("innerTransaction : [{}]", definition);
-        }
-        return new TransactionNested(this);
-    }
+     protected void afterRollback() {
+		getTransactionManager().restart(parent);
+	}
 
 }

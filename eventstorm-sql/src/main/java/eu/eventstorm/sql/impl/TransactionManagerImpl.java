@@ -128,7 +128,11 @@ public final class TransactionManagerImpl implements TransactionManager {
 
     void remove() {
 		this.transactions.remove();
-	}
+    }
+    
+    void restart(AbstractTransaction transaction) {
+        this.transactions.set(transaction);
+    }
 
 	@Override
 	public TransactionContext context() {
