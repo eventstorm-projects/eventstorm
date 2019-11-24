@@ -7,6 +7,6 @@ import com.google.common.collect.ImmutableList;
  */
 public interface CommandHandler<C extends Command> {
 
-	ImmutableList<Event<?>> handle(C command);
+	ImmutableList<Event<EventData>> handle(C command);
 
 }

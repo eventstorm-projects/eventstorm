@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableList;
 import eu.eventstorm.core.AggregateId;
 import eu.eventstorm.core.CommandHandler;
 import eu.eventstorm.core.Event;
+import eu.eventstorm.core.EventData;
 import eu.eventstorm.core.EventStore;
 import eu.eventstorm.core.ex001.command.CreateUserCommand;
 import eu.eventstorm.core.ex001.event.UserCreatedEvent;
@@ -27,7 +28,7 @@ public class CreateUserCommandHandler extends AbstractCommandHandler implements 
 	}
 
 	@Override
-	public ImmutableList<Event<?>> handle(CreateUserCommand command) {
+	public ImmutableList<Event<EventData>> handle(CreateUserCommand command) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("handle ({})", command);
 		}
@@ -47,7 +48,7 @@ public class CreateUserCommandHandler extends AbstractCommandHandler implements 
 				command.getAge()
 				);
 
-		Event<UserCreatedEvent> event = getEventStore().appendToStream("user", id, eventData);
+		Event<EventData> event = getEventStore().appendToStream("user", id, eventData);
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("event ({})", event);

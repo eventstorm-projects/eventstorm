@@ -36,7 +36,7 @@ public class CommandGateway {
         CommandHandler<T> ch = (CommandHandler<T>) registry.get(command.getClass());
 
         // 2. handler
-        ImmutableList<Event<?>> events = ch.handle(command);
+        ImmutableList<Event<EventData>> events = ch.handle(command);
 
         // 3. publish event
         this.eventBus.publish(events);

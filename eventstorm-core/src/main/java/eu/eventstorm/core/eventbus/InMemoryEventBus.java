@@ -26,7 +26,7 @@ public final class InMemoryEventBus implements EventBus {
 	}
 
 	@Override
-	public void publish(List<Event<? extends EventData>> events) {
+	public void publish(List<Event<EventData>> events) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("InMemoryEventBus.publish({})", events);
 		}

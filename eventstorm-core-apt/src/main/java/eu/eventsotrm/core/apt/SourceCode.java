@@ -1,6 +1,10 @@
 package eu.eventsotrm.core.apt;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,6 +20,7 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.eventsotrm.core.apt.model.CommandDescriptor;
 import eu.eventsotrm.core.apt.model.EventDescriptor;
+import eu.eventsotrm.core.apt.model.RestControllerDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 
@@ -27,26 +32,35 @@ public final class SourceCode {
 
 	private final ImmutableMap<String, ImmutableList<CommandDescriptor>> packages;
 
-	private final ImmutableMap<String,EventDescriptor> events;
-	
-	SourceCode(ProcessingEnvironment env, List<CommandDescriptor> commands, List<EventDescriptor> events) {
-		this.commands = commands.stream().collect(toImmutableMap(CommandDescriptor::fullyQualidiedClassName, desc -> desc));
-		this.events = events.stream().collect(toImmutableMap(EventDescriptor::fullyQualidiedClassName, de -> de));
+	private final ImmutableMap<String, EventDescriptor> events;
+
+	private final Map<String, ImmutableList<RestControllerDescriptor>> restControllers;
+
+	SourceCode(ProcessingEnvironment env, List<CommandDescriptor> commands, List<EventDescriptor> events,
+	        List<RestControllerDescriptor> restControllerDescriptors) {
+		this.commands = commands.stream().collect(toImmutableMap(CommandDescriptor::fullyQualidiedClassName, identity()));
+		this.events = events.stream().collect(toImmutableMap(EventDescriptor::fullyQualidiedClassName, identity()));
 		this.packages = mapByPackage(env);
+		this.restControllers = restControllerDescriptors.stream()
+		        .collect(groupingBy(RestControllerDescriptor::getName, mapping(identity(), toImmutableList())));
 	}
 
 	public void forEachCommand(Consumer<CommandDescriptor> consumer) {
 		this.commands.values().forEach(consumer);
 	}
-	
+
 	public void forEachEvent(Consumer<EventDescriptor> consumer) {
 		this.events.values().forEach(consumer);
 	}
-	
+
 	public void forEachCommandPackage(BiConsumer<String, ImmutableList<CommandDescriptor>> consumer) {
 		this.packages.forEach(consumer);
 	}
 
+	public void forEachRestController(BiConsumer<String, ImmutableList<RestControllerDescriptor>> consumer) {
+		this.restControllers.forEach(consumer);
+	}
+	
 	void dump() {
 		logger.info("Result Analysis -----------------------------------------------------------------------------------------");
 		logger.info("---------------------------------------------------------------------------------------------------------");
@@ -61,7 +75,6 @@ public final class SourceCode {
 		});
 		logger.info("---------------------------------------------------------------------------------------------------------");
 	}
-
 
 	private ImmutableMap<String, ImmutableList<CommandDescriptor>> mapByPackage(ProcessingEnvironment env) {
 
@@ -83,4 +96,5 @@ public final class SourceCode {
 		});
 		return builder.build();
 	}
+
 }

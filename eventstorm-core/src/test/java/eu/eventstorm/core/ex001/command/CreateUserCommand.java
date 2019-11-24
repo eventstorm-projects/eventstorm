@@ -1,21 +1,25 @@
 package eu.eventstorm.core.ex001.command;
 
+import static eu.eventstorm.core.annotation.HttpMethod.POST;
+
 import eu.eventstorm.core.Command;
 import eu.eventstorm.core.annotation.CqrsCommand;
+import eu.eventstorm.core.annotation.CqrsRestController;
 
 @CqrsCommand
+@CqrsRestController(name = "UserCommandRestController", javaPackage = "eu.eventstorm.core.ex001.command.rest", method = POST, uri = "command/user/create")
 public interface CreateUserCommand extends Command {
 
-    String getName();
+	String getName();
 
-    void setName(String name);
+	void setName(String name);
 
-    int getAge();
+	int getAge();
 
-    void setAge(int age);
+	void setAge(int age);
 
-    String getEmail();
+	String getEmail();
 
-    void setEmail(String email);
+	void setEmail(String email);
 
 }

@@ -15,12 +15,15 @@ import javax.tools.Diagnostic;
 
 import eu.eventsotrm.core.apt.analyser.CqrsCommandAnalyser;
 import eu.eventsotrm.core.apt.analyser.CqrsEventAnalyser;
+import eu.eventsotrm.core.apt.analyser.CqrsRestControllerAnalyser;
 import eu.eventsotrm.core.apt.model.CommandDescriptor;
 import eu.eventsotrm.core.apt.model.EventDescriptor;
+import eu.eventsotrm.core.apt.model.RestControllerDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.core.annotation.CqrsCommand;
 import eu.eventstorm.core.annotation.CqrsEventData;
+import eu.eventstorm.core.annotation.CqrsRestController;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -70,12 +73,15 @@ public class EventProcessor extends AbstractProcessor {
 
 		List<CommandDescriptor> descriptors = roundEnvironment.getElementsAnnotatedWith(CqrsCommand.class).stream().map(new CqrsCommandAnalyser())
 		        .collect(Collectors.toList());
+		
+		List<RestControllerDescriptor> restControllerDescriptors = roundEnvironment.getElementsAnnotatedWith(CqrsRestController.class).stream().map(new CqrsRestControllerAnalyser())
+		        .collect(Collectors.toList());
 
 		List<EventDescriptor> eventDescriptors = roundEnvironment.getElementsAnnotatedWith(CqrsEventData.class).stream().map(new CqrsEventAnalyser())
 		        .collect(Collectors.toList());
 
 		
-		SourceCode sourceCode = new SourceCode(this.processingEnv, descriptors, eventDescriptors);
+		SourceCode sourceCode = new SourceCode(this.processingEnv, descriptors, eventDescriptors, restControllerDescriptors);
 
 		sourceCode.dump();
 
@@ -83,6 +89,7 @@ public class EventProcessor extends AbstractProcessor {
 		new CommandFactoryGenerator().generate(this.processingEnv, sourceCode);
 		new EventImplementationGenerator().generate(this.processingEnv, sourceCode);
 		new DomainModelHandlerImplementationGenerator().generate(this.processingEnv, sourceCode);
+		new RestControllerImplementationGenerator().generate(processingEnvironment, sourceCode);
 
 	}
 

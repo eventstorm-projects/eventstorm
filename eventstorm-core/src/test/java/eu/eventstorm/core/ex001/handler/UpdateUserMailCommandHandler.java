@@ -7,11 +7,9 @@ import com.google.common.collect.ImmutableList;
 
 import eu.eventstorm.core.CommandHandler;
 import eu.eventstorm.core.Event;
-import eu.eventstorm.core.EventBus;
+import eu.eventstorm.core.EventData;
 import eu.eventstorm.core.EventStore;
 import eu.eventstorm.core.ex001.command.CreateUserCommand;
-import eu.eventstorm.core.ex001.event.UserCreatedEvent;
-import eu.eventstorm.core.ex001.gen.event.UserCreatedEventImpl;
 import eu.eventstorm.core.impl.AbstractCommandHandler;
 
 public class UpdateUserMailCommandHandler extends AbstractCommandHandler implements CommandHandler<CreateUserCommand> {
@@ -23,7 +21,7 @@ public class UpdateUserMailCommandHandler extends AbstractCommandHandler impleme
 	}
 
 	@Override
-	public ImmutableList<Event<?>> handle(CreateUserCommand command) {
+	public ImmutableList<Event<EventData>> handle(CreateUserCommand command) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("handle ({})", command);
 		}
