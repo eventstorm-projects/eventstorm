@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableList;
 
 import eu.eventstorm.core.AggregateId;
-import eu.eventstorm.core.CommandHandler;
 import eu.eventstorm.core.Event;
 import eu.eventstorm.core.EventData;
 import eu.eventstorm.core.EventStore;
@@ -16,14 +15,14 @@ import eu.eventstorm.core.ex001.gen.event.UserCreatedEventImpl;
 import eu.eventstorm.core.id.AggregateIdGenerator;
 import eu.eventstorm.core.impl.AbstractCommandHandler;
 
-public class CreateUserCommandHandler extends AbstractCommandHandler implements CommandHandler<CreateUserCommand> {
+public final class CreateUserCommandHandler extends AbstractCommandHandler<CreateUserCommand> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UpdateUserMailCommandHandler.class);
 
 	private final AggregateIdGenerator aig;
 	
 	public CreateUserCommandHandler(EventStore eventStore, AggregateIdGenerator aig) {
-		super(eventStore);
+		super(CreateUserCommand.class, eventStore);
 		this.aig = aig;
 	}
 
@@ -57,6 +56,5 @@ public class CreateUserCommandHandler extends AbstractCommandHandler implements 
 		return ImmutableList.of(event);
 		
 	}
-
 
 }

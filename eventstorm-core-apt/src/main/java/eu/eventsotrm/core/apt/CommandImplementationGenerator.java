@@ -99,9 +99,15 @@ final class CommandImplementationGenerator {
     private static void writeMethods(Writer writer, CommandDescriptor descriptor) throws IOException {
         writeNewLine(writer);
         writeMethods(writer, descriptor.properties());
+        writerKeyMethod(writer, descriptor);
     }
 
-    private static void writeMethods(Writer writer, List<CommandPropertyDescriptor> descriptors) throws IOException {
+    
+    private static void writerKeyMethod(Writer writer, CommandDescriptor descriptor) {
+		
+	}
+
+	private static void writeMethods(Writer writer, List<CommandPropertyDescriptor> descriptors) throws IOException {
         for (CommandPropertyDescriptor ppd : descriptors) {
             writeGetter(writer, ppd);
             writeSetter(writer, ppd);

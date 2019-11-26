@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import eu.eventsotrm.core.apt.model.CommandDescriptor;
+import eu.eventsotrm.core.apt.model.Descriptor;
 import eu.eventsotrm.core.apt.model.EventDescriptor;
 import eu.eventsotrm.core.apt.model.RestControllerDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
@@ -33,6 +34,8 @@ public final class SourceCode {
 	private final ImmutableMap<String, ImmutableList<CommandDescriptor>> packages;
 
 	private final ImmutableMap<String, EventDescriptor> events;
+	
+	private final ImmutableMap<String, ImmutableList<EventDescriptor>> eventpackages;
 
 	private final Map<String, ImmutableList<RestControllerDescriptor>> restControllers;
 
@@ -40,7 +43,8 @@ public final class SourceCode {
 	        List<RestControllerDescriptor> restControllerDescriptors) {
 		this.commands = commands.stream().collect(toImmutableMap(CommandDescriptor::fullyQualidiedClassName, identity()));
 		this.events = events.stream().collect(toImmutableMap(EventDescriptor::fullyQualidiedClassName, identity()));
-		this.packages = mapByPackage(env);
+		this.packages = mapByPackage(env, this.commands);
+		this.eventpackages = mapByPackage(env, this.events);
 		this.restControllers = restControllerDescriptors.stream()
 		        .collect(groupingBy(RestControllerDescriptor::getName, mapping(identity(), toImmutableList())));
 	}
@@ -57,6 +61,11 @@ public final class SourceCode {
 		this.packages.forEach(consumer);
 	}
 
+	public void forEachEventPackage(BiConsumer<String, ImmutableList<EventDescriptor>> consumer) {
+		this.eventpackages.forEach(consumer);
+	}
+
+	
 	public void forEachRestController(BiConsumer<String, ImmutableList<RestControllerDescriptor>> consumer) {
 		this.restControllers.forEach(consumer);
 	}
@@ -75,23 +84,23 @@ public final class SourceCode {
 		});
 		logger.info("---------------------------------------------------------------------------------------------------------");
 	}
+	
+	private <T extends Descriptor> ImmutableMap<String, ImmutableList<T>> mapByPackage(ProcessingEnvironment env, ImmutableMap<String, T> map) {
 
-	private ImmutableMap<String, ImmutableList<CommandDescriptor>> mapByPackage(ProcessingEnvironment env) {
+		Map<String, List<T>> temp = new HashMap<>();
 
-		Map<String, List<CommandDescriptor>> map = new HashMap<>();
-
-		this.commands.values().forEach(desc -> {
+		map.values().forEach(desc -> {
 			String pack = env.getElementUtils().getPackageOf(desc.element()).toString();
-			List<CommandDescriptor> list = map.get(pack);
+			List<T> list = temp.get(pack);
 			if (list == null) {
 				list = new ArrayList<>();
-				map.put(pack, list);
+				temp.put(pack, list);
 			}
 			list.add(desc);
 		});
 
-		ImmutableMap.Builder<String, ImmutableList<CommandDescriptor>> builder = ImmutableMap.builder();
-		map.forEach((key, value) -> {
+		ImmutableMap.Builder<String, ImmutableList<T>> builder = ImmutableMap.builder();
+		temp.forEach((key, value) -> {
 			builder.put(key, ImmutableList.copyOf(value));
 		});
 		return builder.build();

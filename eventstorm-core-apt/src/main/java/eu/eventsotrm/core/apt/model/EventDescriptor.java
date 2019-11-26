@@ -4,7 +4,7 @@ import java.util.List;
 
 import javax.lang.model.element.Element;
 
-public class EventDescriptor {
+public class EventDescriptor implements Descriptor {
 
 	private final Element element;
 	private final List<EventPropertyDescriptor> properties;

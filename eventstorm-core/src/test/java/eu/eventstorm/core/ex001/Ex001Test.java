@@ -9,7 +9,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import eu.eventstorm.core.CommandGateway;
 import eu.eventstorm.core.CommandHandlerRegistry;
-import eu.eventstorm.core.CommandHandlerRegistryBuilder;
 import eu.eventstorm.core.Event;
 import eu.eventstorm.core.EventBus;
 import eu.eventstorm.core.EventStore;
@@ -54,8 +53,8 @@ class Ex001Test {
 
 		AggregateIdGenerator userGenerator = AggregateIdGeneratorFactory.inMemoryInteger();
 
-		CommandHandlerRegistry registry = new CommandHandlerRegistryBuilder()
-		        .add(CreateUserCommandImpl.class, new CreateUserCommandHandler(eventStore, userGenerator))
+		CommandHandlerRegistry registry = CommandHandlerRegistry.newBuilder()
+		        .add(new CreateUserCommandHandler(eventStore, userGenerator))
 		        // .add(CreateUserCommandImpl.class, new CreateUserCommandHandler(eventStore,
 		        // eventBus))
 		        .build();

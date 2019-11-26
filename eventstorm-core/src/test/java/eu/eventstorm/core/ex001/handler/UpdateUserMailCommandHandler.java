@@ -5,23 +5,22 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
 
-import eu.eventstorm.core.CommandHandler;
 import eu.eventstorm.core.Event;
 import eu.eventstorm.core.EventData;
 import eu.eventstorm.core.EventStore;
-import eu.eventstorm.core.ex001.command.CreateUserCommand;
+import eu.eventstorm.core.ex001.command.UpdateUserMailCommand;
 import eu.eventstorm.core.impl.AbstractCommandHandler;
 
-public class UpdateUserMailCommandHandler extends AbstractCommandHandler implements CommandHandler<CreateUserCommand> {
+public class UpdateUserMailCommandHandler extends AbstractCommandHandler<UpdateUserMailCommand> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UpdateUserMailCommandHandler.class);
 
 	public UpdateUserMailCommandHandler(EventStore eventStore) {
-		super(eventStore);
+		super(UpdateUserMailCommand.class, eventStore);
 	}
 
 	@Override
-	public ImmutableList<Event<EventData>> handle(CreateUserCommand command) {
+	public ImmutableList<Event<EventData>> handle(UpdateUserMailCommand command) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("handle ({})", command);
 		}

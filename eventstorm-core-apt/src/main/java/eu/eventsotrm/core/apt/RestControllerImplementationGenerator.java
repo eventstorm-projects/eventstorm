@@ -61,6 +61,8 @@ final class RestControllerImplementationGenerator {
 		writePackage(writer, desc.get(0).getRestController().javaPackage());
 		writeNewLine(writer);
 		
+		writer.write("import org.springframework.web.bind.annotation.RequestBody;");
+		writeNewLine(writer);
 		writer.write("import org.springframework.web.bind.annotation.RestController;");
 		writeNewLine(writer);
 		writeGenerated(writer, RestControllerImplementationGenerator.class.getName());
@@ -114,7 +116,7 @@ final class RestControllerImplementationGenerator {
 			
 			writeSpring(writer, rcd);
 			
-			writer.write("    public void on(");
+			writer.write("    public void on(@RequestBody ");
 		//	writer.write(rcd.getCommand());
 			writer.write(rcd.element().toString());
 			writer.write(" command) {");
@@ -140,7 +142,7 @@ final class RestControllerImplementationGenerator {
 	private static void writeSpring(Writer writer, RestControllerDescriptor rcd) throws IOException {
 		
 		if (HttpMethod.POST == rcd.getRestController().method()) {
-			writer.write("    @org.springframework.web.bind.annotation.PostMapping(name=\"" + rcd.getRestController().uri() +"\")");
+			writer.write("    @org.springframework.web.bind.annotation.PostMapping(path=\"" + rcd.getRestController().uri() +"\")");
 			writeNewLine(writer);
 
 			return;

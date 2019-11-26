@@ -4,7 +4,7 @@ import java.util.List;
 
 import javax.lang.model.element.Element;
 
-public class CommandDescriptor {
+public class CommandDescriptor implements Descriptor {
 
 	private final Element element;
 	private final List<CommandPropertyDescriptor> properties;
