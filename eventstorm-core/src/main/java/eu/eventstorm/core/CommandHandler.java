@@ -9,6 +9,6 @@ public interface CommandHandler<C extends Command> {
 	
 	Class<C> getType();
 	
-	ImmutableList<Event<EventData>> handle(C command);
+	ImmutableList<Event> handle(C command);
 
 }

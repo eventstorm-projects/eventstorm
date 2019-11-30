@@ -35,7 +35,10 @@ final class IntegerAggreateId implements AggregateId {
 	public String toString() {
 		return new ToStringBuilder(this, false).append("id", id).toString();
 	}
-	
-	
+
+	@Override
+	public String toStringValue() {
+		return String.valueOf(id);
+	}
 	
 }

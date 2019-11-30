@@ -24,7 +24,7 @@ public class CommandGateway {
     }
 
     @SuppressWarnings("unchecked")
-	public <T extends Command> ImmutableList<Event<EventData>> dispatch(T command) {
+	public <T extends Command> ImmutableList<Event> dispatch(T command) {
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("dispatch [{}]", command);
@@ -38,7 +38,7 @@ public class CommandGateway {
         }
         
         // 2. handler
-        ImmutableList<Event<EventData>> events = ch.handle(command);
+        ImmutableList<Event> events = ch.handle(command);
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("events to publish [{}]", events);

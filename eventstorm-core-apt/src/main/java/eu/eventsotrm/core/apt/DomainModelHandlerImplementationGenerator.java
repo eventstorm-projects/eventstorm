@@ -20,8 +20,8 @@ import eu.eventsotrm.core.apt.model.EventDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.core.Event;
-import eu.eventstorm.core.EventData;
 import eu.eventstorm.core.EventListener;
+import eu.eventstorm.core.EventPayload;
 import eu.eventstorm.core.annotation.CqrsEventData;
 
 /**
@@ -85,7 +85,7 @@ final class DomainModelHandlerImplementationGenerator {
 		writer.write(";");
 		writeNewLine(writer);
 		writer.write("import ");
-		writer.write(EventData.class.getName());
+		writer.write(EventPayload.class.getName());
 		writer.write(";");
 		writeNewLine(writer);
 		writer.write("import ");
@@ -113,12 +113,12 @@ final class DomainModelHandlerImplementationGenerator {
 		writeNewLine(writer);
 		writer.write("    @SuppressWarnings(\"unchecked\")");
 		writeNewLine(writer);
-		writer.write("    public final void accept(Event<? extends EventData> event) {");
+		writer.write("    public final void accept(Event event) {");
 		writeNewLine(writer);
 		
 		
 		writeNewLine(writer);
-		writer.write("        Class<? extends EventData> clazz = event.getEventData().getClass();");
+		writer.write("        Class<?> clazz = event.data().getClass();");
 		writeNewLine(writer);
 		writeNewLine(writer);
 		
@@ -130,9 +130,7 @@ final class DomainModelHandlerImplementationGenerator {
 			writeNewLine(writer);
 			writer.write("            on");
 			writer.write(event.simpleName());
-			writer.write("((Event<");
-			writer.write(event.simpleName());
-			writer.write(">) event);");
+			writer.write("(event);");
 			writeNewLine(writer);
 			writer.write("            return;");
 			writeNewLine(writer);
@@ -148,9 +146,7 @@ final class DomainModelHandlerImplementationGenerator {
 			
 			writer.write("    protected abstract void on");
 			writer.write(event.simpleName());
-			writer.write("(Event<");
-			writer.write(event.simpleName());
-			writer.write("> event); ");
+			writer.write("(Event event); ");
 
 			writeNewLine(writer);
 			writeNewLine(writer);

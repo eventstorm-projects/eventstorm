@@ -16,5 +16,7 @@ import eu.eventstorm.core.DomainModel;
 public @interface CqrsEventData {
 
     Class<? extends DomainModel> domain();
-
+    
+    String key();
+    
 }

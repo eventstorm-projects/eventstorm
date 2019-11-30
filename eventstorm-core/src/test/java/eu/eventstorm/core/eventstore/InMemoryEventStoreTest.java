@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 
 import eu.eventstorm.core.Event;
-import eu.eventstorm.core.EventData;
+import eu.eventstorm.core.EventPayload;
 import eu.eventstorm.core.id.AggregateIds;
 
 /**
@@ -21,10 +21,11 @@ class InMemoryEventStoreTest {
 		EventStoreException ex = assertThrows(EventStoreException.class, () -> eventStore.readStream("fake", AggregateIds.from(12)));
 		assertEquals(EventStoreException.Type.STREAM_NOT_FOUND, ex.getType());
 		
-		Event<?> event = eventStore.appendToStream("toto", AggregateIds.from(12), new EventData() {
+		Event event = eventStore.appendToStream("toto", AggregateIds.from(12), new EventPayload() {
 		});
 		
 		assertEquals(1, eventStore.readStream("toto", AggregateIds.from(12)).count());
 			
+		assertEquals(event, eventStore.readStream("toto", AggregateIds.from(12)).findFirst().get());
 	}
 }

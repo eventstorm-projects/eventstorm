@@ -37,6 +37,9 @@ final class LongAggreateId implements AggregateId {
 		return new ToStringBuilder(this, false).append("id", id).toString();
 	}
 	
-	
+	@Override
+	public String toStringValue() {
+		return String.valueOf(id);
+	}
 	
 }

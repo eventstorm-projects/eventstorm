@@ -21,4 +21,6 @@ public @interface CqrsRestController {
 	
 	HttpMethod method();
 	
+	boolean async() default true;
+	
 }
