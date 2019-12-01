@@ -11,6 +11,7 @@ public final class CloudEventsModule extends SimpleModule {
 	public CloudEventsModule() {
 		super();
 		addSerializer(Event.class, new EventSerializer());
+		addDeserializer(Event.class, new EventDeserializer());
 	}
 
 	

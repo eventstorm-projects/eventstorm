@@ -11,4 +11,8 @@ public final class AggregateIdGeneratorFactory {
 	public static AggregateIdGenerator inMemoryInteger() {
 		return new InMemoryIntegerAggregateIdGenerator(); 
 	}
+	
+	public static AggregateIdGenerator inMemoryLong() {
+		return new InMemoryLongAggregateIdGenerator(); 
+	}
 }
