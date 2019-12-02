@@ -23,7 +23,6 @@ public class CommandGateway {
         this.eventBus = eventBus;
     }
 
-    @SuppressWarnings("unchecked")
 	public <T extends Command> ImmutableList<Event> dispatch(T command) {
 
         if (LOGGER.isDebugEnabled()) {
@@ -31,7 +30,7 @@ public class CommandGateway {
         }
 
         // 1. retrieve command handler
-        CommandHandler<T> ch = (CommandHandler<T>) registry.get(command);
+        CommandHandler<T> ch = registry.get(command);
 
         if (ch == null) {
         	throw new CommandGatewayException(CommandGatewayException.Type.NOT_FOUND, of("command", command));

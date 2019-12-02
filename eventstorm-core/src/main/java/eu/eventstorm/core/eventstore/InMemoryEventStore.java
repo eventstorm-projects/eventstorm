@@ -28,7 +28,7 @@ public final class InMemoryEventStore implements EventStore {
 
 	private final Map<String, Map<AggregateId, List<Event>>> map = new HashMap<>();
 
-	private final List<Event> events = new LinkedList<>();
+	private final List<Event> allEvents = new LinkedList<>();
 
 	@Override
 	public Stream<Event> readStream(String streamId, AggregateId aggregateId) {
@@ -57,23 +57,9 @@ public final class InMemoryEventStore implements EventStore {
 
 		Event event = Events.newEvent(id, aggregateType, OffsetDateTime.now(), 0, data);
 
-		this.events.add(event);
+		this.allEvents.add(event);
 
-		Map<AggregateId, List<Event>> eventsByType = this.map.get(aggregateType);
-
-		if (eventsByType == null) {
-			eventsByType = new HashMap<>();
-			this.map.put(aggregateType, eventsByType);
-		}
-
-		List<Event> events = eventsByType.get(id);
-
-		if (events == null) {
-			events = new ArrayList<>();
-			eventsByType.put(id, events);
-		}
-
-		events.add(event);
+		this.map.computeIfAbsent(aggregateType, key -> new HashMap<>()).computeIfAbsent(id, key -> new ArrayList<>()).add(event);
 
 		return event;
 	}

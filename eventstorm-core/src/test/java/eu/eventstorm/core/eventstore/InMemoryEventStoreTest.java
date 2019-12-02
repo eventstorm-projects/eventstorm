@@ -27,5 +27,6 @@ class InMemoryEventStoreTest {
 		assertEquals(1, eventStore.readStream("toto", AggregateIds.from(12)).count());
 			
 		assertEquals(event, eventStore.readStream("toto", AggregateIds.from(12)).findFirst().get());
+		assertEquals(0, eventStore.readStream("toto", AggregateIds.from(13)).count());
 	}
 }

@@ -7,18 +7,20 @@ import java.sql.Connection;
  */
 final class TransactionIsolatedReadWrite extends TransactionReadWrite {
 
-    private final AbstractTransaction parent;
+	private final AbstractTransaction parent;
 
-    TransactionIsolatedReadWrite(TransactionManagerImpl transactionManager, Connection connection, AbstractTransaction parent) {
-        super(transactionManager, connection);
-        this.parent = parent;
-    }
+	TransactionIsolatedReadWrite(TransactionManagerImpl transactionManager, Connection connection, AbstractTransaction parent) {
+		super(transactionManager, connection);
+		this.parent = parent;
+	}
 
-    protected void afterCommit() {
+	@Override
+	protected void afterCommit() {
 		getTransactionManager().restart(parent);
-    }
-    
-     protected void afterRollback() {
+	}
+
+	@Override
+	protected void afterRollback() {
 		getTransactionManager().restart(parent);
 	}
 
