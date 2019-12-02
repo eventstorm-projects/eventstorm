@@ -10,8 +10,11 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 import eu.eventstorm.core.Event;
 
+/**
+ * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
+ */
 @SuppressWarnings({ "serial" })
-public final class EventSerializer extends StdSerializer<Event> {
+final class EventSerializer extends StdSerializer<Event> {
 
 	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").withZone(ZoneId.of("UTC"));
 

@@ -13,8 +13,11 @@ import com.google.common.collect.ImmutableMap;
 import eu.eventstorm.core.Event;
 import eu.eventstorm.core.impl.EventBuilder;
 
+/**
+ * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
+ */
 @SuppressWarnings({ "serial" })
-public final class EventDeserializer extends StdDeserializer<Event> {
+final class EventDeserializer extends StdDeserializer<Event> {
 
 	private static final ImmutableMap<String, BiConsumer<JsonParser, EventBuilder>> CONFIG;
 	
@@ -23,8 +26,8 @@ public final class EventDeserializer extends StdDeserializer<Event> {
 			.put("specversion", (parser, builder) -> {
 				try {
 					builder.setSpecVersion(parser.getText());
-				} catch (IOException e) {
-					e.printStackTrace();
+				} catch (IOException cause) {
+					throw new EventDeserializerException(EventDeserializerException.Type.PARSE_ERROR, ImmutableMap.of("field","specversion"), cause);
 				}
 			})
 			.build();

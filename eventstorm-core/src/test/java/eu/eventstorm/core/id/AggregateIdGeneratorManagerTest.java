@@ -12,7 +12,7 @@ class AggregateIdGeneratorManagerTest {
 	void test() {
 		ImmutableMap.Builder<String, AggregateIdGenerator> builder = ImmutableMap.builder();
 		builder.put("id01", AggregateIdGeneratorFactory.inMemoryInteger());
-		builder.put("id02", AggregateIdGeneratorFactory.inMemoryInteger());
+		builder.put("id02", AggregateIdGeneratorFactory.inMemoryLong());
 		AggregateIdGeneratorManager manager = new AggregateIdGeneratorManager(builder.build());
 		
 		assertEquals("1", manager.getAggregateIdGenerator("id01").generate().toStringValue());
