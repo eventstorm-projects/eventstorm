@@ -40,7 +40,7 @@ final class EventSerializer extends StdSerializer<Event> {
 		gen.writeString(value.subject());
 
 		gen.writeFieldName("id");
-		gen.writeString(value.subject());
+		gen.writeString(value.id());
 
 		gen.writeFieldName("datacontenttype");
 		gen.writeObject("application/json");

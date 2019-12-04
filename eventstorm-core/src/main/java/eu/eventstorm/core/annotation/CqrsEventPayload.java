@@ -13,7 +13,7 @@ import eu.eventstorm.core.DomainModel;
  */
 @Target({TYPE})
 @Retention(RUNTIME)
-public @interface CqrsEventData {
+public @interface CqrsEventPayload {
 
     Class<? extends DomainModel> domain();
     

@@ -22,7 +22,7 @@ import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.core.Event;
 import eu.eventstorm.core.EventListener;
 import eu.eventstorm.core.EventPayload;
-import eu.eventstorm.core.annotation.CqrsEventData;
+import eu.eventstorm.core.annotation.CqrsEventPayload;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -40,7 +40,7 @@ final class DomainModelHandlerImplementationGenerator {
 		Map<DeclaredType, List<EventDescriptor>> map = new HashMap<>();
 
 		sourceCode.forEachEvent(event -> {
-			CqrsEventData eventData = event.element().getAnnotation(CqrsEventData.class);
+			CqrsEventPayload eventData = event.element().getAnnotation(CqrsEventPayload.class);
 			
 			DeclaredType domainModel = getDomain(eventData);
 			List<EventDescriptor> descs = map.get(domainModel);
@@ -168,7 +168,7 @@ final class DomainModelHandlerImplementationGenerator {
 	}
 	
 
-	private static DeclaredType getDomain(CqrsEventData eventData) {
+	private static DeclaredType getDomain(CqrsEventPayload eventData) {
 		try {
 			eventData.domain(); // this should throw
 		} catch (MirroredTypeException mte) {

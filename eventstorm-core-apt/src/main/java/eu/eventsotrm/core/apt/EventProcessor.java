@@ -22,7 +22,7 @@ import eu.eventsotrm.core.apt.model.RestControllerDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.core.annotation.CqrsCommand;
-import eu.eventstorm.core.annotation.CqrsEventData;
+import eu.eventstorm.core.annotation.CqrsEventPayload;
 import eu.eventstorm.core.annotation.CqrsRestController;
 
 /**
@@ -77,7 +77,7 @@ public class EventProcessor extends AbstractProcessor {
 		List<RestControllerDescriptor> restControllerDescriptors = roundEnvironment.getElementsAnnotatedWith(CqrsRestController.class).stream().map(new CqrsRestControllerAnalyser())
 		        .collect(Collectors.toList());
 
-		List<EventDescriptor> eventDescriptors = roundEnvironment.getElementsAnnotatedWith(CqrsEventData.class).stream().map(new CqrsEventAnalyser())
+		List<EventDescriptor> eventDescriptors = roundEnvironment.getElementsAnnotatedWith(CqrsEventPayload.class).stream().map(new CqrsEventAnalyser())
 		        .collect(Collectors.toList());
 
 		
@@ -87,6 +87,9 @@ public class EventProcessor extends AbstractProcessor {
 
 		new CommandImplementationGenerator().generate(this.processingEnv, sourceCode);
 		new CommandFactoryGenerator().generate(this.processingEnv, sourceCode);
+		new CommandJacksonStdDeserializerGenerator().generate(processingEnv, sourceCode);
+		new CommandJacksonModuleGenerator().generate(processingEnv, sourceCode);
+		
 		new EventImplementationGenerator().generate(this.processingEnv, sourceCode);
 		new EventFactoryGenerator().generate(this.processingEnv, sourceCode);
 
