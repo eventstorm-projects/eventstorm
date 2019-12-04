@@ -25,7 +25,12 @@ public final class Helper {
 
     public static void writePackage(Writer writer, String pack) throws IOException {
         writer.write("package ");
-        writer.write(pack);
+
+        if (pack.startsWith("package")) {
+            writer.write(pack.substring(7).trim());
+        } else {
+            writer.write(pack);
+        }
         writer.write(';');
         writeNewLine(writer);
     }

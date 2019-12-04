@@ -280,15 +280,15 @@ final class PojoImplementationGenerator implements Generator {
     }
 
 
-    private static void writeEqualsPojoPropertyDescriptor(Writer writer, PojoPropertyDescriptor ppd) throws IOException {
+    static void writeEqualsPojoPropertyDescriptor(Writer writer, PojoPropertyDescriptor ppd) throws IOException {
         writer.write(ppd.name());
 
         if (isPrimitiveType(ppd.getter().getReturnType().toString())) {
             writer.write(" == other.");
-            writer.write(ppd.getter().toString());
+            writer.write(ppd.getter().getSimpleName().toString() + "()");
         } else {
-            writer.write(".equals(other.");
-            writer.write(ppd.getter().toString());
+            writer.write(".equals(other.");        
+            writer.write(ppd.getter().getSimpleName().toString() + "()");
             writer.write(")");
         }
     }

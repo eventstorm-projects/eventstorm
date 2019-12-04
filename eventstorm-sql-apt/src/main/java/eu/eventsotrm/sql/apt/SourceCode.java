@@ -73,6 +73,10 @@ public final class SourceCode {
 
         this.all.forEach(desc -> {
             String pack = env.getElementUtils().getPackageOf(desc.element()).toString();
+            if (pack.startsWith("package")) {
+                // with eclipse compiler
+                pack = pack.substring(7).trim();
+            }
             List<PojoDescriptor> list = map.get(pack);
             if (list == null) {
                 list = new ArrayList<>();
