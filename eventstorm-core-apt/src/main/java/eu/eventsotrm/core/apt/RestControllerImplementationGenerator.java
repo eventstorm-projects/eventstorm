@@ -65,8 +65,6 @@ final class RestControllerImplementationGenerator {
 
 		writer.write("import org.springframework.http.ResponseEntity;");
 		writeNewLine(writer);
-		writer.write("import org.springframework.http.MediaType;");
-		writeNewLine(writer);
 		writer.write("import org.springframework.web.bind.annotation.RequestBody;");
 		writeNewLine(writer);
 		writer.write("import org.springframework.web.bind.annotation.RestController;");
@@ -195,14 +193,14 @@ final class RestControllerImplementationGenerator {
 	private static void writeSpring(Writer writer, RestControllerDescriptor rcd) throws IOException {
 
 		if (HttpMethod.POST == rcd.getRestController().method()) {
-			writer.write("    @org.springframework.web.bind.annotation.PostMapping(path=\"" + rcd.getRestController().uri() + "\", produces = MediaType.APPLICATION_JSON_VALUE)");
+			writer.write("    @org.springframework.web.bind.annotation.PostMapping(path=\"" + rcd.getRestController().uri() + "\", produces = \"application/cloudevents+json\")");
 			writeNewLine(writer);
 
 			return;
 		}
 
 		if (HttpMethod.PUT == rcd.getRestController().method()) {
-			writer.write("    @org.springframework.web.bind.annotation.PutMapping(name=\"" + rcd.getRestController().uri() + "\", produces = MediaType.APPLICATION_JSON_VALUE)");
+			writer.write("    @org.springframework.web.bind.annotation.PutMapping(name=\"" + rcd.getRestController().uri() + "\", produces = \"application/cloudevents+json\")");
 			writeNewLine(writer);
 			return;
 		}
