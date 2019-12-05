@@ -19,6 +19,13 @@
 		</dependency>
 
 		<dependency>
+			<groupId>eu.eventstorm</groupId>
+			<artifactId>eventstorm-sql-apt</artifactId>
+			<version>${project.version}</version>
+			<optional>true</optional>
+		</dependency>
+
+		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 		</dependency>
@@ -48,6 +55,13 @@
 			<artifactId>h2</artifactId>
 			<scope>test</scope>
 		</dependency>
+		
+		<dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <scope>test</scope>
+        </dependency>
+		
 
 		<dependency>
 			<groupId>org.skyscreamer</groupId>

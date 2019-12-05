@@ -10,8 +10,12 @@ public final class AggregateIds {
 	private AggregateIds() {
 	}
 	
-	public static AggregateId from(int integer) {
-		return new IntegerAggreateId(integer);
+	public static AggregateId from(int id) {
+		return new IntegerAggreateId(id);
+	}
+
+	public static AggregateId from(String id) {
+		return new StringAggregadeId(id);
 	}
 	
 }
