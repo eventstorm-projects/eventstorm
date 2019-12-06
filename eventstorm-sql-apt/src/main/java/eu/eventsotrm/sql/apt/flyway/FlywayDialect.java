@@ -6,7 +6,7 @@ public interface FlywayDialect {
 
 	String toSqlType(String string, Column column);
 
-	String autoIncrementType(String string, Column annotation);
+	String autoIncrementType(String type);
 	
 	String wrap(String value);
 

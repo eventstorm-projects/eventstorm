@@ -221,7 +221,7 @@ final class PojoDescriptorGenerator implements Generator {
 			writer.write(" = new ");
 			writer.write(SqlSingleColumn.class.getName());
 			writer.write("(TABLE, \"");
-			writer.write(column.value());
+			writer.write(Helper.getSqlColumnName(ppd));
 			writer.write("\", ");
 			writer.write("" + column.nullable());
 			writer.write(", ");

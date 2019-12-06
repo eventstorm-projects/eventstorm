@@ -60,7 +60,7 @@ final class FlywayDialectH2 implements FlywayDialect {
 	}
 
 	@Override
-	public String autoIncrementType(String javaType, Column annotation) {
+	public String autoIncrementType(String javaType) {
 
 		if (int.class.getName().equals(javaType) || Integer.class.getName().equals(javaType)) {
 			return "INT auto_increment";

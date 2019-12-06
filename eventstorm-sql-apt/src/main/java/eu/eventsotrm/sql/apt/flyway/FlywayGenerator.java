@@ -11,6 +11,7 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;
 
+import eu.eventsotrm.sql.apt.Helper;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventsotrm.sql.apt.model.GlobalConfigurationDescriptor;
@@ -91,7 +92,7 @@ public class FlywayGenerator {
 
 	private void generate(ProcessingEnvironment env, PojoDescriptor descriptor, Flyway flyway, FlywayDialect fd, Database db) throws IOException {
 
-		List<Column> businessKeys = new ArrayList<>();
+		List<String> businessKeys = new ArrayList<>();
 
 		String filename = "V" + flyway.version() + "__" + flyway.description() + ".sql";
 
@@ -120,7 +121,7 @@ public class FlywayGenerator {
 
 	}
 
-	private void generateTable(PojoDescriptor descriptor, FlywayDialect fd, List<Column> businessKeys, Writer writer,
+	private void generateTable(PojoDescriptor descriptor, FlywayDialect fd, List<String> businessKeys, Writer writer,
 			Table table) throws IOException {
 		StringBuilder builder = new StringBuilder();
 		builder.append("CREATE TABLE ");
@@ -139,7 +140,7 @@ public class FlywayGenerator {
 
 			AutoIncrement autoIncrement = id.getter().getAnnotation(AutoIncrement.class);
 			if (autoIncrement != null) {
-				builder.append(fd.autoIncrementType(id.getter().getReturnType().toString(), id.getter().getAnnotation(Column.class)));
+				builder.append(fd.autoIncrementType(id.getter().getReturnType().toString()));
 			} else {
 				builder.append(fd.toSqlType(id.getter().getReturnType().toString(), id.getter().getAnnotation(Column.class)));
 			}
@@ -157,11 +158,13 @@ public class FlywayGenerator {
 
 		for (PojoPropertyDescriptor col : descriptor.properties()) {
 			builder.append("\n   ");
-			Column anno = col.getter().getAnnotation(Column.class);
-			builder.append(fd.wrap(anno.value()));
-			for (int i = anno.value().length() ; i < 24 ; i++) {
+			String columnName = Helper.getSqlColumnName(col);
+			builder.append(fd.wrap(columnName));
+			for (int i = columnName.length() ; i < 24 ; i++) {
 				builder.append(' ');
 			}
+			
+			Column anno = col.getter().getAnnotation(Column.class);
 			String type = fd.toSqlType(col.getter().getReturnType().toString(), anno);
 			builder.append(type);
 			for (int i = type.length() ; i < 16 ; i++) {
@@ -175,7 +178,7 @@ public class FlywayGenerator {
 
 			BusinessKey bk = col.getter().getAnnotation(BusinessKey.class);
 			if (bk != null) {
-				businessKeys.add(anno);
+				businessKeys.add(columnName);
 			}
 		}
 
@@ -203,7 +206,7 @@ public class FlywayGenerator {
 
 	
 
-	private void generateJoinTable(PojoDescriptor descriptor, FlywayDialect fd, List<Column> businessKeys, Writer writer,
+	private void generateJoinTable(PojoDescriptor descriptor, FlywayDialect fd, List<String> businessKeys, Writer writer,
 			JoinTable table) throws IOException {
 		StringBuilder builder = new StringBuilder();
 		builder.append("CREATE TABLE ");
@@ -232,17 +235,18 @@ public class FlywayGenerator {
 
 		for (PojoPropertyDescriptor col : descriptor.properties()) {
 			builder.append("\n   ");
-			Column anno = col.getter().getAnnotation(Column.class);
-			builder.append(fd.wrap(anno.value()));
-			for (int i = anno.value().length() ; i < 24 ; i++) {
+			
+			String columnName = Helper.getSqlColumnName(col);
+			builder.append(fd.wrap(columnName));
+			for (int i = columnName.length() ; i < 24 ; i++) {
 				builder.append(' ');
 			}
-			String type = fd.toSqlType(col.getter().getReturnType().toString(), anno);
+			String type = fd.toSqlType(col.getter().getReturnType().toString(), col.getter().getAnnotation(Column.class));
 			builder.append(type);
 			for (int i = type.length() ; i < 16 ; i++) {
 				builder.append(' ');
 			}
-			if (!anno.nullable()) {
+			if (!col.getter().getAnnotation(Column.class).nullable()) {
 				builder.append(" NOT NULL");
 			}
 
@@ -250,7 +254,7 @@ public class FlywayGenerator {
 
 			BusinessKey bk = col.getter().getAnnotation(BusinessKey.class);
 			if (bk != null) {
-				businessKeys.add(anno);
+				businessKeys.add(columnName);
 			}
 		}
 
@@ -286,7 +290,7 @@ public class FlywayGenerator {
 			writer.append(builder.toString());
 		}
 	}
-	private void generateUniqueIndex(Table table, List<Column> businessKeys, Writer writer) throws IOException {
+	private void generateUniqueIndex(Table table, List<String> businessKeys, Writer writer) throws IOException {
 
 		StringBuilder builder = new StringBuilder();
 		builder.append("CREATE INDEX ");
@@ -296,7 +300,7 @@ public class FlywayGenerator {
 		builder.append(table.value());
 		builder.append("(");
 		businessKeys.forEach(bk -> {
-			builder.append(bk.value()).append(',');
+			builder.append(bk).append(',');
 		});
 		builder.deleteCharAt(builder.length() - 1);
 		builder.append(");\n");

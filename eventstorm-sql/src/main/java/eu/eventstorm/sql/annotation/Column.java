@@ -16,7 +16,7 @@ public @interface Column {
     /**
      * Name of the column.
      */
-    String value();
+    String value() default "";
 
     /**
      * Optional, this column is nullable. (only if type is an object and not a primitive).

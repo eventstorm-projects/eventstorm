@@ -7,6 +7,7 @@ import java.io.Writer;
 import eu.eventsotrm.sql.apt.model.PojoDescriptor;
 import eu.eventsotrm.sql.apt.model.PojoPropertyDescriptor;
 import eu.eventstorm.sql.annotation.AutoIncrement;
+import eu.eventstorm.sql.annotation.Column;
 import eu.eventstorm.sql.type.Json;
 import eu.eventstorm.sql.type.Xml;
 
@@ -45,6 +46,16 @@ public final class Helper {
         writeNewLine(writer);
     }
 
+    public static String getSqlColumnName(PojoPropertyDescriptor ppd) {
+    	Column column = ppd.getter().getAnnotation(Column.class);
+    	if ("".equals(column.value())) {
+    		return ppd.name();
+    	} else {
+    		return column.value();
+    	}
+    	
+    }
+    
     public static String propertyName(String name) {
         StringBuilder builder = new StringBuilder(name.length());
         builder.append(Character.toLowerCase(name.charAt(0)));
