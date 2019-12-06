@@ -6,17 +6,17 @@ import eu.eventstorm.util.ToStringBuilder;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-final class IntegerAggreateId implements AggregateId {
+final class LongAggregateId implements AggregateId {
 
-	private final int id;
+	private final long id;
 
-	public IntegerAggreateId(int id) {
+	public LongAggregateId(long id) {
 		this.id = id;
 	}
 
 	@Override
 	public int hashCode() {
-		return id;
+		return (int) id;
 	}
 
 	@Override
@@ -24,18 +24,19 @@ final class IntegerAggreateId implements AggregateId {
 		if (this == obj) {
 			return true;
 		}
-		if ((obj == null) || getClass() != obj.getClass()) {
+		
+		if ((obj == null) || LongAggregateId.class  != obj.getClass()) {
 			return false;
 		}
 		
-		return this.id == ((IntegerAggreateId) obj).id;
+		return this.id == ((LongAggregateId) obj).id;
 	}
 
 	@Override
 	public String toString() {
 		return new ToStringBuilder(this, false).append("id", id).toString();
 	}
-
+	
 	@Override
 	public String toStringValue() {
 		return String.valueOf(id);

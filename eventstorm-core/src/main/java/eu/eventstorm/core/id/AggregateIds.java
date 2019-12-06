@@ -11,11 +11,11 @@ public final class AggregateIds {
 	}
 	
 	public static AggregateId from(int id) {
-		return new IntegerAggreateId(id);
+		return new IntegerAggregateId(id);
 	}
 
 	public static AggregateId from(String id) {
-		return new StringAggregadeId(id);
+		return new StringAggregateId(id);
 	}
 	
 }

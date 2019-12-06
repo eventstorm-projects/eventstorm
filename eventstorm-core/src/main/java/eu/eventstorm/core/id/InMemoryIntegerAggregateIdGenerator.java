@@ -13,7 +13,7 @@ final class InMemoryIntegerAggregateIdGenerator implements AggregateIdGenerator 
 
 	@Override
 	public AggregateId generate() {
-		return new IntegerAggreateId(counter.incrementAndGet());
+		return new IntegerAggregateId(counter.incrementAndGet());
 	}
 
 }

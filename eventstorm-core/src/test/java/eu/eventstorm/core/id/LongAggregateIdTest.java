@@ -17,15 +17,15 @@ import eu.eventstorm.core.AggregateId;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-class IntegerAggreateIdTest {
+class LongAggregateIdTest {
 
 	@Test
 	void testEquals() {
 		
-		AggregateId id1 = new IntegerAggreateId(123);
-		AggregateId id2 = new IntegerAggreateId(124);
-		AggregateId id3 = new IntegerAggreateId(123);
-		AggregateId id4 = new LongAggreateId(123l);
+		AggregateId id1 = new LongAggregateId(123l);
+		AggregateId id2 = new LongAggregateId(124l);
+		AggregateId id3 = new LongAggregateId(123l);
+		AggregateId id4 = new IntegerAggregateId(123);
 		
 		assertEquals(id1, id1);
 		assertEquals(id1, id3);
@@ -39,13 +39,14 @@ class IntegerAggreateIdTest {
 	void testHashCode() throws JSONException {
 		
 		Set<AggregateId> set = new HashSet<>();
-		set.add(new IntegerAggreateId(123));
+		set.add(new LongAggregateId(123l));
 		
-		assertTrue(set.contains(new IntegerAggreateId(123)));
-		assertFalse(set.contains(new IntegerAggreateId(124)));
-		assertFalse(set.contains(new LongAggreateId(125l)));
+		assertTrue(set.contains(new LongAggregateId(123l)));
+		assertFalse(set.contains(new LongAggregateId(124l)));
+		assertFalse(set.contains(new IntegerAggregateId(125)));
 		
+		JSONAssert.assertEquals("{id:123}", new LongAggregateId(123l).toString(), false);
 
-		JSONAssert.assertEquals("{id:123}", new IntegerAggreateId(123).toString(), false);
+		
 	}
 }

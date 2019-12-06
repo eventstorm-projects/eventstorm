@@ -13,7 +13,7 @@ final class InMemoryLongAggregateIdGenerator implements AggregateIdGenerator {
 
 	@Override
 	public AggregateId generate() {
-		return new LongAggreateId(counter.incrementAndGet());
+		return new LongAggregateId(counter.incrementAndGet());
 	}
 
 }
