@@ -11,11 +11,14 @@ import java.lang.annotation.Target;
  */
 @Target({TYPE})
 @Retention(RUNTIME)
-public @interface CqrsRestController {
+public @interface CqrsCommandRestController {
 
 	String name();
-	
-	String javaPackage();
+    
+    /**
+     * default the package name of the command + '.rest'
+     */
+	String javaPackage() default "";
 	
 	String uri();
 	

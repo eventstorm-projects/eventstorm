@@ -23,7 +23,7 @@ import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.core.annotation.CqrsCommand;
 import eu.eventstorm.core.annotation.CqrsEventPayload;
-import eu.eventstorm.core.annotation.CqrsRestController;
+import eu.eventstorm.core.annotation.CqrsCommandRestController;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -74,7 +74,7 @@ public class EventProcessor extends AbstractProcessor {
 		List<CommandDescriptor> descriptors = roundEnvironment.getElementsAnnotatedWith(CqrsCommand.class).stream().map(new CqrsCommandAnalyser())
 		        .collect(Collectors.toList());
 		
-		List<RestControllerDescriptor> restControllerDescriptors = roundEnvironment.getElementsAnnotatedWith(CqrsRestController.class).stream().map(new CqrsRestControllerAnalyser())
+		List<RestControllerDescriptor> restControllerDescriptors = roundEnvironment.getElementsAnnotatedWith(CqrsCommandRestController.class).stream().map(new CqrsRestControllerAnalyser())
 		        .collect(Collectors.toList());
 
 		List<EventDescriptor> eventDescriptors = roundEnvironment.getElementsAnnotatedWith(CqrsEventPayload.class).stream().map(new CqrsEventAnalyser())
