@@ -90,7 +90,11 @@ public final class SourceCode {
 		Map<String, List<T>> temp = new HashMap<>();
 
 		map.values().forEach(desc -> {
-			String pack = env.getElementUtils().getPackageOf(desc.element()).toString();
+            String pack = env.getElementUtils().getPackageOf(desc.element()).toString();
+            if (pack.startsWith("package")) {
+                // with eclipse compiler
+                pack = pack.substring(7).trim();
+            }
 			List<T> list = temp.get(pack);
 			if (list == null) {
 				list = new ArrayList<>();
