@@ -6,6 +6,7 @@ import eu.eventstorm.sql.annotation.Column;
 import eu.eventstorm.sql.annotation.PrimaryKey;
 import eu.eventstorm.sql.annotation.Sequence;
 import eu.eventstorm.sql.annotation.Table;
+import eu.eventstorm.sql.type.Json;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -38,5 +39,21 @@ interface DatabaseEvent {
 	int getRevision();
 	
 	void setRevision(int revision);
+
+	@Column(value = "payload_schema", length = 64)
+	String getPayloadSchema();
+
+	void setPayloadSchema(String schema);
+	
+	@Column(value = "payload_schema_version")
+	int getPayloadSchemaVersion();
+
+	void setPayloadSchemaVersion(int version);
+
+	
+	@Column(value = "payload")
+	Json getPayload();
+	
+	void setPayload(Json payload);
 	
 }

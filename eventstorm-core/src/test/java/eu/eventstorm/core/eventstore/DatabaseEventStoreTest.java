@@ -18,7 +18,9 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 import eu.eventstorm.core.EventStore;
-import eu.eventstorm.core.id.AggregateIds;
+import eu.eventstorm.core.ex001.event.UserCreatedEventPayload;
+import eu.eventstorm.core.ex001.gen.event.UserCreatedEventImpl;
+import eu.eventstorm.core.impl.EventPayloadSchemaRegistryBuilder;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Dialect;
 import eu.eventstorm.sql.impl.DatabaseImpl;
@@ -61,10 +63,14 @@ class DatabaseEventStoreTest {
 	@Test
 	void testAppend() {
 		
-		EventStore eventStore = new DatabaseEventStore(db);
+		EventPayloadSchemaRegistryBuilder builder = new EventPayloadSchemaRegistryBuilder();
+		builder.add(UserCreatedEventPayload.class, null, null);
 		
-		eventStore.appendToStream("user", from(1), null);
-		eventStore.appendToStream("user", from(1), null);
+		EventStore eventStore = new DatabaseEventStore(db, builder.build());
+		
+		
+		eventStore.appendToStream("user", from(1), new UserCreatedEventImpl("ja","gmail",39));
+		eventStore.appendToStream("user", from(1), new UserCreatedEventImpl("ja","gmail",39));
 		
 		
 		eventStore.readStream("user", from(1)).forEach(System.out::println);

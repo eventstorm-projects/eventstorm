@@ -15,7 +15,7 @@ import eu.eventstorm.core.EventStore;
 import eu.eventstorm.core.eventbus.InMemoryEventBus;
 import eu.eventstorm.core.eventstore.InMemoryEventStore;
 import eu.eventstorm.core.ex001.command.CreateUserCommand;
-import eu.eventstorm.core.ex001.event.UserCreatedEvent;
+import eu.eventstorm.core.ex001.event.UserCreatedEventPayload;
 import eu.eventstorm.core.ex001.gen.domain.UserDomainHandlerImpl;
 import eu.eventstorm.core.ex001.gen.impl.CreateUserCommandImpl;
 import eu.eventstorm.core.ex001.handler.CreateUserCommandHandler;
@@ -70,7 +70,7 @@ class Ex001Test {
 		assertEquals("user", event.type());
 		assertEquals(from(1), event.internal().getAggregateId());
 
-		UserCreatedEvent userCreatedEvent = UserCreatedEvent.class.cast(event.data());
+		UserCreatedEventPayload userCreatedEvent = UserCreatedEventPayload.class.cast(event.data());
 
 		assertEquals("Jacques", userCreatedEvent.getName());
 		assertEquals("jm@mail.org", userCreatedEvent.getEmail());

@@ -17,6 +17,9 @@ public @interface CqrsEventPayload {
 
     Class<? extends DomainModel> domain();
     
-    String key();
+    /**
+     * if not set -> use the FCQN of the Interface.
+     */
+    String type() default "";
     
 }

@@ -3,7 +3,7 @@ package eu.eventstorm.core.ex001.gen.domain;
 import eu.eventstorm.core.Event;
 import eu.eventstorm.core.EventListener;
 import eu.eventstorm.core.EventPayload;
-import eu.eventstorm.core.ex001.event.UserCreatedEvent;
+import eu.eventstorm.core.ex001.event.UserCreatedEventPayload;
 import eu.eventstorm.core.ex001.event.UserMailModifiedEvent;
 
 public abstract class UserDomainHandler implements EventListener {
@@ -17,7 +17,7 @@ public abstract class UserDomainHandler implements EventListener {
 	public void accept(Event event) {
 		Class<? extends EventPayload> clazz = event.data().getClass();
 
-		if (UserCreatedEvent.class.isAssignableFrom(clazz)) {
+		if (UserCreatedEventPayload.class.isAssignableFrom(clazz)) {
 			onUserCreatedEvent(event);
 		}
 

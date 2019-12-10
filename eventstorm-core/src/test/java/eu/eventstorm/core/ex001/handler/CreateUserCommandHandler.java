@@ -10,7 +10,7 @@ import eu.eventstorm.core.Event;
 import eu.eventstorm.core.EventPayload;
 import eu.eventstorm.core.EventStore;
 import eu.eventstorm.core.ex001.command.CreateUserCommand;
-import eu.eventstorm.core.ex001.event.UserCreatedEvent;
+import eu.eventstorm.core.ex001.event.UserCreatedEventPayload;
 import eu.eventstorm.core.ex001.gen.event.UserCreatedEventImpl;
 import eu.eventstorm.core.id.AggregateIdGenerator;
 import eu.eventstorm.core.impl.AbstractCommandHandler;
@@ -41,7 +41,7 @@ public final class CreateUserCommandHandler extends AbstractCommandHandler<Creat
 			LOGGER.debug("generate ({})", id);
 		}
 		
-		UserCreatedEvent eventData = new UserCreatedEventImpl(
+		UserCreatedEventPayload eventData = new UserCreatedEventImpl(
 				command.getName(),
 				command.getEmail(),
 				command.getAge()

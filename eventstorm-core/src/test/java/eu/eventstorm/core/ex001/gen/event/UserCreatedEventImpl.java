@@ -1,9 +1,9 @@
 package eu.eventstorm.core.ex001.gen.event;
 
-import eu.eventstorm.core.ex001.event.UserCreatedEvent;
+import eu.eventstorm.core.ex001.event.UserCreatedEventPayload;
 
 // Created + UserCommand + Event
-public final class UserCreatedEventImpl implements UserCreatedEvent {
+public final class UserCreatedEventImpl implements UserCreatedEventPayload {
 
 	private final String name;
 	private final String email;

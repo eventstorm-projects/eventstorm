@@ -12,11 +12,15 @@ import eu.eventstorm.core.EventstormExceptionType;
 public final class EventStoreException extends EventstormException {
 
 	public enum Type implements EventstormExceptionType {
-		STREAM_NOT_FOUND
+		STREAM_NOT_FOUND, FAILED_TO_SERILIAZE_PAYLOAD
 	}
 	
 	public EventStoreException(EventstormExceptionType type, ImmutableMap<String, Object> values) {
 		super(type, values);
+	}
+	
+	public EventStoreException(EventstormExceptionType type, ImmutableMap<String, Object> values, Exception cause) {
+		super(type, values, cause);
 	}
 
 }
