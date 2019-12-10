@@ -18,8 +18,8 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
-import eu.eventsotrm.core.apt.model.CommandDescriptor;
-import eu.eventsotrm.core.apt.model.CommandPropertyDescriptor;
+import eu.eventsotrm.core.apt.model.EventDescriptor;
+import eu.eventsotrm.core.apt.model.EventPropertyDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.core.json.DeserializerException;
@@ -28,17 +28,17 @@ import eu.eventstorm.core.json.jackson.ParserConsumer;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-final class CommandJacksonStdDeserializerGenerator {
+final class EventPayloadJacksonStdDeserializerGenerator {
 
 	private final Logger logger;
 
-	CommandJacksonStdDeserializerGenerator() {
-		logger = LoggerFactory.getInstance().getLogger(CommandJacksonStdDeserializerGenerator.class);
+	EventPayloadJacksonStdDeserializerGenerator() {
+		logger = LoggerFactory.getInstance().getLogger(EventPayloadJacksonStdDeserializerGenerator.class);
 	}
 
 	public void generate(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
 		// generate Implementation class;
-		sourceCode.forEachCommandPackage((pack, list) -> {
+		sourceCode.forEachEventPackage((pack, list) -> {
 			try {
 				generate(processingEnvironment, pack, list);
 			} catch (Exception cause) {
@@ -48,16 +48,16 @@ final class CommandJacksonStdDeserializerGenerator {
 
 	}
 
-	private void generate(ProcessingEnvironment env, String pack, ImmutableList<CommandDescriptor> descriptors) throws IOException {
+	private void generate(ProcessingEnvironment env, String pack, ImmutableList<EventDescriptor> descriptors) throws IOException {
 
-		for (CommandDescriptor cd : descriptors) {
-			JavaFileObject object = env.getFiler().createSourceFile(pack + ".json." + cd.simpleName() + "StdDeserializer");
+		for (EventDescriptor ed : descriptors) {
+			JavaFileObject object = env.getFiler().createSourceFile(pack + ".json." + ed.simpleName() + "StdDeserializer");
 			Writer writer = object.openWriter();
 
-			writeHeader(writer, pack + ".json", cd);
-			writeStatic(writer, cd);
-		    writeConstructor(writer, cd);
-			writeMethod(writer, cd);
+			writeHeader(writer, pack + ".json", ed);
+			writeStatic(writer, ed);
+		    writeConstructor(writer, ed);
+			writeMethod(writer, ed);
 
 			writer.write("}");
 			writer.close();
@@ -65,7 +65,7 @@ final class CommandJacksonStdDeserializerGenerator {
 
 	}
 
-	private static void writeHeader(Writer writer, String pack, CommandDescriptor descriptor) throws IOException {
+	private static void writeHeader(Writer writer, String pack, EventDescriptor descriptor) throws IOException {
 		writePackage(writer, pack);
 
 		writeNewLine(writer);
@@ -88,32 +88,32 @@ final class CommandJacksonStdDeserializerGenerator {
 		writeNewLine(writer);
 		writer.write("import " + descriptor.fullyQualidiedClassName() + ";");
 		writeNewLine(writer);
-		writer.write("import " + descriptor.fullyQualidiedClassName().substring(0, descriptor.fullyQualidiedClassName().lastIndexOf('.') + 1) + "CommandFactory" + ";");
+		writer.write("import " + descriptor.fullyQualidiedClassName() + "Builder;");
 		writeNewLine(writer);
-
-		writeGenerated(writer, CommandJacksonStdDeserializerGenerator.class.getName());
+		
+		writeGenerated(writer, EventPayloadJacksonStdDeserializerGenerator.class.getName());
 		writer.write("final class "+ descriptor.simpleName() +"StdDeserializer extends StdDeserializer<"+ descriptor.simpleName() +"> {");
 		writeNewLine(writer);
 	}
 
-	private void writeStatic(Writer writer, CommandDescriptor cd) throws IOException {
+	private void writeStatic(Writer writer, EventDescriptor ed) throws IOException {
 
 		writeNewLine(writer);
-		writer.write("    private static final ImmutableMap<String, ParserConsumer<" + cd.simpleName() + ">> FIELDS;");
+		writer.write("    private static final ImmutableMap<String, ParserConsumer<" + ed.simpleName() + "Builder>> FIELDS;");
 		writeNewLine(writer);
 		writer.write("    static {");
 		writeNewLine(writer);
-		writer.write("        FIELDS = ImmutableMap.<String, ParserConsumer<"+ cd.simpleName() + ">>builder()");
+		writer.write("        FIELDS = ImmutableMap.<String, ParserConsumer<"+ ed.simpleName() + "Builder>>builder()");
 		writeNewLine(writer);
-		for (CommandPropertyDescriptor cpd : cd.properties()) {
-		    writer.write("				.put(\"" + cpd.name() + "\", (parser, command) -> command." + cpd.setter().getSimpleName()+ "(parser.");
-			if ("java.lang.String".equals(cpd.getter().getReturnType().toString())) {
+		for (EventPropertyDescriptor epd : ed.properties()) {
+		    writer.write("				.put(\"" + epd.name() + "\", (parser, builder) -> builder." + epd.name() + "(parser.");
+			if ("java.lang.String".equals(epd.getter().getReturnType().toString())) {
 				writer.write("nextTextValue()");
-			} else if ("int".equals(cpd.getter().getReturnType().toString())) {
+			} else if ("int".equals(epd.getter().getReturnType().toString())) {
 				writer.write("nextIntValue(0)");
-			} else if ("int".equals(cpd.getter().getReturnType().toString())) {
+			} else if ("int".equals(epd.getter().getReturnType().toString())) {
 				writer.write("nextLongValue(0l)");
-			} else if (OffsetDateTime.class.getName().equals(cpd.getter().getReturnType().toString())) {
+			} else if (OffsetDateTime.class.getName().equals(epd.getter().getReturnType().toString())) {
 				writer.write("RFC3339TODO.nextTextValue()");
 			}
 			writer.write("))");
@@ -128,26 +128,26 @@ final class CommandJacksonStdDeserializerGenerator {
 	}
 
 	
-	private static void writeConstructor(Writer writer, CommandDescriptor descriptor) throws IOException {
+	private static void writeConstructor(Writer writer, EventDescriptor ed) throws IOException {
 		writeNewLine(writer);
-		writer.write("    " + descriptor.simpleName() +"StdDeserializer");
+		writer.write("    " + ed.simpleName() +"StdDeserializer");
 		writer.write("() {");
 		writeNewLine(writer);
-		writer.write("        super("+ descriptor.simpleName()+".class);");
+		writer.write("        super("+ ed.simpleName()+".class);");
 		writeNewLine(writer);
 		writer.write("    }");
 		writeNewLine(writer);
 	}
 
-	private void writeMethod(Writer writer, CommandDescriptor cd) throws IOException {
+	private void writeMethod(Writer writer, EventDescriptor ed) throws IOException {
 		writeNewLine(writer);
 		writer.write("    @Override");
 		writeNewLine(writer);
-		writer.write("    public " + cd.simpleName() + " deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {");
+		writer.write("    public " + ed.simpleName() + " deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {");
 
 
 		writeNewLine(writer);
-		writer.write("        " + cd.simpleName() + " command = CommandFactory.new" + cd.simpleName() + "();");
+		writer.write("        " + ed.simpleName() + "Builder builder = new " + ed.simpleName() + "Builder();");
 		
 		writeNewLine(writer);
 		writer.write("        if (JsonToken.START_OBJECT != p.currentToken()) {");
@@ -169,22 +169,22 @@ final class CommandJacksonStdDeserializerGenerator {
 		writeNewLine(writer);
 		writer.write("            }");
 		writeNewLine(writer);
-		writer.write("            ParserConsumer<" + cd.simpleName() + "> consumer = FIELDS.get(p.currentName());");
+		writer.write("            ParserConsumer<" + ed.simpleName() + "Builder> consumer = FIELDS.get(p.currentName());");
 		writeNewLine(writer);
 		writer.write("            if (consumer == null) {");
 		writeNewLine(writer);
-		writer.write("                throw new DeserializerException(DeserializerException.Type.FIELD_NOT_FOUND, ImmutableMap.of(\"field\",p.currentName(),\"command\", \""+ cd.simpleName()+"\"));");
+		writer.write("                throw new DeserializerException(DeserializerException.Type.FIELD_NOT_FOUND, ImmutableMap.of(\"field\",p.currentName(),\"eventPayload\", \""+ ed.simpleName()+"\"));");
 		writeNewLine(writer);
 		writer.write("            }");
 		writeNewLine(writer);
-		writer.write("            consumer.accept(p, command);");
+		writer.write("            consumer.accept(p, builder);");
 		writeNewLine(writer);
 		writer.write("            p.nextToken();");
 		writeNewLine(writer);
 		writer.write("        }");
 
 		writeNewLine(writer);
-		writer.write("        return command;");
+		writer.write("        return builder.build();");
 		writeNewLine(writer);
 		writer.write("     }");
 		writeNewLine(writer);

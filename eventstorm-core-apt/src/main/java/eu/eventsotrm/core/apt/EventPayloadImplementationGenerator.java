@@ -20,14 +20,14 @@ import eu.eventstorm.util.ToStringBuilder;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-final class EventImplementationGenerator {
+final class EventPayloadImplementationGenerator {
 
 	private static final String TO_STRING_BUILDER = ToStringBuilder.class.getName();
 
 	private final Logger logger;
 
-	EventImplementationGenerator() {
-		logger = LoggerFactory.getInstance().getLogger(EventImplementationGenerator.class);
+	EventPayloadImplementationGenerator() {
+		logger = LoggerFactory.getInstance().getLogger(EventPayloadImplementationGenerator.class);
 	}
 
     public void generate(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
@@ -59,7 +59,7 @@ final class EventImplementationGenerator {
     private static void writeHeader(Writer writer, ProcessingEnvironment env, EventDescriptor descriptor) throws IOException {
 
         writePackage(writer, env.getElementUtils().getPackageOf(descriptor.element()).toString());
-        writeGenerated(writer,EventImplementationGenerator.class.getName());
+        writeGenerated(writer,EventPayloadImplementationGenerator.class.getName());
 
         writer.write("final class ");
         writer.write(descriptor.simpleName() + "Impl");

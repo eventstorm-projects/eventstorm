@@ -1,4 +1,4 @@
-package eu.eventstorm.core.json.jackson;
+package eu.eventstorm.core.json;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -9,13 +9,13 @@ import eu.eventstorm.core.EventstormExceptionType;
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 @SuppressWarnings("serial")
-public final class CommandDeserializerException extends EventstormException {
+public final class DeserializerException extends EventstormException {
 
 	public enum Type implements EventstormExceptionType {
 		PARSE_ERROR, FIELD_NOT_FOUND
 	}
 	
-	public CommandDeserializerException(EventstormExceptionType type, ImmutableMap<String, Object> values) {
+	public DeserializerException(EventstormExceptionType type, ImmutableMap<String, Object> values) {
 		super(type, values);
 	}
 

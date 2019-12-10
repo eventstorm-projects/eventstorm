@@ -28,8 +28,8 @@ import eu.eventstorm.core.EventStore;
 import eu.eventstorm.core.ex001.event.UserCreatedEventPayload;
 import eu.eventstorm.core.ex001.gen.event.UserCreatedEventImpl;
 import eu.eventstorm.core.impl.EventPayloadSchemaRegistryBuilder;
+import eu.eventstorm.core.json.DeserializerException;
 import eu.eventstorm.core.json.Deserializer;
-import eu.eventstorm.core.json.jackson.CommandDeserializerException;
 import eu.eventstorm.core.json.jackson.ParserConsumer;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Dialect;
@@ -133,17 +133,17 @@ class DatabaseEventStoreTest {
 	    @Override
 	    public UserCreatedEventPayload deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
 	        if (JsonToken.START_OBJECT != p.currentToken()) {
-	            throw new CommandDeserializerException(CommandDeserializerException.Type.PARSE_ERROR, ImmutableMap.of("expected",JsonToken.START_OBJECT,"current", p.currentToken()));
+	            throw new DeserializerException(DeserializerException.Type.PARSE_ERROR, ImmutableMap.of("expected",JsonToken.START_OBJECT,"current", p.currentToken()));
 	        }
 	        UserCreatedEventPayloadBuilder builder = new UserCreatedEventPayloadBuilder();
 	        p.nextToken();
 	        while (p.currentToken() != JsonToken.END_OBJECT) {
 	            if (JsonToken.FIELD_NAME != p.currentToken()) {
-	                throw new CommandDeserializerException(CommandDeserializerException.Type.PARSE_ERROR, ImmutableMap.of("expected",JsonToken.FIELD_NAME,"current", p.currentToken()));
+	                throw new DeserializerException(DeserializerException.Type.PARSE_ERROR, ImmutableMap.of("expected",JsonToken.FIELD_NAME,"current", p.currentToken()));
 	            }
 	            ParserConsumer<UserCreatedEventPayloadBuilder> consumer = FIELDS.get(p.currentName());
 	            if (consumer == null) {
-	                throw new CommandDeserializerException(CommandDeserializerException.Type.FIELD_NOT_FOUND, ImmutableMap.of("field",p.currentName(),"command", "CreateMissionObjectCodeCommand"));
+	                throw new DeserializerException(DeserializerException.Type.FIELD_NOT_FOUND, ImmutableMap.of("field",p.currentName(),"command", "CreateMissionObjectCodeCommand"));
 	            }
 	            consumer.accept(p, builder);
 	            p.nextToken();

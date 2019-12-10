@@ -22,8 +22,8 @@ import eu.eventsotrm.core.apt.model.RestControllerDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.core.annotation.CqrsCommand;
-import eu.eventstorm.core.annotation.CqrsEventPayload;
 import eu.eventstorm.core.annotation.CqrsCommandRestController;
+import eu.eventstorm.core.annotation.CqrsEventPayload;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -90,8 +90,12 @@ public class EventProcessor extends AbstractProcessor {
 		new CommandJacksonStdDeserializerGenerator().generate(processingEnv, sourceCode);
 		new CommandJacksonModuleGenerator().generate(processingEnv, sourceCode);
 		
-		new EventImplementationGenerator().generate(this.processingEnv, sourceCode);
+		new EventPayloadImplementationGenerator().generate(this.processingEnv, sourceCode);
+		new EventPayloadBuilderGenerator().generate(this.processingEnv, sourceCode);
 		new EventPayloadFactoryGenerator().generate(this.processingEnv, sourceCode);
+		
+		new EventPayloadJacksonStdDeserializerGenerator().generate(this.processingEnv, sourceCode);
+		new EventPayloadJacksonModuleGenerator().generate(this.processingEnv, sourceCode);
 
 		new DomainModelHandlerImplementationGenerator().generate(this.processingEnv, sourceCode);
 		new RestControllerImplementationGenerator().generate(processingEnvironment, sourceCode);
