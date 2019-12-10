@@ -117,8 +117,8 @@ public final class DatabaseEventStore implements EventStore {
 		@Override
 		public Event map(Dialect dialect, ResultSet rs) throws SQLException {
 			byte[] payload = rs.getBytes(3);
-		//	EventPayload eventPayload = schemaRegistry.getDeserializer(rs.getString(4), rs.getInt(5)).deserialize(payload);
-			return Events.newEvent(aggregateId, aggregateType, ofInstant(rs.getTimestamp(1).toInstant(), ZONE_ID), rs.getInt(2), null);
+			EventPayload eventPayload = schemaRegistry.getDeserializer(rs.getString(4), rs.getInt(5)).deserialize(payload);
+			return Events.newEvent(aggregateId, aggregateType, ofInstant(rs.getTimestamp(1).toInstant(), ZONE_ID), rs.getInt(2), eventPayload);
 		}
 	}
 }

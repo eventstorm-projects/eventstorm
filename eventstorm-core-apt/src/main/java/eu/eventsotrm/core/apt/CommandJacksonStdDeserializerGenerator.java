@@ -106,7 +106,7 @@ final class CommandJacksonStdDeserializerGenerator {
 		writer.write("        FIELDS = ImmutableMap.<String, ParserConsumer<"+ cd.simpleName() + ">>builder()");
 		writeNewLine(writer);
 		for (CommandPropertyDescriptor cpd : cd.properties()) {
-			writer.write("				.put(\"" + cpd.name() + "\", (parser, command) -> command." + cpd.setter().getSimpleName()+ "(parser.");
+		    writer.write("				.put(\"" + cpd.name() + "\", (parser, command) -> command." + cpd.setter().getSimpleName()+ "(parser.");
 			if ("java.lang.String".equals(cpd.getter().getReturnType().toString())) {
 				writer.write("nextTextValue()");
 			} else if ("int".equals(cpd.getter().getReturnType().toString())) {

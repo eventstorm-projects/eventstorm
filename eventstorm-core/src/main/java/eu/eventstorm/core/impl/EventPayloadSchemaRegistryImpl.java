@@ -22,7 +22,7 @@ final class EventPayloadSchemaRegistryImpl implements EventPayloadSchemaRegistry
 	private static final Logger LOGGER = LoggerFactory.getLogger(EventPayloadSchemaRegistryImpl.class);
 	
 	private final ImmutableMap<String, EventPayloadDefinition<?>> registry;
-
+	
 	private final ConcurrentMap<String, String> cache;
 
 	public EventPayloadSchemaRegistryImpl(ImmutableMap<String, EventPayloadDefinition<?>> registry) {
@@ -57,7 +57,10 @@ final class EventPayloadSchemaRegistryImpl implements EventPayloadSchemaRegistry
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T extends EventPayload> Deserializer<T> getDeserializer(String schema, int schemaVersion) {
-		return (Deserializer<T>) this.registry.get("toto").getDeserializer();
+	    if (LOGGER.isDebugEnabled()) {
+	        LOGGER.debug("getDeserializer({},{})", schema, schemaVersion);
+	    }
+		return (Deserializer<T>) this.registry.get(schema).getDeserializer();
 	}
 
 	@Override

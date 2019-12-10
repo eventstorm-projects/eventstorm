@@ -21,12 +21,12 @@ import eu.eventsotrm.sql.apt.log.LoggerFactory;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-final class EventFactoryGenerator {
+final class EventPayloadFactoryGenerator {
 
 	private final Logger logger;
 
-	EventFactoryGenerator() {
-		logger = LoggerFactory.getInstance().getLogger(EventFactoryGenerator.class);
+	EventPayloadFactoryGenerator() {
+		logger = LoggerFactory.getInstance().getLogger(EventPayloadFactoryGenerator.class);
 	}
 
     public void generate(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
@@ -43,7 +43,7 @@ final class EventFactoryGenerator {
     }
 
     private void generate(ProcessingEnvironment env, String pack, ImmutableList<EventDescriptor> descriptors) throws IOException {
-        JavaFileObject object = env.getFiler().createSourceFile(pack + ".EventFactory");
+        JavaFileObject object = env.getFiler().createSourceFile(pack + ".EventPayloadFactory");
         Writer writer = object.openWriter();
 
         writeHeader(writer, pack, descriptors);
@@ -65,14 +65,14 @@ final class EventFactoryGenerator {
              writeNewLine(writer);
         }
         
-        writeGenerated(writer,EventFactoryGenerator.class.getName());
-        writer.write("public final class EventFactory {");
+        writeGenerated(writer,EventPayloadFactoryGenerator.class.getName());
+        writer.write("public final class EventPayloadFactory {");
         writeNewLine(writer);
     }
 
     private static void writeConstructor(Writer writer) throws IOException {
         writeNewLine(writer);
-        writer.write("    private EventFactory");
+        writer.write("    private EventPayloadFactory");
         writer.write("(){}");
         writeNewLine(writer);
     }

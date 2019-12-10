@@ -1,5 +1,6 @@
 package eu.eventsotrm.core.apt.model;
 
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
 
 import eu.eventstorm.core.annotation.CqrsCommand;
@@ -29,8 +30,19 @@ public class RestControllerDescriptor {
 		return restController;
 	}
 
-	public String getName() {
-		return restController.javaPackage() + '.' + restController.name();
+	public String getName(ProcessingEnvironment env) {
+	    String javaPackage = restController.javaPackage();
+	    
+	    if ("".equals(javaPackage)) {
+	        javaPackage = env.getElementUtils().getPackageOf(element).toString();
+	        if (javaPackage.startsWith("package")) {
+	            // with eclipse compiler
+	            javaPackage = javaPackage.substring(7).trim();
+	        }
+	        javaPackage += ".rest";
+	    }
+	    
+		return javaPackage + '.' + restController.name();
 	}
 
 }

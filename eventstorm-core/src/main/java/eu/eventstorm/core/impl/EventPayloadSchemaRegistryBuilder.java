@@ -12,6 +12,7 @@ import eu.eventstorm.core.annotation.CqrsEventPayload;
 import eu.eventstorm.core.impl.EventPayloadSchemaRegistryImpl.EventPayloadDefinition;
 import eu.eventstorm.core.json.Deserializer;
 import eu.eventstorm.core.json.Serializer;
+import eu.eventstorm.util.Strings;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -64,7 +65,12 @@ public final class EventPayloadSchemaRegistryBuilder {
 				// TODO trown exception
 			}
 			
-			this.schema = new EventPayloadSchemaImpl(cqrsEventPayload.type(), 1);	
+			String type = cqrsEventPayload.type();
+			if (Strings.isEmpty(type)) {
+			    type = eventPayLoadInterface.getName();
+			}
+			
+			this.schema = new EventPayloadSchemaImpl(type, 1);	
 			return this;
 		}
 		

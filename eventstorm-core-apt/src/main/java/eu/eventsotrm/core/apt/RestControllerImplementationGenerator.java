@@ -58,9 +58,19 @@ final class RestControllerImplementationGenerator {
 
 	}
 
-	private static void writeHeader(Writer writer, ProcessingEnvironment env, ImmutableList<RestControllerDescriptor> desc) throws IOException {
+	private void writeHeader(Writer writer, ProcessingEnvironment env, ImmutableList<RestControllerDescriptor> desc) throws IOException {
 
-		writePackage(writer, desc.get(0).getRestController().javaPackage());
+	    String javaPackage = desc.get(0).getRestController().javaPackage();
+	    if ("".equals(javaPackage)) {
+	        javaPackage = env.getElementUtils().getPackageOf(desc.get(0).element()).toString();
+	        if (javaPackage.startsWith("package")) {
+                // with eclipse compiler
+	            javaPackage = javaPackage.substring(7).trim();
+	            javaPackage+= ".rest";
+            }
+	    }
+	    
+		writePackage(writer, javaPackage);
 		writeNewLine(writer);
 
 		writer.write("import org.springframework.http.ResponseEntity;");

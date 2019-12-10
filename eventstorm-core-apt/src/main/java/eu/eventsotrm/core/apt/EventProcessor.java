@@ -91,7 +91,7 @@ public class EventProcessor extends AbstractProcessor {
 		new CommandJacksonModuleGenerator().generate(processingEnv, sourceCode);
 		
 		new EventImplementationGenerator().generate(this.processingEnv, sourceCode);
-		new EventFactoryGenerator().generate(this.processingEnv, sourceCode);
+		new EventPayloadFactoryGenerator().generate(this.processingEnv, sourceCode);
 
 		new DomainModelHandlerImplementationGenerator().generate(this.processingEnv, sourceCode);
 		new RestControllerImplementationGenerator().generate(processingEnvironment, sourceCode);
