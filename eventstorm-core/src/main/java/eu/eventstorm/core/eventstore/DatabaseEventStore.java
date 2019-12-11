@@ -22,7 +22,7 @@ import eu.eventstorm.core.EventPayload;
 import eu.eventstorm.core.EventPayloadSchema;
 import eu.eventstorm.core.EventPayloadSchemaRegistry;
 import eu.eventstorm.core.EventStore;
-import eu.eventstorm.core.impl.Events;
+import eu.eventstorm.core.impl.EventBuilder;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Dialect;
 import eu.eventstorm.sql.impl.Transaction;
@@ -99,7 +99,16 @@ public final class DatabaseEventStore implements EventStore {
 
 			transaction.commit();
 		}
-		return Events.newEvent(id, stream, time, 0, payload);
+		
+		// @formatter:off
+		return  new EventBuilder()
+					.aggregateId(id)
+					.aggreateType(stream)
+					.timestamp(time)
+					.version(1)
+					.payload(payload)
+					.build();
+		// @formatter:on
 	}
 
 	private static final ZoneId ZONE_ID = ZoneId.of("UTC");
@@ -118,7 +127,15 @@ public final class DatabaseEventStore implements EventStore {
 		public Event map(Dialect dialect, ResultSet rs) throws SQLException {
 			byte[] payload = rs.getBytes(3);
 			EventPayload eventPayload = schemaRegistry.getDeserializer(rs.getString(4), rs.getInt(5)).deserialize(payload);
-			return Events.newEvent(aggregateId, aggregateType, ofInstant(rs.getTimestamp(1).toInstant(), ZONE_ID), rs.getInt(2), eventPayload);
+			// @formatter:off
+			return new EventBuilder()
+						.aggregateId(aggregateId)
+						.aggreateType(aggregateType)
+						.timestamp(ofInstant(rs.getTimestamp(1).toInstant(), ZONE_ID))
+						.version(rs.getInt(2))
+						.payload(eventPayload)
+						.build();
+			// @formatter:on
 		}
 	}
 }

@@ -17,7 +17,7 @@ import eu.eventstorm.core.AggregateId;
 import eu.eventstorm.core.Event;
 import eu.eventstorm.core.EventPayload;
 import eu.eventstorm.core.EventStore;
-import eu.eventstorm.core.impl.Events;
+import eu.eventstorm.core.impl.EventBuilder;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -49,15 +49,22 @@ public final class InMemoryEventStore implements EventStore {
 	}
 
 	@Override
-	public Event appendToStream(String aggregateType, AggregateId id, EventPayload data) {
+	public Event appendToStream(String aggregateType, AggregateId id, EventPayload payload) {
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("store to [{}] with Id [{}] with data[{}]", aggregateType, id, data);
+			LOGGER.debug("store to [{}] with Id [{}] with data[{}]", aggregateType, id, payload);
 		}
 
-		Event event = Events.newEvent(id, aggregateType, OffsetDateTime.now(), 0, data);
-		
-		
+		// @formatter:off
+		Event event =  new EventBuilder()
+				.aggregateId(id)
+				.aggreateType(aggregateType)
+				.timestamp(OffsetDateTime.now())
+				.version(1)
+				.payload(payload)
+				.build();
+		// @formatter:on
+
 		this.allEvents.add(event);
 
 		this.map.computeIfAbsent(aggregateType, key -> new HashMap<>()).computeIfAbsent(id, key -> new ArrayList<>()).add(event);

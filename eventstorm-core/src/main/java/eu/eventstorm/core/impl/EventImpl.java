@@ -13,20 +13,27 @@ import eu.eventstorm.util.ToStringBuilder;
  */
 final class EventImpl implements Event, InternalEvent {
 
+	private final String specVersion;
+
 	private final AggregateId aggregateId;
 
 	private final String aggreateType;
+
+	private final OffsetDateTime timestamp;
+
+	private final String subject;
 
 	private final int version;
 
 	private final EventPayload payload;
 
-	private final OffsetDateTime timestamp;
-
-	public EventImpl(AggregateId aggregateId, String aggreateType, OffsetDateTime timestamp, int version, EventPayload payload) {
+	public EventImpl(String specVersion, AggregateId aggregateId, String aggreateType, OffsetDateTime timestamp, int version, String subject,
+	        EventPayload payload) {
+		this.specVersion = specVersion;
 		this.aggregateId = aggregateId;
 		this.aggreateType = aggreateType;
 		this.timestamp = timestamp;
+		this.subject = subject;
 		this.version = version;
 		this.payload = payload;
 	}
@@ -43,7 +50,7 @@ final class EventImpl implements Event, InternalEvent {
 
 	@Override
 	public String specVersion() {
-		return null;
+		return this.specVersion;
 	}
 
 	@Override
@@ -63,7 +70,7 @@ final class EventImpl implements Event, InternalEvent {
 
 	@Override
 	public String subject() {
-		return null;
+		return this.subject;
 	}
 
 	@Override
@@ -75,7 +82,7 @@ final class EventImpl implements Event, InternalEvent {
 	public EventPayload data() {
 		return this.payload;
 	}
-	
+
 	@Override
 	public AggregateId getAggregateId() {
 		return aggregateId;
@@ -83,8 +90,17 @@ final class EventImpl implements Event, InternalEvent {
 
 	@Override
 	public String toString() {
-		return new ToStringBuilder(true).append("aggregateId", aggregateId).append("aggreateType", aggreateType).append("version", version)
-		        .append("timestamp", timestamp).append("payload", payload).toString();
+		// @formatter:off
+		return new ToStringBuilder(true)
+				.append("specVersion", specVersion)
+				.append("aggregateId", aggregateId)
+				.append("aggreateType", aggreateType)
+				.append("version", version)
+		        .append("timestamp", timestamp)
+		        .append("subject", subject)
+		        .append("payload", payload)
+		        .toString();
+		// @formatter:on
 	}
 
 	@Override

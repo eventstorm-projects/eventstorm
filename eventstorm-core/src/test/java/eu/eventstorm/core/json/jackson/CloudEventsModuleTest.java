@@ -7,18 +7,15 @@ import java.time.OffsetDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.eventstorm.core.Event;
 import eu.eventstorm.core.EventPayload;
 import eu.eventstorm.core.id.AggregateIds;
-import eu.eventstorm.core.impl.Events;
+import eu.eventstorm.core.impl.EventBuilder;
 
 class CloudEventsModuleTest {
 
-	
 	private ObjectMapper objectMapper;
 	
 	@BeforeEach
@@ -33,7 +30,15 @@ class CloudEventsModuleTest {
 		Temp temp = new Temp();
 		temp.setKey("key01");
 		temp.setValue("valuz01");
-		Event event = Events.newEvent(AggregateIds.from(1), "test", OffsetDateTime.now(), 1, temp);
+		
+		
+		Event event = new EventBuilder()
+				.aggregateId(AggregateIds.from(1))
+				.aggreateType("test")
+				.timestamp(OffsetDateTime.now())
+				.version(1)
+				.payload(temp)
+				.build();
 		
 		StringWriter writer = new StringWriter();
 		objectMapper.writeValue(writer, event);

@@ -2,9 +2,11 @@ package eu.eventstorm.core.impl;
 
 import java.time.OffsetDateTime;
 
+
 import eu.eventstorm.core.AggregateId;
 import eu.eventstorm.core.Event;
 import eu.eventstorm.core.EventPayload;
+import eu.eventstorm.util.Strings;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -20,7 +22,10 @@ public final class EventBuilder {
     private OffsetDateTime timestamp;
 
     public Event build() {
-        return null;
+    	if (Strings.isEmpty(specVersion)) {
+    		this.specVersion = "1.0";
+    	}
+        return new EventImpl(specVersion, aggregateId, aggreateType, timestamp, version, subject, payload);
     }
 
     public EventBuilder specVersion(String specVersion) {
