@@ -3,12 +3,17 @@ package eu.eventstorm.core;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+
 import com.google.common.collect.ImmutableMap;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 public final class CommandHandlerRegistry {
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(CommandHandlerRegistry.class);
 
 	private final ImmutableMap<String, CommandHandler<? extends Command>> handlers;
 
@@ -33,6 +38,10 @@ public final class CommandHandlerRegistry {
 	}
 
 	private String buildCacheKey(Command command) {
+	    
+	    if (LOGGER.isDebugEnabled()) {
+	        LOGGER.debug("buildCacheKey({})", command);
+	    }
 
 		Class<? extends Command> c = command.getClass();
 
@@ -42,7 +51,14 @@ public final class CommandHandlerRegistry {
 			return key;
 		}
 
+		 if (LOGGER.isDebugEnabled()) {
+	            LOGGER.debug("buildCacheKey() -> check interfaces");
+	        }
+		 
 		for (Class<?> item : c.getInterfaces()) {
+		    if (LOGGER.isDebugEnabled()) {
+	            LOGGER.debug("buildCacheKey interface : [{}]", item);
+	        }
 			if (this.handlers.containsKey(item.getName())) {
 				return item.getName();
 			}

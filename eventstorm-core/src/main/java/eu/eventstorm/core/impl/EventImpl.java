@@ -80,22 +80,6 @@ final class EventImpl implements Event, InternalEvent {
 	public AggregateId getAggregateId() {
 		return aggregateId;
 	}
-//
-//	public String getAggreateType() {
-//		return aggreateType;
-//	}
-//
-//	public int getVersion() {
-//		return version;
-//	}
-//
-//	public T getEventData() {
-//		return eventData;
-//	}
-//
-//	public OffsetDateTime getTimestamp() {
-//		return timestamp;
-//	}
 
 	@Override
 	public String toString() {

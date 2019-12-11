@@ -56,7 +56,8 @@ public final class InMemoryEventStore implements EventStore {
 		}
 
 		Event event = Events.newEvent(id, aggregateType, OffsetDateTime.now(), 0, data);
-
+		
+		
 		this.allEvents.add(event);
 
 		this.map.computeIfAbsent(aggregateType, key -> new HashMap<>()).computeIfAbsent(id, key -> new ArrayList<>()).add(event);

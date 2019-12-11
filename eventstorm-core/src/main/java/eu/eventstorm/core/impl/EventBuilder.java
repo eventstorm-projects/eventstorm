@@ -1,16 +1,62 @@
 package eu.eventstorm.core.impl;
 
-import eu.eventstorm.core.Event;
+import java.time.OffsetDateTime;
 
+import eu.eventstorm.core.AggregateId;
+import eu.eventstorm.core.Event;
+import eu.eventstorm.core.EventPayload;
+
+/**
+ * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
+ */
 public final class EventBuilder {
 
-	public Event build() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    private String specVersion;
+    private AggregateId aggregateId;
+    private String aggreateType;
+    private String subject;
+    private int version;
+    private EventPayload payload;
+    private OffsetDateTime timestamp;
 
-	public EventBuilder setSpecVersion(String text) {
-		return this;
-	}
+    public Event build() {
+        return null;
+    }
 
+    public EventBuilder specVersion(String specVersion) {
+        this.specVersion = specVersion;
+        return this;
+    }
+    
+    public EventBuilder aggregateId(AggregateId aggregateId) {
+        this.aggregateId = aggregateId;
+        return this;
+    }
+    
+    public EventBuilder aggreateType(String aggreateType) {
+        this.aggreateType = aggreateType;
+        return this;
+    }
+    
+    public EventBuilder subject(String subject) {
+        this.subject = subject;
+        return this;
+    }
+    
+    public EventBuilder version(int version) {
+        this.version = version;
+        return this;
+    }
+    
+    public EventBuilder payload(EventPayload payload) {
+        this.payload = payload;
+        return this;
+    }
+    
+    public EventBuilder timestamp(OffsetDateTime timestamp) {
+        this.timestamp = timestamp;
+        return this;
+    }
+
+    
 }

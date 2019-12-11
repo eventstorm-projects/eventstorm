@@ -25,7 +25,7 @@ final class EventDeserializer extends StdDeserializer<Event> {
 		CONFIG = ImmutableMap.<String, BiConsumer<JsonParser, EventBuilder>>builder()
 			.put("specversion", (parser, builder) -> {
 				try {
-					builder.setSpecVersion(parser.getText());
+					builder.specVersion(parser.getText());
 				} catch (IOException cause) {
 					throw new EventDeserializerException(EventDeserializerException.Type.PARSE_ERROR, ImmutableMap.of("field","specversion"), cause);
 				}
