@@ -13,6 +13,10 @@ public final class AggregateIds {
 	public static AggregateId from(int id) {
 		return new IntegerAggregateId(id);
 	}
+	
+	public static AggregateId from(long id) {
+        return new LongAggregateId(id);
+    }
 
 	public static AggregateId from(String id) {
 		return new StringAggregateId(id);

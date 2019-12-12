@@ -19,13 +19,8 @@ class AbstractBuilder {
     }
 
     protected final String table(SqlTable table, boolean alias) {
-
-        if (database.isMonoSchema()) {
-            StringBuilder builder = new StringBuilder();
-            this.database.dialect().wrap(builder, table, alias);
-            return builder.toString();
-        }
-
-        return null;
+        StringBuilder builder = new StringBuilder();
+        this.database.dialect().wrap(builder, table, alias);
+        return builder.toString();
     }
 }

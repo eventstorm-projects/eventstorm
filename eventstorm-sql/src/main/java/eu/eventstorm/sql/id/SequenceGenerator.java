@@ -27,6 +27,10 @@ public abstract class SequenceGenerator<T> implements Identifier<T> {
 		this.database = database;
 		this.sequence = database.dialect().nextVal(sequence);
 	}
+	
+	public final Database getDatabase() {
+	    return this.database;
+	}
 
 	public final T next() {
 		try (TransactionQueryContext tqc = database.transactionManager().context().read(this.sequence)) {
@@ -60,7 +64,4 @@ public abstract class SequenceGenerator<T> implements Identifier<T> {
 
 	protected abstract T extractResult(ResultSet rs) throws SQLException;
 
-	protected String getSequenceAsSql() {
-		return this.sequence;
-	}
 }

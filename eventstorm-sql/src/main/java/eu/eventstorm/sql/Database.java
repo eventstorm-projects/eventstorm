@@ -13,8 +13,6 @@ public interface Database {
 
     TransactionManager transactionManager();
 
-    boolean isMonoSchema();
-
     Module getModule(SqlTable table);
     
     Module getModule(SqlSequence sequence);

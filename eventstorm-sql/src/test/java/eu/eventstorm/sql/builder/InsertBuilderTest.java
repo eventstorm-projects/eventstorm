@@ -34,7 +34,6 @@ class InsertBuilderTest {
     void testInsert() {
         database = mock(Database.class);
         Module module = mock(Module.class);
-        when(database.isMonoSchema()).thenReturn(true);
         when(database.dialect()).thenReturn(h2(database));
         when(database.getModule(TABLE_T1)).thenReturn(module);
 
@@ -47,7 +46,6 @@ class InsertBuilderTest {
         database = mock(Database.class);
         Module module = new Module("insert","to") {
         };
-        when(database.isMonoSchema()).thenReturn(true);
         when(database.dialect()).thenReturn(h2(database));
         when(database.getModule(TABLE_T1)).thenReturn(module);
 

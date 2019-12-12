@@ -46,7 +46,6 @@ class SelectBuilderTest {
     void before() {
         database = Mockito.mock(Database.class);
         Module module = mock(Module.class);
-        when(database.isMonoSchema()).thenReturn(true);
         when(database.dialect()).thenReturn(h2(database));
         when(database.getModule(TABLE_T1)).thenReturn(module);
         when(database.getModule(TABLE_T2)).thenReturn(module);

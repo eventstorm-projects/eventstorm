@@ -50,14 +50,14 @@ public final class DatabaseImpl implements Database {
     private final JsonMapper jsonMapper;
 
     public DatabaseImpl(Dialect.Name dialect, TransactionManager transactionManager, String defaultSchema, Module module, Module... modules) {
-    	this(dialect, transactionManager, new JacksonJsonMapper(), defaultSchema, module, modules);
+    	this(dialect, transactionManager, new JacksonJsonMapper(), defaultSchema, null, module, modules);
     }
     /**
      * @param dataSource    the {@link DataSource}
      * @param dialect
      * @param defaultSchema
      */
-    public DatabaseImpl(Dialect.Name dialect, TransactionManager transactionManager, JsonMapper jsonMapper, String defaultSchema, Module module, Module... modules) {
+    public DatabaseImpl(Dialect.Name dialect, TransactionManager transactionManager, JsonMapper jsonMapper, String defaultSchema, DatabaseExternalDefintion ded, Module module, Module... modules) {
         this.dialect = Dialects.dialect(dialect, this);
         this.transactionManager = transactionManager;
         this.jsonMapper = jsonMapper;
@@ -79,6 +79,14 @@ public final class DatabaseImpl implements Database {
             	}
             });
         }
+        
+        if (ded != null) {
+            ded.forEachSequence( (m, sequence) -> {
+                LOGGER.info("add External sequence [{}] to Module [{}]", sequence, module);
+                builderSequences.put(sequence, m);
+            });
+        }
+        
         tables = builder.build();
         sequences = builderSequences.build();
 
@@ -99,14 +107,6 @@ public final class DatabaseImpl implements Database {
     @Override
     public TransactionManager transactionManager() {
         return this.transactionManager;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isMonoSchema() {
-        return true;
     }
 
     /**
