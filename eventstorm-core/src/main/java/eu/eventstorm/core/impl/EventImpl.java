@@ -5,82 +5,29 @@ import java.time.OffsetDateTime;
 import eu.eventstorm.core.AggregateId;
 import eu.eventstorm.core.Event;
 import eu.eventstorm.core.EventPayload;
-import eu.eventstorm.core.InternalEvent;
 import eu.eventstorm.util.ToStringBuilder;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-final class EventImpl implements Event, InternalEvent {
-
-	private final String specVersion;
+final class EventImpl<T extends EventPayload> implements Event<T> {
 
 	private final AggregateId aggregateId;
 
-	private final String aggreateType;
+	private final String aggregateType;
 
 	private final OffsetDateTime timestamp;
 
-	private final String subject;
+	private final int revision;
 
-	private final int version;
+	private final T payload;
 
-	private final EventPayload payload;
-
-	public EventImpl(String specVersion, AggregateId aggregateId, String aggreateType, OffsetDateTime timestamp, int version, String subject,
-	        EventPayload payload) {
-		this.specVersion = specVersion;
+	public EventImpl(AggregateId aggregateId, String aggregateType, OffsetDateTime timestamp, int revision, T payload) {
 		this.aggregateId = aggregateId;
-		this.aggreateType = aggreateType;
+		this.aggregateType = aggregateType;
 		this.timestamp = timestamp;
-		this.subject = subject;
-		this.version = version;
 		this.payload = payload;
-	}
-
-	@Override
-	public String id() {
-		return this.aggregateId.toStringValue();
-	}
-
-	@Override
-	public String source() {
-		return null;
-	}
-
-	@Override
-	public String specVersion() {
-		return this.specVersion;
-	}
-
-	@Override
-	public String type() {
-		return this.aggreateType;
-	}
-
-	@Override
-	public String dataContentType() {
-		return null;
-	}
-
-	@Override
-	public String dataSchema() {
-		return null;
-	}
-
-	@Override
-	public String subject() {
-		return this.subject;
-	}
-
-	@Override
-	public OffsetDateTime time() {
-		return this.timestamp;
-	}
-
-	@Override
-	public EventPayload data() {
-		return this.payload;
+		this.revision = revision;
 	}
 
 	@Override
@@ -89,23 +36,33 @@ final class EventImpl implements Event, InternalEvent {
 	}
 
 	@Override
-	public String toString() {
-		// @formatter:off
-		return new ToStringBuilder(true)
-				.append("specVersion", specVersion)
-				.append("aggregateId", aggregateId)
-				.append("aggreateType", aggreateType)
-				.append("version", version)
-		        .append("timestamp", timestamp)
-		        .append("subject", subject)
-		        .append("payload", payload)
-		        .toString();
-		// @formatter:on
+	public String getAggregateType() {
+		return this.aggregateType;
 	}
 
 	@Override
-	public InternalEvent internal() {
-		return this;
+	public T getPayload() {
+		return this.payload;
 	}
 
+	public OffsetDateTime getTimestamp() {
+		return timestamp;
+	}
+
+	public int getRevision() {
+		return revision;
+	}
+
+	@Override
+	public String toString() {
+		// @formatter:off
+		return new ToStringBuilder(true)
+				.append("aggregateId", aggregateId)
+				.append("aggreateType", aggregateType)
+				.append("revision", revision)
+		        .append("timestamp", timestamp)
+		        .append("payload", payload)
+		        .toString();
+		// @formatter:on
+	}	
 }

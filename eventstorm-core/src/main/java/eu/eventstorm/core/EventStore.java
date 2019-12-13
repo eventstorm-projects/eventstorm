@@ -7,8 +7,8 @@ import java.util.stream.Stream;
  */
 public interface EventStore {
 
-	Stream<Event> readStream(String stream, AggregateId aggregateId);
+	Stream<Event<? extends EventPayload>> readStream(String aggregateType, AggregateId aggregateId);
 
-	Event appendToStream(String stream, AggregateId id, EventPayload payload);
+	<T extends EventPayload> Event<T> appendToStream(String aggregateType, AggregateId id, T payload);
 
 }

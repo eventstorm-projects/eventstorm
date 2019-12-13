@@ -9,29 +9,28 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableMap;
 
 import eu.eventstorm.core.EventPayload;
-import eu.eventstorm.core.EventPayloadSchema;
-import eu.eventstorm.core.EventPayloadSchemaRegistry;
+import eu.eventstorm.core.EventPayloadRegistry;
 import eu.eventstorm.core.json.Deserializer;
 import eu.eventstorm.core.json.Serializer;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-final class EventPayloadSchemaRegistryImpl implements EventPayloadSchemaRegistry {
+final class EventPayloadRegistryImpl implements EventPayloadRegistry {
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(EventPayloadSchemaRegistryImpl.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(EventPayloadRegistryImpl.class);
 	
 	private final ImmutableMap<String, EventPayloadDefinition<?>> registry;
 	
 	private final ConcurrentMap<String, String> cache;
 
-	public EventPayloadSchemaRegistryImpl(ImmutableMap<String, EventPayloadDefinition<?>> registry) {
+	public EventPayloadRegistryImpl(ImmutableMap<String, EventPayloadDefinition<?>> registry) {
 		this.registry = registry;
 		this.cache = new ConcurrentHashMap<>();
 	}
 
 	@Override
-	public EventPayloadSchema getSchema(EventPayload payload) {
+	public String getPayloadType(EventPayload payload) {
 		
 		String cacheKey = cache.get(payload.getClass().getName());
 
@@ -49,22 +48,22 @@ final class EventPayloadSchemaRegistryImpl implements EventPayloadSchemaRegistry
 			// TODO THROWS eception
 		}
 		
-		return this.registry.get(cacheKey).getSchema();
+		return this.registry.get(cacheKey).getPayloadType();
 		
 	}
 
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T extends EventPayload> Deserializer<T> getDeserializer(String schema, int schemaVersion) {
+	public <T extends EventPayload> Deserializer<T> getDeserializer(String payloadType) {
 	    if (LOGGER.isDebugEnabled()) {
-	        LOGGER.debug("getDeserializer({},{})", schema, schemaVersion);
+	        LOGGER.debug("getDeserializer({})", payloadType);
 	    }
-		return (Deserializer<T>) this.registry.get(schema).getDeserializer();
+		return (Deserializer<T>) this.registry.get(payloadType).getDeserializer();
 	}
 
 	@Override
-	public Serializer<EventPayload> getSerializer(String schema, int schemaVersion) {
+	public Serializer<EventPayload> getSerializer(String payloadType) {
 		return null;
 	}
 
@@ -92,16 +91,16 @@ final class EventPayloadSchemaRegistryImpl implements EventPayloadSchemaRegistry
 
 		private final Serializer<T> serializer;
 		private final Deserializer<T> deserializer;
-		private final EventPayloadSchema schema;
+		private final String payloadType;
 		
-		public EventPayloadDefinition(EventPayloadSchema schema, Serializer<T> serializer, Deserializer<T> deserializer) {
+		public EventPayloadDefinition(String payloadType, Serializer<T> serializer, Deserializer<T> deserializer) {
 			this.serializer = serializer;
 			this.deserializer = deserializer;
-			this.schema = schema;
+			this.payloadType = payloadType;
 		}
 
-		public EventPayloadSchema getSchema() {
-			return this.schema;
+		public String getPayloadType() {
+			return this.payloadType;
 		}
 
 		public Serializer<T> getSerializer() {
@@ -113,4 +112,8 @@ final class EventPayloadSchemaRegistryImpl implements EventPayloadSchemaRegistry
 		}
 		
 	}
+
+
+
+
 }

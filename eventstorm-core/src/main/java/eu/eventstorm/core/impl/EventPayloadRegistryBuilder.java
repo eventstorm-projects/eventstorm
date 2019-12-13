@@ -1,35 +1,39 @@
 package eu.eventstorm.core.impl;
 
+import static com.google.common.collect.ImmutableMap.of;
+import static eu.eventstorm.core.impl.EventPayloadRegistryBuilderException.Type.MISSING_ANNOTATION_CQRS_EVENTPAYLOAD;
+import static eu.eventstorm.core.impl.EventPayloadRegistryBuilderException.Type.NOT_INTERFACE;
+import static eu.eventstorm.core.impl.EventPayloadRegistryBuilderException.Type.DUPLICATE_TYPE;
+
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
 
 import eu.eventstorm.core.EventPayload;
-import eu.eventstorm.core.EventPayloadSchema;
-import eu.eventstorm.core.EventPayloadSchemaRegistry;
+import eu.eventstorm.core.EventPayloadRegistry;
 import eu.eventstorm.core.annotation.CqrsEventPayload;
-import eu.eventstorm.core.impl.EventPayloadSchemaRegistryImpl.EventPayloadDefinition;
+import eu.eventstorm.core.impl.EventPayloadRegistryImpl.EventPayloadDefinition;
 import eu.eventstorm.core.json.Deserializer;
 import eu.eventstorm.core.json.Serializer;
 import eu.eventstorm.util.Strings;
-
-import static com.google.common.collect.ImmutableMap.of;
-import static eu.eventstorm.core.impl.EventPayloadSchemaRegistryBuilderException.Type.NOT_INTERFACE;
-import static eu.eventstorm.core.impl.EventPayloadSchemaRegistryBuilderException.Type.MISSING_ANNOTATION_CQRS_EVENTPAYLOAD;
 
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-public final class EventPayloadSchemaRegistryBuilder {
+public final class EventPayloadRegistryBuilder {
 
 	private final Map<String, EventPayloadDefinitionBuilder<?>> map = new HashMap<>();
+	
+	private final Set<String> allTypes = new HashSet<>();
 
-	public EventPayloadSchemaRegistry build() {
+	public EventPayloadRegistry build() {
 		ImmutableMap.Builder<String, EventPayloadDefinition<?>> builder = ImmutableMap.builder();
 		map.forEach((key, definition) -> builder.put(key, definition.build()));
-		return new EventPayloadSchemaRegistryImpl(builder.build());
+		return new EventPayloadRegistryImpl(builder.build());
 	}
 
 	public <T extends EventPayload> void add(Class<T> eventPayLoadInterface, Serializer<T> serializer, Deserializer<T> deserializer) {
@@ -39,11 +43,11 @@ public final class EventPayloadSchemaRegistryBuilder {
 
 	}
 
-	static final class EventPayloadDefinitionBuilder<T extends EventPayload> {
+	final class EventPayloadDefinitionBuilder<T extends EventPayload> {
 
 		private Serializer<T> serializer;
 		private Deserializer<T> deserializer;
-		private EventPayloadSchema schema;
+		private String payloadType;
 
 		public EventPayloadDefinitionBuilder<T> serializer(Serializer<T> serializer) {
 			this.serializer = serializer;
@@ -58,13 +62,13 @@ public final class EventPayloadSchemaRegistryBuilder {
 		public EventPayloadDefinitionBuilder<T> eventPayloadInterface(Class<T> eventPayLoadInterface) {
 
 			if (!eventPayLoadInterface.isInterface()) {
-				throw new EventPayloadSchemaRegistryBuilderException(NOT_INTERFACE, of("class", eventPayLoadInterface));
+				throw new EventPayloadRegistryBuilderException(NOT_INTERFACE, of("class", eventPayLoadInterface));
 			}
 
 			CqrsEventPayload cqrsEventPayload = eventPayLoadInterface.getAnnotation(CqrsEventPayload.class);
 
 			if (cqrsEventPayload == null) {
-				throw new EventPayloadSchemaRegistryBuilderException(MISSING_ANNOTATION_CQRS_EVENTPAYLOAD, of("class", eventPayLoadInterface));
+				throw new EventPayloadRegistryBuilderException(MISSING_ANNOTATION_CQRS_EVENTPAYLOAD, of("class", eventPayLoadInterface));
 			}
 
 			String type = cqrsEventPayload.type();
@@ -73,12 +77,16 @@ public final class EventPayloadSchemaRegistryBuilder {
 				type = eventPayLoadInterface.getName();
 			}
 
-			this.schema = new EventPayloadSchemaImpl(type, 1);
+			if (allTypes.contains(type)) {
+				throw new EventPayloadRegistryBuilderException(DUPLICATE_TYPE, of("type", type, "interface", eventPayLoadInterface));
+			}
+			
+			this.payloadType = type;
 			return this;
 		}
 
 		public EventPayloadDefinition<T> build() {
-			return new EventPayloadDefinition<T>(schema, serializer, deserializer);
+			return new EventPayloadDefinition<T>(payloadType, serializer, deserializer);
 		}
 	}
 

@@ -10,37 +10,37 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.collect.ImmutableMap;
 
-import eu.eventstorm.core.Event;
-import eu.eventstorm.core.impl.EventBuilder;
+import eu.eventstorm.core.cloudevent.CloudEvent;
+import eu.eventstorm.core.cloudevent.CloudEventBuilder;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 @SuppressWarnings({ "serial" })
-final class EventDeserializer extends StdDeserializer<Event> {
+final class CloudEventDeserializer extends StdDeserializer<CloudEvent> {
 
-	private static final ImmutableMap<String, BiConsumer<JsonParser, EventBuilder>> CONFIG;
+	private static final ImmutableMap<String, BiConsumer<JsonParser, CloudEventBuilder>> CONFIG;
 	
 	static {
-		CONFIG = ImmutableMap.<String, BiConsumer<JsonParser, EventBuilder>>builder()
+		CONFIG = ImmutableMap.<String, BiConsumer<JsonParser, CloudEventBuilder>>builder()
 			.put("specversion", (parser, builder) -> {
 				try {
 					builder.specVersion(parser.getText());
 				} catch (IOException cause) {
-					throw new EventDeserializerException(EventDeserializerException.Type.PARSE_ERROR, ImmutableMap.of("field","specversion"), cause);
+					throw new CloudEventDeserializerException(CloudEventDeserializerException.Type.PARSE_ERROR, ImmutableMap.of("field","specversion"), cause);
 				}
 			})
 			.build();
 	}
 	
-	EventDeserializer() {
-		super(Event.class);
+	CloudEventDeserializer() {
+		super(CloudEvent.class);
 	}
 
 	@Override
-	public Event deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+	public CloudEvent deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
 
-		EventBuilder builder = new EventBuilder();
+		CloudEventBuilder builder = new CloudEventBuilder();
 		 JsonToken t = p.getCurrentToken();
 		 
 		 if (t == JsonToken.START_OBJECT) {
@@ -54,7 +54,7 @@ final class EventDeserializer extends StdDeserializer<Event> {
 			 
 			 String fieldName = p.getText();
 			 
-			 BiConsumer<JsonParser, EventBuilder> consumer = CONFIG.get(fieldName);
+			 BiConsumer<JsonParser, CloudEventBuilder> consumer = CONFIG.get(fieldName);
 			 
 			 consumer.accept(p, builder);
 			 

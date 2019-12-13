@@ -67,10 +67,10 @@ class Ex001Test {
 		assertEquals(1, eventStore.readStream("user", from(1)).count());
 		Event event = eventStore.readStream("user", from(1)).findFirst().get();
 
-		assertEquals("user", event.type());
-		assertEquals(from(1), event.internal().getAggregateId());
+		assertEquals("user", event.getAggregateType());
+		assertEquals(from(1), event.getAggregateId());
 
-		UserCreatedEventPayload userCreatedEvent = UserCreatedEventPayload.class.cast(event.data());
+		UserCreatedEventPayload userCreatedEvent = UserCreatedEventPayload.class.cast(event.getPayload());
 
 		assertEquals("Jacques", userCreatedEvent.getName());
 		assertEquals("jm@mail.org", userCreatedEvent.getEmail());

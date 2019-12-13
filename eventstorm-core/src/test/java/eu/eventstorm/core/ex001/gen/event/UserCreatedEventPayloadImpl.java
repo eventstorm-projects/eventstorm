@@ -3,13 +3,13 @@ package eu.eventstorm.core.ex001.gen.event;
 import eu.eventstorm.core.ex001.event.UserCreatedEventPayload;
 
 // Created + UserCommand + Event
-public final class UserCreatedEventImpl implements UserCreatedEventPayload {
+public final class UserCreatedEventPayloadImpl implements UserCreatedEventPayload {
 
 	private final String name;
 	private final String email;
 	private final int age;
 
-	public UserCreatedEventImpl(String name, String email, int age) {
+	public UserCreatedEventPayloadImpl(String name, String email, int age) {
 		this.name = name;
 		this.email = email;
 		this.age = age;

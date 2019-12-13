@@ -41,7 +41,7 @@ final class DomainModelHandlerImplementationGenerator {
 
 		sourceCode.forEachEvent(event -> {
 			CqrsEventPayload eventData = event.element().getAnnotation(CqrsEventPayload.class);
-			
+
 			DeclaredType domainModel = getDomain(eventData);
 			List<EventDescriptor> descs = map.get(domainModel);
 			if (descs == null) {
@@ -69,17 +69,16 @@ final class DomainModelHandlerImplementationGenerator {
 			writeHeader(writer, env, domainModel, events);
 			// writeConstructor(writer, descriptor);
 			// writeVariables(writer, descriptor);
-		    writeMethods(writer, events);
+			writeMethods(writer, events);
 			writer.write("}");
 		}
 
 	}
 
-	private static void writeHeader(Writer writer, ProcessingEnvironment env, DeclaredType domainModel, List<EventDescriptor> events)
-	        throws IOException {
+	private static void writeHeader(Writer writer, ProcessingEnvironment env, DeclaredType domainModel, List<EventDescriptor> events) throws IOException {
 
 		writePackage(writer, env.getElementUtils().getPackageOf(domainModel.asElement()).toString());
-		
+
 		writer.write("import ");
 		writer.write(Event.class.getName());
 		writer.write(";");
@@ -91,14 +90,14 @@ final class DomainModelHandlerImplementationGenerator {
 		writer.write("import ");
 		writer.write(EventListener.class.getName());
 		writer.write(";");
-	    writeNewLine(writer);
-	    for (EventDescriptor ed : events) {
-	    	writer.write("import ");
-	    	writer.write(ed.fullyQualidiedClassName());
-		    writer.write(";");
-		    writeNewLine(writer);
-	    }
-	        
+		writeNewLine(writer);
+		for (EventDescriptor ed : events) {
+			writer.write("import ");
+			writer.write(ed.fullyQualidiedClassName());
+			writer.write(";");
+			writeNewLine(writer);
+		}
+
 		writeGenerated(writer, DomainModelHandlerImplementationGenerator.class.getName());
 
 		writer.write("public abstract class ");
@@ -108,29 +107,28 @@ final class DomainModelHandlerImplementationGenerator {
 		writer.write(" {");
 		writeNewLine(writer);
 	}
-	
+
 	private static void writeMethods(Writer writer, List<EventDescriptor> events) throws IOException {
 		writeNewLine(writer);
 		writer.write("    @SuppressWarnings(\"unchecked\")");
 		writeNewLine(writer);
-		writer.write("    public final void accept(Event event) {");
+		writer.write("    public final void accept(Event<? extends EventPayload> event) {");
 		writeNewLine(writer);
-		
-		
+
 		writeNewLine(writer);
-		writer.write("        Class<?> clazz = event.data().getClass();");
+		writer.write("        Class<?> clazz = event.getPayload().getClass();");
 		writeNewLine(writer);
 		writeNewLine(writer);
-		
+
 		for (EventDescriptor event : events) {
-			
+
 			writer.write("        if (");
 			writer.write(event.simpleName());
 			writer.write(".class.isAssignableFrom(clazz)) {");
 			writeNewLine(writer);
 			writer.write("            on");
 			writer.write(event.simpleName());
-			writer.write("(event);");
+			writer.write("((Event<" + event.simpleName() + ">) event);");
 			writeNewLine(writer);
 			writer.write("            return;");
 			writeNewLine(writer);
@@ -140,33 +138,31 @@ final class DomainModelHandlerImplementationGenerator {
 		writer.write("    }");
 		writeNewLine(writer);
 		writeNewLine(writer);
-		
-		
+
 		for (EventDescriptor event : events) {
-			
+
 			writer.write("    protected abstract void on");
 			writer.write(event.simpleName());
-			writer.write("(Event event); ");
+			writer.write("(Event<" + event.simpleName() + "> event); ");
 
 			writeNewLine(writer);
 			writeNewLine(writer);
 		}
-		
+
 	}
-	
+
 	private static String getName(String value) {
-		
+
 		if (value.endsWith("DomainModel")) {
 			return value + "Handler";
 		}
-		
+
 		if (value.endsWith("Domain")) {
 			return value + "ModelHandler";
 		}
-		
+
 		return value + "DomainModelHandler";
 	}
-	
 
 	private static DeclaredType getDomain(CqrsEventPayload eventData) {
 		try {

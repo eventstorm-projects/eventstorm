@@ -23,7 +23,7 @@ import eu.eventsotrm.core.apt.model.EventPropertyDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.core.json.DeserializerException;
-import eu.eventstorm.core.json.jackson.ParserConsumer;
+import eu.eventstorm.core.json.ParserConsumer;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>

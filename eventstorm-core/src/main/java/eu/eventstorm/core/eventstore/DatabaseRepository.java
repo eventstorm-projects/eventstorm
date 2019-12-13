@@ -3,11 +3,10 @@ package eu.eventstorm.core.eventstore;
 import static eu.eventstorm.core.eventstore.DatabaseEventDescriptor.AGGREGATE_ID;
 import static eu.eventstorm.core.eventstore.DatabaseEventDescriptor.AGGREGATE_TYPE;
 import static eu.eventstorm.core.eventstore.DatabaseEventDescriptor.ALL;
-import static eu.eventstorm.core.eventstore.DatabaseEventDescriptor.PAYLOAD_SCHEMA;
-import static eu.eventstorm.core.eventstore.DatabaseEventDescriptor.PAYLOAD_SCHEMA_VERSION;
 import static eu.eventstorm.core.eventstore.DatabaseEventDescriptor.TABLE;
 import static eu.eventstorm.core.eventstore.DatabaseEventDescriptor.REVISION;
 import static eu.eventstorm.core.eventstore.DatabaseEventDescriptor.PAYLOAD;
+import static eu.eventstorm.core.eventstore.DatabaseEventDescriptor.PAYLOAD_TYPE;
 import static eu.eventstorm.core.eventstore.DatabaseEventDescriptor.TIME;
 import static eu.eventstorm.sql.builder.Order.desc;
 import static eu.eventstorm.sql.builder.Order.asc;
@@ -31,7 +30,7 @@ final class DatabaseRepository extends AbstractDatabaseEventRepository {
 		super(database);
 		this.findByAggreateTypeAndAggregateIdLock = select(ALL).from(TABLE).where(and(eq(AGGREGATE_TYPE), eq(AGGREGATE_ID))).orderBy(desc(REVISION)).forUpdate()
 		        .build();
-		this.findByAggreateTypeAndAggregateId = select(TIME, REVISION, PAYLOAD,PAYLOAD_SCHEMA, PAYLOAD_SCHEMA_VERSION).from(TABLE).where(and(eq(AGGREGATE_TYPE), eq(AGGREGATE_ID))).orderBy(asc(REVISION))
+		this.findByAggreateTypeAndAggregateId = select(TIME, REVISION, PAYLOAD, PAYLOAD_TYPE).from(TABLE).where(and(eq(AGGREGATE_TYPE), eq(AGGREGATE_ID))).orderBy(asc(REVISION))
 		        .build();
 	}
 

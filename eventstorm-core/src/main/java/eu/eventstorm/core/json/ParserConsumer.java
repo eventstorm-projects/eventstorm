@@ -1,4 +1,4 @@
-package eu.eventstorm.core.json.jackson;
+package eu.eventstorm.core.json;
 
 import java.io.IOException;
 

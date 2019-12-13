@@ -19,7 +19,7 @@ public class UpdateUserMailCommandHandler extends AbstractCommandHandler<UpdateU
 	}
 
 	@Override
-	public ImmutableList<Event> handle(UpdateUserMailCommand command) {
+	public ImmutableList<Event<?>> handle(UpdateUserMailCommand command) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("handle ({})", command);
 		}

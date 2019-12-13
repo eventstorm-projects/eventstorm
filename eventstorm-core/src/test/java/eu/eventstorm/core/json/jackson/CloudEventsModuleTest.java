@@ -9,10 +9,10 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import eu.eventstorm.core.Event;
 import eu.eventstorm.core.EventPayload;
+import eu.eventstorm.core.cloudevent.CloudEvent;
+import eu.eventstorm.core.cloudevent.CloudEventBuilder;
 import eu.eventstorm.core.id.AggregateIds;
-import eu.eventstorm.core.impl.EventBuilder;
 
 class CloudEventsModuleTest {
 
@@ -32,7 +32,7 @@ class CloudEventsModuleTest {
 		temp.setValue("valuz01");
 		
 		
-		Event event = new EventBuilder()
+		CloudEvent event = new CloudEventBuilder()
 				.aggregateId(AggregateIds.from(1))
 				.aggreateType("test")
 				.timestamp(OffsetDateTime.now())
@@ -43,7 +43,7 @@ class CloudEventsModuleTest {
 		StringWriter writer = new StringWriter();
 		objectMapper.writeValue(writer, event);
 		
-		objectMapper.readValue(writer.toString(), Event.class);
+		objectMapper.readValue(writer.toString(), CloudEvent.class);
 	}
 	
 	

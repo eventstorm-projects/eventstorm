@@ -1,12 +1,15 @@
 package eu.eventstorm.core.eventstore;
 
 import static eu.eventstorm.core.id.AggregateIds.from;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Optional;
 
 import org.h2.tools.RunScript;
 import org.junit.jupiter.api.AfterEach;
@@ -24,13 +27,15 @@ import com.google.common.collect.ImmutableMap;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
+import eu.eventstorm.core.Event;
+import eu.eventstorm.core.EventPayload;
 import eu.eventstorm.core.EventStore;
 import eu.eventstorm.core.ex001.event.UserCreatedEventPayload;
-import eu.eventstorm.core.ex001.gen.event.UserCreatedEventImpl;
-import eu.eventstorm.core.impl.EventPayloadSchemaRegistryBuilder;
-import eu.eventstorm.core.json.DeserializerException;
+import eu.eventstorm.core.ex001.gen.event.UserCreatedEventPayloadImpl;
+import eu.eventstorm.core.impl.EventPayloadRegistryBuilder;
 import eu.eventstorm.core.json.Deserializer;
-import eu.eventstorm.core.json.jackson.ParserConsumer;
+import eu.eventstorm.core.json.DeserializerException;
+import eu.eventstorm.core.json.ParserConsumer;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Dialect;
 import eu.eventstorm.sql.impl.DatabaseImpl;
@@ -73,17 +78,25 @@ class DatabaseEventStoreTest {
 	@Test
 	void testAppend() {
 		
-		EventPayloadSchemaRegistryBuilder builder = new EventPayloadSchemaRegistryBuilder();
+		EventPayloadRegistryBuilder builder = new EventPayloadRegistryBuilder();
 		builder.add(UserCreatedEventPayload.class, null, new UserCreatedEventPayloadDeserializer());
 		
-		EventStore eventStore = new DatabaseEventStore(db, builder.build());
+		EventStore eventStore = new DatabaseEventStore(db,builder.build());
 		
 		
-		eventStore.appendToStream("user", from(1), new UserCreatedEventImpl("ja","gmail",39));
-		eventStore.appendToStream("user", from(1), new UserCreatedEventImpl("ja","gmail",39));
+		eventStore.appendToStream("user", from(1), new UserCreatedEventPayloadImpl("ja","gmail",39));
+		eventStore.appendToStream("user", from(1), new UserCreatedEventPayloadImpl("ja","gmail",39));
 		
 		
-		eventStore.readStream("user", from(1)).forEach(System.out::println);
+		Optional<Event<? extends EventPayload>> op = eventStore.readStream("user", from(1)).findFirst();
+		
+		assertTrue(op.isPresent());
+		
+		UserCreatedEventPayload payload = (UserCreatedEventPayload) op.get().getPayload();
+		
+		assertEquals("ja", payload.getName());
+		assertEquals("gmail", payload.getEmail());
+		assertEquals(39, payload.getAge());
 		
 	}
 	
@@ -110,11 +123,12 @@ class DatabaseEventStoreTest {
         }
         
         UserCreatedEventPayload build() {
-            return new UserCreatedEventImpl(name, email, age);
+            return new UserCreatedEventPayloadImpl(name, email, age);
         }
 	    
 	}
 
+	@SuppressWarnings("serial")
 	private static final class UserCreatedEventPayloadStdDeserializer extends StdDeserializer<UserCreatedEventPayload> {
 
 	    private static final ImmutableMap<String, ParserConsumer<UserCreatedEventPayloadBuilder>> FIELDS;

@@ -118,6 +118,10 @@ public final class Helper {
             return "setTimestamp";
         }
 
+        if ("java.sql.Blob".equals(type)) {
+            return "setBlob";
+        }
+        
         if (Json.class.getName().equals(type)) {
 			return "setObject";
 		}
@@ -167,6 +171,9 @@ public final class Helper {
             return "getTimestamp";
         }
 
+        if ("java.sql.Blob".equals(type)) {
+            return "getBlob";
+        }
         if (Json.class.getName().equals(type)) {
 			return "getObject";
 		}

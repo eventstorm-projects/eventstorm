@@ -8,21 +8,21 @@ import eu.eventstorm.core.ex001.event.UserMailModifiedEvent;
 
 public abstract class UserDomainHandler implements EventListener {
 
-	abstract void onUserCreatedEvent(Event usercreatedevent);
+	abstract void onUserCreatedEvent(Event<UserCreatedEventPayload> usercreatedevent);
 
-	abstract void onUserMailModifiedEvent(Event userMailModifiedEvent);
+	abstract void onUserMailModifiedEvent(Event<UserMailModifiedEvent> userMailModifiedEvent);
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void accept(Event event) {
-		Class<? extends EventPayload> clazz = event.data().getClass();
+	public void accept(Event<? extends EventPayload> event) {
+		Class<? extends EventPayload> clazz = event.getPayload().getClass();
 
 		if (UserCreatedEventPayload.class.isAssignableFrom(clazz)) {
-			onUserCreatedEvent(event);
+			onUserCreatedEvent((Event<UserCreatedEventPayload>) event);
 		}
 
 		if (clazz.isAssignableFrom(UserMailModifiedEvent.class)) {
-			onUserMailModifiedEvent(event);
+			onUserMailModifiedEvent((Event<UserMailModifiedEvent>) event);
 		}
 
 	}

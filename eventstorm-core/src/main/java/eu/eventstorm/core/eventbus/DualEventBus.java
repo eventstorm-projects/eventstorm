@@ -21,7 +21,7 @@ public final class DualEventBus implements EventBus {
 
 
 	@Override
-	public void publish(List<Event> events) {
+	public void publish(List<Event<?>> events) {
 		try {
 			one.publish(events);
 		} finally {

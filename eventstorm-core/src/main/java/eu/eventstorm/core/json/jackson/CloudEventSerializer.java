@@ -8,22 +8,22 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
-import eu.eventstorm.core.Event;
+import eu.eventstorm.core.cloudevent.CloudEvent;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 @SuppressWarnings({ "serial" })
-final class EventSerializer extends StdSerializer<Event> {
+final class CloudEventSerializer extends StdSerializer<CloudEvent> {
 
 	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").withZone(ZoneId.of("UTC"));
 
-	EventSerializer() {
-		super(Event.class, false);
+	CloudEventSerializer() {
+		super(CloudEvent.class, false);
 	}
 
 	@Override
-	public void serialize(Event value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+	public void serialize(CloudEvent value, JsonGenerator gen, SerializerProvider provider) throws IOException {
 
 		gen.writeStartObject();
 

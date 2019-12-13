@@ -2,7 +2,7 @@ package eu.eventstorm.core.json.jackson;
 
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
-import eu.eventstorm.core.Event;
+import eu.eventstorm.core.cloudevent.CloudEvent;
 
 
 @SuppressWarnings("serial")
@@ -10,8 +10,8 @@ public final class CloudEventsModule extends SimpleModule {
 
 	public CloudEventsModule() {
 		super();
-		addSerializer(Event.class, new EventSerializer());
-		addDeserializer(Event.class, new EventDeserializer());
+		addSerializer(CloudEvent.class, new CloudEventSerializer());
+		addDeserializer(CloudEvent.class, new CloudEventDeserializer());
 	}
 
 	

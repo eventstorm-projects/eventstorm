@@ -4,8 +4,7 @@ CREATE TABLE "event_store" (
    "aggregate_id"           VARCHAR(128)   NOT NULL,
    "revision"               INT            NOT NULL,
    "time"                   TIMESTAMP WITH TIME ZONE NOT NULL,
-   "payload_schema"         VARCHAR(128)   NOT NULL,
-   "payload_schema_version" INT            NOT NULL,
+   "payload_type"           VARCHAR(128)   NOT NULL,
    "payload"                BLOB		   NOT NULL,
    PRIMARY KEY ("id"),
    UNIQUE ("aggregate_type","aggregate_id","revision")

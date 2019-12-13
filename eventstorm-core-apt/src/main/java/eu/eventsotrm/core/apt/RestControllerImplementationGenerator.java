@@ -17,9 +17,10 @@ import eu.eventsotrm.core.apt.model.RestControllerDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.core.CommandGateway;
-import eu.eventstorm.core.Event;
 import eu.eventstorm.core.EventPayload;
 import eu.eventstorm.core.annotation.HttpMethod;
+import eu.eventstorm.core.cloudevent.CloudEvent;
+import eu.eventstorm.core.cloudevent.CloudEvents;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -92,7 +93,9 @@ final class RestControllerImplementationGenerator {
 			}
 		}
 		
-		writer.write("import " + Event.class.getName() + ";");
+		writer.write("import " + CloudEvent.class.getName() + ";");
+		writeNewLine(writer);
+		writer.write("import " + CloudEvents.class.getName() + ";");
 		writeNewLine(writer);
 		writer.write("import " + EventPayload.class.getName() + ";");
 		writeNewLine(writer);
@@ -158,7 +161,7 @@ final class RestControllerImplementationGenerator {
 	}
 
 	private static void writeMethodRestAsync(Writer writer, RestControllerDescriptor rcd) throws IOException {
-		writer.write("    public CompletableFuture<ResponseEntity<ImmutableList<Event>>> on(@RequestBody ");
+		writer.write("    public CompletableFuture<ResponseEntity<ImmutableList<CloudEvent>>> on(@RequestBody ");
 		writer.write(rcd.element().toString());
 		writer.write(" command) {");
 		writeNewLine(writer);
@@ -173,7 +176,7 @@ final class RestControllerImplementationGenerator {
 		writeNewLine(writer);
 		writer.write("        return CompletableFuture.supplyAsync(() -> this.gateway.dispatch(command))");
 		writeNewLine(writer);
-		writer.write("                         .thenApplyAsync(ResponseEntity::ok);");
+		writer.write("                         .thenApplyAsync(e -> ResponseEntity.ok(CloudEvents.to(e)));");
 		writeNewLine(writer);
 		writer.write("    }");
 		writeNewLine(writer);
