@@ -1,6 +1,6 @@
 package eu.eventstorm.core.cloudevent;
 
-import static com.google.common.collect.ImmutableList.toImmutableList;
+import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableList;
 
@@ -15,7 +15,7 @@ public final class CloudEvents {
 	private CloudEvents() {
 	}
 
-	public static ImmutableList<CloudEvent> to(ImmutableList<Event<? extends EventPayload>> events) {
+	public static Stream<CloudEvent> to(ImmutableList<Event<? extends EventPayload>> events) {
 		return events.stream().map(event -> new CloudEventBuilder()
 					.aggreateType(event.getAggregateType())
 					.aggregateId(event.getAggregateId())
@@ -23,8 +23,7 @@ public final class CloudEvents {
 					.timestamp(event.getTimestamp())
 					.subject(event.getPayload().getClass().getName())
 					.version(event.getRevision())
-					.build())
-				.collect(toImmutableList());
+					.build());
 	}
 	
 }

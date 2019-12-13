@@ -7,6 +7,7 @@ import static eu.eventsotrm.sql.apt.Helper.writePackage;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.JavaFileObject;
@@ -81,6 +82,8 @@ final class RestControllerImplementationGenerator {
 		writer.write("import org.springframework.web.bind.annotation.RestController;");
 		writeNewLine(writer);
 		writer.write("import com.google.common.collect.ImmutableList;");
+		writeNewLine(writer);
+		writer.write("import " + Stream.class.getName() +";");
 		writeNewLine(writer);
 		
 		
@@ -161,7 +164,7 @@ final class RestControllerImplementationGenerator {
 	}
 
 	private static void writeMethodRestAsync(Writer writer, RestControllerDescriptor rcd) throws IOException {
-		writer.write("    public CompletableFuture<ResponseEntity<ImmutableList<CloudEvent>>> on(@RequestBody ");
+		writer.write("    public CompletableFuture<Stream<CloudEvent>> on(@RequestBody ");
 		writer.write(rcd.element().toString());
 		writer.write(" command) {");
 		writeNewLine(writer);
@@ -176,7 +179,7 @@ final class RestControllerImplementationGenerator {
 		writeNewLine(writer);
 		writer.write("        return CompletableFuture.supplyAsync(() -> this.gateway.dispatch(command))");
 		writeNewLine(writer);
-		writer.write("                         .thenApplyAsync(e -> ResponseEntity.ok(CloudEvents.to(e)));");
+		writer.write("                         .thenApplyAsync(CloudEvents::to);");
 		writeNewLine(writer);
 		writer.write("    }");
 		writeNewLine(writer);
