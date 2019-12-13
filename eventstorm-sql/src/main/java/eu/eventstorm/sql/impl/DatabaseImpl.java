@@ -15,6 +15,7 @@ import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Dialect;
 import eu.eventstorm.sql.JsonMapper;
 import eu.eventstorm.sql.Module;
+import eu.eventstorm.sql.TransactionManager;
 import eu.eventstorm.sql.desc.SqlPrimaryKey;
 import eu.eventstorm.sql.desc.SqlSequence;
 import eu.eventstorm.sql.desc.SqlTable;

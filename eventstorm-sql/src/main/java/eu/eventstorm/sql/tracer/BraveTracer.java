@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import brave.ScopedSpan;
 import brave.Tracer;
 import eu.eventstorm.sql.EventstormSqlException;
-import eu.eventstorm.sql.impl.Transaction;
+import eu.eventstorm.sql.Transaction;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>

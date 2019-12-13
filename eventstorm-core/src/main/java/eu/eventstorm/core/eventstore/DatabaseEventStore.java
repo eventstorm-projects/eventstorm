@@ -23,7 +23,7 @@ import eu.eventstorm.core.EventStore;
 import eu.eventstorm.core.impl.EventBuilder;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Dialect;
-import eu.eventstorm.sql.impl.Transaction;
+import eu.eventstorm.sql.Transaction;
 import eu.eventstorm.sql.jdbc.ResultSetMapper;
 import eu.eventstorm.sql.type.common.Blobs;
 

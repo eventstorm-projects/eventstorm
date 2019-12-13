@@ -1,4 +1,4 @@
-package eu.eventstorm.sql.impl;
+package eu.eventstorm.sql;
 
 import java.util.UUID;
 

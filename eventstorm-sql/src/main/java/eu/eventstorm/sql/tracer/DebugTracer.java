@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.eventstorm.sql.EventstormSqlException;
-import eu.eventstorm.sql.impl.Transaction;
+import eu.eventstorm.sql.Transaction;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>

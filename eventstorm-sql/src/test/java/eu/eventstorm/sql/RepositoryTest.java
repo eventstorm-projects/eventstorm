@@ -24,8 +24,6 @@ import eu.eventstorm.sql.builder.SelectBuilder;
 import eu.eventstorm.sql.builder.UpdateBuilder;
 import eu.eventstorm.sql.expression.AggregateFunctions;
 import eu.eventstorm.sql.impl.DatabaseImpl;
-import eu.eventstorm.sql.impl.Transaction;
-import eu.eventstorm.sql.impl.TransactionManager;
 import eu.eventstorm.sql.impl.TransactionManagerImpl;
 import eu.eventstorm.sql.jdbc.Batch;
 import eu.eventstorm.sql.jdbc.PreparedStatementSetter;

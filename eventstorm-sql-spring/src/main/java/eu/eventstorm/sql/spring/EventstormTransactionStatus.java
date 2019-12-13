@@ -4,7 +4,7 @@ import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.TransactionStatus;
 
-import eu.eventstorm.sql.impl.Transaction;
+import eu.eventstorm.sql.Transaction;
 import eu.eventstorm.util.ToStringBuilder;
 
 /**

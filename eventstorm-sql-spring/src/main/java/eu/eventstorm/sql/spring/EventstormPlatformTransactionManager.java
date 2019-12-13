@@ -8,8 +8,8 @@ import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-import eu.eventstorm.sql.impl.Transaction;
-import eu.eventstorm.sql.impl.TransactionManager;
+import eu.eventstorm.sql.Transaction;
+import eu.eventstorm.sql.TransactionManager;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>

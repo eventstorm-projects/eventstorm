@@ -2,7 +2,7 @@ package eu.eventstorm.sql.tracer;
 
 import java.sql.PreparedStatement;
 
-import eu.eventstorm.sql.impl.Transaction;
+import eu.eventstorm.sql.Transaction;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>

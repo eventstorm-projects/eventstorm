@@ -2,6 +2,8 @@ package eu.eventstorm.sql.impl;
 
 import java.sql.Connection;
 
+import eu.eventstorm.sql.Transaction;
+
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */

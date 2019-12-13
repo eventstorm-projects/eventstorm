@@ -19,6 +19,7 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.eventstorm.sql.Transaction;
 import eu.eventstorm.sql.tracer.TransactionSpan;
 import eu.eventstorm.sql.tracer.TransactionTracer;
 

@@ -1,8 +1,8 @@
 package eu.eventstorm.core.id;
 
 import eu.eventstorm.core.AggregateId;
+import eu.eventstorm.sql.Transaction;
 import eu.eventstorm.sql.id.SequenceGenerator;
-import eu.eventstorm.sql.impl.Transaction;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
