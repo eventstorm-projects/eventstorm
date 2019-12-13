@@ -299,8 +299,8 @@ final class MapperGenerator implements Generator {
 
         if (column != null && column.nullable()) {
             writer.write("        if (pojo.");
-            writer.write(ppd.getter().toString());
-            writer.write(" != null) {");
+            writer.write(ppd.getter().getSimpleName().toString());
+            writer.write("() != null) {");
             writeNewLine(writer);
             writer.write("    ");
         }

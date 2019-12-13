@@ -45,6 +45,11 @@ interface DatabaseEvent {
 
 	void setPayloadType(String type);
 	
+	@Column(value = "payload_version")
+    byte getPayloadVersion();
+
+    void setPayloadVersion(byte version);
+	
 	@Column(value = "payload")
 	Blob getPayload();
 	

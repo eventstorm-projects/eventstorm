@@ -40,8 +40,8 @@ public final class DatabaseExternalDefintionBuilder {
         return new DatabaseExternalDefintion() {
             @Override
             public void forEachSequence(BiConsumer<Module, SqlSequence> consumer) {
-                for (Module module : map.keySet()) {
-                    map.get(module).forEach( seq -> consumer.accept(module, seq));
+                for (Map.Entry<Module, List<SqlSequence>> entry : map.entrySet()) {
+                    entry.getValue().forEach( seq -> consumer.accept(entry.getKey(), seq));
                 }
             }
         };

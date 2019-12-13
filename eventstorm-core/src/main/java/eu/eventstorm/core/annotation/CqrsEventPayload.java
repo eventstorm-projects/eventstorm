@@ -22,8 +22,9 @@ public @interface CqrsEventPayload {
      */
     String type() default "";
     
-    
-    int version() default 1;
-    
+    /**
+     * version of the type
+     */
+    byte version() default 1;
     
 }

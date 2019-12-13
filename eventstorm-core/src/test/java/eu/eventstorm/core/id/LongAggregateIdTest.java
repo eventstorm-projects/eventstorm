@@ -24,7 +24,7 @@ class LongAggregateIdTest {
 		
 		AggregateId id1 = new LongAggregateId(123l);
 		AggregateId id2 = new LongAggregateId(124l);
-		AggregateId id3 = new LongAggregateId(123l);
+		AggregateId id3 = AggregateIds.from(123l);
 		AggregateId id4 = new IntegerAggregateId(123);
 		
 		assertEquals(id1, id1);

@@ -31,27 +31,13 @@ final class EventPayloadRegistryImpl implements EventPayloadRegistry {
 
 	@Override
 	public String getPayloadType(EventPayload payload) {
-		
-		String cacheKey = cache.get(payload.getClass().getName());
-
-		if (cacheKey == null) {
-			cacheKey = buildCacheKey(payload);
-			
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("getSchema({}) -> cacheKey=[{}]", payload.getClass().getName(), cacheKey);
-			}
-			
-			this.cache.put(payload.getClass().getName(), cacheKey);
-		}
-		
-		if (cacheKey == null) {
-			// TODO THROWS eception
-		}
-		
-		return this.registry.get(cacheKey).getPayloadType();
-		
+		return getEventPayloadDefinition(payload).getPayloadType();
 	}
 
+    @Override
+    public byte getPayloadVersion(EventPayload payload) {
+        return getEventPayloadDefinition(payload).getPayloadVersion();
+    }
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -85,6 +71,26 @@ final class EventPayloadRegistryImpl implements EventPayloadRegistry {
 
 		return null;
 	}
+	
+	private EventPayloadDefinition<?> getEventPayloadDefinition(EventPayload payload) {
+	    String cacheKey = cache.get(payload.getClass().getName());
+
+        if (cacheKey == null) {
+            cacheKey = buildCacheKey(payload);
+            
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("getSchema({}) -> cacheKey=[{}]", payload.getClass().getName(), cacheKey);
+            }
+            
+            this.cache.put(payload.getClass().getName(), cacheKey);
+        }
+        
+        if (cacheKey == null) {
+            // TODO THROWS eception
+        }
+        
+        return this.registry.get(cacheKey);
+	}
 
 	
 	static final class EventPayloadDefinition<T extends EventPayload> {
@@ -92,11 +98,13 @@ final class EventPayloadRegistryImpl implements EventPayloadRegistry {
 		private final Serializer<T> serializer;
 		private final Deserializer<T> deserializer;
 		private final String payloadType;
+		private final byte payloadVersion;
 		
-		public EventPayloadDefinition(String payloadType, Serializer<T> serializer, Deserializer<T> deserializer) {
+		public EventPayloadDefinition(String payloadType, byte payloadVersion, Serializer<T> serializer, Deserializer<T> deserializer) {
 			this.serializer = serializer;
 			this.deserializer = deserializer;
 			this.payloadType = payloadType;
+			this.payloadVersion = payloadVersion;
 		}
 
 		public String getPayloadType() {
@@ -110,10 +118,11 @@ final class EventPayloadRegistryImpl implements EventPayloadRegistry {
 		public Deserializer<T> getDeserializer() {
 			return deserializer;
 		}
+
+        public byte getPayloadVersion() {
+            return payloadVersion;
+        }
 		
 	}
-
-
-
 
 }

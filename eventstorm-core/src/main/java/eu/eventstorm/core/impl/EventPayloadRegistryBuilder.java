@@ -48,6 +48,7 @@ public final class EventPayloadRegistryBuilder {
 		private Serializer<T> serializer;
 		private Deserializer<T> deserializer;
 		private String payloadType;
+		private byte payloadVersion;
 
 		public EventPayloadDefinitionBuilder<T> serializer(Serializer<T> serializer) {
 			this.serializer = serializer;
@@ -82,11 +83,12 @@ public final class EventPayloadRegistryBuilder {
 			}
 			
 			this.payloadType = type;
+			this.payloadVersion = cqrsEventPayload.version();
 			return this;
 		}
 
 		public EventPayloadDefinition<T> build() {
-			return new EventPayloadDefinition<T>(payloadType, serializer, deserializer);
+			return new EventPayloadDefinition<T>(payloadType, payloadVersion, serializer, deserializer);
 		}
 	}
 

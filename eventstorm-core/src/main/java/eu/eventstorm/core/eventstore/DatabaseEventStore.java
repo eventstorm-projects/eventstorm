@@ -70,6 +70,8 @@ public final class DatabaseEventStore implements EventStore {
 			throw new EventStoreException(EventStoreException.Type.STREAM_NOT_FOUND, of("aggregateType", aggregateType, "aggregateId", id, "payload", payload), cause);
 		}
 		
+		DatabaseEvent de;
+		
 		try (Transaction transaction = database.transactionManager().newTransactionIsolatedReadWrite()) {
 
 			Stream<DatabaseEvent> events = this.databaseRepository.lock(aggregateType, id.toStringValue());
@@ -81,6 +83,7 @@ public final class DatabaseEventStore implements EventStore {
 			        .time(Timestamp.from(time.toInstant()))
 			        .payload(Blobs.newBlob(content))
 			        .payloadType(registry.getPayloadType(payload))
+			        .payloadVersion(registry.getPayloadVersion(payload))
 			        ;
 
 			if (optional.isPresent()) {
@@ -91,21 +94,21 @@ public final class DatabaseEventStore implements EventStore {
 				builder.revision(1);
 			}
 
-			this.databaseRepository.insert(builder.build());
+			de = builder.build();
+			
+			this.databaseRepository.insert(de);
 
 			transaction.commit();
 		}
 		
 		// @formatter:off
-	/*	return  new EventBuilder()
+		return  new EventBuilder<T>()
 					.aggregateId(id)
-					.aggreateType(stream)
+					.aggreateType(aggregateType)
 					.timestamp(time)
-					.version(1)
+					.revision(de.getRevision())
 					.payload(payload)
 					.build();
-					*/
-		return null;
 		// @formatter:on
 	}
 
