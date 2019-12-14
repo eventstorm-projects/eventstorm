@@ -17,18 +17,18 @@ import com.google.common.collect.ImmutableMap;
 import eu.eventsotrm.core.apt.model.EventDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
-import eu.eventstorm.core.json.Deserializer;
-import eu.eventstorm.core.json.DeserializerException;
+import eu.eventstorm.core.json.Serializer;
+import eu.eventstorm.core.json.SerializerException;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-final class EventPayloadDeserializerGenerator {
+final class EventPayloadSerializerGenerator {
 
 	private final Logger logger;
 
-	EventPayloadDeserializerGenerator() {
-		logger = LoggerFactory.getInstance().getLogger(EventPayloadDeserializerGenerator.class);
+	EventPayloadSerializerGenerator() {
+		logger = LoggerFactory.getInstance().getLogger(EventPayloadSerializerGenerator.class);
 	}
 
 	public void generate(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
@@ -46,7 +46,7 @@ final class EventPayloadDeserializerGenerator {
 	private void generate(ProcessingEnvironment env, String pack, ImmutableList<EventDescriptor> descriptors) throws IOException {
 
 		for (EventDescriptor ed : descriptors) {
-			JavaFileObject object = env.getFiler().createSourceFile(pack + ".io." + ed.simpleName() + "Deserializer");
+			JavaFileObject object = env.getFiler().createSourceFile(pack + ".io." + ed.simpleName() + "Serializer");
 			Writer writer = object.openWriter();
 
 			writeHeader(writer, pack + ".io", ed);
@@ -73,25 +73,25 @@ final class EventPayloadDeserializerGenerator {
 		writeNewLine(writer);
 		writer.write("import " + IOException.class.getName() + ";");
 		writeNewLine(writer);
-		writer.write("import " + Deserializer.class.getName() + ";");
+		writer.write("import " + Serializer.class.getName() + ";");
 		writeNewLine(writer);
-		writer.write("import " + DeserializerException.class.getName() + ";");
-		writeNewLine(writer);
-		writer.write("import " + ImmutableMap.class.getName() + ";");
+		writer.write("import " + SerializerException.class.getName() + ";");
 		writeNewLine(writer);
 		writer.write("import " + ObjectMapper.class.getName() + ";");
+		writeNewLine(writer);
+		writer.write("import " + ImmutableMap.class.getName() + ";");
 		writeNewLine(writer);
 		writer.write("import " + descriptor.fullyQualidiedClassName() + ";");
 		writeNewLine(writer);
 		
-		writeGenerated(writer, EventPayloadDeserializerGenerator.class.getName());
-		writer.write("final class "+ descriptor.simpleName() +"Deserializer implements Deserializer<"+ descriptor.simpleName() +"> {");
+		writeGenerated(writer, EventPayloadSerializerGenerator.class.getName());
+		writer.write("final class "+ descriptor.simpleName() +"Serializer implements Serializer<"+ descriptor.simpleName() +"> {");
 		writeNewLine(writer);
 	}
 	
 	private static void writeConstructor(Writer writer, EventDescriptor ed) throws IOException {
 		writeNewLine(writer);
-		writer.write("    " + ed.simpleName() +"Deserializer");
+		writer.write("    " + ed.simpleName() +"Serializer");
 		writer.write("("+ObjectMapper.class.getSimpleName()+" objectMapper) {");
 		writeNewLine(writer);
 		writer.write("        this.objectMapper = objectMapper;");
@@ -105,16 +105,16 @@ final class EventPayloadDeserializerGenerator {
 		writeNewLine(writer);
 		writer.write("    @Override");
 		writeNewLine(writer);
-		writer.write("    public " + ed.simpleName() + " deserialize(byte[] content) {");
+		writer.write("    public byte[] serialize(" +  ed.simpleName()+" payload) {");
 
 		writeNewLine(writer);
 		writer.write("        try {");
 		writeNewLine(writer);
-		writer.write("            return objectMapper.readValue(content, " + ed.simpleName() + ".class);");
+		writer.write("            return objectMapper.writeValueAsBytes(payload);");
 		writeNewLine(writer);
 		writer.write("        } catch (IOException cause) {");
 		writeNewLine(writer);
-		writer.write("            throw new DeserializerException(DeserializerException.Type.PARSE_ERROR, ImmutableMap.of(\"content\",content));");
+		writer.write("            throw new SerializerException(SerializerException.Type.WRITE_ERROR, ImmutableMap.of(\"payload\", payload));");
 		writeNewLine(writer);
 		writer.write("        }");
 		writeNewLine(writer);

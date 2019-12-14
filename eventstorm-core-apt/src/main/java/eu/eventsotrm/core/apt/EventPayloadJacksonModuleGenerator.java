@@ -76,6 +76,8 @@ final class EventPayloadJacksonModuleGenerator {
 			// addDeserializer(CreateUserCommand.class, new CreateUserCommandStdDeserializer());
 			writer.write("        addDeserializer(" + ed.fullyQualidiedClassName() + ".class, new " + ed.simpleName() + "StdDeserializer());");
 			writeNewLine(writer);
+			writer.write("        addSerializer(" + ed.fullyQualidiedClassName() + ".class, new " + ed.simpleName() + "StdSerializer());");
+			writeNewLine(writer);
 		}
 		
 		writer.write("    }");

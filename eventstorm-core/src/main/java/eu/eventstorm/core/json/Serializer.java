@@ -5,6 +5,6 @@ package eu.eventstorm.core.json;
  */
 public interface Serializer<T> {
 
-	void serialize(T object);
+	byte[] serialize(T object);
 
 }

@@ -10,25 +10,25 @@ import java.io.Writer;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.JavaFileObject;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 
 import eu.eventsotrm.core.apt.model.EventDescriptor;
+import eu.eventsotrm.core.apt.model.EventPropertyDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
-import eu.eventstorm.core.json.Deserializer;
-import eu.eventstorm.core.json.DeserializerException;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-final class EventPayloadDeserializerGenerator {
+final class EventPayloadJacksonStdSerializerGenerator {
 
 	private final Logger logger;
 
-	EventPayloadDeserializerGenerator() {
-		logger = LoggerFactory.getInstance().getLogger(EventPayloadDeserializerGenerator.class);
+	EventPayloadJacksonStdSerializerGenerator() {
+		logger = LoggerFactory.getInstance().getLogger(EventPayloadJacksonStdSerializerGenerator.class);
 	}
 
 	public void generate(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
@@ -46,12 +46,11 @@ final class EventPayloadDeserializerGenerator {
 	private void generate(ProcessingEnvironment env, String pack, ImmutableList<EventDescriptor> descriptors) throws IOException {
 
 		for (EventDescriptor ed : descriptors) {
-			JavaFileObject object = env.getFiler().createSourceFile(pack + ".io." + ed.simpleName() + "Deserializer");
+			JavaFileObject object = env.getFiler().createSourceFile(pack + ".json." + ed.simpleName() + "StdSerializer");
 			Writer writer = object.openWriter();
 
-			writeHeader(writer, pack + ".io", ed);
-			writeVariables(writer, ed);
-			writeConstructor(writer, ed);
+			writeHeader(writer, pack + ".json", ed);
+		    writeConstructor(writer, ed);
 			writeMethod(writer, ed);
 
 			writer.write("}");
@@ -60,66 +59,62 @@ final class EventPayloadDeserializerGenerator {
 
 	}
 
-	private void writeVariables(Writer writer, EventDescriptor ed) throws IOException {
-		writeNewLine(writer);
-		writer.write("    private final ObjectMapper objectMapper;");
-		writeNewLine(writer);
-
-	}
-
 	private static void writeHeader(Writer writer, String pack, EventDescriptor descriptor) throws IOException {
 		writePackage(writer, pack);
-
+		
+		writer.write("import " + StdSerializer.class.getName() + ";");
+		writeNewLine(writer);
+		writer.write("import " + JsonGenerator.class.getName() + ";");
+		writeNewLine(writer);
+		writer.write("import " + SerializerProvider.class.getName() + ";");
 		writeNewLine(writer);
 		writer.write("import " + IOException.class.getName() + ";");
 		writeNewLine(writer);
-		writer.write("import " + Deserializer.class.getName() + ";");
-		writeNewLine(writer);
-		writer.write("import " + DeserializerException.class.getName() + ";");
-		writeNewLine(writer);
-		writer.write("import " + ImmutableMap.class.getName() + ";");
-		writeNewLine(writer);
-		writer.write("import " + ObjectMapper.class.getName() + ";");
-		writeNewLine(writer);
 		writer.write("import " + descriptor.fullyQualidiedClassName() + ";");
 		writeNewLine(writer);
+		writer.write("import " + descriptor.fullyQualidiedClassName() + "Builder;");
+		writeNewLine(writer);
 		
-		writeGenerated(writer, EventPayloadDeserializerGenerator.class.getName());
-		writer.write("final class "+ descriptor.simpleName() +"Deserializer implements Deserializer<"+ descriptor.simpleName() +"> {");
+		writeGenerated(writer, EventPayloadJacksonStdSerializerGenerator.class.getName());
+		writer.write("final class "+ descriptor.simpleName() +"StdSerializer extends StdSerializer<"+ descriptor.simpleName() +"> {");
 		writeNewLine(writer);
 	}
 	
 	private static void writeConstructor(Writer writer, EventDescriptor ed) throws IOException {
 		writeNewLine(writer);
-		writer.write("    " + ed.simpleName() +"Deserializer");
-		writer.write("("+ObjectMapper.class.getSimpleName()+" objectMapper) {");
+		writer.write("    " + ed.simpleName() +"StdSerializer");
+		writer.write("() {");
 		writeNewLine(writer);
-		writer.write("        this.objectMapper = objectMapper;");
+		writer.write("        super("+ ed.simpleName()+".class);");
 		writeNewLine(writer);
 		writer.write("    }");
 		writeNewLine(writer);
 	}
 
 	private void writeMethod(Writer writer, EventDescriptor ed) throws IOException {
-
 		writeNewLine(writer);
 		writer.write("    @Override");
 		writeNewLine(writer);
-		writer.write("    public " + ed.simpleName() + " deserialize(byte[] content) {");
-
-		writeNewLine(writer);
-		writer.write("        try {");
-		writeNewLine(writer);
-		writer.write("            return objectMapper.readValue(content, " + ed.simpleName() + ".class);");
-		writeNewLine(writer);
-		writer.write("        } catch (IOException cause) {");
-		writeNewLine(writer);
-		writer.write("            throw new DeserializerException(DeserializerException.Type.PARSE_ERROR, ImmutableMap.of(\"content\",content));");
-		writeNewLine(writer);
-		writer.write("        }");
+		writer.write("    public void serialize(" + ed.simpleName() + " payload, JsonGenerator gen, SerializerProvider provider) throws IOException {");
 		writeNewLine(writer);
 		
-		writer.write("     }");
+		for (EventPropertyDescriptor epd : ed.properties()) {
+
+			if ("java.lang.String".equals(epd.getter().getReturnType().toString())) {
+				writer.write("        gen.writeStringField(\"" + epd.name() + "\", payload."+ epd.getter().getSimpleName() +"());");
+				writeNewLine(writer);	
+			} else if ("int".equals(epd.getter().getReturnType().toString())) {
+				writer.write("        gen.writeNumberField(\"" + epd.name() + "\", payload."+ epd.getter().getSimpleName() +"());");
+				writeNewLine(writer);	
+			} else {
+				writer.write("        // write (" + epd.name() + ");");
+				writeNewLine(writer);
+			}
+			
+		}
+
+		writeNewLine(writer);
+		writer.write("    }");
 		writeNewLine(writer);
 	}
 
