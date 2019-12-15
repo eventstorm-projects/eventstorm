@@ -21,7 +21,6 @@ public final class DatabaseBuilder {
 	private final Dialect.Name dialect;
 	private TransactionManager transactionManager;
 	private JsonMapper jsonMapper;
-	private String defaultSchema;
 	private ImmutableList.Builder<Module> modules = ImmutableList.builder();
 	private ImmutableList.Builder<DatabaseExternalConfig> externals = ImmutableList.builder();
 
@@ -40,11 +39,6 @@ public final class DatabaseBuilder {
 
 	public DatabaseBuilder withJsonMapper(JsonMapper jsonMapper) {
 		this.jsonMapper = jsonMapper;
-		return this;
-	}
-
-	public DatabaseBuilder withDefaultSchema(String defaultSchema) {
-		this.defaultSchema = defaultSchema;
 		return this;
 	}
 
@@ -83,7 +77,7 @@ public final class DatabaseBuilder {
      }
 
 	public Database build() {
-		return new DatabaseImpl(dialect, transactionManager, jsonMapper, defaultSchema, modules.build(), externals.build());
+		return new DatabaseImpl(dialect, transactionManager, jsonMapper, modules.build(), externals.build());
 	}
 	
 }

@@ -51,7 +51,7 @@ public final class DatabaseImpl implements Database {
     
     private final JsonMapper jsonMapper;
 
-    DatabaseImpl(Dialect.Name dialect, TransactionManager transactionManager, JsonMapper jsonMapper, String defaultSchema, ImmutableList<Module> modules, ImmutableList<DatabaseExternalConfig> externals) {
+    DatabaseImpl(Dialect.Name dialect, TransactionManager transactionManager, JsonMapper jsonMapper, ImmutableList<Module> modules, ImmutableList<DatabaseExternalConfig> externals) {
         this.dialect = Dialects.dialect(dialect, this);
         this.transactionManager = transactionManager;
         this.jsonMapper = jsonMapper;
