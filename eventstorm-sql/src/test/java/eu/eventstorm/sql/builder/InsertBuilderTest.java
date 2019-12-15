@@ -33,7 +33,8 @@ class InsertBuilderTest {
     @Test
     void testInsert() {
         database = mock(Database.class);
-        Module module = mock(Module.class);
+        Module module = new Module("test") {
+		};
         when(database.dialect()).thenReturn(h2(database));
         when(database.getModule(TABLE_T1)).thenReturn(module);
 

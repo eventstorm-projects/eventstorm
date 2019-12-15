@@ -13,7 +13,6 @@ import eu.eventstorm.sql.Module;
 import eu.eventstorm.sql.desc.SqlColumn;
 import eu.eventstorm.sql.desc.SqlSequence;
 import eu.eventstorm.sql.desc.SqlTable;
-import eu.eventstorm.util.Strings;
 
 abstract class AbstractDialect implements Dialect {
 
@@ -34,11 +33,7 @@ abstract class AbstractDialect implements Dialect {
 		if (module == null) {
 			throw new EventstormDialectException(EventstormDialectException.Type.MODULE_NOT_FOUND, of("table", table));
 		}
-		if (Strings.isEmpty(module.catalog())) {
-			return table.name();
-		} else {
-			return module.catalog().concat(".").concat(table.name());
-		}
+		return module.getTableName(table);
 	}
 	
 	protected final String prefix(SqlSequence sequence) {
@@ -46,11 +41,7 @@ abstract class AbstractDialect implements Dialect {
 		if (module == null) {
 			throw new EventstormDialectException(EventstormDialectException.Type.MODULE_NOT_FOUND, of("sequence", sequence));
 		}
-		if (Strings.isEmpty(module.catalog())) {
-			return sequence.name();
-		} else {
-			return module.catalog().concat(".").concat(sequence.name());
-		}
+		return module.getSequenceName(sequence);
 	}
 	
 	@Override

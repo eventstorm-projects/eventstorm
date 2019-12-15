@@ -36,9 +36,12 @@ class IdTest {
 		ds = JdbcConnectionPool.create("jdbc:h2:mem:test;DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1;INIT=RUNSCRIPT FROM 'classpath:sql/sequence.sql'", "sa", "");
 		//db = new DatabaseImpl(ds, Dialect.Name.H2, new TransactionManagerImpl(ds), "", new eu.eventstorm.sql.model.json.Module("test", null));
 		db = Mockito.mock(Database.class);
+		Module module = new Module("test") {
+		};
+		
 		Mockito.when(db.transactionManager()).thenReturn(new TransactionManagerImpl(ds, new TransactionManagerConfiguration(TransactionTracers.debug())));
 		Mockito.when(db.dialect()).thenReturn(Dialects.h2(db));
-		Mockito.when(db.getModule(Mockito.<SqlSequence>any())).thenReturn(Mockito.mock(Module.class));
+		Mockito.when(db.getModule(Mockito.<SqlSequence>any())).thenReturn(module);
 	}
 
 	@AfterEach()

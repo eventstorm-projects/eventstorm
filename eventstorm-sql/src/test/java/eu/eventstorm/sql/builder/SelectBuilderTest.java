@@ -6,7 +6,6 @@ import static eu.eventstorm.sql.expression.Expressions.and;
 import static eu.eventstorm.sql.expression.Expressions.eq;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -45,7 +44,9 @@ class SelectBuilderTest {
     @BeforeEach
     void before() {
         database = Mockito.mock(Database.class);
-        Module module = mock(Module.class);
+        
+        Module module = new Module("test") {
+		};
         when(database.dialect()).thenReturn(h2(database));
         when(database.getModule(TABLE_T1)).thenReturn(module);
         when(database.getModule(TABLE_T2)).thenReturn(module);
