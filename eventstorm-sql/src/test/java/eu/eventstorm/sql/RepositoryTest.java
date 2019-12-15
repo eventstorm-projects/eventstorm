@@ -23,7 +23,7 @@ import eu.eventstorm.sql.builder.InsertBuilder;
 import eu.eventstorm.sql.builder.SelectBuilder;
 import eu.eventstorm.sql.builder.UpdateBuilder;
 import eu.eventstorm.sql.expression.AggregateFunctions;
-import eu.eventstorm.sql.impl.DatabaseImpl;
+import eu.eventstorm.sql.impl.DatabaseBuilder;
 import eu.eventstorm.sql.impl.TransactionManagerImpl;
 import eu.eventstorm.sql.jdbc.Batch;
 import eu.eventstorm.sql.jdbc.PreparedStatementSetter;
@@ -50,7 +50,10 @@ class RepositoryTest {
 	void before() {
 		ds = JdbcConnectionPool.create("jdbc:h2:mem:test;DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1;INIT=RUNSCRIPT FROM 'classpath:sql/ex001.sql'", "sa", "");
 		TransactionManager transactionManager = new TransactionManagerImpl(ds);
-		db = new DatabaseImpl(Dialect.Name.H2, transactionManager, "", new eu.eventstorm.sql.model.ex001.Module("test", null));
+		db = DatabaseBuilder.from(Dialect.Name.H2)
+				.withTransactionManager(transactionManager)
+				.withModule(new eu.eventstorm.sql.model.ex001.Module("test", null))
+				.build();
 		repo = new Repository(db) {
 		};
 	}

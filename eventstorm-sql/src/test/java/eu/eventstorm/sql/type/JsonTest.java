@@ -20,7 +20,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Dialect;
 import eu.eventstorm.sql.Transaction;
-import eu.eventstorm.sql.impl.DatabaseImpl;
+import eu.eventstorm.sql.impl.DatabaseBuilder;
 import eu.eventstorm.sql.impl.TransactionManagerImpl;
 import eu.eventstorm.sql.json.JacksonJsonMapper;
 import eu.eventstorm.sql.model.json.Span;
@@ -39,7 +39,11 @@ class JsonTest {
 	@BeforeEach
 	void before() {
 		ds = JdbcConnectionPool.create("jdbc:h2:mem:test;DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1;INIT=RUNSCRIPT FROM 'classpath:sql/json.sql'", "sa", "");
-		db = new DatabaseImpl(Dialect.Name.H2, new TransactionManagerImpl(ds), "", new eu.eventstorm.sql.model.json.Module("test", null));
+		db = DatabaseBuilder.from(Dialect.Name.H2)
+				.withTransactionManager(new TransactionManagerImpl(ds))
+				.withJsonMapper(new JacksonJsonMapper())
+				.withModule(new eu.eventstorm.sql.model.json.Module("test", null))
+				.build();
 	}
 
 	@AfterEach()

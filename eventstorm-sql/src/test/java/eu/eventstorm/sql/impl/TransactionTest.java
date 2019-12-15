@@ -56,8 +56,10 @@ class TransactionTest {
 		}
 
 		Tracer tracer = Tracing.newBuilder().sampler(Sampler.ALWAYS_SAMPLE).spanReporter(new LoggingBraveReporter()).build().tracer();
-		db = new DatabaseImpl(Dialect.Name.H2, new TransactionManagerImpl(ds, new TransactionManagerConfiguration(TransactionTracers.brave(tracer))), "",
-		        new eu.eventstorm.sql.model.ex001.Module("test", null));
+		db = DatabaseBuilder.from(Dialect.Name.H2)
+				.withTransactionManager(new TransactionManagerImpl(ds, new TransactionManagerConfiguration(TransactionTracers.brave(tracer))))
+				.withModule(new eu.eventstorm.sql.model.ex001.Module("test", null))
+				.build();
 	}
 
 	@AfterEach()

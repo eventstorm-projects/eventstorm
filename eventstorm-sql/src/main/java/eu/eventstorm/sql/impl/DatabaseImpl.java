@@ -3,12 +3,14 @@ package eu.eventstorm.sql.impl;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
+import java.util.List;
 
 import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import eu.eventstorm.sql.Database;
@@ -20,7 +22,6 @@ import eu.eventstorm.sql.desc.SqlPrimaryKey;
 import eu.eventstorm.sql.desc.SqlSequence;
 import eu.eventstorm.sql.desc.SqlTable;
 import eu.eventstorm.sql.dialect.Dialects;
-import eu.eventstorm.sql.json.JacksonJsonMapper;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -42,7 +43,7 @@ public final class DatabaseImpl implements Database {
     /**
      * Modules supported for this instance of datatabase.
      */
-    private final Module[] modules;
+    private final ImmutableList<Module> modules;
 
     private final ImmutableMap<SqlTable, Module> tables;
 
@@ -50,23 +51,16 @@ public final class DatabaseImpl implements Database {
     
     private final JsonMapper jsonMapper;
 
-    public DatabaseImpl(Dialect.Name dialect, TransactionManager transactionManager, String defaultSchema, Module module, Module... modules) {
-    	this(dialect, transactionManager, new JacksonJsonMapper(), defaultSchema, null, module, modules);
-    }
     /**
      * @param dataSource    the {@link DataSource}
      * @param dialect
      * @param defaultSchema
      */
-    public DatabaseImpl(Dialect.Name dialect, TransactionManager transactionManager, JsonMapper jsonMapper, String defaultSchema, DatabaseExternalDefintion ded, Module module, Module... modules) {
+    DatabaseImpl(Dialect.Name dialect, TransactionManager transactionManager, JsonMapper jsonMapper, String defaultSchema, DatabaseExternalDefintion ded, ImmutableList<Module> modules) {
         this.dialect = Dialects.dialect(dialect, this);
         this.transactionManager = transactionManager;
         this.jsonMapper = jsonMapper;
-        this.modules = new Module[1 + modules.length];
-        this.modules[0] = module;
-        if (modules.length > 0) {
-            System.arraycopy(modules, 0, this.modules, 1, modules.length);
-        }
+        this.modules = modules;
 
         ImmutableMap.Builder<SqlTable, Module> builder = ImmutableMap.builder();
         ImmutableMap.Builder<SqlSequence, Module> builderSequences = ImmutableMap.builder();
@@ -83,7 +77,7 @@ public final class DatabaseImpl implements Database {
         
         if (ded != null) {
             ded.forEachSequence( (m, sequence) -> {
-                LOGGER.info("add External sequence [{}] to Module [{}]", sequence, module);
+                LOGGER.info("add External sequence [{}] to Module [{}]", sequence, m);
                 builderSequences.put(sequence, m);
             });
         }
@@ -135,7 +129,7 @@ public final class DatabaseImpl implements Database {
     			
     }
 
-    private static void trace(DataSource dataSource, Module[] modules) {
+    private static void trace(DataSource dataSource, List<Module> modules) {
 
         StringBuilder builder = new StringBuilder();
         builder.append("\n--------------------------------------------------------------------------------");

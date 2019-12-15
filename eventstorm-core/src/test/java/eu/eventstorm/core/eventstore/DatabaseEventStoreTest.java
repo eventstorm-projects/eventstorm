@@ -38,6 +38,7 @@ import eu.eventstorm.core.json.DeserializerException;
 import eu.eventstorm.core.json.ParserConsumer;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Dialect;
+import eu.eventstorm.sql.impl.DatabaseBuilder;
 import eu.eventstorm.sql.impl.DatabaseImpl;
 import eu.eventstorm.sql.impl.TransactionManagerImpl;
 import eu.eventstorm.test.LoggerInstancePostProcessor;
@@ -65,8 +66,11 @@ class DatabaseEventStoreTest {
 				RunScript.execute(conn, new InputStreamReader(inputStream));
 			}
 		}
-
-		db = new DatabaseImpl(Dialect.Name.H2, new TransactionManagerImpl(ds), "", new Module("event_store", ""));
+		
+		db = DatabaseBuilder.from(Dialect.Name.H2)
+				.withTransactionManager(new TransactionManagerImpl(ds))
+				.withModule(new Module("event_store", ""))
+				.build();
 	}
 
 	@AfterEach()
