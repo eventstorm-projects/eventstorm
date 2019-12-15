@@ -23,8 +23,6 @@ import eu.eventstorm.sql.desc.SqlSequence;
 import eu.eventstorm.sql.id.SequenceGenerator4Integer;
 import eu.eventstorm.sql.id.SequenceGenerator4Long;
 import eu.eventstorm.sql.impl.DatabaseBuilder;
-import eu.eventstorm.sql.impl.DatabaseExternalDefintion;
-import eu.eventstorm.sql.impl.DatabaseExternalDefintionBuilder;
 import eu.eventstorm.sql.impl.TransactionManagerImpl;
 
 class SqlSequenceAggregateIdGeneratorTest {
@@ -51,15 +49,10 @@ class SqlSequenceAggregateIdGeneratorTest {
 		Module module = new Module("fake") {
 		};
 		
-		DatabaseExternalDefintion ded = new DatabaseExternalDefintionBuilder()
-				.module(module).sequence(sequence)
-				.and().build();
-
 		db = DatabaseBuilder.from(Dialect.Name.H2)
 				.withTransactionManager(new TransactionManagerImpl(ds))
-				.withModule(module)
-				.withDatabaseExternalDefintion(ded)
-				.build();
+				.withModuleAndExternalConfig(module).withSequence(sequence)
+				.and().build();
 	}
 
 	@AfterEach()

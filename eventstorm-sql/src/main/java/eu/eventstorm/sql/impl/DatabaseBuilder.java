@@ -1,5 +1,9 @@
 package eu.eventstorm.sql.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.BiConsumer;
+
 import com.google.common.collect.ImmutableList;
 
 import eu.eventstorm.sql.Database;
@@ -7,6 +11,7 @@ import eu.eventstorm.sql.Dialect;
 import eu.eventstorm.sql.JsonMapper;
 import eu.eventstorm.sql.Module;
 import eu.eventstorm.sql.TransactionManager;
+import eu.eventstorm.sql.desc.SqlSequence;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -17,8 +22,8 @@ public final class DatabaseBuilder {
 	private TransactionManager transactionManager;
 	private JsonMapper jsonMapper;
 	private String defaultSchema;
-	private DatabaseExternalDefintion databaseExternalDefintion;
 	private ImmutableList.Builder<Module> modules = ImmutableList.builder();
+	private ImmutableList.Builder<DatabaseExternalConfig> externals = ImmutableList.builder();
 
 	private DatabaseBuilder(Dialect.Name dialect) {
 		this.dialect = dialect;
@@ -43,18 +48,42 @@ public final class DatabaseBuilder {
 		return this;
 	}
 
-	public DatabaseBuilder withDatabaseExternalDefintion(DatabaseExternalDefintion databaseExternalDefintion) {
-		this.databaseExternalDefintion = databaseExternalDefintion;
-		return this;
-	}
-
 	public DatabaseBuilder withModule(Module module) {
 		this.modules.add(module);
 		return this;
 	}
+	
+	public DatabaseModuleBuilder withModuleAndExternalConfig(Module module) {
+		this.modules.add(module);
+		return new DatabaseModuleBuilder(module);
+	}
+	
+	public class DatabaseModuleBuilder {
+		private final Module module;
+        private final List<SqlSequence> sequences;
+        
+        private DatabaseModuleBuilder(Module module) {
+        	this.module = module;
+            this.sequences = new ArrayList<>();
+        }
+        public DatabaseModuleBuilder withSequence(SqlSequence sequence) {
+            this.sequences.add(sequence);
+            return this;
+        }
+        public DatabaseBuilder and() {
+        	externals.add(new DatabaseExternalConfig() {
+        		public void forEachSequence(BiConsumer<Module, SqlSequence> consumer) {
+        			for (SqlSequence sequence : sequences) {
+        				consumer.accept(module, sequence);
+        			}
+        	    }
+			});
+            return DatabaseBuilder.this;
+        }
+     }
 
 	public Database build() {
-		return new DatabaseImpl(dialect, transactionManager, jsonMapper, defaultSchema, databaseExternalDefintion, modules.build());
+		return new DatabaseImpl(dialect, transactionManager, jsonMapper, defaultSchema, modules.build(), externals.build());
 	}
 	
 }

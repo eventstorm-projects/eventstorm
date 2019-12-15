@@ -8,8 +8,8 @@ import eu.eventstorm.sql.desc.SqlSequence;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-public interface DatabaseExternalDefintion {
+interface DatabaseExternalConfig {
 
-    void forEachSequence(BiConsumer<Module, SqlSequence> consumer);
+	void forEachSequence(BiConsumer<Module, SqlSequence> consumer);
 
 }

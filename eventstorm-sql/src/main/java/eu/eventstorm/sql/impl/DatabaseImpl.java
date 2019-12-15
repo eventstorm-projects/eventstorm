@@ -51,12 +51,7 @@ public final class DatabaseImpl implements Database {
     
     private final JsonMapper jsonMapper;
 
-    /**
-     * @param dataSource    the {@link DataSource}
-     * @param dialect
-     * @param defaultSchema
-     */
-    DatabaseImpl(Dialect.Name dialect, TransactionManager transactionManager, JsonMapper jsonMapper, String defaultSchema, DatabaseExternalDefintion ded, ImmutableList<Module> modules) {
+    DatabaseImpl(Dialect.Name dialect, TransactionManager transactionManager, JsonMapper jsonMapper, String defaultSchema, ImmutableList<Module> modules, ImmutableList<DatabaseExternalConfig> externals) {
         this.dialect = Dialects.dialect(dialect, this);
         this.transactionManager = transactionManager;
         this.jsonMapper = jsonMapper;
@@ -75,11 +70,11 @@ public final class DatabaseImpl implements Database {
             });
         }
         
-        if (ded != null) {
-            ded.forEachSequence( (m, sequence) -> {
+        for (DatabaseExternalConfig dec : externals) {
+        	dec.forEachSequence( (m, sequence) -> {
                 LOGGER.info("add External sequence [{}] to Module [{}]", sequence, m);
                 builderSequences.put(sequence, m);
-            });
+            });	
         }
         
         tables = builder.build();
