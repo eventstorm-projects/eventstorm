@@ -78,20 +78,20 @@ public final class DatabaseEventStore implements EventStore {
 			Optional<DatabaseEvent> optional = events.findFirst();
 
 			DatabaseEventBuilder builder = new DatabaseEventBuilder()
-					.aggregateId(id.toStringValue())
-					.aggregateType(aggregateType)
-			        .time(Timestamp.from(time.toInstant()))
-			        .payload(Blobs.newBlob(content))
-			        .payloadType(registry.getPayloadType(payload))
-			        .payloadVersion(registry.getPayloadVersion(payload))
+					.withAggregateId(id.toStringValue())
+					.withAggregateType(aggregateType)
+			        .withTime(Timestamp.from(time.toInstant()))
+			        .withPayload(Blobs.newBlob(content))
+			        .withPayloadType(registry.getPayloadType(payload))
+			        .withPayloadVersion(registry.getPayloadVersion(payload))
 			        ;
 
 			if (optional.isPresent()) {
 				// "update"
-				builder.revision(optional.get().getRevision() + 1);
+				builder.withRevision(optional.get().getRevision() + 1);
 			} else {
 				// "insert"
-				builder.revision(1);
+				builder.withRevision(1);
 			}
 
 			de = builder.build();

@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.eventsotrm.core.apt.model.EventDescriptor;
 import eu.eventsotrm.core.apt.model.EventPropertyDescriptor;
+import eu.eventsotrm.sql.apt.Helper;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.core.json.DeserializerException;
@@ -106,7 +107,7 @@ final class EventPayloadJacksonStdDeserializerGenerator {
 		writer.write("        FIELDS = ImmutableMap.<String, ParserConsumer<"+ ed.simpleName() + "Builder>>builder()");
 		writeNewLine(writer);
 		for (EventPropertyDescriptor epd : ed.properties()) {
-		    writer.write("				.put(\"" + epd.name() + "\", (parser, builder) -> builder." + epd.name() + "(parser.");
+		    writer.write("				.put(\"" + epd.name() + "\", (parser, builder) -> builder.with" + Helper.firstToUpperCase(epd.name()) + "(parser.");
 			if ("java.lang.String".equals(epd.getter().getReturnType().toString())) {
 				writer.write("nextTextValue()");
 			} else if ("int".equals(epd.getter().getReturnType().toString())) {

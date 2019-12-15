@@ -143,8 +143,8 @@ final class PojoBuilderGenerator implements Generator {
         writeNewLine(writer);
         writer.write("    public ");
         writer.write(descriptor.simpleName().concat("Builder"));
-        writer.write(' ');
-        writer.write(ppd.name());
+        writer.write(" with");
+        writer.write(Helper.firstToUpperCase(ppd.name()));
         writer.write('(');
         writer.write(ppd.getter().getReturnType().toString());
         writer.write(' ');

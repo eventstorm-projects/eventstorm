@@ -62,6 +62,13 @@ public final class Helper {
         builder.append(name.substring(1));
         return builder.toString();
     }
+    
+    public static String firstToUpperCase(String name) {
+        StringBuilder builder = new StringBuilder(name.length());
+        builder.append(Character.toUpperCase(name.charAt(0)));
+        builder.append(name.substring(1));
+        return builder.toString();
+    }
 
     public static String toUpperCase(String name) {
         StringBuilder builder = new StringBuilder();

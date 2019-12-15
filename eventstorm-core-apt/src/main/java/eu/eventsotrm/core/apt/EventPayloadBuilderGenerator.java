@@ -13,6 +13,7 @@ import javax.tools.JavaFileObject;
 
 import eu.eventsotrm.core.apt.model.EventDescriptor;
 import eu.eventsotrm.core.apt.model.EventPropertyDescriptor;
+import eu.eventsotrm.sql.apt.Helper;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 
@@ -127,8 +128,8 @@ final class EventPayloadBuilderGenerator {
         writeNewLine(writer);
         writer.write("    public ");
         writer.write(ed.simpleName() + "Builder");
-        writer.write(' ');
-        writer.write(epd.name());
+        writer.write(" with");
+        writer.write(Helper.firstToUpperCase(epd.name()));
         writer.write("(");
         writer.write(epd.getter().getReturnType().toString());
         writer.write(' ');
