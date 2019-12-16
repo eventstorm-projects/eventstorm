@@ -22,7 +22,6 @@ class AggregateIdExtractorsTest {
         
         assertThrows(IllegalStateException.class, () -> extractInteger(from(123l)));
         assertThrows(IllegalStateException.class, () -> extractInteger(from("123")));
-
     }
     
     @Test
