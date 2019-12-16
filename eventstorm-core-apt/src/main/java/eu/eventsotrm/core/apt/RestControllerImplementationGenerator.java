@@ -25,6 +25,7 @@ import eu.eventstorm.core.annotation.HttpMethod;
 import eu.eventstorm.core.cloudevent.CloudEvent;
 import eu.eventstorm.core.cloudevent.CloudEvents;
 import eu.eventstorm.core.util.NamedThreadFactory;
+import eu.eventstorm.util.Strings;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -136,6 +137,14 @@ final class RestControllerImplementationGenerator {
 
 	private void writeConstructor(Writer writer, RestControllerDescriptor desc) throws IOException {
 
+	    String threadName = null;
+	    if (desc.getRestController().async()) {
+	        threadName = desc.getRestController().asyncThreadName();
+	        if (Strings.isEmpty(threadName)) {
+	            threadName = desc.getRestController().name();
+	        }
+	    }
+	    
 		writer.write("    public ");
 		writer.write(desc.getRestController().name());
 		writer.write("(");
@@ -144,8 +153,11 @@ final class RestControllerImplementationGenerator {
 		writeNewLine(writer);
 		writer.write("        this.gateway = gateway;");
 		writeNewLine(writer);
-		writer.write("        this.executor = Executors.newFixedThreadPool(1, new NamedThreadFactory(\"" + Helper.toSnakeCase(desc.getRestController().name()) + "\"));");
-        writeNewLine(writer);
+		if (desc.getRestController().async()) {
+		    writer.write("        this.executor = Executors.newFixedThreadPool(1, new NamedThreadFactory(\"" + Helper.toSnakeCase(threadName) + "\"));");
+	        writeNewLine(writer);    
+		}
+		
 		writer.write("    }");
 		writeNewLine(writer);
 		writeNewLine(writer);

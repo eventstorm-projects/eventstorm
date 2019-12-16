@@ -18,6 +18,14 @@ final class ComposeAggregateId implements AggregateId{
         this.id2 = id2;
     }
     
+    public AggregateId getId1() {
+        return id1;
+    }
+
+    public AggregateId getId2() {
+        return id2;
+    }
+
     @Override
     public int hashCode() {
         return id1.hashCode() * id2.hashCode();

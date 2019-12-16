@@ -23,5 +23,19 @@ public final class AggregateIdExtractors {
         }
         throw new IllegalStateException();
     }
+    
+    public static AggregateId extractComposePart1(AggregateId aggregateId) {
+        if (aggregateId instanceof ComposeAggregateId) {
+            return ((ComposeAggregateId) aggregateId).getId1();
+        }
+        throw new IllegalStateException();
+    }
+    
+    public static AggregateId extractComposePart2(AggregateId aggregateId) {
+        if (aggregateId instanceof ComposeAggregateId) {
+            return ((ComposeAggregateId) aggregateId).getId2();
+        }
+        throw new IllegalStateException();
+    }
 
 }

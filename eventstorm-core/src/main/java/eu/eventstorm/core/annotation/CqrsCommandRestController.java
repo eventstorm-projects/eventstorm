@@ -13,6 +13,9 @@ import java.lang.annotation.Target;
 @Retention(RUNTIME)
 public @interface CqrsCommandRestController {
 
+    /**
+     * Name of the RestController (Class name of the restController)
+     */
 	String name();
     
     /**
@@ -25,5 +28,7 @@ public @interface CqrsCommandRestController {
 	HttpMethod method();
 	
 	boolean async() default true;
+	
+	String asyncThreadName() default "";
 	
 }
