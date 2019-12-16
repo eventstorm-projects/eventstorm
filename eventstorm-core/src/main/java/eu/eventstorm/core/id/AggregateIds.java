@@ -22,4 +22,8 @@ public final class AggregateIds {
 		return new StringAggregateId(id);
 	}
 	
+	public static AggregateId compose(AggregateId id1, AggregateId id2) {
+        return new ComposeAggregateId(id1, id2);
+    }
+	
 }

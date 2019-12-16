@@ -42,5 +42,5 @@ final class StringAggregateId implements AggregateId {
 	public String toStringValue() {
 		return this.id;
 	}
-	
+
 }

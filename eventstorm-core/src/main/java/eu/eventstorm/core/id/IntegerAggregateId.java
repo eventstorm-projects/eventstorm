@@ -40,5 +40,9 @@ final class IntegerAggregateId implements AggregateId {
 	public String toStringValue() {
 		return String.valueOf(id);
 	}
+
+    int getId() {
+        return this.id;
+    }
 	
 }

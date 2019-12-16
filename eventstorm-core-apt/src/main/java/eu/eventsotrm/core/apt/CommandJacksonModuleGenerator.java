@@ -59,7 +59,12 @@ final class CommandJacksonModuleGenerator {
 		writeNewLine(writer);
 		writer.write("import " + SimpleModule.class.getName() + ";");
 
+		writeNewLine(writer);
+        
+		
 		writeGenerated(writer, CommandJacksonModuleGenerator.class.getName());
+		writer.write("@SuppressWarnings(\"serial\")");
+        writeNewLine(writer);
 		writer.write("public final class CommandModule extends SimpleModule {");
 		writeNewLine(writer);
 	}

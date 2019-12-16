@@ -18,7 +18,6 @@ import eu.eventsotrm.core.apt.model.RestControllerDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.core.CommandGateway;
-import eu.eventstorm.core.EventPayload;
 import eu.eventstorm.core.annotation.HttpMethod;
 import eu.eventstorm.core.cloudevent.CloudEvent;
 import eu.eventstorm.core.cloudevent.CloudEvents;
@@ -75,13 +74,9 @@ final class RestControllerImplementationGenerator {
 		writePackage(writer, javaPackage);
 		writeNewLine(writer);
 
-		writer.write("import org.springframework.http.ResponseEntity;");
-		writeNewLine(writer);
 		writer.write("import org.springframework.web.bind.annotation.RequestBody;");
 		writeNewLine(writer);
-		writer.write("import org.springframework.web.bind.annotation.RestController;");
-		writeNewLine(writer);
-		writer.write("import com.google.common.collect.ImmutableList;");
+		writer.write("import org.springframework.web.bind.annotation.RestController;");		
 		writeNewLine(writer);
 		writer.write("import " + Stream.class.getName() +";");
 		writeNewLine(writer);
@@ -100,9 +95,6 @@ final class RestControllerImplementationGenerator {
 		writeNewLine(writer);
 		writer.write("import " + CloudEvents.class.getName() + ";");
 		writeNewLine(writer);
-		writer.write("import " + EventPayload.class.getName() + ";");
-		writeNewLine(writer);
-		
 		
 		writeGenerated(writer, RestControllerImplementationGenerator.class.getName());
 		writer.write("@RestController");
