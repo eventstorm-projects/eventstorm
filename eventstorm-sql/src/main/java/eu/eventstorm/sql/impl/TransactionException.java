@@ -9,7 +9,7 @@ import eu.eventstorm.sql.tracer.TransactionSpan;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-public final class EventstormTransactionException extends EventstormSqlException {
+public final class TransactionException extends EventstormSqlException {
 
     /**
 	 *  Generated seruql UID.
@@ -21,20 +21,20 @@ public final class EventstormTransactionException extends EventstormSqlException
     }
 
 
-    EventstormTransactionException(Type type, AbstractTransaction transaction, TransactionSpan span) {
+    TransactionException(Type type, AbstractTransaction transaction, TransactionSpan span) {
         super(type, null);
     }
 
-    EventstormTransactionException(Type type, AbstractTransaction transaction, TransactionSpan span, SQLException cause) {
+    TransactionException(Type type, AbstractTransaction transaction, TransactionSpan span, SQLException cause) {
         super(type, null, cause);
     }
 
     
-    EventstormTransactionException(Type type) {
+    TransactionException(Type type) {
         super(type, null);
     }
 
-     EventstormTransactionException(Type type, SQLException cause) {
+     TransactionException(Type type, SQLException cause) {
         super(type, null, cause);
     }
 

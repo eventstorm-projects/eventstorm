@@ -46,7 +46,7 @@ public final class SourceCode {
 		this.packages = mapByPackage(env, this.commands);
 		this.eventpackages = mapByPackage(env, this.events);
 		this.restControllers = restControllerDescriptors.stream()
-		        .collect(groupingBy( t -> t.getName(env), mapping(identity(), toImmutableList())));
+		        .collect(groupingBy( t -> t.getFCQN(env), mapping(identity(), toImmutableList())));
 	}
 
 	public void forEachCommand(Consumer<CommandDescriptor> consumer) {

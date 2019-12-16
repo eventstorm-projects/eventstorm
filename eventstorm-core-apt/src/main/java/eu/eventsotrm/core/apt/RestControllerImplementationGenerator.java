@@ -7,6 +7,8 @@ import static eu.eventsotrm.sql.apt.Helper.writePackage;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.stream.Stream;
 
 import javax.annotation.processing.ProcessingEnvironment;
@@ -15,12 +17,14 @@ import javax.tools.JavaFileObject;
 import com.google.common.collect.ImmutableList;
 
 import eu.eventsotrm.core.apt.model.RestControllerDescriptor;
+import eu.eventsotrm.sql.apt.Helper;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.core.CommandGateway;
 import eu.eventstorm.core.annotation.HttpMethod;
 import eu.eventstorm.core.cloudevent.CloudEvent;
 import eu.eventstorm.core.cloudevent.CloudEvents;
+import eu.eventstorm.core.util.NamedThreadFactory;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -61,26 +65,26 @@ final class RestControllerImplementationGenerator {
 
 	private void writeHeader(Writer writer, ProcessingEnvironment env, ImmutableList<RestControllerDescriptor> desc) throws IOException {
 
-	    String javaPackage = desc.get(0).getRestController().javaPackage();
-	    if ("".equals(javaPackage)) {
-	        javaPackage = env.getElementUtils().getPackageOf(desc.get(0).element()).toString();
-	        if (javaPackage.startsWith("package")) {
-                // with eclipse compiler
-	            javaPackage = javaPackage.substring(7).trim();
-	            javaPackage+= ".rest";
-            }
-	    }
+	    String javaPackage = desc.get(0).getPackage(env);
 	    
 		writePackage(writer, javaPackage);
 		writeNewLine(writer);
 
+		
+        writer.write("import " + Stream.class.getName() +";");
+        writeNewLine(writer);
+        writer.write("import " + Executor.class.getName() + ";");
+        writeNewLine(writer);
+        writer.write("import " + Executors.class.getName() + ";");
+        writeNewLine(writer);
+        
 		writer.write("import org.springframework.web.bind.annotation.RequestBody;");
 		writeNewLine(writer);
 		writer.write("import org.springframework.web.bind.annotation.RestController;");		
-		writeNewLine(writer);
-		writer.write("import " + Stream.class.getName() +";");
-		writeNewLine(writer);
 		
+		writeNewLine(writer);
+		writer.write("import " + NamedThreadFactory.class.getName() + ";");
+	    writeNewLine(writer);
 		
 		
 		for (RestControllerDescriptor rcd : desc) {
@@ -122,6 +126,11 @@ final class RestControllerImplementationGenerator {
 		writer.write(CommandGateway.class.getName());
 		writer.write(" gateway;");
 		writeNewLine(writer);
+		writer.write("    private final ");
+        writer.write(Executor.class.getSimpleName());
+        writer.write(" executor;");
+        writeNewLine(writer);
+        
 		writeNewLine(writer);
 	}
 
@@ -135,6 +144,8 @@ final class RestControllerImplementationGenerator {
 		writeNewLine(writer);
 		writer.write("        this.gateway = gateway;");
 		writeNewLine(writer);
+		writer.write("        this.executor = Executors.newFixedThreadPool(1, new NamedThreadFactory(\"" + Helper.toSnakeCase(desc.getRestController().name()) + "\"));");
+        writeNewLine(writer);
 		writer.write("    }");
 		writeNewLine(writer);
 		writeNewLine(writer);
@@ -169,7 +180,7 @@ final class RestControllerImplementationGenerator {
 		writeNewLine(writer);
 		writer.write("        }");
 		writeNewLine(writer);
-		writer.write("        return CompletableFuture.supplyAsync(() -> this.gateway.dispatch(command))");
+		writer.write("        return CompletableFuture.supplyAsync(() -> this.gateway.dispatch(command), this.executor)");
 		writeNewLine(writer);
 		writer.write("                         .thenApplyAsync(CloudEvents::to);");
 		writeNewLine(writer);

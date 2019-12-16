@@ -74,6 +74,21 @@ final class ModuleGenerator implements Generator {
 
         writeNewLine(writer);
         writer.write("    }");
+        
+        
+        writeNewLine(writer);
+        writer.write("     public " + classname + "(String name, String catalog, String prefix) {");
+        writeNewLine(writer);
+        writer.write("         super(name, catalog, prefix");
+
+        for (PojoDescriptor desc : descriptors) {
+            writer.write(", ");
+            writer.write(desc.simpleName() + "Descriptor.INSTANCE");
+        }
+        writer.write(");");
+
+        writeNewLine(writer);
+        writer.write("    }");
 
     }
 

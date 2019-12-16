@@ -134,9 +134,9 @@ class TransactionTest {
 		try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
 			
 			assertEquals(true, tx.isReadOnly());
-			assertThrows(EventstormTransactionException.class, () -> tx.commit());
-			assertThrows(EventstormTransactionException.class, () -> ((TransactionReadOnly)tx).write("XXX"));
-			assertThrows(EventstormTransactionException.class, () -> ((TransactionReadOnly)tx).writeAutoIncrement("XXX"));
+			assertThrows(TransactionException.class, () -> tx.commit());
+			assertThrows(TransactionException.class, () -> ((TransactionReadOnly)tx).write("XXX"));
+			assertThrows(TransactionException.class, () -> ((TransactionReadOnly)tx).writeAutoIncrement("XXX"));
 			//assertThrows(EventstormTransactionException.class, () -> ((TransactionReadOnly)tx).innerTransaction(new TransactionDefinitionReadWrite()));
 			
 		}

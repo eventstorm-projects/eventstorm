@@ -1,8 +1,8 @@
 package eu.eventstorm.sql.impl;
 
-import static eu.eventstorm.sql.impl.EventstormTransactionException.Type.CONNECTION_ISOLATION;
-import static eu.eventstorm.sql.impl.EventstormTransactionException.Type.CREATE;
-import static eu.eventstorm.sql.impl.EventstormTransactionException.Type.NO_CURRENT_TRANSACTION;
+import static eu.eventstorm.sql.impl.TransactionException.Type.CONNECTION_ISOLATION;
+import static eu.eventstorm.sql.impl.TransactionException.Type.CREATE;
+import static eu.eventstorm.sql.impl.TransactionException.Type.NO_CURRENT_TRANSACTION;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -46,7 +46,7 @@ public final class TransactionManagerImpl implements TransactionManager {
         try (Connection conn = dataSource.getConnection()) {
             this.defaultIsolationLevel = conn.getTransactionIsolation();
         } catch (SQLException cause) {
-            throw new EventstormTransactionException(CONNECTION_ISOLATION, cause);
+            throw new TransactionException(CONNECTION_ISOLATION, cause);
         }
         this.transactions = new ThreadLocal<>();
     }
@@ -74,7 +74,7 @@ public final class TransactionManagerImpl implements TransactionManager {
     public Transaction current() {
     	Transaction transaction = this.transactions.get();
     	if (transaction == null) {
-            throw new EventstormTransactionException(NO_CURRENT_TRANSACTION);
+            throw new TransactionException(NO_CURRENT_TRANSACTION);
         }
         return transaction;
     }
@@ -123,7 +123,7 @@ public final class TransactionManagerImpl implements TransactionManager {
             conn.setAutoCommit(false);
             prepareTransactionalConnection(conn, definition);
         } catch (SQLException cause) {
-            throw new EventstormTransactionException(CREATE, cause);
+            throw new TransactionException(CREATE, cause);
         }
 
         return conn;

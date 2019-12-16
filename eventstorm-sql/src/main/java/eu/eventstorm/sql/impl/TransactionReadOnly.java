@@ -20,24 +20,24 @@ final class TransactionReadOnly extends AbstractTransaction {
 
 	@Override
 	protected void doCommit() {
-		throw new EventstormTransactionException(EventstormTransactionException.Type.READ_ONLY);
+		throw new TransactionException(TransactionException.Type.READ_ONLY);
 	}
 
 	@Override
 	public TransactionQueryContext write(String sql) {
-		throw new EventstormTransactionException(EventstormTransactionException.Type.READ_ONLY);
+		throw new TransactionException(TransactionException.Type.READ_ONLY);
 	}
 
 	public Transaction innerTransaction(TransactionDefinition definition) {
 		if (!definition.isReadOnly()) {
-			throw new EventstormTransactionException(EventstormTransactionException.Type.READ_ONLY);
+			throw new TransactionException(TransactionException.Type.READ_ONLY);
 		}
 		return new TransactionNested(this);
 	}
 
 	@Override
 	public TransactionQueryContext writeAutoIncrement(String sql) {
-		throw new EventstormTransactionException(EventstormTransactionException.Type.READ_ONLY);
+		throw new TransactionException(TransactionException.Type.READ_ONLY);
 	}
 
 }

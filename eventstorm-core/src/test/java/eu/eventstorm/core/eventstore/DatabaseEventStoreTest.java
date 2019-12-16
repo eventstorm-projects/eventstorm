@@ -39,7 +39,6 @@ import eu.eventstorm.core.json.ParserConsumer;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Dialect;
 import eu.eventstorm.sql.impl.DatabaseBuilder;
-import eu.eventstorm.sql.impl.DatabaseImpl;
 import eu.eventstorm.sql.impl.TransactionManagerImpl;
 import eu.eventstorm.test.LoggerInstancePostProcessor;
 

@@ -293,7 +293,7 @@ public class FlywayGenerator {
 	private void generateUniqueIndex(Table table, List<String> businessKeys, Writer writer) throws IOException {
 
 		StringBuilder builder = new StringBuilder();
-		builder.append("CREATE INDEX ");
+		builder.append("CREATE UNIQUE INDEX ");
 		builder.append(table.value());
 		builder.append("_bk");
 		builder.append(" ON ");

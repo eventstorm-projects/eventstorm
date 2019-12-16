@@ -30,19 +30,22 @@ public class RestControllerDescriptor {
 		return restController;
 	}
 
-	public String getName(ProcessingEnvironment env) {
+	public String getPackage(ProcessingEnvironment env) {
 	    String javaPackage = restController.javaPackage();
-	    
-	    if ("".equals(javaPackage)) {
-	        javaPackage = env.getElementUtils().getPackageOf(element).toString();
-	        if (javaPackage.startsWith("package")) {
-	            // with eclipse compiler
-	            javaPackage = javaPackage.substring(7).trim();
-	        }
-	        javaPackage += ".rest";
-	    }
-	    
-		return javaPackage + '.' + restController.name();
+        
+        if ("".equals(javaPackage)) {
+            javaPackage = env.getElementUtils().getPackageOf(element).toString();
+            if (javaPackage.startsWith("package")) {
+                // with eclipse compiler
+                javaPackage = javaPackage.substring(7).trim();
+            }
+            javaPackage += ".rest";
+        }
+        return javaPackage;
+	}
+	
+	public String getFCQN(ProcessingEnvironment env) {
+	   return getPackage(env) + '.' + restController.name();
 	}
 
 }

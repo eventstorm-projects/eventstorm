@@ -26,7 +26,7 @@ import eu.eventstorm.sql.dialect.Dialects;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-public final class DatabaseImpl implements Database {
+final class DatabaseImpl implements Database {
 
     /**
      * SLF4J Logger.
