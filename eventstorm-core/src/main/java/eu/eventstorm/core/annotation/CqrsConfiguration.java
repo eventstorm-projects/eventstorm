@@ -11,20 +11,8 @@ import java.lang.annotation.Target;
  */
 @Target({TYPE})
 @Retention(RUNTIME)
-public @interface CqrsCommandRestController {
+public @interface CqrsConfiguration {
 
-    /**
-     * Name of the RestController (Class name of the restController)
-     */
-	String name();
-    
-    /**
-     * default the package name of the command + '.rest'
-     */
-	String javaPackage() default "";
-	
-	String uri();
-	
-	HttpMethod method();
+	String eventStoreThread();
 	
 }

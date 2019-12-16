@@ -24,11 +24,14 @@ import eu.eventsotrm.core.apt.model.EventDescriptor;
 import eu.eventsotrm.core.apt.model.RestControllerDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
+import eu.eventstorm.core.annotation.CqrsConfiguration;
 
 public final class SourceCode {
 
 	private final Logger logger = LoggerFactory.getInstance().getLogger(SourceCode.class);
 
+	private final CqrsConfiguration cqrsConfiguration;
+	
 	private final ImmutableMap<String, CommandDescriptor> commands;
 
 	private final ImmutableMap<String, ImmutableList<CommandDescriptor>> packages;
@@ -39,8 +42,9 @@ public final class SourceCode {
 
 	private final Map<String, ImmutableList<RestControllerDescriptor>> restControllers;
 
-	SourceCode(ProcessingEnvironment env, List<CommandDescriptor> commands, List<EventDescriptor> events,
+	SourceCode(ProcessingEnvironment env, CqrsConfiguration cqrsConfiguration,List<CommandDescriptor> commands, List<EventDescriptor> events,
 	        List<RestControllerDescriptor> restControllerDescriptors) {
+		this.cqrsConfiguration = cqrsConfiguration;
 		this.commands = commands.stream().collect(toImmutableMap(CommandDescriptor::fullyQualidiedClassName, identity()));
 		this.events = events.stream().collect(toImmutableMap(EventDescriptor::fullyQualidiedClassName, identity()));
 		this.packages = mapByPackage(env, this.commands);
@@ -70,6 +74,10 @@ public final class SourceCode {
 		this.restControllers.forEach(consumer);
 	}
 	
+	public CqrsConfiguration getCqrsConfiguration() {
+		return cqrsConfiguration;
+	}
+
 	void dump() {
 		logger.info("Result Analysis -----------------------------------------------------------------------------------------");
 		logger.info("---------------------------------------------------------------------------------------------------------");

@@ -10,6 +10,7 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
 
@@ -23,6 +24,7 @@ import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.core.annotation.CqrsCommand;
 import eu.eventstorm.core.annotation.CqrsCommandRestController;
+import eu.eventstorm.core.annotation.CqrsConfiguration;
 import eu.eventstorm.core.annotation.CqrsEventPayload;
 
 /**
@@ -55,7 +57,7 @@ public class EventProcessor extends AbstractProcessor {
 		try {
 			logger.info("EventProcessor start");
 
-			doProcess(roundEnv);
+			doProcess(logger, roundEnv);
 
 			logger.info("EventProcessor end");
 			this.firstTime = true;
@@ -69,7 +71,19 @@ public class EventProcessor extends AbstractProcessor {
 
 	}
 
-	private void doProcess(RoundEnvironment roundEnvironment) {
+	private void doProcess(Logger logger, RoundEnvironment roundEnvironment) {
+		
+		Set<? extends Element> configs = roundEnvironment.getElementsAnnotatedWith(CqrsConfiguration.class);
+		CqrsConfiguration cqrsConfiguration= null;
+		if (configs.size() > 1) {
+			logger.error("more than 1 @CqrsConfiguration (Max 1)");
+			for (Element el : configs) {
+				logger.error("\t" + el.toString());
+				return;
+			}
+		} else if (configs.size() == 1) {
+			cqrsConfiguration = configs.iterator().next().getAnnotation(CqrsConfiguration.class);
+		}
 
 		List<CommandDescriptor> descriptors = roundEnvironment.getElementsAnnotatedWith(CqrsCommand.class).stream().map(new CqrsCommandAnalyser())
 		        .collect(Collectors.toList());
@@ -81,7 +95,7 @@ public class EventProcessor extends AbstractProcessor {
 		        .collect(Collectors.toList());
 
 		
-		SourceCode sourceCode = new SourceCode(this.processingEnv, descriptors, eventDescriptors, restControllerDescriptors);
+		SourceCode sourceCode = new SourceCode(this.processingEnv, cqrsConfiguration, descriptors, eventDescriptors, restControllerDescriptors);
 
 		sourceCode.dump();
 

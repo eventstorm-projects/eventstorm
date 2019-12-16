@@ -25,7 +25,6 @@ import eu.eventstorm.core.annotation.HttpMethod;
 import eu.eventstorm.core.cloudevent.CloudEvent;
 import eu.eventstorm.core.cloudevent.CloudEvents;
 import eu.eventstorm.core.util.NamedThreadFactory;
-import eu.eventstorm.util.Strings;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -42,7 +41,7 @@ final class RestControllerImplementationGenerator {
 
 		sourceCode.forEachRestController((name, desc) -> {
 			try {
-				generate(processingEnvironment, name, desc);
+				generate(processingEnvironment, name, desc, sourceCode);
 			} catch (Exception cause) {
 				logger.error("Exception for [" + name + "] -> [" + cause.getMessage() + "]", cause);
 			}
@@ -50,14 +49,14 @@ final class RestControllerImplementationGenerator {
 
 	}
 
-	private void generate(ProcessingEnvironment env, String name, ImmutableList<RestControllerDescriptor> desc) throws IOException {
+	private void generate(ProcessingEnvironment env, String name, ImmutableList<RestControllerDescriptor> desc, SourceCode sourceCode) throws IOException {
 
 		JavaFileObject object = env.getFiler().createSourceFile(name);
 		try (Writer writer = object.openWriter()) {
 
 			writeHeader(writer, env, desc);
 			writeVariables(writer, desc.get(0).getRestController().name());
-			writeConstructor(writer, desc.get(0));
+			writeConstructor(writer, desc.get(0), sourceCode);
 			writeMethods(writer, desc);
 			writer.write("}");
 		}
@@ -88,13 +87,8 @@ final class RestControllerImplementationGenerator {
 	    writeNewLine(writer);
 		
 		
-		for (RestControllerDescriptor rcd : desc) {
-			if (rcd.getRestController().async()) {
-				writer.write("import " + CompletableFuture.class.getName() + ";");
-				writeNewLine(writer);
-				break;
-			}
-		}
+		writer.write("import " + CompletableFuture.class.getName() + ";");
+		writeNewLine(writer);
 		
 		writer.write("import " + CloudEvent.class.getName() + ";");
 		writeNewLine(writer);
@@ -135,15 +129,12 @@ final class RestControllerImplementationGenerator {
 		writeNewLine(writer);
 	}
 
-	private void writeConstructor(Writer writer, RestControllerDescriptor desc) throws IOException {
+	private void writeConstructor(Writer writer, RestControllerDescriptor desc, SourceCode sourceCode) throws IOException {
 
-	    String threadName = null;
-	    if (desc.getRestController().async()) {
-	        threadName = desc.getRestController().asyncThreadName();
-	        if (Strings.isEmpty(threadName)) {
-	            threadName = desc.getRestController().name();
-	        }
-	    }
+		String threadName = "es_";
+		if (sourceCode.getCqrsConfiguration() != null) {
+			threadName = sourceCode.getCqrsConfiguration().eventStoreThread();
+		} 
 	    
 		writer.write("    public ");
 		writer.write(desc.getRestController().name());
@@ -153,10 +144,8 @@ final class RestControllerImplementationGenerator {
 		writeNewLine(writer);
 		writer.write("        this.gateway = gateway;");
 		writeNewLine(writer);
-		if (desc.getRestController().async()) {
-		    writer.write("        this.executor = Executors.newFixedThreadPool(1, new NamedThreadFactory(\"" + Helper.toSnakeCase(threadName) + "\"));");
-	        writeNewLine(writer);    
-		}
+	    writer.write("        this.executor = Executors.newFixedThreadPool(1, new NamedThreadFactory(\"" + Helper.toSnakeCase(threadName) + "\"));");
+        writeNewLine(writer);    
 		
 		writer.write("    }");
 		writeNewLine(writer);
@@ -168,11 +157,7 @@ final class RestControllerImplementationGenerator {
 
 		for (RestControllerDescriptor rcd : desc) {
 			writeSpring(writer, rcd);
-			if (rcd.getRestController().async()) {
-				writeMethodRestAsync(writer, rcd);
-			} else {
-				writeMethodRest(writer, rcd);
-			}
+			writeMethodRestAsync(writer, rcd);
 
 		}
 
@@ -199,26 +184,6 @@ final class RestControllerImplementationGenerator {
 		writer.write("    }");
 		writeNewLine(writer);
 		
-	}
-
-	private static void writeMethodRest(Writer writer, RestControllerDescriptor rcd) throws IOException {
-		writer.write("    public void on(@RequestBody ");
-		writer.write(rcd.element().toString());
-		writer.write(" command) {");
-		writeNewLine(writer);
-		writeNewLine(writer);
-		writer.write("        if (LOGGER.isTraceEnabled()) {");
-		writeNewLine(writer);
-		writer.write("            LOGGER.trace(\"on(");
-		writer.write(rcd.element().getSimpleName().toString());
-		writer.write(") : [{}]\", command);");
-		writeNewLine(writer);
-		writer.write("        }");
-		writeNewLine(writer);
-		writer.write("        this.gateway.dispatch(command);");
-		writeNewLine(writer);
-		writer.write("    }");
-		writeNewLine(writer);
 	}
 
 	private static void writeSpring(Writer writer, RestControllerDescriptor rcd) throws IOException {

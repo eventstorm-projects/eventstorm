@@ -19,6 +19,10 @@ public final class TransactionTemplate {
     public <T> TransactionTemplateBuilder<T> withReadWriteTransaction() {
         return new TransactionTemplateBuilderReadWrite<T>(database);
     }
+    
+    public <T> TransactionTemplateBuilder<T> withReadOnlyTransaction() {
+        return new TransactionTemplateBuilderReadOnly<T>(database);
+    }
 
     public static abstract class TransactionTemplateBuilder<T> {
         
@@ -47,7 +51,7 @@ public final class TransactionTemplate {
         
         public T execute() {
             T returnValue;
-            try (Transaction tx = database.transactionManager().newTransactionIsolatedReadWrite()) {
+            try (Transaction tx = database.transactionManager().newTransactionReadWrite()) {
                 try {
                     returnValue = supplier.get();                    
                     tx.commit();
@@ -60,5 +64,28 @@ public final class TransactionTemplate {
         }
         
     }
+
     
+    static final class TransactionTemplateBuilderReadOnly<T> extends TransactionTemplateBuilder<T> {
+
+        public TransactionTemplateBuilderReadOnly(Database database) {
+            super(database);
+        }
+        
+        public T execute() {
+            T returnValue;
+            try (Transaction tx = database.transactionManager().newTransactionReadOnly()) {
+                try {
+                    returnValue = supplier.get();                    
+                    tx.rollback();
+                } catch (Exception cause) {
+                    tx.rollback();
+                    throw cause;
+                }
+            } 
+            return returnValue;
+        }
+        
+    }
+
 }

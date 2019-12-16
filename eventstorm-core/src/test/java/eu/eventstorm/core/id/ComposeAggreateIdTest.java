@@ -10,7 +10,6 @@ import java.util.Set;
 
 import org.json.JSONException;
 import org.junit.jupiter.api.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
 
 import eu.eventstorm.core.AggregateId;
 
