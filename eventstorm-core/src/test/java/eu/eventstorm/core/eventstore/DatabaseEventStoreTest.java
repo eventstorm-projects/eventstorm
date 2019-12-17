@@ -91,7 +91,7 @@ class DatabaseEventStoreTest {
 		eventStore.appendToStream("user", from(1), new UserCreatedEventPayloadImpl("ja","gmail",39));
 		
 		
-		Optional<Event<? extends EventPayload>> op = eventStore.readStream("user", from(1)).findFirst();
+		Optional<Event<EventPayload>> op = eventStore.readStream("user", from(1)).findFirst();
 		
 		assertTrue(op.isPresent());
 		

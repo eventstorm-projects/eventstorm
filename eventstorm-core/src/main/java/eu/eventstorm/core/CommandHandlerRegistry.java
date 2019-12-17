@@ -73,19 +73,19 @@ public final class CommandHandlerRegistry {
 
 	public static class Builder {
 
-		private final ImmutableMap.Builder<String, CommandHandler<? extends Command>> builder;
+		private final ImmutableMap.Builder<String, CommandHandler<? extends Command>> mapBuilder;
 
 		private Builder() {
-			this.builder = ImmutableMap.builder();
+			this.mapBuilder = ImmutableMap.builder();
 		}
 
 		public <T extends Command> Builder add(CommandHandler<T> commandHandler) {
-			this.builder.put(commandHandler.getType().getName(), commandHandler);
+			this.mapBuilder.put(commandHandler.getType().getName(), commandHandler);
 			return this;
 		}
 
 		public CommandHandlerRegistry build() {
-			return new CommandHandlerRegistry(builder.build());
+			return new CommandHandlerRegistry(mapBuilder.build());
 		}
 
 	}

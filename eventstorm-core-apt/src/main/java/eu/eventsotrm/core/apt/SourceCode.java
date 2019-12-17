@@ -21,6 +21,7 @@ import com.google.common.collect.ImmutableMap;
 import eu.eventsotrm.core.apt.model.CommandDescriptor;
 import eu.eventsotrm.core.apt.model.Descriptor;
 import eu.eventsotrm.core.apt.model.EventDescriptor;
+import eu.eventsotrm.core.apt.model.QueryDescriptor;
 import eu.eventsotrm.core.apt.model.RestControllerDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
@@ -41,9 +42,11 @@ public final class SourceCode {
 	private final ImmutableMap<String, ImmutableList<EventDescriptor>> eventpackages;
 
 	private final Map<String, ImmutableList<RestControllerDescriptor>> restControllers;
+	
+	private final ImmutableMap<String, QueryDescriptor> queries;
 
 	SourceCode(ProcessingEnvironment env, CqrsConfiguration cqrsConfiguration,List<CommandDescriptor> commands, List<EventDescriptor> events,
-	        List<RestControllerDescriptor> restControllerDescriptors) {
+	        List<RestControllerDescriptor> restControllerDescriptors, List<QueryDescriptor> queries) {
 		this.cqrsConfiguration = cqrsConfiguration;
 		this.commands = commands.stream().collect(toImmutableMap(CommandDescriptor::fullyQualidiedClassName, identity()));
 		this.events = events.stream().collect(toImmutableMap(EventDescriptor::fullyQualidiedClassName, identity()));
@@ -51,11 +54,16 @@ public final class SourceCode {
 		this.eventpackages = mapByPackage(env, this.events);
 		this.restControllers = restControllerDescriptors.stream()
 		        .collect(groupingBy( t -> t.getFCQN(env), mapping(identity(), toImmutableList())));
+		this.queries = queries.stream().collect(toImmutableMap(QueryDescriptor::fullyQualidiedClassName, identity()));
 	}
 
 	public void forEachCommand(Consumer<CommandDescriptor> consumer) {
 		this.commands.values().forEach(consumer);
 	}
+	
+   public void forEachQuery(Consumer<QueryDescriptor> consumer) {
+        this.queries.values().forEach(consumer);
+    }
 
 	public void forEachEvent(Consumer<EventDescriptor> consumer) {
 		this.events.values().forEach(consumer);
@@ -86,11 +94,17 @@ public final class SourceCode {
 			logger.info("\t-> " + desc);
 		});
 		logger.info("---------------------------------------------------------------------------------------------------------");
-		logger.info("Number of events(s) found : " + events.size());
+		logger.info("Number of event(s) found : " + events.size());
 		events.values().forEach(desc -> {
 			logger.info("\t-> " + desc);
 		});
 		logger.info("---------------------------------------------------------------------------------------------------------");
+		logger.info("---------------------------------------------------------------------------------------------------------");
+        logger.info("Number of query(ies) found : " + queries.size());
+        queries.values().forEach(desc -> {
+            logger.info("\t-> " + desc);
+        });
+        logger.info("---------------------------------------------------------------------------------------------------------");
 	}
 	
 	private <T extends Descriptor> ImmutableMap<String, ImmutableList<T>> mapByPackage(ProcessingEnvironment env, ImmutableMap<String, T> map) {

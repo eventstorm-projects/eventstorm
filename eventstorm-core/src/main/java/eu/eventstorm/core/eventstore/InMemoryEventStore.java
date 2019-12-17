@@ -26,20 +26,20 @@ public final class InMemoryEventStore implements EventStore {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(InMemoryEventStore.class);
 
-	private final Map<String, Map<AggregateId, List<Event<? extends EventPayload>>>> map = new HashMap<>();
+	private final Map<String, Map<AggregateId, List<Event<EventPayload>>>> map = new HashMap<>();
 
 	private final List<Event<? extends EventPayload>> allEvents = new LinkedList<>();
 
 	@Override
-	public Stream<Event<? extends EventPayload>> readStream(String streamId, AggregateId aggregateId) {
+	public Stream<Event<EventPayload>> readStream(String streamId, AggregateId aggregateId) {
 
-		Map<AggregateId, List<Event<? extends EventPayload>>> stream = map.get(streamId);
+		Map<AggregateId, List<Event<EventPayload>>> stream = map.get(streamId);
 
 		if (stream == null) {
 			throw new EventStoreException(EventStoreException.Type.STREAM_NOT_FOUND, ImmutableMap.of("stream", streamId));
 		}
 
-		List<Event<? extends EventPayload>> events = stream.get(aggregateId);
+		List<Event<EventPayload>> events = stream.get(aggregateId);
 
 		if (events == null) {
 			return Stream.empty();
@@ -48,7 +48,8 @@ public final class InMemoryEventStore implements EventStore {
 		return events.stream();
 	}
 
-	@Override
+	@SuppressWarnings("unchecked")
+    @Override
 	public <T extends EventPayload> Event<T> appendToStream(String aggregateType, AggregateId id, T payload) {
 
 		if (LOGGER.isDebugEnabled()) {
@@ -68,7 +69,8 @@ public final class InMemoryEventStore implements EventStore {
 
 		this.allEvents.add(event);
 
-		this.map.computeIfAbsent(aggregateType, key -> new HashMap<>()).computeIfAbsent(id, key -> new ArrayList<>()).add(event);
+		this.map.computeIfAbsent(aggregateType, key -> new HashMap<>()).computeIfAbsent(id, key -> new ArrayList<>())
+		    .add((Event<EventPayload>) event);
 
 		return event;
 	}

@@ -31,4 +31,16 @@ public class CommandDescriptor implements Descriptor {
         return fqcn.substring(fqcn.lastIndexOf('.') + 1);
 	}
 
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("CommandDescriptor : ").append(element);
+        for (CommandPropertyDescriptor property : properties) {
+            builder.append("\n\t").append(property);
+        }
+        return builder.toString();
+    }
+	
+	
+
 }

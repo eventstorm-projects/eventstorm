@@ -16,9 +16,11 @@ import javax.tools.Diagnostic;
 
 import eu.eventsotrm.core.apt.analyser.CqrsCommandAnalyser;
 import eu.eventsotrm.core.apt.analyser.CqrsEventAnalyser;
+import eu.eventsotrm.core.apt.analyser.CqrsQueryAnalyser;
 import eu.eventsotrm.core.apt.analyser.CqrsRestControllerAnalyser;
 import eu.eventsotrm.core.apt.model.CommandDescriptor;
 import eu.eventsotrm.core.apt.model.EventDescriptor;
+import eu.eventsotrm.core.apt.model.QueryDescriptor;
 import eu.eventsotrm.core.apt.model.RestControllerDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
@@ -26,6 +28,8 @@ import eu.eventstorm.core.annotation.CqrsCommand;
 import eu.eventstorm.core.annotation.CqrsCommandRestController;
 import eu.eventstorm.core.annotation.CqrsConfiguration;
 import eu.eventstorm.core.annotation.CqrsEventPayload;
+import eu.eventstorm.core.annotation.CqrsQuery;
+import eu.eventstorm.core.annotation.CqrsQueryDatabase;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -93,9 +97,14 @@ public class EventProcessor extends AbstractProcessor {
 
 		List<EventDescriptor> eventDescriptors = roundEnvironment.getElementsAnnotatedWith(CqrsEventPayload.class).stream().map(new CqrsEventAnalyser())
 		        .collect(Collectors.toList());
-
 		
-		SourceCode sourceCode = new SourceCode(this.processingEnv, cqrsConfiguration, descriptors, eventDescriptors, restControllerDescriptors);
+		List<QueryDescriptor> queries = roundEnvironment.getElementsAnnotatedWith(CqrsQuery.class).stream().map(new CqrsQueryAnalyser())
+                .collect(Collectors.toList());
+		
+		queries.addAll(roundEnvironment.getElementsAnnotatedWith(CqrsQueryDatabase.class).stream().map(new CqrsQueryAnalyser())
+		        .collect(Collectors.toList()));
+
+		SourceCode sourceCode = new SourceCode(this.processingEnv, cqrsConfiguration, descriptors, eventDescriptors, restControllerDescriptors, queries);
 
 		sourceCode.dump();
 
@@ -103,6 +112,7 @@ public class EventProcessor extends AbstractProcessor {
 		new CommandFactoryGenerator().generate(this.processingEnv, sourceCode);
 		new CommandJacksonStdDeserializerGenerator().generate(processingEnv, sourceCode);
 		new CommandJacksonModuleGenerator().generate(processingEnv, sourceCode);
+		new CommandExceptionGenerator().generate(processingEnv, sourceCode);
 		
 		new EventPayloadImplementationGenerator().generate(this.processingEnv, sourceCode);
 		new EventPayloadBuilderGenerator().generate(this.processingEnv, sourceCode);
@@ -118,6 +128,18 @@ public class EventProcessor extends AbstractProcessor {
 
 		new DomainModelHandlerImplementationGenerator().generate(this.processingEnv, sourceCode);
 		new RestControllerImplementationGenerator().generate(processingEnvironment, sourceCode);
+		
+		new QueryImplementationGenerator().generate(this.processingEnv, sourceCode);
+		new QueryBuilderGenerator().generate(processingEnv, sourceCode);
+		
+		sourceCode.forEachQuery(queryDescriptor -> {
+		    CqrsQueryDatabase query =  queryDescriptor.element().getAnnotation(CqrsQueryDatabase.class);
+		    if (query != null) {
+		        new QueryDatabaseDescriptorGenerator().generate(processingEnv, queryDescriptor);
+		    }
+		    
+		});
+		
 
 	}
 

@@ -48,8 +48,8 @@ public final class DatabaseEventStore implements EventStore {
 	}
 
 	@Override
-	public Stream<Event<? extends EventPayload>> readStream(String aggregateType, AggregateId aggregateId) {
-		ImmutableList<Event<?>> list;
+	public Stream<Event<EventPayload>> readStream(String aggregateType, AggregateId aggregateId) {
+		ImmutableList<Event<EventPayload>> list;
 		try (Transaction transaction = database.transactionManager().newTransactionReadWrite()) {
 			list = this.databaseRepository.findAllByAggragateTypeAndAggregateId(aggregateType, aggregateId.toStringValue(),
 			        new EventResultSetMapper(aggregateId, aggregateType)).collect(toImmutableList());
@@ -114,7 +114,7 @@ public final class DatabaseEventStore implements EventStore {
 
 	private static final ZoneId ZONE_ID = ZoneId.of("UTC");
 
-	private final class EventResultSetMapper implements ResultSetMapper<Event<?>> {
+	private final class EventResultSetMapper implements ResultSetMapper<Event<EventPayload>> {
 		
 		private final AggregateId aggregateId;
 		private final String aggregateType;
@@ -125,7 +125,7 @@ public final class DatabaseEventStore implements EventStore {
 		}
 
 		@Override
-		public Event<?> map(Dialect dialect, ResultSet rs) throws SQLException {
+		public Event<EventPayload> map(Dialect dialect, ResultSet rs) throws SQLException {
 			byte[] payload = rs.getBytes(3);
 			EventPayload eventPayload = registry.getDeserializer(rs.getString(4)).deserialize(payload);
 			// @formatter:off
