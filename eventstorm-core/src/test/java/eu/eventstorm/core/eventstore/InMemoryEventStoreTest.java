@@ -21,7 +21,7 @@ class InMemoryEventStoreTest {
 		EventStoreException ex = assertThrows(EventStoreException.class, () -> eventStore.readStream("fake", AggregateIds.from(12)));
 		assertEquals(EventStoreException.Type.STREAM_NOT_FOUND, ex.getType());
 		
-		Event event = eventStore.appendToStream("toto", AggregateIds.from(12), new EventPayload() {
+		Event<?> event = eventStore.appendToStream("toto", AggregateIds.from(12), new EventPayload() {
 		});
 		
 		assertEquals(1, eventStore.readStream("toto", AggregateIds.from(12)).count());
