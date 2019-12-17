@@ -17,14 +17,14 @@ public final class TransactionTemplate {
     }
 
     public <T> TransactionTemplateBuilder<T> withReadWriteTransaction() {
-        return new TransactionTemplateBuilderReadWrite<T>(database);
+        return new TransactionTemplateBuilderReadWrite<>(database);
     }
     
     public <T> TransactionTemplateBuilder<T> withReadOnlyTransaction() {
-        return new TransactionTemplateBuilderReadOnly<T>(database);
+        return new TransactionTemplateBuilderReadOnly<>(database);
     }
 
-    public static abstract class TransactionTemplateBuilder<T> {
+    public abstract static class TransactionTemplateBuilder<T> {
         
         protected final Database database;
         

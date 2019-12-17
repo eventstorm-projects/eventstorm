@@ -139,7 +139,12 @@ public final class ToStringBuilder {
 				if (Number.class.isAssignableFrom(value.getClass())) {
 					insertRaw(getChars(value.toString()));
 				} else {
-					insertValue(getChars(value.toString()));
+					char[] content = getChars(value.toString());
+					if (content.length > 1 && content[0] == '{' && content[content.length-1] == '}') {
+						insertRaw(content);
+					} else {
+						insertValue(content);
+					}
 				}
 			}
 		}

@@ -24,13 +24,11 @@ import brave.sampler.Sampler;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Dialect;
 import eu.eventstorm.sql.impl.DatabaseBuilder;
-import eu.eventstorm.sql.impl.TransactionManagerConfiguration;
 import eu.eventstorm.sql.impl.TransactionManagerImpl;
 import eu.eventstorm.sql.model.ex001.AbstractStudentRepository;
 import eu.eventstorm.sql.model.ex001.Student;
 import eu.eventstorm.sql.model.ex001.StudentImpl;
 import eu.eventstorm.sql.tracer.LoggingBraveReporter;
-import eu.eventstorm.sql.tracer.TransactionTracers;
 
 class TransactionTemplateTest {
 	
@@ -55,7 +53,7 @@ class TransactionTemplateTest {
 
 		Tracer tracer = Tracing.newBuilder().sampler(Sampler.ALWAYS_SAMPLE).spanReporter(new LoggingBraveReporter()).build().tracer();
 		Database db = DatabaseBuilder.from(Dialect.Name.H2)
-				.withTransactionManager(new TransactionManagerImpl(ds, new TransactionManagerConfiguration(TransactionTracers.brave(tracer))))
+				.withTransactionManager(new TransactionManagerImpl(ds))
 				.withModule(new eu.eventstorm.sql.model.ex001.Module("test", null))
 				.build();
 		
@@ -96,19 +94,24 @@ class TransactionTemplateTest {
 	void testRollback() {
 
 		Assertions.assertThrows(RuntimeException.class, () ->
-        template.withReadWriteTransaction().supply(() -> {
-        	Student student = new StudentImpl();
-            student.setId(1);
-            student.setAge(37);
-            student.setCode("Code1");
-            repository.insert(student);
-            throw new RuntimeException();
-        }).execute());
+		    template.withReadWriteTransaction().supply(() -> {
+		    	Student student = new StudentImpl();
+		        student.setId(1);
+		        student.setAge(37);
+		        student.setCode("Code1");
+		        repository.insert(student);
+		        throw new RuntimeException();
+		    }).execute());
         
         template.withReadOnlyTransaction().supply(() -> {
         	assertNull(repository.findById(1));
         	return null;
         }).execute();
+        
+        Assertions.assertThrows(RuntimeException.class, () ->
+        	template.withReadOnlyTransaction().supply(() -> {
+        		throw new RuntimeException();
+        	}).execute());
 
 	}
 	
