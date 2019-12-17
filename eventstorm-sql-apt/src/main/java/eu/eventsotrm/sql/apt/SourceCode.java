@@ -1,6 +1,7 @@
 package eu.eventsotrm.sql.apt;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +15,9 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
+import eu.eventsotrm.sql.apt.model.Desc;
 import eu.eventsotrm.sql.apt.model.PojoDescriptor;
+import eu.eventsotrm.sql.apt.model.ViewDescriptor;
 
 public final class SourceCode {
 
@@ -27,12 +30,18 @@ public final class SourceCode {
     private final ImmutableMap<String, PojoDescriptor> joinTableDescriptors;
 
     private final ImmutableMap<String, ImmutableList<PojoDescriptor>> packages;
+    
+    private final ImmutableMap<String, ViewDescriptor> viewDescriptors;
 
-    SourceCode(ProcessingEnvironment env, List<PojoDescriptor> tables, List<PojoDescriptor> joinTables) {
+    private final ImmutableMap<String, ImmutableList<ViewDescriptor>> viewDescriptorsPackages;
+    
+    SourceCode(ProcessingEnvironment env, List<PojoDescriptor> tables, List<PojoDescriptor> joinTables, List<ViewDescriptor> viewDescriptors) {
         this.descriptors = tables.stream().collect(ImmutableMap.toImmutableMap(PojoDescriptor::fullyQualidiedClassName, desc -> desc));
         this.joinTableDescriptors = joinTables.stream().collect(ImmutableMap.toImmutableMap(PojoDescriptor::fullyQualidiedClassName, desc -> desc));
         this.all = ImmutableList.<PojoDescriptor>builder().addAll(tables).addAll(joinTables).build();
-        this.packages = mapByPackage(env);
+        this.packages = mapByPackage(all,env);
+        this.viewDescriptors = viewDescriptors.stream().collect(ImmutableMap.toImmutableMap(ViewDescriptor::fullyQualidiedClassName, desc -> desc));
+        this.viewDescriptorsPackages = mapByPackage(viewDescriptors, env);
     }
 
 
@@ -49,6 +58,11 @@ public final class SourceCode {
         	logger.info("\t->" + pojoDesc);
         });
         logger.info("---------------------------------------------------------------------------------------------------------");
+        logger.info("Number of View(s) found : " + viewDescriptors.size());
+        viewDescriptors.values().forEach(viewDesc -> {
+        	logger.info("\t->" + viewDesc);
+        });
+        logger.info("---------------------------------------------------------------------------------------------------------");
     }
 
     public PojoDescriptor getPojoDescriptor(String name) {
@@ -59,25 +73,33 @@ public final class SourceCode {
         this.all.forEach(consumer);
 	}
 
+	public void forEachView(Consumer<ViewDescriptor> consumer) {
+        this.viewDescriptors.values().forEach(consumer);
+	}
+	
     public void forEachByPackage(BiConsumer<String, ImmutableList<PojoDescriptor>> consumer) {
         this.packages.forEach(consumer);
+	}
+    
+    public void forEachViewByPackage(BiConsumer<String, ImmutableList<ViewDescriptor>> consumer) {
+        this.viewDescriptorsPackages.forEach(consumer);
 	}
 
 	public ImmutableList<PojoDescriptor> all() {
 		return this.all;
 	}
 
-    private ImmutableMap<String, ImmutableList<PojoDescriptor>> mapByPackage(ProcessingEnvironment env) {
+    private <T extends Desc> ImmutableMap<String, ImmutableList<T>> mapByPackage(Collection<T> all, ProcessingEnvironment env) {
 
-        Map<String, List<PojoDescriptor>> map = new HashMap<>();
+        Map<String, List<T>> map = new HashMap<>();
 
-        this.all.forEach(desc -> {
+        all.forEach(desc -> {
             String pack = env.getElementUtils().getPackageOf(desc.element()).toString();
             if (pack.startsWith("package")) {
                 // with eclipse compiler
                 pack = pack.substring(7).trim();
             }
-            List<PojoDescriptor> list = map.get(pack);
+            List<T> list = map.get(pack);
             if (list == null) {
                 list = new ArrayList<>();
                 map.put(pack, list);
@@ -85,7 +107,7 @@ public final class SourceCode {
             list.add(desc);
         });
 
-        ImmutableMap.Builder<String, ImmutableList<PojoDescriptor>> builder = ImmutableMap.builder();
+        ImmutableMap.Builder<String, ImmutableList<T>> builder = ImmutableMap.builder();
         map.forEach((key, value) -> {
             builder.put(key , ImmutableList.copyOf(value));
         });

@@ -17,20 +17,23 @@ import javax.tools.Diagnostic;
 import eu.eventsotrm.sql.apt.analyser.GlobalConfigurationAnalyser;
 import eu.eventsotrm.sql.apt.analyser.JoinTableAnalyser;
 import eu.eventsotrm.sql.apt.analyser.SqlInterfaceAnalyser;
+import eu.eventsotrm.sql.apt.analyser.ViewAnalyser;
 import eu.eventsotrm.sql.apt.flyway.FlywayGenerator;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventsotrm.sql.apt.model.GlobalConfigurationDescriptor;
 import eu.eventsotrm.sql.apt.model.PojoDescriptor;
+import eu.eventsotrm.sql.apt.model.ViewDescriptor;
 import eu.eventstorm.sql.annotation.GlobalConfiguration;
 import eu.eventstorm.sql.annotation.JoinTable;
 import eu.eventstorm.sql.annotation.Table;
+import eu.eventstorm.sql.annotation.View;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
-@SupportedAnnotationTypes({"eu.eventstorm.sql.annotation.GlobalConfiguration","eu.eventstorm.sql.annotation.Table"})
+@SupportedAnnotationTypes({"eu.eventstorm.sql.annotation.GlobalConfiguration","eu.eventstorm.sql.annotation.Table","eu.eventstorm.sql.annotation.View"})
 public final class SqlProcessor extends AbstractProcessor {
 
     private ProcessingEnvironment processingEnvironment;
@@ -80,8 +83,14 @@ public final class SqlProcessor extends AbstractProcessor {
                 .stream()
                 .map(new JoinTableAnalyser(descriptors))
                 .collect(Collectors.toList());
+        
+        List<ViewDescriptor> viewDescriptors = roundEnvironment.getElementsAnnotatedWith(View.class)
+                .stream()
+                .map(new ViewAnalyser())
+                .collect(Collectors.toList());
 
-        SourceCode sourceCode = new SourceCode(this.processingEnv, descriptors, joinTableDescriptors);
+
+        SourceCode sourceCode = new SourceCode(this.processingEnv, descriptors, joinTableDescriptors, viewDescriptors);
 
         sourceCode.dump();
         
@@ -95,6 +104,11 @@ public final class SqlProcessor extends AbstractProcessor {
         new ModuleGenerator().generate(this.processingEnv, sourceCode);
 
 
+        new ViewImplementationGenerator().generate(processingEnv, sourceCode);
+        new ViewDescriptorGenerator().generate(processingEnv, sourceCode);
+        new ViewRepositoryGenerator().generate(processingEnv, sourceCode);
+        new ViewMapperGenerator().generate(processingEnv, sourceCode);
+        new ViewMapperFactoryGenerator().generate(processingEnv, sourceCode);
 
         Set<? extends Element> elements = roundEnvironment.getElementsAnnotatedWith(GlobalConfiguration.class);
 

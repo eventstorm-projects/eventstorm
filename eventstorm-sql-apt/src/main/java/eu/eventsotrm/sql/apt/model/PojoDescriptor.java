@@ -9,7 +9,7 @@ import eu.eventstorm.sql.annotation.BusinessKey;
 import eu.eventstorm.sql.annotation.JoinTable;
 import eu.eventstorm.sql.annotation.Table;
 
-public final class PojoDescriptor {
+public final class PojoDescriptor implements Desc {
 
     private final Element element;
     private final List<PojoPropertyDescriptor> propertyDescriptors;
