@@ -4,6 +4,7 @@ import java.util.List;
 
 import eu.eventstorm.core.Event;
 import eu.eventstorm.core.EventBus;
+import eu.eventstorm.core.EventPayload;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -21,7 +22,7 @@ public final class DualEventBus implements EventBus {
 
 
 	@Override
-	public void publish(List<Event<?>> events) {
+	public void publish(List<Event<EventPayload>> events) {
 		try {
 			one.publish(events);
 		} finally {

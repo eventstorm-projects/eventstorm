@@ -26,14 +26,14 @@ public final class ProblemBuilder {
 
 	private static final Set<String> RESERVED_PROPERTIES = ImmutableSet.of("type", "title", "status", "trace_id", "detail", "instance");
 
-	private String traceId;
-	private OffsetDateTime timestamp;
-	private URI type;
-    private URI instance;
-    private int status;
-    private String title;
-    private String detail;
-    private final Map<String, String> params = new LinkedHashMap<>();
+	String traceId;
+	OffsetDateTime timestamp;
+	URI type;
+    URI instance;
+    int status;
+    String title;
+    String detail;
+    final Map<String, Object> params = new LinkedHashMap<>();
     
     ProblemBuilder() {
 	}
@@ -100,22 +100,10 @@ public final class ProblemBuilder {
 		}
 		
 		if (value == null) {
-			this.params.put(key, "null");
+			this.params.put(key, Optional.empty());
 			return this;
 		}
-		
-		if (value instanceof Optional) {
-			
-			Optional<?> op= (Optional<?>)value;
-			if (op.isPresent()) {
-				this.params.put(key, op.get().toString());
-			} else {
-				this.params.put(key, "null");
-			}
-			return this;			
-		}
-		
-		this.params.put(key, value.toString());
+		this.params.put(key, value);
 		return this;
 	}
 
@@ -131,7 +119,8 @@ public final class ProblemBuilder {
 		if (this.timestamp == null) {
 			this.timestamp = OffsetDateTime.now();
 		}
-		return new ProblemImpl(traceId, timestamp, type, instance, status, title, detail, ImmutableMap.<String,Object>builder().putAll(params).build());
+		
+		return new ProblemImpl(this);
 	}
 
 }

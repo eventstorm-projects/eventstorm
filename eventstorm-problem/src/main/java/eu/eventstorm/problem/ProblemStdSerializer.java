@@ -55,7 +55,7 @@ final class ProblemStdSerializer extends StdSerializer<Problem> {
 		for (Entry<String,Object> entry : value.getParams().entrySet()) {
 			gen.writeFieldName(entry.getKey());
 			if (entry.getValue() instanceof String) {
-				gen.writeString((String)entry.getValue());	
+				gen.writeString(String.valueOf(entry.getValue()));	
 			} else if (entry.getValue() instanceof Optional) {
 				Optional<?> optional = (Optional<?>) entry.getValue();
 				if (optional.isPresent()) {

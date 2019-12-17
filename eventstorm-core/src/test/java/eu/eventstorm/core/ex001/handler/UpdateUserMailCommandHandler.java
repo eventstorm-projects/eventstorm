@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableList;
 
 import eu.eventstorm.core.Event;
+import eu.eventstorm.core.EventPayload;
 import eu.eventstorm.core.EventStore;
 import eu.eventstorm.core.ex001.command.UpdateUserMailCommand;
 import eu.eventstorm.core.impl.AbstractCommandHandler;
@@ -19,7 +20,7 @@ public class UpdateUserMailCommandHandler extends AbstractCommandHandler<UpdateU
 	}
 
 	@Override
-	public ImmutableList<Event<?>> handle(UpdateUserMailCommand command) {
+	public ImmutableList<Event<EventPayload>> handle(UpdateUserMailCommand command) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("handle ({})", command);
 		}

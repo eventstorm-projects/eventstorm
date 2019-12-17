@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -141,7 +142,7 @@ class TransactionTest {
 			
 		}
 	}
-
+	
 	@Test
 	void writeTest() {
 		
@@ -156,4 +157,23 @@ class TransactionTest {
 			tx.rollback();
 		}
 	}
+	
+	@Test
+	void createReadWriteInsideRead() {
+		try (Transaction ro = db.transactionManager().newTransactionReadOnly()) {
+			TransactionException cause = assertThrows(TransactionException.class, () -> db.transactionManager().newTransactionReadWrite());
+			assertEquals(TransactionException.Type.READ_ONLY, cause.getType());
+			ro.rollback();
+		}
+		
+		try (Transaction ro = db.transactionManager().newTransactionReadOnly()) {
+			try (Transaction tx = db.transactionManager().newTransactionIsolatedReadWrite()) {
+				assertTrue(true);
+				tx.rollback();
+			}
+			ro.rollback();
+		}
+	}
+	
+	
 }

@@ -22,15 +22,15 @@ final class ProblemImpl implements Problem {
     private final ImmutableMap<String, Object> params;
     private final String traceId;
 	
-	public ProblemImpl(String traceId, OffsetDateTime timestamp, URI type, URI instance, int status, String title, String detail, ImmutableMap<String, Object> params) {
-		this.timestamp = timestamp;
-		this.traceId = traceId;
-		this.type = type;
-		this.instance = instance;
-		this.status = status;
-		this.title = title;
-		this.detail = detail;
-		this.params = params;
+	ProblemImpl(ProblemBuilder problemBuilder) {
+		this.timestamp = problemBuilder.timestamp;
+		this.traceId = problemBuilder.traceId;
+		this.type = problemBuilder.type;
+		this.instance = problemBuilder.instance;
+		this.status = problemBuilder.status;
+		this.title = problemBuilder.title;
+		this.detail = problemBuilder.detail;
+		this.params =  ImmutableMap.copyOf(problemBuilder.params);
 	}
 
 	@Override

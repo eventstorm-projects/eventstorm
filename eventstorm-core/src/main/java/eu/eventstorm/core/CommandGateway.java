@@ -23,7 +23,7 @@ public class CommandGateway {
         this.eventBus = eventBus;
     }
 
-	public <T extends Command> ImmutableList<Event<? extends EventPayload>> dispatch(T command) {
+	public <T extends Command> ImmutableList<Event<EventPayload>> dispatch(T command) {
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("dispatch [{}]", command);
@@ -37,7 +37,7 @@ public class CommandGateway {
         }
         
         // 2. handler
-        ImmutableList<Event<?>> events = ch.handle(command);
+        ImmutableList<Event<EventPayload>> events = ch.handle(command);
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("events to publish [{}]", events);
