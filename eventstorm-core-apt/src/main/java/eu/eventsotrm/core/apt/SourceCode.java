@@ -44,6 +44,8 @@ public final class SourceCode {
 	private final Map<String, ImmutableList<RestControllerDescriptor>> restControllers;
 	
 	private final ImmutableMap<String, QueryDescriptor> queries;
+	
+	private final ImmutableMap<String, ImmutableList<QueryDescriptor>> queryPackages;
 
 	SourceCode(ProcessingEnvironment env, CqrsConfiguration cqrsConfiguration,List<CommandDescriptor> commands, List<EventDescriptor> events,
 	        List<RestControllerDescriptor> restControllerDescriptors, List<QueryDescriptor> queries) {
@@ -55,6 +57,8 @@ public final class SourceCode {
 		this.restControllers = restControllerDescriptors.stream()
 		        .collect(groupingBy( t -> t.getFCQN(env), mapping(identity(), toImmutableList())));
 		this.queries = queries.stream().collect(toImmutableMap(QueryDescriptor::fullyQualidiedClassName, identity()));
+		this.queryPackages = mapByPackage(env, this.queries);
+		
 	}
 
 	public void forEachCommand(Consumer<CommandDescriptor> consumer) {
@@ -76,8 +80,11 @@ public final class SourceCode {
 	public void forEachEventPackage(BiConsumer<String, ImmutableList<EventDescriptor>> consumer) {
 		this.eventpackages.forEach(consumer);
 	}
-
 	
+	public void forEachQueryPackage(BiConsumer<String, ImmutableList<QueryDescriptor>> consumer) {
+		this.queryPackages.forEach(consumer);
+	}
+
 	public void forEachRestController(BiConsumer<String, ImmutableList<RestControllerDescriptor>> consumer) {
 		this.restControllers.forEach(consumer);
 	}

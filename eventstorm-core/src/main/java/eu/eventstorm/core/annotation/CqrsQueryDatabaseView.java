@@ -6,7 +6,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import eu.eventstorm.sql.annotation.Table;
+import eu.eventstorm.sql.annotation.View;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -14,7 +14,7 @@ import eu.eventstorm.sql.annotation.Table;
 @Target({TYPE})
 @Retention(RUNTIME)
 @CqrsQuery
-public @interface CqrsQueryDatabase {
+public @interface CqrsQueryDatabaseView {
 
-    Table table();
+    View view();
 }

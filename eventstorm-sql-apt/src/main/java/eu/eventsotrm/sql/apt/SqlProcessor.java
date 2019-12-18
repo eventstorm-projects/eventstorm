@@ -33,7 +33,7 @@ import eu.eventstorm.sql.annotation.View;
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
-@SupportedAnnotationTypes({"eu.eventstorm.sql.annotation.GlobalConfiguration","eu.eventstorm.sql.annotation.Table","eu.eventstorm.sql.annotation.View"})
+@SupportedAnnotationTypes({"eu.eventstorm.sql.annotation.Table","eu.eventstorm.sql.annotation.View"})
 public final class SqlProcessor extends AbstractProcessor {
 
     private ProcessingEnvironment processingEnvironment;
@@ -74,6 +74,7 @@ public final class SqlProcessor extends AbstractProcessor {
 
     	Logger logger = LoggerFactory.getInstance().getLogger(SqlProcessor.class);
 
+    	
         List<PojoDescriptor> descriptors = roundEnvironment.getElementsAnnotatedWith(Table.class)
                 .stream()
                 .map(new SqlInterfaceAnalyser())
@@ -89,8 +90,11 @@ public final class SqlProcessor extends AbstractProcessor {
                 .map(new ViewAnalyser())
                 .collect(Collectors.toList());
 
-
-        SourceCode sourceCode = new SourceCode(this.processingEnv, descriptors, joinTableDescriptors, viewDescriptors);
+        SourceCode sourceCode = new SourceCodeBuilder(this.processingEnv)
+    			.withTableDescriptors(descriptors)
+    			.withJoinTableDescriptors(joinTableDescriptors)
+    			.withViewDescriptors(viewDescriptors)
+    			.build();
 
         sourceCode.dump();
         

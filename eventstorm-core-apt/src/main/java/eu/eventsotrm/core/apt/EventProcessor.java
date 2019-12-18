@@ -29,7 +29,7 @@ import eu.eventstorm.core.annotation.CqrsCommandRestController;
 import eu.eventstorm.core.annotation.CqrsConfiguration;
 import eu.eventstorm.core.annotation.CqrsEventPayload;
 import eu.eventstorm.core.annotation.CqrsQuery;
-import eu.eventstorm.core.annotation.CqrsQueryDatabase;
+import eu.eventstorm.core.annotation.CqrsQueryDatabaseView;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -101,7 +101,7 @@ public class EventProcessor extends AbstractProcessor {
 		List<QueryDescriptor> queries = roundEnvironment.getElementsAnnotatedWith(CqrsQuery.class).stream().map(new CqrsQueryAnalyser())
                 .collect(Collectors.toList());
 		
-		queries.addAll(roundEnvironment.getElementsAnnotatedWith(CqrsQueryDatabase.class).stream().map(new CqrsQueryAnalyser())
+		queries.addAll(roundEnvironment.getElementsAnnotatedWith(CqrsQueryDatabaseView.class).stream().map(new CqrsQueryAnalyser())
 		        .collect(Collectors.toList()));
 
 		SourceCode sourceCode = new SourceCode(this.processingEnv, cqrsConfiguration, descriptors, eventDescriptors, restControllerDescriptors, queries);
@@ -133,13 +133,13 @@ public class EventProcessor extends AbstractProcessor {
 		new QueryBuilderGenerator().generate(processingEnv, sourceCode);
 		
 		sourceCode.forEachQuery(queryDescriptor -> {
-		    CqrsQueryDatabase query =  queryDescriptor.element().getAnnotation(CqrsQueryDatabase.class);
+		    CqrsQueryDatabaseView query =  queryDescriptor.element().getAnnotation(CqrsQueryDatabaseView.class);
 		    if (query != null) {
-		        new QueryDatabaseDescriptorGenerator().generate(processingEnv, queryDescriptor);
+		    	new QueryDatabaseDescriptorGenerator().generate(processingEnv, queryDescriptor);
+		    	new QueryDatabaseMapperGenerator().generate(processingEnv, queryDescriptor);
 		    }
-		    
 		});
-		
+		new QueryDatabaseMapperFactoryGenerator().generate(processingEnv, sourceCode);
 
 	}
 

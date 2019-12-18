@@ -7,7 +7,6 @@ import static eu.eventsotrm.sql.apt.Helper.writePackage;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Map;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.JavaFileObject;
@@ -18,11 +17,10 @@ import eu.eventsotrm.core.apt.model.QueryDescriptor;
 import eu.eventsotrm.core.apt.model.QueryPropertyDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
-import eu.eventsotrm.sql.apt.model.PojoDescriptor;
-import eu.eventsotrm.sql.apt.model.PojoPropertyDescriptor;
-import eu.eventstorm.core.annotation.CqrsQueryDatabase;
+import eu.eventstorm.core.annotation.CqrsQueryDatabaseProperty;
+import eu.eventstorm.core.annotation.CqrsQueryDatabaseView;
 import eu.eventstorm.sql.Descriptor;
-import eu.eventstorm.sql.annotation.Column;
+import eu.eventstorm.sql.annotation.ViewColumn;
 import eu.eventstorm.sql.desc.SqlColumn;
 import eu.eventstorm.sql.desc.SqlPrimaryKey;
 import eu.eventstorm.sql.desc.SqlSingleColumn;
@@ -33,40 +31,39 @@ import eu.eventstorm.sql.desc.SqlTable;
  */
 final class QueryDatabaseDescriptorGenerator {
 
-	/**
-	 * key for properties (holder of all aliases generated).
-	 */
-	public static final String KEY = "pojo.descriptor";
-
 	private final Logger logger;
 
-	QueryDatabaseDescriptorGenerator() {
+	public QueryDatabaseDescriptorGenerator() {
 		logger = LoggerFactory.getInstance().getLogger(QueryDatabaseDescriptorGenerator.class);
 	}
 
-    public void generate(ProcessingEnvironment env, QueryDescriptor queryDescriptor) {
+	public void generate(ProcessingEnvironment env, QueryDescriptor descriptor) {
+		try {
+			doGenerate(env, descriptor);
+		} catch (Exception cause) {
+			logger.error("QueryDatabaseDescriptorGenerator -> Exception for [" + descriptor + "] -> [" + cause.getMessage() + "]", cause);
+		}
 
-        try {
-            JavaFileObject object = env.getFiler().createSourceFile(queryDescriptor.fullyQualidiedClassName() + "DatabaseDescriptor");
-            Writer writer = object.openWriter();
+	}
 
-            writeHeader(writer, env, queryDescriptor);
-            writeSingleton(writer, queryDescriptor);
-            writeConstructor(writer, queryDescriptor);
-            writeTable(writer, queryDescriptor);
-            writeProperties(writer, queryDescriptor);
-            writeAllColumns(writer, queryDescriptor);
-            writeAllSingleColumns(writer, queryDescriptor);
-            writeMethods(writer, queryDescriptor);
+	private void doGenerate(ProcessingEnvironment env, QueryDescriptor descriptor)
+			throws IOException {
 
-            writer.write("}");
-            writer.close();
-        } catch (Exception cause) {
-            logger.error("Exception for [" + queryDescriptor + "] -> [" + cause.getMessage() + "]", cause);
-        }
+		JavaFileObject object = env.getFiler().createSourceFile(descriptor.fullyQualidiedClassName() + "Descriptor");
+		Writer writer = object.openWriter();
 
-    }
+		writeHeader(writer, env, descriptor);
+		writeSingleton(writer, descriptor);
+		writeConstructor(writer, descriptor);
+		writeTable(writer, descriptor);
+		writeProperties(writer, descriptor);
+		writeAllColumns(writer, descriptor);
+		writeAllSingleColumns(writer, descriptor);
+		writeMethods(writer, descriptor);
 
+		writer.write("}");
+		writer.close();
+	}
 
 	private static void writeHeader(Writer writer, ProcessingEnvironment env, QueryDescriptor descriptor)
 			throws IOException {
@@ -74,7 +71,7 @@ final class QueryDatabaseDescriptorGenerator {
 		writeGenerated(writer, QueryDatabaseDescriptorGenerator.class.getName());
 
 		writer.write("public final class ");
-		writer.write(descriptor.simpleName() + "DatabaseDescriptor implements ");
+		writer.write(descriptor.simpleName() + "Descriptor implements ");
 		writer.write(Descriptor.class.getName());
 		writer.write(" {");
 		writeNewLine(writer);
@@ -94,7 +91,7 @@ final class QueryDatabaseDescriptorGenerator {
 	private static void writeConstructor(Writer writer, QueryDescriptor descriptor) throws IOException {
 		writeNewLine(writer);
 		writer.write("    private ");
-		writer.write(descriptor.simpleName() + "DatabaseDescriptor");
+		writer.write(descriptor.simpleName() + "Descriptor");
 		writer.write(" () {");
 		writeNewLine(writer);
 		writer.write("    }");
@@ -103,24 +100,19 @@ final class QueryDatabaseDescriptorGenerator {
 
 	private static void writeTable(Writer writer, QueryDescriptor descriptor) throws IOException {
 		writeNewLine(writer);
-		writer.write("    // SQL TABLE DESCRIPTOR");
+		writer.write("    // SQL VIEW DESCRIPTOR");
 		writeNewLine(writer);
 		writer.write("    public static final ");
 		writer.write(SqlTable.class.getName());
-		writer.write(" TABLE = new ");
+		writer.write(" VIEW = new ");
 		writer.write(SqlTable.class.getName());
 		writer.write("(\"");
-
-		writer.write(descriptor.element().getAnnotation(CqrsQueryDatabase.class).table().value());
-
+		writer.write(descriptor.element().getAnnotation(CqrsQueryDatabaseView.class).view().value());
 		writer.write("\", \"");
 		//writer.write(generateAlias(properties));
 		writer.write("\");");
 		writeNewLine(writer);
 	}
-
-	
-
 
 	private static void writeProperties(Writer writer, QueryDescriptor descriptor) throws IOException {
 
@@ -129,30 +121,22 @@ final class QueryDatabaseDescriptorGenerator {
 		writeNewLine(writer);
 
 		for (QueryPropertyDescriptor ppd : descriptor.properties()) {
-
-			Column column = ppd.getter().getAnnotation(Column.class);
-
+			ViewColumn column = ppd.getter().getAnnotation(CqrsQueryDatabaseProperty.class).column();
 			writer.write("    public static final ");
 			writer.write(SqlSingleColumn.class.getName());
 			writer.write(" ");
 			writer.write(toUpperCase(ppd.name()));
 			writer.write(" = new ");
 			writer.write(SqlSingleColumn.class.getName());
-			writer.write("(TABLE, \"");
-			//writer.write(Helper.getSqlColumnName(ppd));
-			writer.write("\", ");
-			writer.write("" + column.nullable());
-			writer.write(", ");
-			writer.write("" + column.insertable());
-			writer.write(", ");
-			writer.write("" + column.updatable());
-			writer.write(");");
+			writer.write("(VIEW, \"");
+			writer.write(column.value());
+			writer.write("\", true, false, false); ");
 			writeNewLine(writer);
 		}
 
 	}
 
-	private static void writeAllColumns(Writer writer, QueryDescriptor queryDescriptor) throws IOException {
+	private static void writeAllColumns(Writer writer, QueryDescriptor descriptor) throws IOException {
 
 		writeNewLine(writer);
 		writer.write("    // ALL COLUMNS");
@@ -168,9 +152,7 @@ final class QueryDatabaseDescriptorGenerator {
 
 		StringBuilder builder = new StringBuilder();
 
-
-
-		for (QueryPropertyDescriptor id : queryDescriptor.properties()) {
+		for (QueryPropertyDescriptor id : descriptor.properties()) {
 			writeNewLine(builder);
 			builder.append("            ");
 			builder.append(toUpperCase(id.name()));
@@ -186,16 +168,14 @@ final class QueryDatabaseDescriptorGenerator {
 
 	}
 
-	
-
-	private static void writeMethods(Writer writer, QueryDescriptor queryDescriptor) throws IOException {
+	private static void writeMethods(Writer writer, QueryDescriptor descriptor) throws IOException {
 
 		writeNewLine(writer);
 		writer.write("    public ");
 		writer.write(SqlTable.class.getName());
 		writer.write(" table() {");
 		writeNewLine(writer);
-		writer.write("        return TABLE;");
+		writer.write("        return VIEW;");
 		writeNewLine(writer);
 		writer.write("    }");
 		writeNewLine(writer);
@@ -211,7 +191,7 @@ final class QueryDatabaseDescriptorGenerator {
 		writeNewLine(writer);
 		writer.write("    }");
 		writeNewLine(writer);
-
+		
 		writeNewLine(writer);
 		writer.write("    public ");
 		writer.write(ImmutableList.class.getName());
@@ -219,14 +199,14 @@ final class QueryDatabaseDescriptorGenerator {
 		writer.write(SqlPrimaryKey.class.getName());
 		writer.write("> ids() {");
 		writeNewLine(writer);
-		writer.write("        return IDS;");
+		writer.write("        return " + ImmutableList.class.getName() + ".of();");
 		writeNewLine(writer);
 		writer.write("    }");
 		writeNewLine(writer);
 
 	}
 
-	private static void writeAllSingleColumns(Writer writer, QueryDescriptor queryDescriptor) throws IOException {
+	private static void writeAllSingleColumns(Writer writer, QueryDescriptor descriptor) throws IOException {
 
 		writeNewLine(writer);
 		writer.write("    // ALL SINGLE COLUMNS");
@@ -242,12 +222,11 @@ final class QueryDatabaseDescriptorGenerator {
 
 		StringBuilder builder = new StringBuilder();
 
-		for (QueryPropertyDescriptor id : queryDescriptor.properties()) {
+		for (QueryPropertyDescriptor id : descriptor.properties()) {
 			writeNewLine(builder);
 			builder.append("            ");
 			builder.append(toUpperCase(id.name()));
 			builder.append(',');
-
 		}
 
 		if (builder.length() > 0) {
@@ -258,39 +237,5 @@ final class QueryDatabaseDescriptorGenerator {
 		writer.write(");");
 		writeNewLine(writer);
 
-	}
-
-	private static String generateAlias(Map<String, Object> properties) {
-
-		String current = (String) properties.get(KEY);
-
-		if (current == null) {
-			properties.put(KEY, "a");
-			return "a";
-		}
-
-		if ("z".equals(current)) {
-			properties.put(KEY, "aa");
-			return "aa";
-		}
-
-		if ("zz".equals(current)) {
-			properties.put(KEY, "aaa");
-			return "aaa";
-		}
-
-		if ("zzz".equals(current)) {
-			properties.put(KEY, "aaaa");
-			return "aaaa";
-		}
-
-		StringBuilder builder = new StringBuilder();
-
-		if (current.length() > 1) {
-			builder.append(current.substring(0, current.length() - 2));
-		}
-		builder.append((char) (current.charAt(current.length() - 1) + 1));
-
-		return builder.toString();
 	}
 }

@@ -2,18 +2,14 @@ package eu.eventsotrm.core.apt.analyser;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Function;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 
-import eu.eventsotrm.core.apt.model.EventDescriptor;
-import eu.eventsotrm.core.apt.model.EventPropertyDescriptor;
 import eu.eventsotrm.core.apt.model.QueryDescriptor;
 import eu.eventsotrm.core.apt.model.QueryPropertyDescriptor;
-import eu.eventsotrm.sql.apt.Helper;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 
