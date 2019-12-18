@@ -2,6 +2,7 @@ package eu.eventstorm.core.eventstore;
 
 import static eu.eventstorm.core.id.AggregateIds.from;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -103,6 +104,17 @@ class DatabaseEventStoreTest {
 		
 	}
 	
+	@Test
+	void testEventStoreException() {
+		EventStore eventStore = new DatabaseEventStore(db,new EventPayloadRegistryBuilder().build());
+		EventStoreException ese = assertThrows(EventStoreException.class , () -> eventStore.appendToStream("user", from(1), new BadEventPayload()));
+		assertEquals(EventStoreException.Type.FAILED_TO_SERILIAZE_PAYLOAD, ese.getType());
+	}
+	
+	
+	private static final class BadEventPayload implements EventPayload {
+		
+	}
 	
 	private static final class UserCreatedEventPayloadBuilder {
 	    

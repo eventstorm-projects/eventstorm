@@ -67,7 +67,7 @@ public final class DatabaseEventStore implements EventStore {
 		try {
 			content = this.mapper.writeValueAsBytes(payload);
 		} catch (JsonProcessingException cause) {
-			throw new EventStoreException(EventStoreException.Type.STREAM_NOT_FOUND, of("aggregateType", aggregateType, "aggregateId", id, "payload", payload), cause);
+			throw new EventStoreException(EventStoreException.Type.FAILED_TO_SERILIAZE_PAYLOAD, of("aggregateType", aggregateType, "aggregateId", id, "payload", payload), cause);
 		}
 		
 		DatabaseEvent de;

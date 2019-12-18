@@ -16,7 +16,11 @@ public final class CloudEvents {
 	}
 
 	public static Stream<CloudEvent> to(ImmutableList<Event<EventPayload>> events) {
-		return events.stream().map(event -> new CloudEventBuilder()
+		return to(events.stream());
+	}
+	
+	public static Stream<CloudEvent> to(Stream<Event<EventPayload>> events) {
+		return events.map(event -> new CloudEventBuilder()
 					.aggreateType(event.getAggregateType())
 					.aggregateId(event.getAggregateId())
 					.payload(event.getPayload())
