@@ -22,7 +22,7 @@ public final class CqrsQueryAnalyser implements Function<Element, QueryDescripto
     private final Logger logger;
 
     public CqrsQueryAnalyser() {
-        this.logger = LoggerFactory.getInstance().getLogger(CqrsEventAnalyser.class);
+        this.logger = LoggerFactory.getInstance().getLogger(CqrsQueryAnalyser.class);
     }
 
     @Override

@@ -6,29 +6,39 @@ import javax.lang.model.element.Element;
 
 public class EventDescriptor implements Descriptor {
 
-	private final Element element;
-	private final List<EventPropertyDescriptor> properties;
-	
-	public EventDescriptor(Element element, List<EventPropertyDescriptor> properties) {
-		this.element = element;
-		this.properties = properties;
-	}
+    private final Element element;
+    private final List<EventPropertyDescriptor> properties;
 
-	 public String fullyQualidiedClassName() {
-	        return this.element.asType().toString();
-	    }
+    public EventDescriptor(Element element, List<EventPropertyDescriptor> properties) {
+        this.element = element;
+        this.properties = properties;
+    }
 
-	public Element element() {
-		return element;
-	}
+    public String fullyQualidiedClassName() {
+        return this.element.asType().toString();
+    }
 
-	public List<EventPropertyDescriptor> properties() {
-		return properties;
-	}
+    public Element element() {
+        return element;
+    }
 
-	public String simpleName() {
-		String fqcn =  this.element.asType().toString();
+    public List<EventPropertyDescriptor> properties() {
+        return properties;
+    }
+
+    public String simpleName() {
+        String fqcn = this.element.asType().toString();
         return fqcn.substring(fqcn.lastIndexOf('.') + 1);
-	}
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("EventDescriptor : ").append(element);
+        for (EventPropertyDescriptor property : properties) {
+            builder.append("\n\t").append(property);
+        }
+        return builder.toString();
+    }
 
 }

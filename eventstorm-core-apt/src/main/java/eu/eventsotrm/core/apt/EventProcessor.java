@@ -140,6 +140,7 @@ public class EventProcessor extends AbstractProcessor {
 		    }
 		});
 		new QueryDatabaseMapperFactoryGenerator().generate(processingEnv, sourceCode);
+		new QueryDatabaseModuleGenerator().generate(processingEnv, sourceCode);
 
 	}
 

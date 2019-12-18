@@ -32,7 +32,12 @@ final class QueryDatabaseMapperFactoryGenerator {
     public void generate(ProcessingEnvironment env, SourceCode sourceCode) {
     	
     	sourceCode.forEachQueryPackage((package_, list) -> {
-    		if (list.stream().filter(desc -> desc.getClass().getAnnotation(CqrsQueryDatabaseView.class) != null).findFirst().isPresent()) {
+    	    
+    	    logger.info(list.toString());
+    	    logger.info(list.get(0).toString());
+    	    logger.info(list.get(0).element().toString());
+    	    
+    		if (list.stream().filter(desc -> desc.element().getAnnotation(CqrsQueryDatabaseView.class) != null).findFirst().isPresent()) {
     			 try {
                      create(env, package_, list);
                  } catch (Exception cause) {
@@ -57,7 +62,7 @@ final class QueryDatabaseMapperFactoryGenerator {
 
         for (QueryDescriptor desc : descriptors) {
         	
-        	if (desc.getClass().getAnnotation(CqrsQueryDatabaseView.class) == null) {
+        	if (desc.element().getAnnotation(CqrsQueryDatabaseView.class) == null) {
         		continue;
         	}
         	

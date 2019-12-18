@@ -97,9 +97,9 @@ final class QueryDatabaseMapperGenerator {
 
         writeNewLine(writer);
         writer.write("        ");
-        writer.write(descriptor.element().getSimpleName().toString()+ "Impl");
-        writer.write(" pojo = new ");
-        writer.write(descriptor.element().getSimpleName().toString() + "Impl();");
+        writer.write(descriptor.element().getSimpleName().toString()+ "Builder");
+        writer.write(" builder = new ");
+        writer.write(descriptor.element().getSimpleName().toString() + "Builder();");
         writeNewLine(writer);
 
         int index = 1;
@@ -120,9 +120,38 @@ final class QueryDatabaseMapperGenerator {
 
             } else if (vpd.getter().getReturnType().toString().equals("java.sql.Blob")) {
 
-                writer.write("        pojo.");
-                writer.write(vpd.name());
-                writer.write(" = ");
+//                writer.write("        builder.");
+//                writer.write(vpd.name());
+//                writer.write(".with");
+//
+//                String method = Helper.isDialectType(vpd.getter().getReturnType().toString());
+//                if (method != null) {
+//                    writer.write("dialect.");
+//                    writer.write(method);
+//                    writer.write("(rs,");
+//                    writer.write("" + index++);
+//                    writer.write(");");
+//                } else {
+//                    writer.write("new javax.sql.rowset.serial.SerialBlob(rs.");
+//                    writer.write(preparedStatementGetter(vpd.getter().getReturnType().toString()));
+//                    writer.write("(");
+//                    writer.write("" + index++);
+//                    writer.write("));");
+//                }
+//                writeNewLine(writer);
+//                if (cqrsProperty.column().nullable()
+//                        && isLinkToPrimitive(vpd.getter().getReturnType().toString())) {
+//                    writer.write("        if (rs.wasNull()) {");
+//                    writeNewLine(writer);
+//                    writer.write("            pojo = null;");
+//                    writeNewLine(writer);
+//                    writer.write("        }");
+//                    writeNewLine(writer);
+//                }
+            } else {
+                writer.write("        builder.with");
+                writer.write(Helper.firstToUpperCase(vpd.name()));
+                writer.write("(");
 
                 String method = Helper.isDialectType(vpd.getter().getReturnType().toString());
                 if (method != null) {
@@ -130,48 +159,21 @@ final class QueryDatabaseMapperGenerator {
                     writer.write(method);
                     writer.write("(rs,");
                     writer.write("" + index++);
-                    writer.write(");");
+                    writer.write("));");
                 } else {
-                    writer.write("new javax.sql.rowset.serial.SerialBlob(rs.");
+                    writer.write("rs.");
                     writer.write(preparedStatementGetter(vpd.getter().getReturnType().toString()));
                     writer.write("(");
                     writer.write("" + index++);
                     writer.write("));");
                 }
                 writeNewLine(writer);
-                if (cqrsProperty.column().nullable()
-                        && isLinkToPrimitive(vpd.getter().getReturnType().toString())) {
-                    writer.write("        if (rs.wasNull()) {");
-                    writeNewLine(writer);
-                    writer.write("            pojo = null;");
-                    writeNewLine(writer);
-                    writer.write("        }");
-                    writeNewLine(writer);
-                }
-            } else {
-                writer.write("        pojo.");
-                writer.write(vpd.name());
-                writer.write(" = ");
-
-                String method = Helper.isDialectType(vpd.getter().getReturnType().toString());
-                if (method != null) {
-                    writer.write("dialect.");
-                    writer.write(method);
-                    writer.write("(rs,");
-                    writer.write("" + index++);
-                    writer.write(");");
-                } else {
-                    writer.write("rs.");
-                    writer.write(preparedStatementGetter(vpd.getter().getReturnType().toString()));
-                    writer.write("(");
-                    writer.write("" + index++);
-                    writer.write(");");
-                }
-                writeNewLine(writer);
                 if (cqrsProperty.column().nullable() && isLinkToPrimitive(vpd.getter().getReturnType().toString())) {
                     writer.write("        if (rs.wasNull()) {");
                     writeNewLine(writer);
-                    writer.write("            pojo = null;");
+                    writer.write("        builder.with");
+                    writer.write(Helper.firstToUpperCase(vpd.name()));
+                    writer.write("(null);");
                     writeNewLine(writer);
                     writer.write("        }");
                     writeNewLine(writer);
@@ -179,7 +181,7 @@ final class QueryDatabaseMapperGenerator {
             }
         }
 
-        writer.write("        return pojo;");
+        writer.write("        return  builder.build();");
 
         writeNewLine(writer);
         writer.write("    }");
