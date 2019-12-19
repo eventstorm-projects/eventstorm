@@ -36,8 +36,8 @@ class ProblemTest {
 	@Test
 	void test() throws IOException {
 		Problem problem = Problem.builder()
-			.withType(URI.create("http://localhost"))
-			.withInstance(URI.create("/test/service"))
+			.withType(URI.create("http://localhost/test/service"))
+			.withInstance(URI.create("http://localhost/error/123456"))
 			.withStatus(400)
 			.withTitle("title")
 			.withDetail("detail")
@@ -46,8 +46,8 @@ class ProblemTest {
 		
 		Map<String,Object> map = this.mapper.readValue(this.mapper.writeValueAsBytes(problem), Map.class);
 		
-		assertEquals("http://localhost", map.get("type"));
-		assertEquals("/test/service", map.get("instance"));
+		assertEquals("http://localhost/test/service", map.get("type"));
+		assertEquals("http://localhost/error/123456", map.get("instance"));
 		assertEquals("title", map.get("title"));
 		assertEquals("detail", map.get("detail"));
 		assertEquals("VALUE", map.get("KEY"));
@@ -67,6 +67,7 @@ class ProblemTest {
 			.with("key2", null)
 			.with("key3", Optional.ofNullable(null))
 			.with("key4", Optional.ofNullable("hello"))
+			.with("key5", 12345)
 			.build();
 
 		byte[] content = this.mapper.writeValueAsBytes(problem);
@@ -82,6 +83,27 @@ class ProblemTest {
 		assertEquals(problem.getDetail(), problemResult.getDetail());
 		assertEquals(problem.getTraceId(), problemResult.getTraceId());
 		assertEquals(problem.getTimestamp(), problemResult.getTimestamp());
+		
+	}
+	
+	@SuppressWarnings({ "unchecked" })
+	@Test
+	void testMinimum() throws IOException {
+		Problem problem = Problem.builder()
+			.withType(URI.create("http://localhost"))
+			.withStatus(400)
+			.withTitle("title")
+			.with(ImmutableMap.of("KEY","VALUE"))
+			.build();
+		
+		Map<String,Object> map = this.mapper.readValue(this.mapper.writeValueAsBytes(problem), Map.class);
+		
+		assertEquals("http://localhost", map.get("type"));
+		assertNull(map.get("instance"));
+		assertEquals("title", map.get("title"));
+		assertNull(map.get("detail"));
+		assertEquals("VALUE", map.get("KEY"));
+		assertEquals(400, map.get("status"));
 		
 	}
 	

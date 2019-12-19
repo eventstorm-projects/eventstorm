@@ -8,9 +8,8 @@ import com.google.common.collect.ImmutableMap;
 @SuppressWarnings("serial")
 public abstract class EventstormException extends RuntimeException {
 
-	private transient final EventstormExceptionType type;
-	private transient final ImmutableMap<String, Object> values;
-
+	private final transient EventstormExceptionType type;
+	private final transient ImmutableMap<String, Object> values;
 
 	public EventstormException(EventstormExceptionType type, ImmutableMap<String, Object> values) {
 		super(build(type, values, null));
@@ -24,22 +23,20 @@ public abstract class EventstormException extends RuntimeException {
 		this.values = values;
 	}
 
-	public EventstormExceptionType getType() {
+	public final EventstormExceptionType getType() {
 		return type;
 	}
 
-	public ImmutableMap<String, Object> getValues() {
+	public final ImmutableMap<String, Object> getValues() {
 		return values;
 	}
 
 	private static String build(EventstormExceptionType type, ImmutableMap<String, Object> params, Throwable cause) {
 		StringBuilder builder = new StringBuilder(256);
-        builder.append("type=[").append(type).append("]");
-        if (params != null) {
-    		params.forEach((key, value) -> {
-	    		builder.append(" [").append(key).append("]=[").append(value).append("]");
-		    });
-        }
+		builder.append("type=[").append(type).append("]");
+		if (params != null) {
+			params.forEach((key, value) -> builder.append(" [").append(key).append("]=[").append(value).append("]"));
+		}
 		if (cause != null) {
 			builder.append(" cause=[").append(cause.getMessage()).append("]");
 		}

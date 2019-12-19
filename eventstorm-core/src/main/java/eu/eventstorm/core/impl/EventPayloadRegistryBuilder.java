@@ -88,7 +88,7 @@ public final class EventPayloadRegistryBuilder {
 		}
 
 		public EventPayloadDefinition<T> build() {
-			return new EventPayloadDefinition<T>(payloadType, payloadVersion, serializer, deserializer);
+			return new EventPayloadDefinition<>(payloadType, payloadVersion, serializer, deserializer);
 		}
 	}
 

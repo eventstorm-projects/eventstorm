@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
@@ -25,7 +24,7 @@ public final class EventstormPlatformTransactionManager implements PlatformTrans
 	}
 
 	@Override
-	public TransactionStatus getTransaction(TransactionDefinition definition) throws TransactionException {
+	public TransactionStatus getTransaction(TransactionDefinition definition) {
 		if (LOGGER.isTraceEnabled()) {
 			LOGGER.trace("getTransaction({})", definition);
 		}
@@ -61,7 +60,7 @@ public final class EventstormPlatformTransactionManager implements PlatformTrans
 	}
 
 	@Override
-	public void commit(TransactionStatus transactionStatus) throws TransactionException {
+	public void commit(TransactionStatus transactionStatus) {
 		if (LOGGER.isTraceEnabled()) {
 			LOGGER.trace("commit({})", transactionStatus);
 		}
@@ -98,7 +97,7 @@ public final class EventstormPlatformTransactionManager implements PlatformTrans
 	}
 
 	@Override
-	public void rollback(TransactionStatus transactionStatus) throws TransactionException {
+	public void rollback(TransactionStatus transactionStatus) {
 		if (LOGGER.isTraceEnabled()) {
 			LOGGER.trace("rollback({})", transactionStatus);
 		}

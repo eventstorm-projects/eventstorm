@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.function.BiConsumer;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
@@ -38,7 +37,7 @@ final class CloudEventDeserializer extends StdDeserializer<CloudEvent> {
 	}
 
 	@Override
-	public CloudEvent deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+	public CloudEvent deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
 
 		CloudEventBuilder builder = new CloudEventBuilder();
 		 JsonToken t = p.getCurrentToken();

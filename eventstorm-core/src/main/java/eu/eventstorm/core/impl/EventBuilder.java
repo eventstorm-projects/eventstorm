@@ -18,7 +18,7 @@ public final class EventBuilder<T extends EventPayload> {
     private OffsetDateTime timestamp;
 
     public Event<T> build() {
-        return new EventImpl<T>(aggregateId, aggreateType, timestamp, revision, payload);
+        return new EventImpl<>(aggregateId, aggreateType, timestamp, revision, payload);
     }
 
     public EventBuilder<T> aggregateId(AggregateId aggregateId) {

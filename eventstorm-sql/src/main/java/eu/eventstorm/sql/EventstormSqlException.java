@@ -8,8 +8,8 @@ import com.google.common.collect.ImmutableMap;
 @SuppressWarnings("serial")
 public abstract class EventstormSqlException extends RuntimeException {
 
-	private final EventstormSqlExceptionType type;
-	private final ImmutableMap<String, Object> values;
+	private final transient EventstormSqlExceptionType type;
+	private final transient ImmutableMap<String, Object> values;
 
 
 	public EventstormSqlException(EventstormSqlExceptionType type, ImmutableMap<String, Object> values) {
@@ -24,11 +24,11 @@ public abstract class EventstormSqlException extends RuntimeException {
 		this.values = values;
 	}
 
-	public EventstormSqlExceptionType getType() {
+	public final EventstormSqlExceptionType getType() {
 		return type;
 	}
 
-	public ImmutableMap<String, Object> getValues() {
+	public final ImmutableMap<String, Object> getValues() {
 		return values;
 	}
 

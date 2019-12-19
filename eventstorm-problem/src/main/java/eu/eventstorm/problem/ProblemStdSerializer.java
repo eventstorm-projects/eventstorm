@@ -66,7 +66,7 @@ final class ProblemStdSerializer extends StdSerializer<Problem> {
 			} else {
 				gen.writeObject(entry.getValue());
 			}
-		}; 
+		}
 
 		gen.writeEndObject();
 

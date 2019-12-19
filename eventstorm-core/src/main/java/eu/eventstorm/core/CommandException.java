@@ -8,7 +8,7 @@ import com.google.common.collect.ImmutableMap;
 @SuppressWarnings("serial")
 public class CommandException extends RuntimeException {
 
-    private transient final ImmutableMap<String, Object> parameters;
+    private final transient ImmutableMap<String, Object> parameters;
     
     protected CommandException(String message, ImmutableMap<String, Object> parameters) {
         super(message);
