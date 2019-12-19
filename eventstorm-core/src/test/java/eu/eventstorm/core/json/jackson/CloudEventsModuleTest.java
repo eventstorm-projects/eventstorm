@@ -34,7 +34,7 @@ class CloudEventsModuleTest {
 		
 		CloudEvent event = new CloudEventBuilder()
 				.withAggregateId(AggregateIds.from(1))
-				.withAggreateType("test")
+				.withAggregateType("test")
 				.withTimestamp(OffsetDateTime.now())
 				.withVersion(1)
 				.withPayload(temp)

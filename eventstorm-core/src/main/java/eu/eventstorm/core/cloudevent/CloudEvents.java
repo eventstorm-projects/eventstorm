@@ -21,7 +21,7 @@ public final class CloudEvents {
 	
 	public static Stream<CloudEvent> to(Stream<Event<EventPayload>> events) {
 		return events.map(event -> new CloudEventBuilder()
-					.withAggreateType(event.getAggregateType())
+					.withAggregateType(event.getAggregateType())
 					.withAggregateId(event.getAggregateId())
 					.withPayload(event.getPayload())
 					.withTimestamp(event.getTimestamp())

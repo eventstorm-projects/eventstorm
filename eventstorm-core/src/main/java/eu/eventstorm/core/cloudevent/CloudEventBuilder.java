@@ -37,7 +37,7 @@ public final class CloudEventBuilder {
         return this;
     }
     
-    public CloudEventBuilder withAggreateType(String aggreateType) {
+    public CloudEventBuilder withAggregateType(String aggreateType) {
         this.aggreateType = aggreateType;
         return this;
     }

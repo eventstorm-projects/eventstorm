@@ -80,6 +80,8 @@ public final class EventPayloadRegistryBuilder {
 
 			if (allTypes.contains(type)) {
 				throw new EventPayloadRegistryBuilderException(DUPLICATE_TYPE, of("type", type, "interface", eventPayLoadInterface));
+			} else {
+				allTypes.add(type);
 			}
 			
 			this.payloadType = type;

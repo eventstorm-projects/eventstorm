@@ -7,7 +7,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.time.OffsetDateTime;
 import java.util.List;
 
+import org.json.JSONException;
 import org.junit.jupiter.api.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
 
 import eu.eventstorm.core.EventPayload;
 import eu.eventstorm.core.eventstore.InMemoryEventStore;
@@ -39,10 +41,10 @@ class CloudeventTest {
 	}
 	
 	@Test
-	void testBuilder() {
+	void testBuilder() throws Exception {
 		
 		CloudEvent event = new CloudEventBuilder()
-				.withAggreateType("ag-type")
+				.withAggregateType("ag-type")
 				.withAggregateId(from(12))
 				.withSpecVersion("1.0")
 				.withSubject("subject__1234567890")
@@ -56,5 +58,8 @@ class CloudeventTest {
 		assertEquals("12", event.id());
 		assertEquals("1.0", event.specVersion());
 		assertEquals("subject__1234567890", event.subject());
+		
+		JSONAssert.assertEquals("{aggregateType:\"ag-type\"}", event.toString(), false);
+		JSONAssert.assertEquals("{aggregateId:{id:12}}", event.toString(), false);
 	}
 }

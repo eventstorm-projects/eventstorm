@@ -81,17 +81,13 @@ final class CloudEventImpl implements CloudEvent {
 		return this.payload;
 	}
 
-	public AggregateId getAggregateId() {
-		return aggregateId;
-	}
-
 	@Override
 	public String toString() {
 		// @formatter:off
 		return new ToStringBuilder(true)
 				.append("specVersion", specVersion)
 				.append("aggregateId", aggregateId)
-				.append("aggreateType", aggreateType)
+				.append("aggregateType", aggreateType)
 				.append("version", version)
 		        .append("timestamp", timestamp)
 		        .append("subject", subject)
