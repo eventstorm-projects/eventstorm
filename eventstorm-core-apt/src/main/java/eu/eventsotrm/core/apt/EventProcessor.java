@@ -5,7 +5,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.processing.AbstractProcessor;
-import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
@@ -38,26 +37,22 @@ import eu.eventstorm.core.annotation.CqrsQueryDatabaseView;
 @SupportedAnnotationTypes({ "eu.eventstorm.core.annotation.CqrsCommand", "eu.eventstorm.core.annotation.CqrsEvent" })
 public class EventProcessor extends AbstractProcessor {
 
-	private ProcessingEnvironment processingEnvironment;
 
 	private boolean firstTime = false;
 
-	@Override
-	public synchronized void init(ProcessingEnvironment processingEnv) {
-		super.init(processingEnv);
-		this.processingEnvironment = processingEnv;
-	}
-
+	
+	
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 
 		if (firstTime) {
-			this.processingEnvironment.getMessager().printMessage(Diagnostic.Kind.NOTE, "SqlProcessor done");
+			this.processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "EventProcessor done");
 			return false;
 		}
 
 		LoggerFactory.getInstance().init(processingEnv, "eu.eventstorm.report","event-output.txt");
 		Logger logger = LoggerFactory.getInstance().getLogger(EventProcessor.class);
+		
 		try {
 			logger.info("EventProcessor start");
 
@@ -75,7 +70,7 @@ public class EventProcessor extends AbstractProcessor {
 
 	}
 
-	private void doProcess(Logger logger, RoundEnvironment roundEnvironment) {
+    private void doProcess(Logger logger, RoundEnvironment roundEnvironment) {
 		
 		Set<? extends Element> configs = roundEnvironment.getElementsAnnotatedWith(CqrsConfiguration.class);
 		CqrsConfiguration cqrsConfiguration= null;
@@ -127,7 +122,7 @@ public class EventProcessor extends AbstractProcessor {
 		new EventPayloadSerializersGenerator().generate(this.processingEnv, sourceCode);
 
 		new DomainModelHandlerImplementationGenerator().generate(this.processingEnv, sourceCode);
-		new RestControllerImplementationGenerator().generate(processingEnvironment, sourceCode);
+		new RestControllerImplementationGenerator().generate(processingEnv, sourceCode);
 		
 		new QueryImplementationGenerator().generate(this.processingEnv, sourceCode);
 		new QueryBuilderGenerator().generate(processingEnv, sourceCode);

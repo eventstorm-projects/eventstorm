@@ -41,15 +41,20 @@ final class CommandJacksonModuleGenerator {
 	}
 
 	private void generate(ProcessingEnvironment env, String pack, ImmutableList<CommandDescriptor> descriptors) throws IOException {
+        // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
+        if (env.getElementUtils().getTypeElement(pack + ".json.CommandModule") != null) {
+            logger.info("Java SourceCode already exist [" +pack + ".json.CommandModule" + "]");
+            return;
+        }
+        
+		JavaFileObject object = env.getFiler().createSourceFile(pack + ".json.CommandModule");
+		Writer writer = object.openWriter();
 
-			JavaFileObject object = env.getFiler().createSourceFile(pack + ".json.CommandModule");
-			Writer writer = object.openWriter();
+		writeHeader(writer, pack + ".json");
+	    writeConstructor(writer, descriptors);
 
-			writeHeader(writer, pack + ".json");
-		    writeConstructor(writer, descriptors);
-
-			writer.write("}");
-			writer.close();
+		writer.write("}");
+		writer.close();
 	}
 
 	private static void writeHeader(Writer writer, String pack) throws IOException {

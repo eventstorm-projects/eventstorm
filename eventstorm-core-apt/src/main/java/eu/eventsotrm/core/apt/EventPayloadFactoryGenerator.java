@@ -43,6 +43,12 @@ final class EventPayloadFactoryGenerator {
     }
 
     private void generate(ProcessingEnvironment env, String pack, ImmutableList<EventDescriptor> descriptors) throws IOException {
+        
+        // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
+        if (env.getElementUtils().getTypeElement(pack + ".EventPayloadFactory") != null) {
+            logger.info("Java SourceCode already exist [" + pack + ".EventPayloadFactory" + "]");
+            return;
+        }
         JavaFileObject object = env.getFiler().createSourceFile(pack + ".EventPayloadFactory");
         Writer writer = object.openWriter();
 

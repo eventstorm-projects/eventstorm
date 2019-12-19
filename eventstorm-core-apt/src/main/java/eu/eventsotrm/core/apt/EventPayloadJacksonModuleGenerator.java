@@ -40,17 +40,23 @@ final class EventPayloadJacksonModuleGenerator {
 
 	}
 
-	private void generate(ProcessingEnvironment env, String pack, ImmutableList<EventDescriptor> descriptors) throws IOException {
+    private void generate(ProcessingEnvironment env, String pack, ImmutableList<EventDescriptor> descriptors) throws IOException {
 
-			JavaFileObject object = env.getFiler().createSourceFile(pack + ".json.EventPayloadModule");
-			Writer writer = object.openWriter();
+        // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
+        if (env.getElementUtils().getTypeElement(pack + ".json.EventPayloadModule") != null) {
+            logger.info("Java SourceCode already exist [" + pack + ".json.EventPayloadModule"+ "]");
+            return;
+        }
 
-			writeHeader(writer, pack + ".json");
-		    writeConstructor(writer, descriptors);
+        JavaFileObject object = env.getFiler().createSourceFile(pack + ".json.EventPayloadModule");
+        Writer writer = object.openWriter();
 
-			writer.write("}");
-			writer.close();
-	}
+        writeHeader(writer, pack + ".json");
+        writeConstructor(writer, descriptors);
+
+        writer.write("}");
+        writer.close();
+    }
 
 	private static void writeHeader(Writer writer, String pack) throws IOException {
 		writePackage(writer, pack);
@@ -60,6 +66,8 @@ final class EventPayloadJacksonModuleGenerator {
 		writer.write("import " + SimpleModule.class.getName() + ";");
 
 		writeGenerated(writer, EventPayloadJacksonModuleGenerator.class.getName());
+	    writer.write("@SuppressWarnings(\"serial\")");
+	    writeNewLine(writer);
 		writer.write("public final class EventPayloadModule extends SimpleModule {");
 		writeNewLine(writer);
 	}

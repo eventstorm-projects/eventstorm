@@ -45,6 +45,12 @@ final class QueryImplementationGenerator {
 
     private void generate(ProcessingEnvironment env, QueryDescriptor descriptor) throws IOException {
 
+        // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
+        if (env.getElementUtils().getTypeElement(descriptor.fullyQualidiedClassName() + "Impl") != null) {
+            logger.info("Java SourceCode already exist [" + descriptor.fullyQualidiedClassName() + "Impl" + "]");
+            return;
+        }
+        
         JavaFileObject object = env.getFiler().createSourceFile(descriptor.fullyQualidiedClassName() + "Impl");
         Writer writer = object.openWriter();
 

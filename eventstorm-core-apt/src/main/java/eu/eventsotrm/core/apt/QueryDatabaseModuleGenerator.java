@@ -41,7 +41,11 @@ final class QueryDatabaseModuleGenerator {
 
     private void create(ProcessingEnvironment env, String pack, List<QueryDescriptor> descriptors) throws IOException {
 
-
+        // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
+        if (env.getElementUtils().getTypeElement(pack + ".Module") != null) {
+            logger.info("Java SourceCode already exist [" + pack + ".Module" + "]");
+            return;
+        }
         JavaFileObject object = env.getFiler().createSourceFile(pack + ".Module");
         Writer writer = object.openWriter();
 

@@ -51,6 +51,12 @@ final class RestControllerImplementationGenerator {
 
 	private void generate(ProcessingEnvironment env, String name, ImmutableList<RestControllerDescriptor> desc, SourceCode sourceCode) throws IOException {
 
+	    // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
+        if (env.getElementUtils().getTypeElement(name) != null) {
+            logger.info("Java SourceCode already exist [" + name + "]");
+            return;
+        }
+        
 		JavaFileObject object = env.getFiler().createSourceFile(name);
 		try (Writer writer = object.openWriter()) {
 

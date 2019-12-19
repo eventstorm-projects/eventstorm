@@ -42,6 +42,13 @@ final class CommandFactoryGenerator {
     }
 
     private void generate(ProcessingEnvironment env, String pack, ImmutableList<CommandDescriptor> descriptors) throws IOException {
+        
+        // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
+        if (env.getElementUtils().getTypeElement(pack + ".CommandFactory") != null) {
+            logger.info("Java SourceCode already exist [" + pack + ".CommandFactory" + "]");
+            return;
+        }
+        
         JavaFileObject object = env.getFiler().createSourceFile(pack + ".CommandFactory");
         Writer writer = object.openWriter();
 

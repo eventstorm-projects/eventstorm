@@ -63,6 +63,12 @@ final class DomainModelHandlerImplementationGenerator {
 
 	private void generate(ProcessingEnvironment env, DeclaredType domainModel, List<EventDescriptor> events) throws IOException {
 
+	    // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
+        if (env.getElementUtils().getTypeElement(getName(domainModel.asElement().toString())) != null) {
+            logger.info("Java SourceCode already exist [" + getName(domainModel.asElement().toString()) + "]");
+            return;
+        }
+        
 		JavaFileObject object = env.getFiler().createSourceFile(getName(domainModel.asElement().toString()));
 		try (Writer writer = object.openWriter()) {
 
