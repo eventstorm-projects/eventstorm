@@ -40,6 +40,12 @@ final class EventPayloadBuilderGenerator {
 
     private void generate(ProcessingEnvironment env, EventDescriptor descriptor) throws IOException {
 
+        // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
+        if (env.getElementUtils().getTypeElement(descriptor.fullyQualidiedClassName() + "Builder") != null) {
+            logger.info("Java SourceCode already exist [" +descriptor.fullyQualidiedClassName() + "Builder" + "]");
+            return;
+        }
+        
         JavaFileObject object = env.getFiler().createSourceFile(descriptor.fullyQualidiedClassName() + "Builder");
         Writer writer = object.openWriter();
 

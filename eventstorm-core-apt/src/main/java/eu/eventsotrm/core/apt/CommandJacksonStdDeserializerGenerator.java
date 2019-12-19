@@ -51,6 +51,13 @@ final class CommandJacksonStdDeserializerGenerator {
 	private void generate(ProcessingEnvironment env, String pack, ImmutableList<CommandDescriptor> descriptors) throws IOException {
 
 		for (CommandDescriptor cd : descriptors) {
+		    
+		    // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
+	        if (env.getElementUtils().getTypeElement(pack + ".json." + cd.simpleName() + "StdDeserializer") != null) {
+	            logger.info("Java SourceCode already exist [" +pack + ".json." + cd.simpleName() + "StdDeserializer" + "]");
+	            return;
+	        }
+	        
 			JavaFileObject object = env.getFiler().createSourceFile(pack + ".json." + cd.simpleName() + "StdDeserializer");
 			Writer writer = object.openWriter();
 
@@ -92,6 +99,9 @@ final class CommandJacksonStdDeserializerGenerator {
 		writeNewLine(writer);
 
 		writeGenerated(writer, CommandJacksonStdDeserializerGenerator.class.getName());
+		
+	    writer.write("@SuppressWarnings(\"serial\")");
+	    writeNewLine(writer);
 		writer.write("final class "+ descriptor.simpleName() +"StdDeserializer extends StdDeserializer<"+ descriptor.simpleName() +"> {");
 		writeNewLine(writer);
 	}

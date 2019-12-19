@@ -44,6 +44,12 @@ final class QueryDatabaseMapperGenerator {
 	}
 
 	private void doGenerate(ProcessingEnvironment env, QueryDescriptor descriptor) throws IOException {
+	    
+	    // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
+        if (env.getElementUtils().getTypeElement(descriptor.fullyQualidiedClassName() + "Mapper") != null) {
+            logger.info("Java SourceCode already exist [" + descriptor.fullyQualidiedClassName() + "Mapper" + "]");
+            return;
+        }
         JavaFileObject object = env.getFiler().createSourceFile(descriptor.fullyQualidiedClassName() + "Mapper");
         Writer writer = object.openWriter();
 

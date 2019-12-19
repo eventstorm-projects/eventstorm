@@ -17,7 +17,7 @@ public final class Logger {
 
 	public void info(String msg) {
 		StringBuilder builder = new StringBuilder();
-		builder.append(LocalDateTime.now().toString()).append(" [INFO] [").append(this.name).append("] ").append(msg).append('\n');
+		builder.append(LocalDateTime.now().toString()).append("[" + Thread.currentThread().getName() + "]").append(" [INFO] [").append(this.name).append("] ").append(msg).append('\n');
 		try {
 			this.writer.write(builder.toString());
 			this.writer.flush();

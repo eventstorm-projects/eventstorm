@@ -51,6 +51,12 @@ final class QueryDatabaseMapperFactoryGenerator {
 
     private void create(ProcessingEnvironment env, String pack, List<QueryDescriptor> descriptors) throws IOException {
 
+        // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
+        if (env.getElementUtils().getTypeElement(pack + ".Mappers") != null) {
+            logger.info("Java SourceCode already exist [" + pack + ".Mappers" + "]");
+            return;
+        }
+        
         JavaFileObject object = env.getFiler().createSourceFile(pack + ".Mappers");
         Writer writer = object.openWriter();
 

@@ -44,6 +44,11 @@ final class EventPayloadDeserializersGenerator {
 
 	private void generate(ProcessingEnvironment env, String pack, ImmutableList<EventDescriptor> descriptors) throws IOException {
 
+	    // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
+        if (env.getElementUtils().getTypeElement(pack + ".io.Deserializers") != null) {
+            logger.info("Java SourceCode already exist [" + pack + ".io.Deserializers" + "]");
+            return;
+        }
 		JavaFileObject object = env.getFiler().createSourceFile(pack + ".io.Deserializers");
 		Writer writer = object.openWriter();
 

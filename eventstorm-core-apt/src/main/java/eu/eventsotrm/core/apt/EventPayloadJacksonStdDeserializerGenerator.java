@@ -52,6 +52,13 @@ final class EventPayloadJacksonStdDeserializerGenerator {
 	private void generate(ProcessingEnvironment env, String pack, ImmutableList<EventDescriptor> descriptors) throws IOException {
 
 		for (EventDescriptor ed : descriptors) {
+		    
+		    // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
+	        if (env.getElementUtils().getTypeElement(pack + ".json." + ed.simpleName() + "StdDeserializer") != null) {
+	            logger.info("Java SourceCode already exist [" + pack + ".json." + ed.simpleName() + "StdDeserializer" + "]");
+	            return;
+	        }
+		    
 			JavaFileObject object = env.getFiler().createSourceFile(pack + ".json." + ed.simpleName() + "StdDeserializer");
 			Writer writer = object.openWriter();
 
@@ -93,6 +100,8 @@ final class EventPayloadJacksonStdDeserializerGenerator {
 		writeNewLine(writer);
 		
 		writeGenerated(writer, EventPayloadJacksonStdDeserializerGenerator.class.getName());
+		writer.write("@SuppressWarnings(\"serial\")");
+        writeNewLine(writer);
 		writer.write("final class "+ descriptor.simpleName() +"StdDeserializer extends StdDeserializer<"+ descriptor.simpleName() +"> {");
 		writeNewLine(writer);
 	}
@@ -107,14 +116,16 @@ final class EventPayloadJacksonStdDeserializerGenerator {
 		writer.write("        FIELDS = ImmutableMap.<String, ParserConsumer<"+ ed.simpleName() + "Builder>>builder()");
 		writeNewLine(writer);
 		for (EventPropertyDescriptor epd : ed.properties()) {
-		    writer.write("				.put(\"" + epd.name() + "\", (parser, builder) -> builder.with" + Helper.firstToUpperCase(epd.name()) + "(parser.");
+		    writer.write("				.put(\"" + Helper.toSnakeCase(epd.name()) + "\", (parser, builder) -> builder.with" + Helper.firstToUpperCase(epd.name()) + "(parser.");
 			if ("java.lang.String".equals(epd.getter().getReturnType().toString())) {
 				writer.write("nextTextValue()");
 			} else if ("int".equals(epd.getter().getReturnType().toString())) {
 				writer.write("nextIntValue(0)");
-			} else if ("int".equals(epd.getter().getReturnType().toString())) {
+			} else if ("long".equals(epd.getter().getReturnType().toString())) {
 				writer.write("nextLongValue(0l)");
-			} else if (OffsetDateTime.class.getName().equals(epd.getter().getReturnType().toString())) {
+			} else if ("boolean".equals(epd.getter().getReturnType().toString())) {
+                writer.write("nextBooleanValue()");
+            } else if (OffsetDateTime.class.getName().equals(epd.getter().getReturnType().toString())) {
 				writer.write("RFC3339TODO.nextTextValue()");
 			}
 			writer.write("))");

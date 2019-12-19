@@ -46,6 +46,13 @@ final class EventPayloadJacksonStdSerializerGenerator {
 	private void generate(ProcessingEnvironment env, String pack, ImmutableList<EventDescriptor> descriptors) throws IOException {
 
 		for (EventDescriptor ed : descriptors) {
+		    
+		    // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
+            if (env.getElementUtils().getTypeElement(pack + ".json." + ed.simpleName() + "StdSerializer") != null) {
+                logger.info("Java SourceCode already exist [" + pack + ".json." + ed.simpleName() + "StdSerializer" + "]");
+                return;
+            }
+            
 			JavaFileObject object = env.getFiler().createSourceFile(pack + ".json." + ed.simpleName() + "StdSerializer");
 			Writer writer = object.openWriter();
 
@@ -72,10 +79,10 @@ final class EventPayloadJacksonStdSerializerGenerator {
 		writeNewLine(writer);
 		writer.write("import " + descriptor.fullyQualidiedClassName() + ";");
 		writeNewLine(writer);
-		writer.write("import " + descriptor.fullyQualidiedClassName() + "Builder;");
-		writeNewLine(writer);
 		
 		writeGenerated(writer, EventPayloadJacksonStdSerializerGenerator.class.getName());
+		writer.write("@SuppressWarnings(\"serial\")");
+        writeNewLine(writer);
 		writer.write("final class "+ descriptor.simpleName() +"StdSerializer extends StdSerializer<"+ descriptor.simpleName() +"> {");
 		writeNewLine(writer);
 	}

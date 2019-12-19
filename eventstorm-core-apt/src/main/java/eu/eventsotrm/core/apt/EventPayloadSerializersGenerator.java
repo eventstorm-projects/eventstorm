@@ -44,6 +44,12 @@ final class EventPayloadSerializersGenerator {
 
 	private void generate(ProcessingEnvironment env, String pack, ImmutableList<EventDescriptor> descriptors) throws IOException {
 
+	    // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
+        if (env.getElementUtils().getTypeElement(pack + ".io.Serializers") != null) {
+            logger.info("Java SourceCode already exist [" + pack+ ".io.Serializers" + "]");
+            return;
+        }
+        
 		JavaFileObject object = env.getFiler().createSourceFile(pack + ".io.Serializers");
 		Writer writer = object.openWriter();
 

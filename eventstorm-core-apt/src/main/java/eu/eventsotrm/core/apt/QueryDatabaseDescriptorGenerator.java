@@ -49,6 +49,12 @@ final class QueryDatabaseDescriptorGenerator {
 	private void doGenerate(ProcessingEnvironment env, QueryDescriptor descriptor)
 			throws IOException {
 
+	    // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
+        if (env.getElementUtils().getTypeElement(descriptor.fullyQualidiedClassName() + "Descriptor") != null) {
+            logger.info("Java SourceCode already exist [" + descriptor.fullyQualidiedClassName() + "Descriptor" + "]");
+            return;
+        }
+        
 		JavaFileObject object = env.getFiler().createSourceFile(descriptor.fullyQualidiedClassName() + "Descriptor");
 		Writer writer = object.openWriter();
 

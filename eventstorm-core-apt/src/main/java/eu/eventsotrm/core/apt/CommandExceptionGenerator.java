@@ -43,6 +43,12 @@ final class CommandExceptionGenerator {
 
     private void generate(ProcessingEnvironment env, CommandDescriptor descriptor) throws IOException {
 
+        // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
+        if (env.getElementUtils().getTypeElement(descriptor.fullyQualidiedClassName() + "Exception") != null) {
+            logger.info("Java SourceCode already exist [" +descriptor.fullyQualidiedClassName() + "Exception" + "]");
+            return;
+        }
+        
         JavaFileObject object = env.getFiler().createSourceFile(descriptor.fullyQualidiedClassName() + "Exception");
         Writer writer = object.openWriter();
 
