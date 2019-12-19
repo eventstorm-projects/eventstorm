@@ -28,5 +28,12 @@ class CloudeventTest {
 			assertEquals("12", event.id());
 			assertEquals("1.0", event.specVersion());
 		}
+		
+		events = CloudEvents.to(eventStore.readStream("toto", from(12)).collect(toImmutableList())).collect(toImmutableList());
+		
+		for (CloudEvent event : events) {
+			assertEquals("12", event.id());
+			assertEquals("1.0", event.specVersion());
+		}
 	}
 }

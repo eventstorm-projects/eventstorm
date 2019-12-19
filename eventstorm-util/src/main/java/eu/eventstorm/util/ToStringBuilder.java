@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Arrays;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -207,6 +208,37 @@ public final class ToStringBuilder {
 			insertNullValue();
 		} else {
 			insertValue(value);
+		}
+		return this;
+	}
+	
+	/**
+	 * Append.
+	 *
+	 * @param key the key
+	 * @param map the map
+	 * @return the to string builder
+	 */
+	public ToStringBuilder append(String key, Map<?,?> map) {
+		if (!this.appendNull && map == null) {
+			return this;
+		}
+
+		insertKey(getChars(key));
+		if (map == null) {
+			insertNullValue();
+		} else {
+			this.value[idx++] = '[';
+			for (Object keyMap : map.keySet()) {
+				this.value[idx++] = '{';
+				insertValue(getChars(keyMap.toString()));
+				this.value[idx-1] = ':';
+				insertValue(getChars(String.valueOf(map.get(keyMap))));
+				this.value[idx-1] = '}';
+				this.value[idx++] = ',';
+			}
+			this.value[idx-1] = ']';
+			this.value[idx++] = ',';
 		}
 		return this;
 	}

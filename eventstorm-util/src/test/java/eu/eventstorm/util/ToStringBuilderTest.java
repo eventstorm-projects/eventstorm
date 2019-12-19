@@ -9,6 +9,8 @@ import java.time.LocalTime;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import com.google.common.collect.ImmutableMap;
+
 import eu.eventstorm.test.LoggerInstancePostProcessor;
 
 /**
@@ -183,6 +185,15 @@ class ToStringBuilderTest {
 		builder.append("array", new String[] {"1", "2"});
 		assertEquals("{\"array\":[\"1\",\"2\"]}", builder.toString());
 
+    }
+	
+	@Test
+	void testMap() {
+		ToStringBuilder builder = new ToStringBuilder(true);
+		builder.append("map", ImmutableMap.of("key1", "key2"));
+		builder.append("map2", ImmutableMap.of(1, 2, 3, 4));
+		builder.append("map3", ImmutableMap.of(new Toto(), "2", "3", new Toto()));
+		assertEquals("{\"map\":[{\"key1\":\"key2\"}],\"map2\":[{\"1\":\"2\"},{\"3\":\"4\"}],\"map3\":[{\"toto2\":\"2\"},{\"3\":\"toto2\"}]}", builder.toString());
     }
 
     private static final class Toto {
