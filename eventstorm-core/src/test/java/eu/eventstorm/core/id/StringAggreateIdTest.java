@@ -32,8 +32,8 @@ class StringAggreateIdTest {
 		assertEquals(id1, id3);
 		assertNotEquals(id1, id2);
 		assertEquals(id1, id4);
-		assertNotEquals(id1, null);
-		assertNotEquals(id1, "hello");
+		assertNotEquals(null, id1);
+		assertNotEquals("hello", id1);
 		
 		assertEquals("123", id1.toStringValue());
 	}

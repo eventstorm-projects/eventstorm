@@ -8,8 +8,8 @@ import com.google.common.collect.ImmutableMap;
 @SuppressWarnings("serial")
 public abstract class EventstormException extends RuntimeException {
 
-	private final EventstormExceptionType type;
-	private final ImmutableMap<String, Object> values;
+	private transient final EventstormExceptionType type;
+	private transient final ImmutableMap<String, Object> values;
 
 
 	public EventstormException(EventstormExceptionType type, ImmutableMap<String, Object> values) {

@@ -31,7 +31,7 @@ class LongAggregateIdTest {
 		assertEquals(id1, id3);
 		assertNotEquals(id1, id2);
 		assertNotEquals(id1, id4);
-		assertNotEquals(id1, null);
+		assertNotEquals(null, id1);
 		
 	}
 	

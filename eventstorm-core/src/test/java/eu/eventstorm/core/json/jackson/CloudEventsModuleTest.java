@@ -6,6 +6,7 @@ import java.time.OffsetDateTime;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -25,12 +26,11 @@ class CloudEventsModuleTest {
 	}
 	
 	@Test
-	void testSerDeser() throws IOException {
+	void testSerDeser() throws IOException, Exception {
 		
 		Temp temp = new Temp();
 		temp.setKey("key01");
 		temp.setValue("valuz01");
-		
 		
 		CloudEvent event = new CloudEventBuilder()
 				.aggregateId(AggregateIds.from(1))
@@ -42,6 +42,9 @@ class CloudEventsModuleTest {
 		
 		StringWriter writer = new StringWriter();
 		objectMapper.writeValue(writer, event);
+
+		JSONAssert.assertEquals("{id:\"1\", datacontenttype:\"application/json\"}", writer.toString(), false);
+		JSONAssert.assertEquals("{data:{\"key\":\"key01\",\"value\":\"valuz01\"}}", writer.toString(), false);
 		
 		objectMapper.readValue(writer.toString(), CloudEvent.class);
 	}

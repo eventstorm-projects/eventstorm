@@ -186,8 +186,6 @@ class ProblemTest {
 				.with("key","value")
 				.build();
 		
-		System.out.println(problem.toString());
-		
 		JSONAssert.assertEquals("{type:\"http://localhost\"}", problem.toString(), false);
 
 	}
