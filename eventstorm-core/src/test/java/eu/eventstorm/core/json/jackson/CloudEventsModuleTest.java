@@ -33,11 +33,11 @@ class CloudEventsModuleTest {
 		temp.setValue("valuz01");
 		
 		CloudEvent event = new CloudEventBuilder()
-				.aggregateId(AggregateIds.from(1))
-				.aggreateType("test")
-				.timestamp(OffsetDateTime.now())
-				.version(1)
-				.payload(temp)
+				.withAggregateId(AggregateIds.from(1))
+				.withAggreateType("test")
+				.withTimestamp(OffsetDateTime.now())
+				.withVersion(1)
+				.withPayload(temp)
 				.build();
 		
 		StringWriter writer = new StringWriter();

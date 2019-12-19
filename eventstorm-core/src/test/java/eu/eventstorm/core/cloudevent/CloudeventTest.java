@@ -4,6 +4,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import static eu.eventstorm.core.id.AggregateIds.from;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -35,5 +36,25 @@ class CloudeventTest {
 			assertEquals("12", event.id());
 			assertEquals("1.0", event.specVersion());
 		}
+	}
+	
+	@Test
+	void testBuilder() {
+		
+		CloudEvent event = new CloudEventBuilder()
+				.withAggreateType("ag-type")
+				.withAggregateId(from(12))
+				.withSpecVersion("1.0")
+				.withSubject("subject__1234567890")
+				.withTimestamp(OffsetDateTime.now())
+				.withVersion(4)
+				.withPayload(new EventPayload() {
+				})
+				.build();
+		
+		assertEquals("ag-type", event.type());
+		assertEquals("12", event.id());
+		assertEquals("1.0", event.specVersion());
+		assertEquals("subject__1234567890", event.subject());
 	}
 }

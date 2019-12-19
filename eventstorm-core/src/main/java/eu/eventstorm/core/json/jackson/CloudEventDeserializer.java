@@ -25,7 +25,7 @@ final class CloudEventDeserializer extends StdDeserializer<CloudEvent> {
 		CONFIG = ImmutableMap.<String, BiConsumer<JsonParser, CloudEventBuilder>>builder()
 			.put("specversion", (parser, builder) -> {
 				try {
-					builder.specVersion(parser.getText());
+					builder.withSpecVersion(parser.getText());
 				} catch (IOException cause) {
 					throw new CloudEventDeserializerException(CloudEventDeserializerException.Type.PARSE_ERROR, ImmutableMap.of("field","specversion"), cause);
 				}

@@ -27,37 +27,37 @@ public final class CloudEventBuilder {
         return new CloudEventImpl(specVersion, aggregateId, aggreateType, timestamp, version, subject, payload);
     }
 
-    public CloudEventBuilder specVersion(String specVersion) {
+    public CloudEventBuilder withSpecVersion(String specVersion) {
         this.specVersion = specVersion;
         return this;
     }
     
-    public CloudEventBuilder aggregateId(AggregateId aggregateId) {
+    public CloudEventBuilder withAggregateId(AggregateId aggregateId) {
         this.aggregateId = aggregateId;
         return this;
     }
     
-    public CloudEventBuilder aggreateType(String aggreateType) {
+    public CloudEventBuilder withAggreateType(String aggreateType) {
         this.aggreateType = aggreateType;
         return this;
     }
     
-    public CloudEventBuilder subject(String subject) {
+    public CloudEventBuilder withSubject(String subject) {
         this.subject = subject;
         return this;
     }
     
-    public CloudEventBuilder version(int version) {
+    public CloudEventBuilder withVersion(int version) {
         this.version = version;
         return this;
     }
     
-    public CloudEventBuilder payload(EventPayload payload) {
+    public CloudEventBuilder withPayload(EventPayload payload) {
         this.payload = payload;
         return this;
     }
     
-    public CloudEventBuilder timestamp(OffsetDateTime timestamp) {
+    public CloudEventBuilder withTimestamp(OffsetDateTime timestamp) {
         this.timestamp = timestamp;
         return this;
     }

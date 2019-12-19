@@ -21,12 +21,12 @@ public final class CloudEvents {
 	
 	public static Stream<CloudEvent> to(Stream<Event<EventPayload>> events) {
 		return events.map(event -> new CloudEventBuilder()
-					.aggreateType(event.getAggregateType())
-					.aggregateId(event.getAggregateId())
-					.payload(event.getPayload())
-					.timestamp(event.getTimestamp())
-					.subject(event.getPayload().getClass().getName())
-					.version(event.getRevision())
+					.withAggreateType(event.getAggregateType())
+					.withAggregateId(event.getAggregateId())
+					.withPayload(event.getPayload())
+					.withTimestamp(event.getTimestamp())
+					.withSubject(event.getPayload().getClass().getName())
+					.withVersion(event.getRevision())
 					.build());
 	}
 	
