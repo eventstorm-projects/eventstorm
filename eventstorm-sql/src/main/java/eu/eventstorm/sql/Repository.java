@@ -223,7 +223,7 @@ public abstract class Repository {
     }
 
     protected final <E> Batch<E> batch(String sql, InsertMapper<E> im) {
-        return new BatchImpl<E>(sql, im);
+        return new BatchImpl<>(sql, im);
     }
 
 	protected final <T> Stream<T> stream(String sql, PreparedStatementSetter pss, ResultSetMapper<T> mapper) {
@@ -281,12 +281,12 @@ public abstract class Repository {
 
 			@Override
 			public long estimateSize() {
-				return 0;
+				return Long.MAX_VALUE;
 			}
 
 			@Override
 			public int characteristics() {
-				return 0;
+				return Spliterator.NONNULL;
 			}
 		}, false);
 

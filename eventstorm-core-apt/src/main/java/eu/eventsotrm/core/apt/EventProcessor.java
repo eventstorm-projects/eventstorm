@@ -37,10 +37,7 @@ import eu.eventstorm.core.annotation.CqrsQueryDatabaseView;
 @SupportedAnnotationTypes({ "eu.eventstorm.core.annotation.CqrsCommand", "eu.eventstorm.core.annotation.CqrsEvent" })
 public class EventProcessor extends AbstractProcessor {
 
-
 	private boolean firstTime = false;
-
-	
 	
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {

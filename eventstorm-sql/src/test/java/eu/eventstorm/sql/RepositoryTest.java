@@ -1,19 +1,21 @@
 package eu.eventstorm.sql;
 
 import static eu.eventstorm.sql.expression.Expressions.eq;
+import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.stream.Stream;
 
 import javax.sql.DataSource;
 
 import org.h2.jdbcx.JdbcConnectionPool;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -92,7 +94,7 @@ class RepositoryTest {
 		SelectBuilder builder = repo.select(StudentDescriptor.ALL).from(StudentDescriptor.TABLE);
 		try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
 			Student s = repo.executeSelect(builder.build(), PreparedStatementSetter.EMPTY, STUDENT);
-			Assertions.assertNotNull(s);
+			assertNotNull(s);
 			tx.rollback();
 		}
 
@@ -177,8 +179,18 @@ class RepositoryTest {
 
 		try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
 			Stream<Student> stream = repo.stream(builder.build(), PreparedStatementSetter.EMPTY, STUDENT);
-			Assertions.assertNotNull(stream);
+			assertNotNull(stream);
+			
+			List<Student> list = stream.collect(toList());
+			assertEquals(100, list.size());
+			
 			tx.rollback();
+		}
+		
+		try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
+		    EventstormRepositoryException ere = assertThrows(EventstormRepositoryException.class, () -> repo.stream(builder.build(), ps -> ps.setString(1, "failed"), STUDENT));
+		    assertEquals(EventstormRepositoryException.Type.STREAM_PREPARED_STATEMENT_SETTER, ere.getType());
+		    tx.rollback();
 		}
 
 		String delete = repo.delete(StudentDescriptor.TABLE).where(eq(StudentDescriptor.ID)).build();

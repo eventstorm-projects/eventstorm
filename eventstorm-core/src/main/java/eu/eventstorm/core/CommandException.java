@@ -6,7 +6,7 @@ import com.google.common.collect.ImmutableMap;
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 @SuppressWarnings("serial")
-public class CommandException extends RuntimeException {
+public abstract class CommandException extends RuntimeException {
 
     private final transient ImmutableMap<String, Object> parameters;
     

@@ -116,7 +116,7 @@ final class EventPayloadJacksonStdDeserializerGenerator {
 		writer.write("        FIELDS = ImmutableMap.<String, ParserConsumer<"+ ed.simpleName() + "Builder>>builder()");
 		writeNewLine(writer);
 		for (EventPropertyDescriptor epd : ed.properties()) {
-		    writer.write("				.put(\"" + Helper.toSnakeCase(epd.name()) + "\", (parser, builder) -> builder.with" + Helper.firstToUpperCase(epd.name()) + "(parser.");
+		    writer.write("				.put(\"" + epd.name() + "\", (parser, builder) -> builder.with" + Helper.firstToUpperCase(epd.name()) + "(parser.");
 			if ("java.lang.String".equals(epd.getter().getReturnType().toString())) {
 				writer.write("nextTextValue()");
 			} else if ("int".equals(epd.getter().getReturnType().toString())) {
