@@ -4,6 +4,8 @@ import static eu.eventstorm.util.Ascii.digit;
 import static eu.eventstorm.util.Ascii.isDigit;
 
 import java.time.DateTimeException;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 
@@ -24,6 +26,48 @@ public final class Dates {
 	private Dates() {
 	}
 
+	public static LocalDate parseLocalDate(String localDate) {
+		
+		if (Strings.isEmpty(localDate)) {
+			throw new DateTimeException("The String is null or empty");
+		}
+		
+		if (localDate.length() != 10) {
+			throw new DateTimeException("Invalid LocalDate size (" + localDate.length() + ") [" + localDate + "]");
+		}
+		
+		char[] chars = localDate.toCharArray();
+
+		// separator '-'
+        assertCharacter(chars, 4, DATE_SEPARATOR);
+	    assertCharacter(chars, 7, DATE_SEPARATOR);
+
+	    return LocalDate.of(parsePositiveInt(chars, 0, 4),
+	    		parsePositiveInt(chars, 5, 7), parsePositiveInt(chars, 8, 10));
+		
+	}
+	
+	public static LocalTime parseLocalTime(String localTime) {
+		
+		if (Strings.isEmpty(localTime)) {
+			throw new DateTimeException("The String is null or empty");
+		}
+		
+		if (localTime.length() != 8) {
+			throw new DateTimeException("Invalid LocalTime size (" + localTime.length() + ") [" + localTime + "]");
+		}
+		
+		char[] chars = localTime.toCharArray();
+
+		// separator ':'
+        assertCharacter(chars, 2, TIME_SEPARATOR);
+	    assertCharacter(chars, 5, TIME_SEPARATOR);
+
+	    return LocalTime.of(parsePositiveInt(chars, 0, 2),
+	    		parsePositiveInt(chars, 3, 5), parsePositiveInt(chars, 6, 8));
+	}
+
+	
 	public static OffsetDateTime parseDateTime(String s) {
 
 		if (Strings.isEmpty(s)) {

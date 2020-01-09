@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.DateTimeException;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 
@@ -111,5 +113,39 @@ class DatesTest {
 		assertEquals(23, odt.getSecond());
 		assertEquals(123_000_000, odt.getNano());
 		assertEquals(ZoneOffset.UTC, odt.getOffset());
+	}
+	
+	@Test
+	void testLocalDate() {
+		LocalDate ld = Dates.parseLocalDate("2011-03-11");
+		assertEquals(2011, ld.getYear());
+		assertEquals(03, ld.getMonthValue());
+		assertEquals(11, ld.getDayOfMonth());
+		
+		
+		assertThrows(DateTimeException.class, () -> Dates.parseLocalDate(null));
+		assertThrows(DateTimeException.class, () -> Dates.parseLocalDate(""));
+		assertThrows(DateTimeException.class, () -> Dates.parseLocalDate("A"));
+		assertThrows(DateTimeException.class, () -> Dates.parseLocalDate("201A-01-02"));
+		assertThrows(DateTimeException.class, () -> Dates.parseLocalDate("2020T01-02"));
+		assertThrows(DateTimeException.class, () -> Dates.parseLocalDate("2020-01T02"));
+		
+	}
+	
+	@Test
+	void testLocalTime() {
+		LocalTime lt = Dates.parseLocalTime("18:35:20");
+		assertEquals(18, lt.getHour());
+		assertEquals(35, lt.getMinute());
+		assertEquals(20, lt.getSecond());
+		
+		
+		assertThrows(DateTimeException.class, () -> Dates.parseLocalTime(null));
+		assertThrows(DateTimeException.class, () -> Dates.parseLocalTime(""));
+		assertThrows(DateTimeException.class, () -> Dates.parseLocalTime("A"));
+		assertThrows(DateTimeException.class, () -> Dates.parseLocalTime("12:23:2A"));
+		assertThrows(DateTimeException.class, () -> Dates.parseLocalTime("1A:12:12"));
+		assertThrows(DateTimeException.class, () -> Dates.parseLocalTime("12:A1:12"));
+		
 	}
 }
