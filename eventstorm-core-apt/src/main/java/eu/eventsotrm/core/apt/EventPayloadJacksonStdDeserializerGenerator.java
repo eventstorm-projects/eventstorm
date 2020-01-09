@@ -6,6 +6,8 @@ import static eu.eventsotrm.sql.apt.Helper.writePackage;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.OffsetDateTime;
 
 import javax.annotation.processing.ProcessingEnvironment;
@@ -99,12 +101,27 @@ final class EventPayloadJacksonStdDeserializerGenerator {
 		writer.write("import " + descriptor.fullyQualidiedClassName() + "Builder;");
 		writeNewLine(writer);
 		
+		writeImport(writer, descriptor, OffsetDateTime.class.getName());
+        writeImport(writer, descriptor, LocalDate.class.getName());
+        writeImport(writer, descriptor, LocalTime.class.getName());
+		
 		writeGenerated(writer, EventPayloadJacksonStdDeserializerGenerator.class.getName());
 		writer.write("@SuppressWarnings(\"serial\")");
         writeNewLine(writer);
 		writer.write("final class "+ descriptor.simpleName() +"StdDeserializer extends StdDeserializer<"+ descriptor.simpleName() +"> {");
 		writeNewLine(writer);
 	}
+	
+	
+	private static void writeImport(Writer writer, EventDescriptor ed, String fcqn) throws IOException {
+        for (EventPropertyDescriptor epd : ed.properties()) {
+            if (fcqn.equals(epd.getter().getReturnType().toString())) {
+                writer.write("import " + fcqn + ";");
+                writeNewLine(writer);
+                break;
+            }
+        }
+    }
 
 	private void writeStatic(Writer writer, EventDescriptor ed) throws IOException {
 
@@ -116,18 +133,26 @@ final class EventPayloadJacksonStdDeserializerGenerator {
 		writer.write("        FIELDS = ImmutableMap.<String, ParserConsumer<"+ ed.simpleName() + "Builder>>builder()");
 		writeNewLine(writer);
 		for (EventPropertyDescriptor epd : ed.properties()) {
-		    writer.write("				.put(\"" + epd.name() + "\", (parser, builder) -> builder.with" + Helper.firstToUpperCase(epd.name()) + "(parser.");
+		    writer.write("				.put(\"" + epd.name() + "\", (parser, builder) -> builder.with" + Helper.firstToUpperCase(epd.name()) + "(");
 			if ("java.lang.String".equals(epd.getter().getReturnType().toString())) {
-				writer.write("nextTextValue()");
+				writer.write("parser.nextTextValue()");
 			} else if ("int".equals(epd.getter().getReturnType().toString())) {
-				writer.write("nextIntValue(0)");
-			} else if ("long".equals(epd.getter().getReturnType().toString())) {
-				writer.write("nextLongValue(0l)");
+				writer.write("parser.nextIntValue(0)");
+			} else if ("java.lang.Integer".equals(epd.getter().getReturnType().toString())) {
+                writer.write("(parser.nextToken() == JsonToken.VALUE_NUMBER_INT) ? parser.getIntValue() : null");
+            } else if ("long".equals(epd.getter().getReturnType().toString())) {
+				writer.write("parser.nextLongValue(0l)");
 			} else if ("boolean".equals(epd.getter().getReturnType().toString())) {
-                writer.write("nextBooleanValue()");
+                writer.write("parser.nextBooleanValue()");
             } else if (OffsetDateTime.class.getName().equals(epd.getter().getReturnType().toString())) {
-				writer.write("RFC3339TODO.nextTextValue()");
-			}
+                writer.write("OffsetDateTime.parse(parser.nextTextValue())");
+            } else if (LocalDate.class.getName().equals(epd.getter().getReturnType().toString())) {
+                writer.write("LocalDate.parse(parser.nextTextValue())");
+            } else if (LocalTime.class.getName().equals(epd.getter().getReturnType().toString())) {
+                writer.write("LocalTime.parse(parser.nextTextValue())");
+            } else {
+                throw new UnsupportedOperationException("Type not supported [" + epd.getter().getReturnType().toString() + "]");
+            }
 			writer.write("))");
 			writeNewLine(writer);
 		}

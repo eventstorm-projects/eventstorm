@@ -82,31 +82,37 @@ final class CommandExceptionGenerator {
 
     private static void writeConstructor(Writer writer, CommandDescriptor descriptor) throws IOException {
         writeNewLine(writer);
-        writer.write("    ");
+        writer.write("    public ");
         writer.write(descriptor.simpleName() + "Exception");
         writer.write("(String message, " + descriptor.simpleName() + " command) {");
         writeNewLine(writer);
         writer.write("        super(message, ImmutableMap.of());");
         writeNewLine(writer);
+        writer.write("        this.command = command;");
+        writeNewLine(writer);
         writer.write("    }");
         writeNewLine(writer);
         
         writeNewLine(writer);
-        writer.write("    ");
+        writer.write("    public ");
         writer.write(descriptor.simpleName() + "Exception");
         writer.write("(String message, Throwable cause," + descriptor.simpleName() + " command) {");
         writeNewLine(writer);
         writer.write("        super(message, cause, ImmutableMap.of());");
         writeNewLine(writer);
+        writer.write("        this.command = command;");
+        writeNewLine(writer);
         writer.write("    }");
         writeNewLine(writer);
         
         writeNewLine(writer);
-        writer.write("    ");
+        writer.write("    public ");
         writer.write(descriptor.simpleName() + "Exception");
         writer.write("(String message, Throwable cause," + descriptor.simpleName() + " command, ImmutableMap<String, Object> parameters) {");
         writeNewLine(writer);
         writer.write("        super(message, cause, parameters);");
+        writeNewLine(writer);
+        writer.write("        this.command = command;");
         writeNewLine(writer);
         writer.write("    }");
         writeNewLine(writer);
