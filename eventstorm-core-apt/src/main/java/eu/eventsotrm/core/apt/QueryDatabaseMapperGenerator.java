@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.OffsetDateTime;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.JavaFileObject;
@@ -54,6 +55,7 @@ final class QueryDatabaseMapperGenerator {
         Writer writer = object.openWriter();
 
         writeHeader(writer, env, descriptor);
+        writeVariables(writer, descriptor);
         writeConstructor(writer, descriptor);
         writeMap(writer, descriptor);
 
@@ -61,6 +63,7 @@ final class QueryDatabaseMapperGenerator {
         writer.write("}");
         writer.close();
     }
+
 
     private static void writeHeader(Writer writer, ProcessingEnvironment env, QueryDescriptor descriptor) throws IOException {
 
@@ -87,6 +90,19 @@ final class QueryDatabaseMapperGenerator {
         writeNewLine(writer);
         writer.write("    }");
         writeNewLine(writer);
+    }
+    
+    private void writeVariables(Writer writer, QueryDescriptor descriptor) throws IOException {
+      
+        for (QueryPropertyDescriptor qpd : descriptor.properties()) {
+            if (OffsetDateTime.class.getName().equals(qpd.getter().getReturnType().toString())) {
+                writeNewLine(writer);
+                writer.write("    private static final java.time.ZoneId UTC = java.time.ZoneId.of(\"UTC\");");
+                writeNewLine(writer);
+                break;
+            }
+        }
+        
     }
 
     private static void writeMap(Writer writer, QueryDescriptor descriptor) throws IOException {
@@ -154,7 +170,20 @@ final class QueryDatabaseMapperGenerator {
 //                    writer.write("        }");
 //                    writeNewLine(writer);
 //                }
+            } else  if (OffsetDateTime.class.getName().equals(vpd.getter().getReturnType().toString())) {
+                int i = index++;
+                writer.write("        java.sql.Timestamp tmp"+i+" = rs.getTimestamp(" + i +");");
+                writeNewLine(writer);
+                writer.write("        if (tmp"+i+" != null) {");
+                writeNewLine(writer);
+                writer.write("            builder.with");
+                writer.write(Helper.firstToUpperCase(vpd.name()));
+                writer.write("(" + OffsetDateTime.class.getName()+ ".ofInstant(tmp" + i +".toInstant(), UTC));");
+                writeNewLine(writer);
+                writer.write("        }");
+                writeNewLine(writer);
             } else {
+                
                 writer.write("        builder.with");
                 writer.write(Helper.firstToUpperCase(vpd.name()));
                 writer.write("(");

@@ -11,6 +11,7 @@ import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
 
 import eu.eventsotrm.core.apt.analyser.CqrsCommandAnalyser;
@@ -95,6 +96,21 @@ public class EventProcessor extends AbstractProcessor {
 		
 		queries.addAll(roundEnvironment.getElementsAnnotatedWith(CqrsQueryDatabaseView.class).stream().map(new CqrsQueryAnalyser())
 		        .collect(Collectors.toList()));
+		
+		for (QueryDescriptor qd : queries) {
+		    for (TypeMirror tm : ((TypeElement)qd.element()).getInterfaces()) {
+		        String fcqn = tm.toString();
+		        logger.info("add from [" + fcqn + "]");
+		        for (QueryDescriptor temp : queries) {
+		            if (temp.fullyQualidiedClassName().equals(fcqn)) {
+		                logger.info("found -> ");
+		                qd.properties().addAll(temp.properties());
+		                break;
+		            }
+		        }
+		    }
+		    
+        }
 
 		SourceCode sourceCode = new SourceCode(this.processingEnv, cqrsConfiguration, descriptors, eventDescriptors, restControllerDescriptors, queries);
 

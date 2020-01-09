@@ -6,6 +6,8 @@ import static eu.eventsotrm.sql.apt.Helper.writePackage;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.OffsetDateTime;
 
 import javax.annotation.processing.ProcessingEnvironment;
@@ -72,7 +74,7 @@ final class CommandJacksonStdDeserializerGenerator {
 
 	}
 
-	private static void writeHeader(Writer writer, String pack, CommandDescriptor descriptor) throws IOException {
+	private static void writeHeader(Writer writer, String pack, CommandDescriptor cd) throws IOException {
 		writePackage(writer, pack);
 
 		writeNewLine(writer);
@@ -93,19 +95,33 @@ final class CommandJacksonStdDeserializerGenerator {
 		writeNewLine(writer);
 		writer.write("import " + DeserializationContext.class.getName() + ";");
 		writeNewLine(writer);
-		writer.write("import " + descriptor.fullyQualidiedClassName() + ";");
+		writer.write("import " + cd.fullyQualidiedClassName() + ";");
 		writeNewLine(writer);
-		writer.write("import " + descriptor.fullyQualidiedClassName().substring(0, descriptor.fullyQualidiedClassName().lastIndexOf('.') + 1) + "CommandFactory" + ";");
+		writer.write("import " + cd.fullyQualidiedClassName().substring(0, cd.fullyQualidiedClassName().lastIndexOf('.') + 1) + "CommandFactory" + ";");
 		writeNewLine(writer);
+		
+		writeImport(writer, cd, OffsetDateTime.class.getName());
+		writeImport(writer, cd, LocalDate.class.getName());
+		writeImport(writer, cd, LocalTime.class.getName());
 
 		writeGenerated(writer, CommandJacksonStdDeserializerGenerator.class.getName());
 		
 	    writer.write("@SuppressWarnings(\"serial\")");
 	    writeNewLine(writer);
-		writer.write("final class "+ descriptor.simpleName() +"StdDeserializer extends StdDeserializer<"+ descriptor.simpleName() +"> {");
+		writer.write("final class "+ cd.simpleName() +"StdDeserializer extends StdDeserializer<"+ cd.simpleName() +"> {");
 		writeNewLine(writer);
 	}
 
+	private static void writeImport(Writer writer, CommandDescriptor cd, String fcqn) throws IOException {
+	    for (CommandPropertyDescriptor cpd : cd.properties()) {
+            if (fcqn.equals(cpd.getter().getReturnType().toString())) {
+                writer.write("import " + fcqn + ";");
+                writeNewLine(writer);
+                break;
+            }
+        }
+	}
+	
 	private void writeStatic(Writer writer, CommandDescriptor cd) throws IOException {
 
 		writeNewLine(writer);
@@ -116,15 +132,21 @@ final class CommandJacksonStdDeserializerGenerator {
 		writer.write("        FIELDS = ImmutableMap.<String, ParserConsumer<"+ cd.simpleName() + ">>builder()");
 		writeNewLine(writer);
 		for (CommandPropertyDescriptor cpd : cd.properties()) {
-		    writer.write("				.put(\"" + cpd.name() + "\", (parser, command) -> command." + cpd.setter().getSimpleName()+ "(parser.");
+		    writer.write("				.put(\"" + cpd.name() + "\", (parser, command) -> command." + cpd.setter().getSimpleName()+ "(");
 			if ("java.lang.String".equals(cpd.getter().getReturnType().toString())) {
-				writer.write("nextTextValue()");
+				writer.write("parser.nextTextValue()");
 			} else if ("int".equals(cpd.getter().getReturnType().toString())) {
-				writer.write("nextIntValue(0)");
+				writer.write("parser.nextIntValue(0)");
 			} else if ("int".equals(cpd.getter().getReturnType().toString())) {
-				writer.write("nextLongValue(0l)");
+				writer.write("parser.nextLongValue(0l)");
 			} else if (OffsetDateTime.class.getName().equals(cpd.getter().getReturnType().toString())) {
-				writer.write("RFC3339TODO.nextTextValue()");
+				writer.write("OffsetDateTime.parse(parser.nextTextValue())");
+			} else if (LocalDate.class.getName().equals(cpd.getter().getReturnType().toString())) {
+                writer.write("LocalDate.parse(parser.nextTextValue())");
+            } else if (LocalTime.class.getName().equals(cpd.getter().getReturnType().toString())) {
+                writer.write("LocalTime.parse(parser.nextTextValue())");
+            } else {
+			    throw new UnsupportedOperationException("Type not supported [" + cpd.getter().getReturnType().toString() + "]");
 			}
 			writer.write("))");
 			writeNewLine(writer);

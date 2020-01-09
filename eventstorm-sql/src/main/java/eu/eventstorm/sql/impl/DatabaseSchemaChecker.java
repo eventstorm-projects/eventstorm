@@ -7,6 +7,7 @@ import java.sql.SQLException;
 
 import eu.eventstorm.sql.Descriptor;
 import eu.eventstorm.sql.Module;
+import eu.eventstorm.sql.desc.SqlColumn;
 import eu.eventstorm.sql.desc.SqlPrimaryKey;
 import eu.eventstorm.sql.desc.SqlSingleColumn;
 import eu.eventstorm.sql.desc.SqlTable;
@@ -25,7 +26,7 @@ final class DatabaseSchemaChecker {
 
         builder.append("\nModule   -> name : [").append(module.name()).append(']');
         for (Descriptor descriptor : module.descriptors()) {
-            builder.append("\n         \t-> table : [").append(descriptor.table().name()).append("] -> alias [").append(descriptor.table().alias()).append("] -> exists [");
+            builder.append("\n         \t-> table : [").append(module.getTableName(descriptor.table())).append("] -> alias [").append(descriptor.table().alias()).append("] -> exists [");
             builder.append(checkTable(meta, module, descriptor.table())).append(']');
 
             for (SqlPrimaryKey key : descriptor.ids()) {
@@ -41,23 +42,16 @@ final class DatabaseSchemaChecker {
 
     }
 
-    private static boolean checkColumn(DatabaseMetaData meta, Module module, SqlTable table, SqlPrimaryKey key) throws SQLException {
+    private static boolean checkColumn(DatabaseMetaData meta, Module module, SqlTable table, SqlColumn column) throws SQLException {
         String catalog = Strings.isEmpty(module.catalog()) ? null : module.catalog();
-        try (ResultSet res = meta.getColumns(catalog, null, table.name(), key.name())) {
+        try (ResultSet res = meta.getColumns(catalog, null,  module.getTableName(table), column.name())) {
         	return res.next();
-        }
-    }
-
-    private static boolean checkColumn(DatabaseMetaData meta, Module module, SqlTable table, SqlSingleColumn column) throws SQLException {
-        String catalog = Strings.isEmpty(module.catalog()) ? null : module.catalog();
-        try (ResultSet res = meta.getColumns(catalog, null, table.name(), column.name())) {
-            return res.next();
         }
     }
 
     private static boolean checkTable(DatabaseMetaData meta, Module module, SqlTable table) throws SQLException {
         String catalog = Strings.isEmpty(module.catalog()) ? null : module.catalog();
-        try (ResultSet res = meta.getTables(catalog, null, table.name(), null )) {
+        try (ResultSet res = meta.getTables(catalog, null, module.getTableName(table), null )) {
         	return res.next();
         }
     }

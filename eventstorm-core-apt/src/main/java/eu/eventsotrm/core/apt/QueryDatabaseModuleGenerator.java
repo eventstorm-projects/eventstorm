@@ -9,6 +9,7 @@ import java.io.Writer;
 import java.util.List;
 
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.TypeElement;
 import javax.tools.JavaFileObject;
 
 import eu.eventsotrm.core.apt.model.QueryDescriptor;
@@ -73,8 +74,10 @@ final class QueryDatabaseModuleGenerator {
 
         for (QueryDescriptor desc : descriptors) {
             if (desc.element().getAnnotation(CqrsQueryDatabaseView.class) != null) {
-                writer.write(", ");
-                writer.write(desc.simpleName() + "Descriptor.INSTANCE");
+                if (((TypeElement)desc.element()).getInterfaces().size() == 0) {
+                    writer.write(", ");
+                    writer.write(desc.simpleName() + "Descriptor.INSTANCE");
+                }
             }
         }
         writer.write(");");
