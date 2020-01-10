@@ -14,6 +14,7 @@ import javax.tools.JavaFileObject;
 import com.google.common.collect.ImmutableList;
 
 import eu.eventsotrm.core.apt.model.CommandDescriptor;
+import eu.eventsotrm.core.apt.model.CommandPropertyDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 
@@ -90,11 +91,32 @@ final class CommandFactoryGenerator {
             writer.write(descriptor.simpleName());
             writer.write(" new");
             writer.write(descriptor.simpleName());
-            writer.write("() {");
+            writer.write("(");
+            
+            StringBuilder builder = new StringBuilder();
+            StringBuilder builder2 = new StringBuilder();
+            for (CommandPropertyDescriptor prop : descriptor.properties()) {
+            	builder.append(prop.getter().getReturnType());
+            	builder.append(' ');
+            	builder.append(prop.name());
+            	builder.append(", ");
+            	
+            	builder2.append(prop.name());
+            	builder2.append(", ");
+            }
+            builder.deleteCharAt(builder.length() -1);
+            builder.deleteCharAt(builder.length() -1);
+            builder2.deleteCharAt(builder2.length() -1);
+            builder2.deleteCharAt(builder2.length() -1);
+            writer.write(builder.toString());
+            writer.write(") {");
+            
             writeNewLine(writer);
             writer.write("        return new ");
             writer.write(descriptor.simpleName());
-            writer.write("Impl();");
+            writer.write("Impl(");
+            writer.write(builder2.toString());
+            writer.write(");");
             writeNewLine(writer);
             writer.write("    }");
             writeNewLine(writer);

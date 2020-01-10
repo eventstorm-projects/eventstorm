@@ -26,10 +26,10 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 
-		<org.slf4j.version>1.7.29</org.slf4j.version>
-		<org.apache.logging.log4j.version>2.12.1</org.apache.logging.log4j.version>
-		<com.google.guava.version>28.1-jre</com.google.guava.version>
-		<com.fasterxml.jackson.core.version>2.10.1</com.fasterxml.jackson.core.version>
+		<org.slf4j.version>1.7.30</org.slf4j.version>
+		<org.apache.logging.log4j.version>2.13.0</org.apache.logging.log4j.version>
+		<com.google.guava.version>28.2-jre</com.google.guava.version>
+		<com.fasterxml.jackson.core.version>2.10.2</com.fasterxml.jackson.core.version>
 		<io.zipkin.brave.version>5.9.1</io.zipkin.brave.version>
 		<javax.servlet.version>4.0.1</javax.servlet.version>
 		
@@ -38,7 +38,7 @@
 		<org.junit.jupiter.version>5.5.2</org.junit.jupiter.version>
 		<com.h2database.version>1.4.200</com.h2database.version>
 		<org.mockito.version>3.0.0</org.mockito.version>
-		<org.flywaydb.version>6.1.2</org.flywaydb.version>
+		<org.flywaydb.version>6.1.3</org.flywaydb.version>
 		<com.zaxxer.version>3.4.1</com.zaxxer.version>
 		<org.skyscreamer.jsonassert.version>1.5.0</org.skyscreamer.jsonassert.version>
 	</properties>

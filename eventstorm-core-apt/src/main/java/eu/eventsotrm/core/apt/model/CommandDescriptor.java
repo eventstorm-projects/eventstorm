@@ -40,7 +40,5 @@ public class CommandDescriptor implements Descriptor {
         }
         return builder.toString();
     }
-	
-	
 
 }

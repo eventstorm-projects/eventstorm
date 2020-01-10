@@ -17,6 +17,12 @@
 			<artifactId>eventstorm-sql</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>eu.eventstorm</groupId>
+			<artifactId>eventstorm-problem</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
 		<dependency>
 			<groupId>eu.eventstorm</groupId>

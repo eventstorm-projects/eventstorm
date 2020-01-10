@@ -79,10 +79,34 @@ final class CommandImplementationGenerator {
     }
 
     private static void writeConstructor(Writer writer, CommandDescriptor descriptor) throws IOException {
-        writeNewLine(writer);
+    	writeNewLine(writer);
         writer.write("    ");
         writer.write(descriptor.simpleName() + "Impl");
-        writer.write("(){}");
+        writer.write("(");
+        
+        StringBuilder builder = new StringBuilder();
+    	for (CommandPropertyDescriptor ppd : descriptor.properties()) {
+    		builder.append(ppd.getter().getReturnType().toString());
+    		builder.append(" ");
+    		builder.append(ppd.variable());
+    		builder.append(",");
+        }
+    	
+    	builder.deleteCharAt(builder.length() -1);
+    	writer.write(builder.toString());
+    	writer.write(") {");
+    	writeNewLine(writer);
+        
+    	for (CommandPropertyDescriptor ppd : descriptor.properties()) {
+    		 writer.write("        this.");
+            writer.write(ppd.variable());
+            writer.write(" = ");
+            writer.write(ppd.variable());
+            writer.write(";");
+            writeNewLine(writer);
+        }
+    	
+        writer.write("    }");
         writeNewLine(writer);
     }
 
@@ -116,7 +140,6 @@ final class CommandImplementationGenerator {
 	private static void writeMethods(Writer writer, List<CommandPropertyDescriptor> descriptors) throws IOException {
         for (CommandPropertyDescriptor ppd : descriptors) {
             writeGetter(writer, ppd);
-            writeSetter(writer, ppd);
         }
     }
 
@@ -138,38 +161,6 @@ final class CommandImplementationGenerator {
         writeNewLine(writer);
         writer.write("    }");
         writeNewLine(writer);
-    }
-
-    private static void writeSetter(Writer writer, CommandPropertyDescriptor ppd) throws IOException {
-
-        if (ppd.setter() == null) {
-            return;
-        }
-
-        writeNewLine(writer);
-        writer.write("    /** {@inheritDoc} */");
-        writeNewLine(writer);
-        writer.write("    @Override");
-        writeNewLine(writer);
-        writer.write("    public ");
-        writer.write(ppd.setter().getReturnType().toString());
-        writer.write(' ');
-        writer.write(ppd.setter().getSimpleName().toString());
-        writer.write("(");
-        writer.write(ppd.getter().getReturnType().toString());
-        writer.write(" ");
-        writer.write(ppd.variable());
-        writer.write(") {");
-        writeNewLine(writer);
-        writer.write("        this.");
-        writer.write(ppd.variable());
-        writer.write(" = ");
-        writer.write(ppd.variable());
-        writer.write(";");
-        writeNewLine(writer);
-        writer.write("    }");
-        writeNewLine(writer);
-
     }
 
     private static void writeToStringBuilder(Writer writer, CommandDescriptor descriptor) throws IOException {

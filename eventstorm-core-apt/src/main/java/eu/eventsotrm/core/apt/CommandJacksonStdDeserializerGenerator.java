@@ -22,6 +22,7 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.eventsotrm.core.apt.model.CommandDescriptor;
 import eu.eventsotrm.core.apt.model.CommandPropertyDescriptor;
+import eu.eventsotrm.sql.apt.Helper;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.core.json.DeserializerException;
@@ -98,6 +99,8 @@ final class CommandJacksonStdDeserializerGenerator {
 		writeNewLine(writer);
 		writer.write("import " + cd.fullyQualidiedClassName() + ";");
 		writeNewLine(writer);
+		writer.write("import " + cd.fullyQualidiedClassName() + "Builder;");
+		writeNewLine(writer);
 		writer.write("import " + cd.fullyQualidiedClassName().substring(0, cd.fullyQualidiedClassName().lastIndexOf('.') + 1) + "CommandFactory" + ";");
 		writeNewLine(writer);
 		
@@ -126,14 +129,14 @@ final class CommandJacksonStdDeserializerGenerator {
 	private void writeStatic(Writer writer, CommandDescriptor cd) throws IOException {
 
 		writeNewLine(writer);
-		writer.write("    private static final ImmutableMap<String, ParserConsumer<" + cd.simpleName() + ">> FIELDS;");
+		writer.write("    private static final ImmutableMap<String, ParserConsumer<" + cd.simpleName() + "Builder>> FIELDS;");
 		writeNewLine(writer);
 		writer.write("    static {");
 		writeNewLine(writer);
-		writer.write("        FIELDS = ImmutableMap.<String, ParserConsumer<"+ cd.simpleName() + ">>builder()");
+		writer.write("        FIELDS = ImmutableMap.<String, ParserConsumer<"+ cd.simpleName() + "Builder>>builder()");
 		writeNewLine(writer);
 		for (CommandPropertyDescriptor cpd : cd.properties()) {
-		    writer.write("				.put(\"" + cpd.name() + "\", (parser, command) -> command." + cpd.setter().getSimpleName()+ "(");
+		    writer.write("				.put(\"" + cpd.name() + "\", (parser, builder) -> builder.with" + Helper.firstToUpperCase(cpd.name()) + "(");
 			if ("java.lang.String".equals(cpd.getter().getReturnType().toString())) {
 				writer.write("parser.nextTextValue()");
 			} else if ("int".equals(cpd.getter().getReturnType().toString())) {
@@ -172,6 +175,7 @@ final class CommandJacksonStdDeserializerGenerator {
 		writeNewLine(writer);
 	}
 
+	/*
 	private void writeMethod(Writer writer, CommandDescriptor cd) throws IOException {
 		writeNewLine(writer);
 		writer.write("    @Override");
@@ -222,5 +226,56 @@ final class CommandJacksonStdDeserializerGenerator {
 		writer.write("     }");
 		writeNewLine(writer);
 	}
+*/
+	
+	private void writeMethod(Writer writer, CommandDescriptor cd) throws IOException {
+		writeNewLine(writer);
+		writer.write("    @Override");
+		writeNewLine(writer);
+		writer.write("    public " + cd.simpleName() + " deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {");
 
+
+		writeNewLine(writer);
+		writer.write("        " + cd.simpleName() + "Builder builder = new " + cd.simpleName() + "Builder();");
+		
+		writeNewLine(writer);
+		writer.write("        if (JsonToken.START_OBJECT != p.currentToken()) {");
+		writeNewLine(writer);
+		writer.write("            throw new DeserializerException(DeserializerException.Type.PARSE_ERROR, ImmutableMap.of(\"expected\",JsonToken.START_OBJECT,\"current\", p.currentToken()));");
+		writeNewLine(writer);
+		writer.write("        }");
+		writeNewLine(writer);
+		
+		writer.write("        p.nextToken();");
+		writeNewLine(writer);
+		
+		writer.write("        while (p.currentToken() != JsonToken.END_OBJECT) {");
+		writeNewLine(writer);
+		
+		writer.write("            if (JsonToken.FIELD_NAME != p.currentToken()) {");
+		writeNewLine(writer);
+		writer.write("                throw new DeserializerException(DeserializerException.Type.PARSE_ERROR, ImmutableMap.of(\"expected\",JsonToken.FIELD_NAME,\"current\", p.currentToken()));");
+		writeNewLine(writer);
+		writer.write("            }");
+		writeNewLine(writer);
+		writer.write("            ParserConsumer<" + cd.simpleName() + "Builder> consumer = FIELDS.get(p.currentName());");
+		writeNewLine(writer);
+		writer.write("            if (consumer == null) {");
+		writeNewLine(writer);
+		writer.write("                throw new DeserializerException(DeserializerException.Type.FIELD_NOT_FOUND, ImmutableMap.of(\"field\",p.currentName(),\"eventPayload\", \""+ cd.simpleName()+"\"));");
+		writeNewLine(writer);
+		writer.write("            }");
+		writeNewLine(writer);
+		writer.write("            consumer.accept(p, builder);");
+		writeNewLine(writer);
+		writer.write("            p.nextToken();");
+		writeNewLine(writer);
+		writer.write("        }");
+
+		writeNewLine(writer);
+		writer.write("        return builder.build();");
+		writeNewLine(writer);
+		writer.write("     }");
+		writeNewLine(writer);
+	}
 }
