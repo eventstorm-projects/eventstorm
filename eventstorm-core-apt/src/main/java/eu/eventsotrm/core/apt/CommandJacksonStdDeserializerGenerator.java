@@ -26,6 +26,7 @@ import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.core.json.DeserializerException;
 import eu.eventstorm.core.json.ParserConsumer;
+import eu.eventstorm.util.Dates;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -100,9 +101,9 @@ final class CommandJacksonStdDeserializerGenerator {
 		writer.write("import " + cd.fullyQualidiedClassName().substring(0, cd.fullyQualidiedClassName().lastIndexOf('.') + 1) + "CommandFactory" + ";");
 		writeNewLine(writer);
 		
-		writeImport(writer, cd, OffsetDateTime.class.getName());
-		writeImport(writer, cd, LocalDate.class.getName());
-		writeImport(writer, cd, LocalTime.class.getName());
+		writeImport(writer, cd, OffsetDateTime.class.getName(), Dates.class.getName() + ".parseOffsetDateTime");
+		writeImport(writer, cd, LocalDate.class.getName(), Dates.class.getName() + ".parseLocalDate");
+		writeImport(writer, cd, LocalTime.class.getName(), Dates.class.getName() + ".parseLocalTime");
 
 		writeGenerated(writer, CommandJacksonStdDeserializerGenerator.class.getName());
 		
@@ -112,10 +113,10 @@ final class CommandJacksonStdDeserializerGenerator {
 		writeNewLine(writer);
 	}
 
-	private static void writeImport(Writer writer, CommandDescriptor cd, String fcqn) throws IOException {
+	private static void writeImport(Writer writer, CommandDescriptor cd, String fcqn, String staticMethod) throws IOException {
 	    for (CommandPropertyDescriptor cpd : cd.properties()) {
             if (fcqn.equals(cpd.getter().getReturnType().toString())) {
-                writer.write("import " + fcqn + ";");
+                writer.write("import static " + staticMethod + ";");
                 writeNewLine(writer);
                 break;
             }
@@ -140,11 +141,11 @@ final class CommandJacksonStdDeserializerGenerator {
 			} else if ("int".equals(cpd.getter().getReturnType().toString())) {
 				writer.write("parser.nextLongValue(0l)");
 			} else if (OffsetDateTime.class.getName().equals(cpd.getter().getReturnType().toString())) {
-				writer.write("OffsetDateTime.parse(parser.nextTextValue())");
+				writer.write("parseOffsetDateTime(parser.nextTextValue())");
 			} else if (LocalDate.class.getName().equals(cpd.getter().getReturnType().toString())) {
-                writer.write("LocalDate.parse(parser.nextTextValue())");
+                writer.write("parseLocalDate(parser.nextTextValue())");
             } else if (LocalTime.class.getName().equals(cpd.getter().getReturnType().toString())) {
-                writer.write("LocalTime.parse(parser.nextTextValue())");
+                writer.write("parseLocalTime(parser.nextTextValue())");
             } else {
 			    throw new UnsupportedOperationException("Type not supported [" + cpd.getter().getReturnType().toString() + "]");
 			}

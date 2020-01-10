@@ -68,13 +68,13 @@ public final class Dates {
 	}
 
 	
-	public static OffsetDateTime parseDateTime(String s) {
+	public static OffsetDateTime parseOffsetDateTime(String offsetDateTime) {
 
-		if (Strings.isEmpty(s)) {
+		if (Strings.isEmpty(offsetDateTime)) {
 			throw new DateTimeException("The String is null or empty");
 		}
 		
-		char[] chars = s.toCharArray();
+		char[] chars = offsetDateTime.toCharArray();
 
 		// year
 		int year = parsePositiveInt(chars, 0, 4);
