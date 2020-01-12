@@ -14,12 +14,16 @@ import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.PackageElement;
 import javax.tools.JavaFileObject;
 
+import com.google.common.collect.ImmutableList;
+
 import eu.eventsotrm.core.apt.model.CommandDescriptor;
 import eu.eventsotrm.core.apt.model.CommandPropertyDescriptor;
 import eu.eventsotrm.sql.apt.Helper;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.core.annotation.Constraint;
+import eu.eventstorm.core.validation.ConstraintViolation;
+import eu.eventstorm.core.validation.Validator;
 import eu.eventstorm.util.ToStringBuilder;
 
 /**
@@ -48,20 +52,30 @@ final class CommandValidatorGenerator {
 
     private void generate(ProcessingEnvironment env, CommandDescriptor descriptor) throws IOException {
 
-        // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
-       // if (env.getElementUtils().getTypeElement(descriptor.fullyQualidiedClassName() + "Impl") != null) {
-        //    logger.info("Java SourceCode already exist [" +descriptor.fullyQualidiedClassName() + "Impl" + "]");
-        //    return;
-        //}
-
     	
+    	String fcqn = env.getElementUtils().getPackageOf(descriptor.element()).toString() + ".validator." + descriptor.simpleName() + "Validator" ;
+
+		
+		
+        // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
+        if (env.getElementUtils().getTypeElement(fcqn) != null) {
+            logger.info("Java SourceCode already exist [" +fcqn + "]");
+            return;
+        }
+
+    	JavaFileObject object = env.getFiler().createSourceFile(fcqn);
+		Writer writer = object.openWriter();
+		writeHeader(writer, env, descriptor);
+		writeMethodValidate(writer, descriptor);
+		writer.write("}");
+		writer.close();
     	
        
     	for (CommandPropertyDescriptor ppd : descriptor.properties()) {
     		for (AnnotationMirror am : ppd.getter().getAnnotationMirrors()) {
     			if (isConstraint(am)) {
     				
-    				createValidator(env, am, descriptor, ppd);
+    			//	createValidator(env, am, descriptor, ppd);
     				
     				
     			}
@@ -78,20 +92,7 @@ final class CommandValidatorGenerator {
         //writer.close();
     }
 
-	private void createValidator(ProcessingEnvironment env, AnnotationMirror am, CommandDescriptor descriptor, CommandPropertyDescriptor ppd)
-	        throws IOException {
-
-		String fcqn = env.getElementUtils().getPackageOf(descriptor.element()).toString() + ".validator." + descriptor.simpleName() + "_" + Helper.firstToUpperCase(ppd.name()) + "_"
-		        + am.getAnnotationType().asElement().getSimpleName().toString();
-
-		JavaFileObject object = env.getFiler().createSourceFile(fcqn);
-		Writer writer = object.openWriter();
-		writeHeader(writer, env, descriptor, ppd, am);
-		writer.write("}");
-		writer.close();
-	}
-
-
+	
 	private boolean isConstraint(AnnotationMirror am) {
 		for (AnnotationMirror annotationMirror : am.getAnnotationType().asElement().getAnnotationMirrors()) {
 			logger.info("isConstraint ? : [" + annotationMirror.getAnnotationType().asElement().toString()+"] [" + Constraint.class.getName() + "]");
@@ -103,20 +104,48 @@ final class CommandValidatorGenerator {
 
     }
 	
-    private static void writeHeader(Writer writer, ProcessingEnvironment env, CommandDescriptor descriptor, CommandPropertyDescriptor ppd, AnnotationMirror am) throws IOException {
+    private static void writeHeader(Writer writer, ProcessingEnvironment env, CommandDescriptor descriptor) throws IOException {
 
         writePackage(writer, env.getElementUtils().getPackageOf(descriptor.element()).toString()+ ".validator");
+       
+        writeNewLine(writer);
+        writer.write("import "+ Validator.class.getName() +";");
+        writeNewLine(writer);
+        writer.write("import "+ ConstraintViolation.class.getName() +";");
+        writeNewLine(writer);
+        writer.write("import "+ ImmutableList.class.getName() +";");
+        writeNewLine(writer);
+        writeNewLine(writer);
+        writer.write("import static "+ ImmutableList.class.getName() +".of;");
+        writeNewLine(writer);
+        
         writeGenerated(writer,CommandValidatorGenerator.class.getName());
 
+       
         writer.write("final class ");
-        writer.write(descriptor.simpleName() + "_" + Helper.firstToUpperCase(ppd.name()) + "_"
-		        + am.getAnnotationType().asElement().getSimpleName().toString());
-      //  writer.write(" implements ");
-       // writer.write(descriptor.fullyQualidiedClassName());
-        writer.write(" {");
+        writer.write(descriptor.simpleName() + "Validator" );
+        writer.write(" implements Validator<");
+        writer.write(descriptor.fullyQualidiedClassName());
+        writer.write("> {");
         writeNewLine(writer);
     }
 
+    private void writeMethodValidate(Writer writer, CommandDescriptor descriptor) throws IOException {
+    	writeNewLine(writer);
+        writer.write("    /** {@inheritDoc} */");
+        writeNewLine(writer);
+        writer.write("    @Override");
+        writeNewLine(writer);
+        writer.write("    public ImmutableList<ConstraintViolation> validate("+ descriptor.fullyQualidiedClassName()+" command) {");
+        writeNewLine(writer);
+        writer.write("        return of();");
+        writeNewLine(writer);
+        writer.write("    }");
+    	writeNewLine(writer);
+
+	}
+
+    
     private static void writeConstructor(Writer writer, CommandDescriptor descriptor) throws IOException {
     	writeNewLine(writer);
         writer.write("    ");
