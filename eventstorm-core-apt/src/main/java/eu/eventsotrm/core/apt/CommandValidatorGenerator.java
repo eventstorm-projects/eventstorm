@@ -10,25 +10,29 @@ import java.io.Writer;
 import java.util.List;
 
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.PackageElement;
 import javax.tools.JavaFileObject;
 
 import eu.eventsotrm.core.apt.model.CommandDescriptor;
 import eu.eventsotrm.core.apt.model.CommandPropertyDescriptor;
+import eu.eventsotrm.sql.apt.Helper;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
+import eu.eventstorm.core.annotation.Constraint;
 import eu.eventstorm.util.ToStringBuilder;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-final class CommandImplementationGenerator {
+final class CommandValidatorGenerator {
 
 	private static final String TO_STRING_BUILDER = ToStringBuilder.class.getName();
 
 	private final Logger logger;
 	
-	CommandImplementationGenerator() {
-		logger = LoggerFactory.getInstance().getLogger(CommandImplementationGenerator.class);
+	CommandValidatorGenerator() {
+		logger = LoggerFactory.getInstance().getLogger(CommandValidatorGenerator.class);
 	}
 
     public void generate(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
@@ -45,34 +49,70 @@ final class CommandImplementationGenerator {
     private void generate(ProcessingEnvironment env, CommandDescriptor descriptor) throws IOException {
 
         // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
-        if (env.getElementUtils().getTypeElement(descriptor.fullyQualidiedClassName() + "Impl") != null) {
-            logger.info("Java SourceCode already exist [" +descriptor.fullyQualidiedClassName() + "Impl" + "]");
-            return;
+       // if (env.getElementUtils().getTypeElement(descriptor.fullyQualidiedClassName() + "Impl") != null) {
+        //    logger.info("Java SourceCode already exist [" +descriptor.fullyQualidiedClassName() + "Impl" + "]");
+        //    return;
+        //}
+
+    	
+    	
+       
+    	for (CommandPropertyDescriptor ppd : descriptor.properties()) {
+    		for (AnnotationMirror am : ppd.getter().getAnnotationMirrors()) {
+    			if (isConstraint(am)) {
+    				
+    				createValidator(env, am, descriptor, ppd);
+    				
+    				
+    			}
+    		}
         }
-        
-        JavaFileObject object = env.getFiler().createSourceFile(descriptor.fullyQualidiedClassName() + "Impl");
-        Writer writer = object.openWriter();
+    	
+        //writeHeader(writer, env, descriptor);
+        //writeConstructor(writer, descriptor);
+        //writeVariables(writer, descriptor);
+        //writeMethods(writer, descriptor);
+        //writeToStringBuilder(writer, descriptor);
 
-        writeHeader(writer, env, descriptor);
-        writeConstructor(writer, descriptor);
-        writeVariables(writer, descriptor);
-        writeMethods(writer, descriptor);
-        writeToStringBuilder(writer, descriptor);
-
-        writer.write("}");
-        writer.close();
+        //writer.write("}");
+        //writer.close();
     }
 
+	private void createValidator(ProcessingEnvironment env, AnnotationMirror am, CommandDescriptor descriptor, CommandPropertyDescriptor ppd)
+	        throws IOException {
 
-    private static void writeHeader(Writer writer, ProcessingEnvironment env, CommandDescriptor descriptor) throws IOException {
+		String fcqn = env.getElementUtils().getPackageOf(descriptor.element()).toString() + ".validator." + descriptor.simpleName() + "_" + Helper.firstToUpperCase(ppd.name()) + "_"
+		        + am.getAnnotationType().asElement().getSimpleName().toString();
 
-        writePackage(writer, env.getElementUtils().getPackageOf(descriptor.element()).toString());
-        writeGenerated(writer,CommandImplementationGenerator.class.getName());
+		JavaFileObject object = env.getFiler().createSourceFile(fcqn);
+		Writer writer = object.openWriter();
+		writeHeader(writer, env, descriptor, ppd, am);
+		writer.write("}");
+		writer.close();
+	}
+
+
+	private boolean isConstraint(AnnotationMirror am) {
+		for (AnnotationMirror annotationMirror : am.getAnnotationType().asElement().getAnnotationMirrors()) {
+			logger.info("isConstraint ? : [" + annotationMirror.getAnnotationType().asElement().toString()+"] [" + Constraint.class.getName() + "]");
+			if (Constraint.class.getName().equals(annotationMirror.getAnnotationType().asElement().toString())) {
+				return true;
+			}
+		}
+		return false;
+
+    }
+	
+    private static void writeHeader(Writer writer, ProcessingEnvironment env, CommandDescriptor descriptor, CommandPropertyDescriptor ppd, AnnotationMirror am) throws IOException {
+
+        writePackage(writer, env.getElementUtils().getPackageOf(descriptor.element()).toString()+ ".validator");
+        writeGenerated(writer,CommandValidatorGenerator.class.getName());
 
         writer.write("final class ");
-        writer.write(descriptor.simpleName() + "Impl");
-        writer.write(" implements ");
-        writer.write(descriptor.fullyQualidiedClassName());
+        writer.write(descriptor.simpleName() + "_" + Helper.firstToUpperCase(ppd.name()) + "_"
+		        + am.getAnnotationType().asElement().getSimpleName().toString());
+      //  writer.write(" implements ");
+       // writer.write(descriptor.fullyQualidiedClassName());
         writer.write(" {");
         writeNewLine(writer);
     }

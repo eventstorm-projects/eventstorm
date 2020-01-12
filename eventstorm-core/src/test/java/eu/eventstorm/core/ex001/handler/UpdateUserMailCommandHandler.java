@@ -10,32 +10,18 @@ import eu.eventstorm.core.EventPayload;
 import eu.eventstorm.core.EventStore;
 import eu.eventstorm.core.ex001.command.UpdateUserMailCommand;
 import eu.eventstorm.core.impl.AbstractCommandHandler;
+import eu.eventstorm.core.validation.Validators;
 
 public class UpdateUserMailCommandHandler extends AbstractCommandHandler<UpdateUserMailCommand> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UpdateUserMailCommandHandler.class);
 
 	public UpdateUserMailCommandHandler(EventStore eventStore) {
-		super(UpdateUserMailCommand.class, eventStore);
+		super(UpdateUserMailCommand.class, Validators.empty(), eventStore);
 	}
 
 	@Override
-	public ImmutableList<Event<EventPayload>> handle(UpdateUserMailCommand command) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("handle ({})", command);
-		}
-
-		//1. validate on master data.
-		
-		//2.
-	//	UserCreatedEventImpl event = new UserCreatedEventImpl();
-
-		//getEventStore().store(new UserAggregateId(), event);
-		
-		//event.applyOn(domainModel);
-
-		//getEventBus().publish(event);
-		
+	protected ImmutableList<Event<EventPayload>> doHandleAfterValidation(UpdateUserMailCommand command) {
 		return ImmutableList.of();
 	}
 

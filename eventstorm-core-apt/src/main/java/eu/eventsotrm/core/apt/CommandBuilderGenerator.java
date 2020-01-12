@@ -1,5 +1,6 @@
 package eu.eventsotrm.core.apt;
 
+import static eu.eventsotrm.sql.apt.Helper.getReturnType;
 import static eu.eventsotrm.sql.apt.Helper.writeGenerated;
 import static eu.eventsotrm.sql.apt.Helper.writeNewLine;
 import static eu.eventsotrm.sql.apt.Helper.writePackage;
@@ -88,7 +89,7 @@ final class CommandBuilderGenerator {
     private static void writeVariables(Writer writer, List<CommandPropertyDescriptor> descriptors) throws IOException {
     	for (CommandPropertyDescriptor ppd : descriptors) {
             writer.write("    private ");
-            writer.write(ppd.getter().getReturnType().toString());
+            writer.write(getReturnType(ppd.getter()));
             writer.write(" ");
             writer.write(ppd.variable());
             writer.write("$$;");
@@ -137,7 +138,7 @@ final class CommandBuilderGenerator {
         writer.write(" with");
         writer.write(Helper.firstToUpperCase(epd.name()));
         writer.write("(");
-        writer.write(epd.getter().getReturnType().toString());
+        writer.write(getReturnType(epd.getter()));
         writer.write(' ');
         writer.write(epd.name());
         writer.write(") {");

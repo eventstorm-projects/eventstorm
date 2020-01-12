@@ -22,6 +22,7 @@ import eu.eventsotrm.core.apt.model.CommandDescriptor;
 import eu.eventsotrm.core.apt.model.EventDescriptor;
 import eu.eventsotrm.core.apt.model.QueryDescriptor;
 import eu.eventsotrm.core.apt.model.RestControllerDescriptor;
+import eu.eventsotrm.sql.apt.Helper;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.core.annotation.CqrsCommand;
@@ -50,6 +51,8 @@ public class EventProcessor extends AbstractProcessor {
 
 		LoggerFactory.getInstance().init(processingEnv, "eu.eventstorm.report","event-output.txt");
 		Logger logger = LoggerFactory.getInstance().getLogger(EventProcessor.class);
+		
+		Helper.setTypes(this.processingEnv.getTypeUtils());
 		
 		try {
 			logger.info("EventProcessor start");
@@ -123,6 +126,7 @@ public class EventProcessor extends AbstractProcessor {
 		new CommandJacksonModuleGenerator().generate(processingEnv, sourceCode);
 		new CommandExceptionGenerator().generate(processingEnv, sourceCode);
 		new CommandRestControllerAdviceImplementationGenerator().generate(processingEnv, sourceCode);
+		new CommandValidatorGenerator().generate(processingEnv, sourceCode);
 		
 		new EventPayloadImplementationGenerator().generate(this.processingEnv, sourceCode);
 		new EventPayloadBuilderGenerator().generate(this.processingEnv, sourceCode);

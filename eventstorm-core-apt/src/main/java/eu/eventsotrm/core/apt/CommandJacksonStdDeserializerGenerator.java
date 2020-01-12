@@ -1,5 +1,6 @@
 package eu.eventsotrm.core.apt;
 
+import static eu.eventsotrm.sql.apt.Helper.getReturnType;
 import static eu.eventsotrm.sql.apt.Helper.writeGenerated;
 import static eu.eventsotrm.sql.apt.Helper.writeNewLine;
 import static eu.eventsotrm.sql.apt.Helper.writePackage;
@@ -137,20 +138,23 @@ final class CommandJacksonStdDeserializerGenerator {
 		writeNewLine(writer);
 		for (CommandPropertyDescriptor cpd : cd.properties()) {
 		    writer.write("				.put(\"" + cpd.name() + "\", (parser, builder) -> builder.with" + Helper.firstToUpperCase(cpd.name()) + "(");
-			if ("java.lang.String".equals(cpd.getter().getReturnType().toString())) {
+			
+		    String returnType = getReturnType(cpd.getter());
+		    
+		    if ("java.lang.String".equals(returnType)) {
 				writer.write("parser.nextTextValue()");
-			} else if ("int".equals(cpd.getter().getReturnType().toString())) {
+			} else if ("int".equals(returnType)) {
 				writer.write("parser.nextIntValue(0)");
-			} else if ("int".equals(cpd.getter().getReturnType().toString())) {
+			} else if ("int".equals(returnType)) {
 				writer.write("parser.nextLongValue(0l)");
-			} else if (OffsetDateTime.class.getName().equals(cpd.getter().getReturnType().toString())) {
+			} else if (OffsetDateTime.class.getName().equals(returnType)) {
 				writer.write("parseOffsetDateTime(parser.nextTextValue())");
-			} else if (LocalDate.class.getName().equals(cpd.getter().getReturnType().toString())) {
+			} else if (LocalDate.class.getName().equals(returnType)) {
                 writer.write("parseLocalDate(parser.nextTextValue())");
-            } else if (LocalTime.class.getName().equals(cpd.getter().getReturnType().toString())) {
+            } else if (LocalTime.class.getName().equals(returnType)) {
                 writer.write("parseLocalTime(parser.nextTextValue())");
             } else {
-			    throw new UnsupportedOperationException("Type not supported [" + cpd.getter().getReturnType().toString() + "]");
+			    throw new UnsupportedOperationException("Type not supported [" + returnType + "]");
 			}
 			writer.write("))");
 			writeNewLine(writer);
@@ -175,58 +179,6 @@ final class CommandJacksonStdDeserializerGenerator {
 		writeNewLine(writer);
 	}
 
-	/*
-	private void writeMethod(Writer writer, CommandDescriptor cd) throws IOException {
-		writeNewLine(writer);
-		writer.write("    @Override");
-		writeNewLine(writer);
-		writer.write("    public " + cd.simpleName() + " deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {");
-
-
-		writeNewLine(writer);
-		writer.write("        " + cd.simpleName() + " command = CommandFactory.new" + cd.simpleName() + "();");
-		
-		writeNewLine(writer);
-		writer.write("        if (JsonToken.START_OBJECT != p.currentToken()) {");
-		writeNewLine(writer);
-		writer.write("            throw new DeserializerException(DeserializerException.Type.PARSE_ERROR, ImmutableMap.of(\"expected\",JsonToken.START_OBJECT,\"current\", p.currentToken()));");
-		writeNewLine(writer);
-		writer.write("        }");
-		writeNewLine(writer);
-		
-		writer.write("        p.nextToken();");
-		writeNewLine(writer);
-		
-		writer.write("        while (p.currentToken() != JsonToken.END_OBJECT) {");
-		writeNewLine(writer);
-		
-		writer.write("            if (JsonToken.FIELD_NAME != p.currentToken()) {");
-		writeNewLine(writer);
-		writer.write("                throw new DeserializerException(DeserializerException.Type.PARSE_ERROR, ImmutableMap.of(\"expected\",JsonToken.FIELD_NAME,\"current\", p.currentToken()));");
-		writeNewLine(writer);
-		writer.write("            }");
-		writeNewLine(writer);
-		writer.write("            ParserConsumer<" + cd.simpleName() + "> consumer = FIELDS.get(p.currentName());");
-		writeNewLine(writer);
-		writer.write("            if (consumer == null) {");
-		writeNewLine(writer);
-		writer.write("                throw new DeserializerException(DeserializerException.Type.FIELD_NOT_FOUND, ImmutableMap.of(\"field\",p.currentName(),\"command\", \""+ cd.simpleName()+"\"));");
-		writeNewLine(writer);
-		writer.write("            }");
-		writeNewLine(writer);
-		writer.write("            consumer.accept(p, command);");
-		writeNewLine(writer);
-		writer.write("            p.nextToken();");
-		writeNewLine(writer);
-		writer.write("        }");
-
-		writeNewLine(writer);
-		writer.write("        return command;");
-		writeNewLine(writer);
-		writer.write("     }");
-		writeNewLine(writer);
-	}
-*/
 	
 	private void writeMethod(Writer writer, CommandDescriptor cd) throws IOException {
 		writeNewLine(writer);

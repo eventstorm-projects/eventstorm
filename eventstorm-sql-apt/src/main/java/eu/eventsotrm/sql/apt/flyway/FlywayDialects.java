@@ -13,7 +13,7 @@ final class FlywayDialects {
 		case H2:
 			return FlywayDialectH2.INSTANCE;
 		case ORACLE:
-			return FlywayDialectH2.INSTANCE;
+			return FlywayDialectOracle.INSTANCE;
 		case POSTGRES:
 			return FlywayDialectH2.INSTANCE;
 		}

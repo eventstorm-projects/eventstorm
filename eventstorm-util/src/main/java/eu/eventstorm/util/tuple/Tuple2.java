@@ -3,7 +3,7 @@ package eu.eventstorm.util.tuple;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-public interface Tuple2<T1, T2> {
+public interface Tuple2<T1, T2> extends Tuple {
 
 	/**
 	 * To get the fist object of this {@link Tuples}.

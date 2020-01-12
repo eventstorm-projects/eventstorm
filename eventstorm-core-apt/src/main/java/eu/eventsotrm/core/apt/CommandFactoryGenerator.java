@@ -1,5 +1,6 @@
 package eu.eventsotrm.core.apt;
 
+import static eu.eventsotrm.sql.apt.Helper.getReturnType;
 import static eu.eventsotrm.sql.apt.Helper.writeGenerated;
 import static eu.eventsotrm.sql.apt.Helper.writeNewLine;
 import static eu.eventsotrm.sql.apt.Helper.writePackage;
@@ -96,7 +97,7 @@ final class CommandFactoryGenerator {
             StringBuilder builder = new StringBuilder();
             StringBuilder builder2 = new StringBuilder();
             for (CommandPropertyDescriptor prop : descriptor.properties()) {
-            	builder.append(prop.getter().getReturnType());
+            	builder.append(getReturnType(prop.getter()));
             	builder.append(' ');
             	builder.append(prop.name());
             	builder.append(", ");

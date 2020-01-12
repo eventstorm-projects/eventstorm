@@ -12,6 +12,7 @@ import eu.eventstorm.core.EventStore;
 import eu.eventstorm.core.ex001.command.CreateUserCommand;
 import eu.eventstorm.core.ex001.event.UserCreatedEventPayload;
 import eu.eventstorm.core.ex001.gen.event.UserCreatedEventPayloadImpl;
+import eu.eventstorm.core.ex001.validator.CreateUserCommandValidator;
 import eu.eventstorm.core.id.AggregateIdGenerator;
 import eu.eventstorm.core.impl.AbstractCommandHandler;
 
@@ -22,19 +23,13 @@ public final class CreateUserCommandHandler extends AbstractCommandHandler<Creat
 	private final AggregateIdGenerator aig;
 	
 	public CreateUserCommandHandler(EventStore eventStore, AggregateIdGenerator aig) {
-		super(CreateUserCommand.class, eventStore);
+		super(CreateUserCommand.class, new CreateUserCommandValidator(), eventStore);
 		this.aig = aig;
 	}
 
 	@Override
-	public ImmutableList<Event<EventPayload>> handle(CreateUserCommand command) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("handle ({})", command);
-		}
-
-		//1. validate on master data.
-		
-		
+	protected ImmutableList<Event<EventPayload>> doHandleAfterValidation(CreateUserCommand command) {
+			
 		AggregateId id = this.aig.generate();
 		
 		if (LOGGER.isDebugEnabled()) {
@@ -56,5 +51,7 @@ public final class CreateUserCommandHandler extends AbstractCommandHandler<Creat
 		return ImmutableList.of(event);
 		
 	}
+
+	
 
 }
