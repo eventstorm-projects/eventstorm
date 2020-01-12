@@ -41,7 +41,7 @@ final class Tuple2Impl<T1, T2> implements Tuple2<T1, T2> {
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null || !Tuple2.class.isAssignableFrom(obj.getClass())) {
+		if (obj == null || !(obj instanceof Tuple2)) {
 			return false;
 		}
 

@@ -17,5 +17,5 @@ import eu.eventstorm.core.annotation.Constraint;
 @Constraint
 public @interface CustomPropertyValidator {
 
-	Class<Predicate<?>> validateBy();
+	Class<? extends Predicate<?>> validateBy();
 }

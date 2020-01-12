@@ -49,7 +49,7 @@ final class Tuple3Impl<T1, T2, T3> implements Tuple3<T1, T2, T3> {
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null || !Tuple3.class.isAssignableFrom(obj.getClass())) {
+		if (obj == null || !(obj instanceof Tuple3)) {
 			return false;
 		}
 

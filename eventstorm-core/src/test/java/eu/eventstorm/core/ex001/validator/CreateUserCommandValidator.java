@@ -21,8 +21,6 @@ public final class CreateUserCommandValidator implements Validator<CreateUserCom
 			builder.add(new ConstraintViolationImpl(of("name"), "isEmpty"));
 		}
 		
-		
-		
 		return builder.build();
 	}
 

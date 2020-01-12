@@ -20,5 +20,5 @@ public @interface TupleValidator {
 
 	String[] properties();
 	
-	Class<Predicate<? extends Tuple>> predicate();
+	Class<? extends Predicate<? extends Tuple>> predicate();
 }
