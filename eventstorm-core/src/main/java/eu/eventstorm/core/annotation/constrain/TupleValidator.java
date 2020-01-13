@@ -5,9 +5,9 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
-import java.util.function.Predicate;
 
 import eu.eventstorm.core.annotation.Constraint;
+import eu.eventstorm.core.validation.PropertyValidator;
 import eu.eventstorm.util.tuple.Tuple;
 
 /**
@@ -20,5 +20,5 @@ public @interface TupleValidator {
 
 	String[] properties();
 	
-	Class<? extends Predicate<? extends Tuple>> predicate();
+	Class<? extends PropertyValidator<? extends Tuple>> validateBy();
 }

@@ -5,9 +5,9 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
-import java.util.function.Predicate;
 
 import eu.eventstorm.core.annotation.Constraint;
+import eu.eventstorm.core.validation.PropertyValidator;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -17,5 +17,6 @@ import eu.eventstorm.core.annotation.Constraint;
 @Constraint
 public @interface CustomPropertyValidator {
 
-	Class<? extends Predicate<?>> validateBy();
+	Class<? extends PropertyValidator<?>> validateBy();
+	
 }

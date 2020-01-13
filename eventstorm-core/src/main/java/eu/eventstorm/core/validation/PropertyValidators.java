@@ -1,6 +1,6 @@
 package eu.eventstorm.core.validation;
 
-import java.util.function.Predicate;
+import com.google.common.collect.ImmutableList;
 
 import eu.eventstorm.util.Strings;
 
@@ -12,9 +12,13 @@ public final class PropertyValidators {
 	private PropertyValidators() {
 	}
 
-	private static final Predicate<String> IS_EMPTY = value -> Strings.isEmpty(value);
-	
-	public static Predicate<String> isEmpty() {
+	private static final PropertyValidator<String> IS_EMPTY = (property, value, builder) -> {
+		if (Strings.isEmpty(value)) {
+			builder.add(new ConstraintViolationImpl(ImmutableList.of(property), "isEmpty"));
+		}
+	};
+
+	public static PropertyValidator<String> isEmpty() {
 		return IS_EMPTY;
 	}
 }

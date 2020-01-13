@@ -1,13 +1,16 @@
 package eu.eventstorm.core.ex001.validator;
 
-import java.util.function.Predicate;
+import com.google.common.collect.ImmutableList.Builder;
 
-public class MailValidatorPredicate implements Predicate<String> {
+import eu.eventstorm.core.validation.ConstraintViolation;
+import eu.eventstorm.core.validation.PropertyValidator;
+
+public class MailValidatorPredicate implements PropertyValidator<String> {
 
 	@Override
-	public boolean test(String candidate) {
+	public void validate(String property, String value, Builder<ConstraintViolation> builder) {
 		// TODO Auto-generated method stub
-		return false;
+		
 	}
 
 }

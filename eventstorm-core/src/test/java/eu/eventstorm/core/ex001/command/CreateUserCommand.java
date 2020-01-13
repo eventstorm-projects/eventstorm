@@ -14,7 +14,7 @@ import eu.eventstorm.core.ex001.validator.MailValidatorPredicate;
 
 @CqrsCommand(type = CREATE)
 @CqrsCommandRestController(name = "UserCommandRestController", javaPackage = "eu.eventstorm.core.ex001.command.rest", method = POST, uri = "command/user/create")
-@TupleValidator(properties = {"name","age"}, predicate = MailAndAgeValidatorPredicate.class)
+@TupleValidator(properties = {"name","age"}, validateBy = MailAndAgeValidatorPredicate.class)
 public interface CreateUserCommand extends Command {
 
 	@NotEmpty
