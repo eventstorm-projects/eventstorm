@@ -102,8 +102,6 @@ final class CommandJacksonStdDeserializerGenerator {
 		writeNewLine(writer);
 		writer.write("import " + cd.fullyQualidiedClassName() + "Builder;");
 		writeNewLine(writer);
-		writer.write("import " + cd.fullyQualidiedClassName().substring(0, cd.fullyQualidiedClassName().lastIndexOf('.') + 1) + "CommandFactory" + ";");
-		writeNewLine(writer);
 		
 		writeImport(writer, cd, OffsetDateTime.class.getName(), Dates.class.getName() + ".parseOffsetDateTime");
 		writeImport(writer, cd, LocalDate.class.getName(), Dates.class.getName() + ".parseLocalDate");

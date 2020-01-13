@@ -17,11 +17,17 @@ public final class CreateUserCommandValidator implements Validator<CreateUserCom
 
 		ImmutableList.Builder<ConstraintViolation> builder =ImmutableList.builder();
 		
-		if (!PropertyValidators.isEmpty().test(command.getName())) {
+		if (PropertyValidators.isEmpty().test(command.getName())) {
 			builder.add(new ConstraintViolationImpl(of("name"), "isEmpty"));
 		}
 		
 		return builder.build();
 	}
+
+    @Override
+    public RuntimeException createNewException(ImmutableList<ConstraintViolation> violations, CreateUserCommand command) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
 }

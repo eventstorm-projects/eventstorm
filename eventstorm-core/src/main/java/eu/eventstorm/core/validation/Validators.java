@@ -9,7 +9,17 @@ import eu.eventstorm.core.Command;
  */
 public final class Validators {
 	
-	private static final Validator<Command> EMTPY = command -> ImmutableList.of();
+	private static final Validator<Command> EMTPY = new Validator<Command>() {
+        @Override
+        public ImmutableList<ConstraintViolation> validate(Command command) {
+            return ImmutableList.of();
+        }
+        
+        @Override
+        public RuntimeException createNewException(ImmutableList<ConstraintViolation> violations, Command command) {
+            throw new IllegalStateException();
+        }
+    };
 	
 	private Validators() {
 	}

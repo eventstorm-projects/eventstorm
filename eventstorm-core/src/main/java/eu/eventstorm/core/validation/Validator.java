@@ -11,4 +11,6 @@ public interface Validator<T extends Command> {
 
 	ImmutableList<ConstraintViolation> validate(T command);
 	
+	RuntimeException createNewException(ImmutableList<ConstraintViolation> violations, T command);
+	
 }

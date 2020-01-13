@@ -8,7 +8,6 @@ import eu.eventstorm.core.Event;
 import eu.eventstorm.core.EventPayload;
 import eu.eventstorm.core.EventStore;
 import eu.eventstorm.core.validation.ConstraintViolation;
-import eu.eventstorm.core.validation.ValidationException;
 import eu.eventstorm.core.validation.Validator;
 
 /**
@@ -41,13 +40,13 @@ public abstract class AbstractCommandHandler<T extends Command> implements Comma
 		
 		ImmutableList<ConstraintViolation> constraintViolations = this.validator.validate(command);
 		
-		if (constraintViolations.isEmpty()) {
-			throw new ValidationException(constraintViolations, command);
+		if (!constraintViolations.isEmpty()) {
+			throw this.validator.createNewException(constraintViolations, command);
 		}
 		
 		return doHandleAfterValidation(command);
 	}
-
+	
 	protected abstract ImmutableList<Event<EventPayload>> doHandleAfterValidation(T command);
 
 

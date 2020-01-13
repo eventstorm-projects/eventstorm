@@ -16,6 +16,7 @@ public class EventStormAutoConfiguration {
 		return new ProblemModule();
 	}
 	
+	@Bean
 	Module cloudEventsModule() {
 		return new CloudEventsModule();
 	}

@@ -11,18 +11,19 @@ import java.util.List;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.PackageElement;
 import javax.tools.JavaFileObject;
 
 import com.google.common.collect.ImmutableList;
 
 import eu.eventsotrm.core.apt.model.CommandDescriptor;
 import eu.eventsotrm.core.apt.model.CommandPropertyDescriptor;
-import eu.eventsotrm.sql.apt.Helper;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.core.annotation.Constraint;
+import eu.eventstorm.core.annotation.constrain.NotEmpty;
 import eu.eventstorm.core.validation.ConstraintViolation;
+import eu.eventstorm.core.validation.ConstraintViolationImpl;
+import eu.eventstorm.core.validation.PropertyValidators;
 import eu.eventstorm.core.validation.Validator;
 import eu.eventstorm.util.ToStringBuilder;
 
@@ -54,8 +55,6 @@ final class CommandValidatorGenerator {
 
     	
     	String fcqn = env.getElementUtils().getPackageOf(descriptor.element()).toString() + ".validator." + descriptor.simpleName() + "Validator" ;
-
-		
 		
         // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
         if (env.getElementUtils().getTypeElement(fcqn) != null) {
@@ -71,17 +70,6 @@ final class CommandValidatorGenerator {
 		writer.close();
     	
        
-    	for (CommandPropertyDescriptor ppd : descriptor.properties()) {
-    		for (AnnotationMirror am : ppd.getter().getAnnotationMirrors()) {
-    			if (isConstraint(am)) {
-    				
-    			//	createValidator(env, am, descriptor, ppd);
-    				
-    				
-    			}
-    		}
-        }
-    	
         //writeHeader(writer, env, descriptor);
         //writeConstructor(writer, descriptor);
         //writeVariables(writer, descriptor);
@@ -113,8 +101,13 @@ final class CommandValidatorGenerator {
         writeNewLine(writer);
         writer.write("import "+ ConstraintViolation.class.getName() +";");
         writeNewLine(writer);
+        writer.write("import "+ ConstraintViolationImpl.class.getName() +";");
+        writeNewLine(writer);
+        writer.write("import "+ PropertyValidators.class.getName() +";");
+        writeNewLine(writer);
         writer.write("import "+ ImmutableList.class.getName() +";");
         writeNewLine(writer);
+        
         writeNewLine(writer);
         writer.write("import static "+ ImmutableList.class.getName() +".of;");
         writeNewLine(writer);
@@ -122,7 +115,7 @@ final class CommandValidatorGenerator {
         writeGenerated(writer,CommandValidatorGenerator.class.getName());
 
        
-        writer.write("final class ");
+        writer.write("public final class ");
         writer.write(descriptor.simpleName() + "Validator" );
         writer.write(" implements Validator<");
         writer.write(descriptor.fullyQualidiedClassName());
@@ -138,7 +131,19 @@ final class CommandValidatorGenerator {
         writeNewLine(writer);
         writer.write("    public ImmutableList<ConstraintViolation> validate("+ descriptor.fullyQualidiedClassName()+" command) {");
         writeNewLine(writer);
-        writer.write("        return of();");
+        
+        writer.write("        ImmutableList.Builder<ConstraintViolation> builder = ImmutableList.builder();");
+        writeNewLine(writer);
+        
+        for (CommandPropertyDescriptor ppd : descriptor.properties()) {
+            for (AnnotationMirror am : ppd.getter().getAnnotationMirrors()) {
+                if (isConstraint(am)) {
+                    writeMethodPart(writer, descriptor, ppd, am);
+                }
+            }
+        }
+        
+        writer.write("        return builder.build();");
         writeNewLine(writer);
         writer.write("    }");
     	writeNewLine(writer);
@@ -146,6 +151,25 @@ final class CommandValidatorGenerator {
 	}
 
     
+    private void writeMethodPart(Writer writer, CommandDescriptor descriptor, CommandPropertyDescriptor ppd, AnnotationMirror am) throws IOException {
+       
+        if (NotEmpty.class.getName().equals(am.getAnnotationType().asElement().toString())) {
+            writeMethodPartNotEmpty(writer, descriptor, ppd, am);
+            return;
+        }
+        
+        
+    }
+
+    private void writeMethodPartNotEmpty(Writer writer, CommandDescriptor descriptor, CommandPropertyDescriptor ppd, AnnotationMirror am) throws IOException {
+        writer.write("         if (PropertyValidators.isEmpty().test(command." + ppd.getter().getSimpleName().toString() + "())) {");
+        writeNewLine(writer);
+        writer.write("            builder.add(new ConstraintViolationImpl(of(\"" + ppd.name() + "\"), \"isEmpty\"));");
+        writeNewLine(writer);
+        writer.write("        }");
+        writeNewLine(writer);
+    }
+
     private static void writeConstructor(Writer writer, CommandDescriptor descriptor) throws IOException {
     	writeNewLine(writer);
         writer.write("    ");
