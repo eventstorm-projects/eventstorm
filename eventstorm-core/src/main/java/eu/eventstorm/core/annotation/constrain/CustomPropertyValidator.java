@@ -19,4 +19,6 @@ public @interface CustomPropertyValidator {
 
 	Class<? extends PropertyValidator<?>> validateBy();
 	
+	InstantiatorType instantiator() default InstantiatorType.STATIC;
+	
 }
