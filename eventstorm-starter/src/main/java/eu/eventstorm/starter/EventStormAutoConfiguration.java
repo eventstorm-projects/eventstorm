@@ -21,4 +21,9 @@ public class EventStormAutoConfiguration {
 		return new CloudEventsModule();
 	}
 	
+	@Bean
+	CommandValidationRestControllerAdvice commandValidationRestControllerAdvice() {
+	    return new CommandValidationRestControllerAdvice();
+	}
+	
 }

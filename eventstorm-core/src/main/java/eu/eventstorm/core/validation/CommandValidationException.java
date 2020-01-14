@@ -14,4 +14,8 @@ public final class CommandValidationException extends ValidationException {
 		this.command = command;
 	}
 
+    public Command getCommand() {
+        return command;
+    }
+
 }

@@ -9,19 +9,19 @@ public final class ConstraintViolationImpl implements ConstraintViolation {
 
 	private final ImmutableList<String> properties;
 	
-	private final String name;
+	private final String cause;
 
-	public ConstraintViolationImpl(ImmutableList<String> properties, String name) {
+	public ConstraintViolationImpl(ImmutableList<String> properties, String cause) {
 		this.properties = properties;
-		this.name = name;
+		this.cause = cause;
 	}
 
 	public ImmutableList<String> getProperties() {
 		return properties;
 	}
 
-	public String getName() {
-		return name;
-	}
+    public String getCause() {
+        return cause;
+    }
 	
 }

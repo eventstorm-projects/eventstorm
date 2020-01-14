@@ -7,7 +7,6 @@ import static eu.eventsotrm.sql.apt.Helper.writePackage;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.List;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
@@ -26,19 +25,15 @@ import eu.eventstorm.core.annotation.Constraint;
 import eu.eventstorm.core.annotation.constrain.CustomPropertyValidator;
 import eu.eventstorm.core.annotation.constrain.NotEmpty;
 import eu.eventstorm.core.validation.ConstraintViolation;
-import eu.eventstorm.core.validation.ConstraintViolationImpl;
 import eu.eventstorm.core.validation.PropertyValidators;
 import eu.eventstorm.core.validation.Validator;
-import eu.eventstorm.util.ToStringBuilder;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 final class CommandValidatorGenerator {
 
-	private static final String TO_STRING_BUILDER = ToStringBuilder.class.getName();
-
-	private static Logger logger;
+	private Logger logger;
 	
 	CommandValidatorGenerator() {
 		logger = LoggerFactory.getInstance().getLogger(CommandValidatorGenerator.class);
@@ -103,18 +98,12 @@ final class CommandValidatorGenerator {
         writeNewLine(writer);
         writer.write("import "+ Validator.class.getName() +";");
         writeNewLine(writer);
-        writer.write("import "+ ConstraintViolation.class.getName() +";");
-        writeNewLine(writer);
-        writer.write("import "+ ConstraintViolationImpl.class.getName() +";");
+        writer.write("import "+ ConstraintViolation.class.getName() +";");        
         writeNewLine(writer);
         writer.write("import "+ PropertyValidators.class.getName() +";");
         writeNewLine(writer);
         writer.write("import "+ ImmutableList.class.getName() +";");
-        writeNewLine(writer);
-        
-        writeNewLine(writer);
-        writer.write("import static "+ ImmutableList.class.getName() +".of;");
-        writeNewLine(writer);
+        writeNewLine(writer);          
         
         writeGenerated(writer,CommandValidatorGenerator.class.getName());
 

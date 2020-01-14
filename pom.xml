@@ -34,6 +34,7 @@
 		<javax.servlet.version>4.0.1</javax.servlet.version>
 		
 		<org.springframework.boot.version>2.2.2.RELEASE</org.springframework.boot.version>
+		<org.springframework.version>5.2.2.RELEASE</org.springframework.version>
 
 		<org.junit.jupiter.version>5.5.2</org.junit.jupiter.version>
 		<com.h2database.version>1.4.200</com.h2database.version>
@@ -79,14 +80,6 @@
 			</dependency>
 
 			<dependency>
-				<groupId>org.apache.logging.log4j</groupId>
-				<artifactId>log4j</artifactId>
-				<version>${org.apache.logging.log4j.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-
-			<dependency>
 				<groupId>io.zipkin.brave</groupId>
 				<artifactId>brave-bom</artifactId>
 				<version>${io.zipkin.brave.version}</version>
@@ -121,6 +114,30 @@
 				<scope>import</scope>
 				<type>pom</type>
 			</dependency>
+			
+			<!-- Spring -->
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-framework-bom</artifactId>
+				<version>${org.springframework.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+				<exclusions>
+					<exclusion>
+						<groupId>commons-logging</groupId>
+						<artifactId>commons-logging</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+			
+			<dependency>
+				<groupId>org.apache.logging.log4j</groupId>
+				<artifactId>log4j</artifactId>
+				<version>${org.apache.logging.log4j.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			
 
 			<dependency>
 				<groupId>org.mockito</groupId>
@@ -169,7 +186,7 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
-
+			
 		</dependencies>
 		
 	</dependencyManagement>
