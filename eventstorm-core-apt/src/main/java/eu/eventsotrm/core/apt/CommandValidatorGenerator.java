@@ -100,11 +100,14 @@ final class CommandValidatorGenerator {
         writer.write("import "+ PropertyValidators.class.getName() +";");
         writeNewLine(writer);
         writer.write("import "+ ImmutableList.class.getName() +";");
-        writeNewLine(writer);          
+        writeNewLine(writer);
+        writer.write("import org.springframework.stereotype.Component;");
+        writeNewLine(writer);
         
         writeGenerated(writer,CommandValidatorGenerator.class.getName());
-
-       
+        writeNewLine(writer);
+        writer.write("@Component");
+        writeNewLine(writer);
         writer.write("public final class ");
         writer.write(descriptor.simpleName() + "Validator" );
         writer.write(" implements Validator<");
@@ -156,17 +159,19 @@ final class CommandValidatorGenerator {
     }
 
     private void writeMethodPartNotEmpty(Writer writer, CommandDescriptor descriptor, CommandPropertyDescriptor ppd, AnnotationMirror am) throws IOException {
-    	writer.write("        // validate property " + ppd.name() + " from " + am.toString());
+        writeNewLine(writer);
+        writer.write("        // validate property " + ppd.name() + " from " + am.toString());
     	writeNewLine(writer);
-    	writer.write("        PropertyValidators.isEmpty().validate(");
-        writer.write("\"" + ppd.name() + "\",");
+    	writer.write("        PropertyValidators.isEmpty().validate(ImmutableList.of(");
+        writer.write("\"" + ppd.name() + "\"),");
         writer.write("command." + ppd.getter().getSimpleName().toString() + "(), builder);");
     	writeNewLine(writer);
     }
 
     
     private void writeMethodPartCustomPropertyValidator(Writer writer, CommandDescriptor descriptor, CommandPropertyDescriptor ppd, AnnotationMirror am) throws IOException {
-    	writer.write("        // validate property " + ppd.name() + " from " + am.toString());
+        writeNewLine(writer);
+        writer.write("        // validate property " + ppd.name() + " from " + am.toString());
     	writeNewLine(writer);
 		CustomPropertyValidator cpv = ppd.getter().getAnnotation(CustomPropertyValidator.class);
 		if(InstantiatorType.STATIC == cpv.instantiator()) {
@@ -174,8 +179,8 @@ final class CommandValidatorGenerator {
 		} else {
 			writer.write("        this.validatorCustom" + Helper.firstToUpperCase(Helper.firstToUpperCase(ppd.name())));
 		}
-    	writer.write(".validate(");
-        writer.write("\"" + ppd.name() + "\",");
+    	writer.write(".validate(ImmutableList.of(");
+        writer.write("\"" + ppd.name() + "\"),");
         writer.write("command." + ppd.getter().getSimpleName().toString() + "(), builder);");
     	writeNewLine(writer);
     }

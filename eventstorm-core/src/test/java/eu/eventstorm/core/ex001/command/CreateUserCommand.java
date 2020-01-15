@@ -9,12 +9,12 @@ import eu.eventstorm.core.annotation.CqrsCommandRestController;
 import eu.eventstorm.core.annotation.constrain.CustomPropertyValidator;
 import eu.eventstorm.core.annotation.constrain.NotEmpty;
 import eu.eventstorm.core.annotation.constrain.TupleValidator;
-import eu.eventstorm.core.ex001.validator.MailAndAgeValidatorPredicate;
-import eu.eventstorm.core.ex001.validator.MailValidatorPredicate;
+import eu.eventstorm.core.ex001.validator.MailAndAgePropertyValidator;
+import eu.eventstorm.core.ex001.validator.MailPropertyValidator;
 
 @CqrsCommand(type = CREATE)
 @CqrsCommandRestController(name = "UserCommandRestController", javaPackage = "eu.eventstorm.core.ex001.command.rest", method = POST, uri = "command/user/create")
-@TupleValidator(properties = {"name","age"}, validateBy = MailAndAgeValidatorPredicate.class)
+@TupleValidator(properties = {"name","age"}, validateBy = MailAndAgePropertyValidator.class)
 public interface CreateUserCommand extends Command {
 
 	@NotEmpty
@@ -26,7 +26,7 @@ public interface CreateUserCommand extends Command {
 
 	void setAge(int age);
 
-	@CustomPropertyValidator(validateBy = MailValidatorPredicate.class)
+	@CustomPropertyValidator(validateBy = MailPropertyValidator.class)
 	String getEmail();
 
 	void setEmail(String email);
