@@ -1,4 +1,4 @@
-package eu.eventstorm.core.annotation.constrain;
+package eu.eventstorm.core.annotation.constraint;
 
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
@@ -14,6 +14,6 @@ import eu.eventstorm.core.annotation.Constraint;
 @Target({METHOD})
 @Retention(RUNTIME)
 @Constraint
-public @interface NotEmpty {
+public @interface NotNull {
 
 }
