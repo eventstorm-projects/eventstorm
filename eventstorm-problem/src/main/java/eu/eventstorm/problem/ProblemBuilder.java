@@ -1,5 +1,7 @@
 package eu.eventstorm.problem;
 
+import static org.owasp.encoder.Encode.forJava;
+
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.LinkedHashMap;
@@ -29,45 +31,44 @@ public final class ProblemBuilder {
 	String traceId;
 	OffsetDateTime timestamp;
 	URI type;
-    URI instance;
-    int status;
-    String title;
-    String detail;
-    final Map<String, Object> params = new LinkedHashMap<>();
-    
-    ProblemBuilder() {
+	URI instance;
+	int status;
+	String title;
+	String detail;
+	final Map<String, Object> params = new LinkedHashMap<>();
+
+	ProblemBuilder() {
 	}
 
-    public ProblemBuilder with(HttpServletRequest req) {
-    	this.type = URI.create(req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort() + req.getContextPath());
+	public ProblemBuilder with(HttpServletRequest req) {
+		this.type = URI.create(forJava(req.getScheme()) + "://" + forJava(req.getServerName()) + ":" + req.getServerPort() + forJava(req.getContextPath()));
 
-    	String originalUri = (String) req.getAttribute(RequestDispatcher.ERROR_REQUEST_URI);
-    	
-    	if (originalUri != null) {
-    		this.instance = URI.create(originalUri);
-    	} else{
-    		this.instance = URI.create(req.getServletPath() + 
-        			(Strings.isEmpty(req.getPathInfo())? "" : req.getPathInfo()) + 
-        			(Strings.isEmpty(req.getQueryString())? "" : req.getQueryString()));	
-    	}
+		String originalUri = (String) req.getAttribute(RequestDispatcher.ERROR_REQUEST_URI);
+
+		if (originalUri != null) {
+			this.instance = URI.create(originalUri);
+		} else {
+			this.instance = URI.create(req.getServletPath() + (Strings.isEmpty(req.getPathInfo()) ? "" : req.getPathInfo())
+			        + (Strings.isEmpty(req.getQueryString()) ? "" : req.getQueryString()));
+		}
 		return this;
 	}
-	
-    public ProblemBuilder withTraceId(String traceId) {
-    	this.traceId = traceId;
-    	return this;
-    }
-    
-    public ProblemBuilder withTimestamp(OffsetDateTime timestamp) {
-    	this.timestamp = timestamp;
+
+	public ProblemBuilder withTraceId(String traceId) {
+		this.traceId = traceId;
 		return this;
 	}
-    
+
+	public ProblemBuilder withTimestamp(OffsetDateTime timestamp) {
+		this.timestamp = timestamp;
+		return this;
+	}
+
 	public ProblemBuilder withType(URI type) {
 		this.type = type;
 		return this;
 	}
-	
+
 	public ProblemBuilder withInstance(URI instance) {
 		this.instance = instance;
 		return this;
@@ -77,12 +78,12 @@ public final class ProblemBuilder {
 		this.status = status;
 		return this;
 	}
-	
+
 	public ProblemBuilder withTitle(String title) {
 		this.title = title;
 		return this;
 	}
-	
+
 	public ProblemBuilder withDetail(String detail) {
 		this.detail = detail;
 		return this;
@@ -92,13 +93,13 @@ public final class ProblemBuilder {
 		map.forEach(this::with);
 		return this;
 	}
-	
+
 	public ProblemBuilder with(String key, Object value) {
-		
+
 		if (RESERVED_PROPERTIES.contains(key)) {
 			return this;
 		}
-		
+
 		if (value == null) {
 			this.params.put(key, Optional.empty());
 			return this;
@@ -109,17 +110,13 @@ public final class ProblemBuilder {
 
 	public Problem build() {
 		if (Strings.isEmpty(traceId)) {
-			this.traceId = Optional.ofNullable(Tracing.currentTracer())
-					.map(Tracer::currentSpan)
-					.map(Span::context)
-					.map(TraceContext::traceIdString)
-					.orElse("noTraceId")
-					;
+			this.traceId = Optional.ofNullable(Tracing.currentTracer()).map(Tracer::currentSpan).map(Span::context).map(TraceContext::traceIdString)
+			        .orElse("noTraceId");
 		}
 		if (this.timestamp == null) {
 			this.timestamp = OffsetDateTime.now();
 		}
-		
+
 		return new ProblemImpl(this);
 	}
 
