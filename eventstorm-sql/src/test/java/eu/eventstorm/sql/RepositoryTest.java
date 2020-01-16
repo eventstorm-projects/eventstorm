@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import javax.sql.DataSource;
@@ -256,6 +257,54 @@ class RepositoryTest {
 			tx.commit();
         }
 
+         String select  = repo.select(AggregateFunctions.count(StudentDescriptor.ID))
+                .from(StudentDescriptor.TABLE)
+                .build();
+
+        try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
+            long count = repo.executeSelect(select, PreparedStatementSetter.EMPTY, ResultSetMappers.SINGLE_LONG);
+            assertEquals(100, count);
+			tx.rollback();
+        }
+
+		String delete = repo.delete(StudentDescriptor.TABLE).where(eq(StudentDescriptor.ID)).build();
+		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
+			for (int i = 1 ; i < 101 ; i ++) {
+				final int j = i;
+				repo.executeDelete(delete, ps -> ps.setInt(1, j));
+			}
+			tx.commit();
+        }
+
+        try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
+            long count = repo.executeSelect(select, PreparedStatementSetter.EMPTY, ResultSetMappers.SINGLE_LONG);
+            assertEquals(0, count);
+			tx.rollback();
+        }
+	}
+	
+	
+	@Test
+	void testBatchWithIdentifierGenerator() throws SQLException {
+
+		String insert = repo.insert(StudentDescriptor.TABLE, StudentDescriptor.IDS, StudentDescriptor.COLUMNS).build();
+
+		AtomicInteger atomicInteger = new AtomicInteger(1);
+
+		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
+            try (Batch<Student> batch = repo.batch(insert, STUDENT, () ->  atomicInteger.getAndIncrement(), (pojo , id) -> pojo.setId(id))) {
+                for (int i = 1 ; i < 101 ; i ++) {
+                    Student student = new StudentImpl();
+			        student.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+			        student.setAge(30 + i);
+			        student.setCode("Code_" + i);
+                    batch.add(student);
+                }
+            }
+			tx.commit();
+        }
+
+		
          String select  = repo.select(AggregateFunctions.count(StudentDescriptor.ID))
                 .from(StudentDescriptor.TABLE)
                 .build();

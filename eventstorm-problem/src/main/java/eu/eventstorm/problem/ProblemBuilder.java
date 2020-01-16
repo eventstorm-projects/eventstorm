@@ -48,8 +48,8 @@ public final class ProblemBuilder {
 		if (originalUri != null) {
 			this.instance = URI.create(originalUri);
 		} else {
-			this.instance = URI.create(req.getServletPath() + (Strings.isEmpty(req.getPathInfo()) ? "" : req.getPathInfo())
-			        + (Strings.isEmpty(req.getQueryString()) ? "" : req.getQueryString()));
+			this.instance = URI.create(forJava(req.getServletPath()) + (Strings.isEmpty(req.getPathInfo()) ? "" : forJava(req.getPathInfo()))
+			        + (Strings.isEmpty(req.getQueryString()) ? "" : forJava(req.getQueryString())));
 		}
 		return this;
 	}
