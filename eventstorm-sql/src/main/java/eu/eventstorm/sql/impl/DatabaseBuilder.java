@@ -12,6 +12,7 @@ import eu.eventstorm.sql.JsonMapper;
 import eu.eventstorm.sql.Module;
 import eu.eventstorm.sql.TransactionManager;
 import eu.eventstorm.sql.desc.SqlSequence;
+import eu.eventstorm.sql.json.JacksonJsonMapper;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -77,6 +78,9 @@ public final class DatabaseBuilder {
      }
 
 	public Database build() {
+	    if (jsonMapper == null) {
+	        jsonMapper = new JacksonJsonMapper();
+	    }
 		return new DatabaseImpl(dialect, transactionManager, jsonMapper, modules.build(), externals.build());
 	}
 	

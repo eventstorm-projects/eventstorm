@@ -5,6 +5,7 @@ import static eu.eventstorm.sql.type.SqlTypeException.PARAM_ADAPTEE;
 import static eu.eventstorm.sql.type.SqlTypeException.PARAM_CONTENT;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import eu.eventstorm.sql.JsonMapper;
@@ -57,7 +58,7 @@ public final class BlobJson extends DefaultBlob implements Json {
 	public JsonList asList() {
 		if (adaptee == null) {
 			if (getBuf() == null || getBuf().length == 0) {
-        		this.adaptee = new BlobJsonMap(new HashMap<>());
+        		this.adaptee = new BlobJsonList(new ArrayList<>());
             } else {
                 try {
                 	this.adaptee = new BlobJsonList(mapper.readList(getBuf()));

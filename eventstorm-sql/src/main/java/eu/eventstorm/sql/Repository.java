@@ -1,9 +1,9 @@
 package eu.eventstorm.sql;
 
 import static com.google.common.collect.ImmutableMap.of;
-import static eu.eventstorm.sql.EventstormRepositoryException.PARAM_SQL;
 import static eu.eventstorm.sql.EventstormRepositoryException.PARAM_POJO;
 import static eu.eventstorm.sql.EventstormRepositoryException.PARAM_SIZE;
+import static eu.eventstorm.sql.EventstormRepositoryException.PARAM_SQL;
 import static eu.eventstorm.sql.EventstormRepositoryException.Type.BATCH_ADD;
 import static eu.eventstorm.sql.EventstormRepositoryException.Type.BATCH_EXECUTE_QUERY;
 import static eu.eventstorm.sql.EventstormRepositoryException.Type.BATCH_RESULT;
@@ -18,17 +18,17 @@ import static eu.eventstorm.sql.EventstormRepositoryException.Type.SELECT_MAPPER
 import static eu.eventstorm.sql.EventstormRepositoryException.Type.SELECT_NEXT;
 import static eu.eventstorm.sql.EventstormRepositoryException.Type.SELECT_PREPARED_STATEMENT_SETTER;
 import static eu.eventstorm.sql.EventstormRepositoryException.Type.STREAM_EXECUTE_QUERY;
-import static eu.eventstorm.sql.EventstormRepositoryException.Type.STREAM_NEXT;
 import static eu.eventstorm.sql.EventstormRepositoryException.Type.STREAM_MAPPER;
+import static eu.eventstorm.sql.EventstormRepositoryException.Type.STREAM_NEXT;
 import static eu.eventstorm.sql.EventstormRepositoryException.Type.STREAM_PREPARED_STATEMENT_SETTER;
 import static eu.eventstorm.sql.EventstormRepositoryException.Type.UPDATE_EXECUTE_QUERY;
 import static eu.eventstorm.sql.EventstormRepositoryException.Type.UPDATE_MAPPER;
 import static eu.eventstorm.sql.EventstormRepositoryException.Type.UPDATE_RESULT;
 
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Spliterator;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -50,6 +50,7 @@ import eu.eventstorm.sql.domain.Page;
 import eu.eventstorm.sql.domain.PageImpl;
 import eu.eventstorm.sql.domain.Pageable;
 import eu.eventstorm.sql.expression.AggregateFunction;
+import eu.eventstorm.sql.id.Identifier;
 import eu.eventstorm.sql.impl.TransactionContext;
 import eu.eventstorm.sql.impl.TransactionQueryContext;
 import eu.eventstorm.sql.jdbc.Batch;
@@ -225,6 +226,10 @@ public abstract class Repository {
     protected final <E> Batch<E> batch(String sql, InsertMapper<E> im) {
         return new BatchImpl<>(sql, im);
     }
+    
+    protected final <E,T> Batch<E> batch(String sql, InsertMapper<E> im, Identifier<T> identifier, BiConsumer<E, T> identifierSetter) {
+        return new BatchSequenceImpl<>(sql, im, identifier, identifierSetter);
+    }
 
 	protected final <T> Stream<T> stream(String sql, PreparedStatementSetter pss, ResultSetMapper<T> mapper) {
 
@@ -312,8 +317,26 @@ public abstract class Repository {
 
 	}
 
+	private class BatchSequenceImpl<E,T> extends BatchImpl<E> {
+	    
+	    private final Identifier<T> identifier;
+	    private final BiConsumer<E, T> identifierSetter;
+	    
+	    private BatchSequenceImpl(String sql, InsertMapper<E> im, Identifier<T> identifier, BiConsumer<E, T> identifierSetter) {
+	        super(sql, im);
+	        this.identifier = identifier;
+	        this.identifierSetter = identifierSetter;
+	    }
 
-    private final class BatchImpl<E> implements Batch<E> {
+        @Override
+        public void add(E pojo) {
+            this.identifierSetter.accept(pojo, this.identifier.next());
+            super.add(pojo);
+        }
+	    
+	}
+
+    private class BatchImpl<E> implements Batch<E> {
 
         private final String sql;
         private final TransactionQueryContext tqc;

@@ -186,6 +186,23 @@ final class RepositoryGenerator implements Generator {
                 writer.write(descriptor.fullyQualidiedClassName() + "Descriptor.SEQUENCE");
                 writer.write(");");
                 writeNewLine(writer);
+                
+                writer.write("    private final java.util.function.BiConsumer<" + descriptor.fullyQualidiedClassName() + ",");
+
+                if ("int".equals(id.getter().getReturnType().toString())) {
+                    writer.write("Integer");
+                } else if ("long".equals(id.getter().getReturnType().toString())) {
+                    writer.write("Long");
+                } else {
+                    throw new IllegalStateException();
+                }
+                
+                writer.write("> identifierSetter = (pojo,id) -> ");
+                writer.write(" pojo.");
+                writer.write(id.setter().getSimpleName().toString());
+                writer.write("(id) ;");
+                writeNewLine(writer);
+
             }
         }
 
@@ -610,9 +627,17 @@ final class RepositoryGenerator implements Generator {
         writeNewLine(writer);
 
         writer.write("        return batch(this.insert, Mappers.");
-
         // todo check autoincrement ...
         writer.write(toUpperCase(descriptor.element().getSimpleName().toString()));
+        
+        for (PojoPropertyDescriptor id : descriptor.ids()) {
+            if (id.getter().getAnnotation(Sequence.class) != null) {
+                writer.write(", idGenerator, identifierSetter");
+                break;
+            }
+        }
+        
+
         writer.write(");");
 
         writeNewLine(writer);
