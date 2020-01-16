@@ -100,6 +100,25 @@ class DatesTest {
 		assertEquals(35, odt.getMinute());
 		assertEquals(23, odt.getSecond());
 		assertEquals(ZoneOffset.ofHoursMinutes(-4, -15), odt.getOffset());
+		
+		odt = Dates.parseOffsetDateTime("2011-03-11T18:35:23.1Z");
+		assertEquals(100000000, odt.getNano());
+		odt = Dates.parseOffsetDateTime("2011-03-11T18:35:23.12Z");
+		assertEquals(120000000, odt.getNano());
+		odt = Dates.parseOffsetDateTime("2011-03-11T18:35:23.123Z");
+		assertEquals(123000000, odt.getNano());
+		odt = Dates.parseOffsetDateTime("2011-03-11T18:35:23.1234Z");
+		assertEquals(123400000, odt.getNano());
+		odt = Dates.parseOffsetDateTime("2011-03-11T18:35:23.12345Z");
+		assertEquals(123450000, odt.getNano());
+		odt = Dates.parseOffsetDateTime("2011-03-11T18:35:23.123456Z");
+		assertEquals(123456000, odt.getNano());
+		odt = Dates.parseOffsetDateTime("2011-03-11T18:35:23.1234567Z");
+		assertEquals(123456700, odt.getNano());
+		odt = Dates.parseOffsetDateTime("2011-03-11T18:35:23.12345678Z");
+		assertEquals(123456780, odt.getNano());
+		odt = Dates.parseOffsetDateTime("2011-03-11T18:35:23.123456789Z");
+		assertEquals(123456789, odt.getNano());
 	}
 	
 	@Test

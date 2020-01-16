@@ -183,7 +183,7 @@ final class CommandValidatorGenerator {
         writeNewLine(writer);
         writer.write("        // validate property " + ppd.name() + " from " + am.toString());
     	writeNewLine(writer);
-    	writer.write("        PropertyValidators.isEmpty().validate(PROPERTIES_");
+    	writer.write("        PropertyValidators.notEmpty().validate(PROPERTIES_");
         writer.write(Helper.toUpperCase(ppd.name())+", ");
         writer.write("command." + ppd.getter().getSimpleName().toString() + "(), builder);");
     	writeNewLine(writer);
