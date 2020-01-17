@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.util.stream.Stream;
 
 import javax.annotation.processing.ProcessingEnvironment;
@@ -17,14 +16,12 @@ import javax.tools.JavaFileObject;
 import com.google.common.collect.ImmutableList;
 
 import eu.eventsotrm.core.apt.model.RestControllerDescriptor;
-import eu.eventsotrm.sql.apt.Helper;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.core.CommandGateway;
 import eu.eventstorm.core.annotation.HttpMethod;
 import eu.eventstorm.core.cloudevent.CloudEvent;
 import eu.eventstorm.core.cloudevent.CloudEvents;
-import eu.eventstorm.core.util.NamedThreadFactory;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -81,17 +78,13 @@ final class RestControllerImplementationGenerator {
         writeNewLine(writer);
         writer.write("import " + Executor.class.getName() + ";");
         writeNewLine(writer);
-        writer.write("import " + Executors.class.getName() + ";");
-        writeNewLine(writer);
         
 		writer.write("import org.springframework.web.bind.annotation.RequestBody;");
 		writeNewLine(writer);
 		writer.write("import org.springframework.web.bind.annotation.RestController;");		
-		
 		writeNewLine(writer);
-		writer.write("import " + NamedThreadFactory.class.getName() + ";");
-	    writeNewLine(writer);
-		
+		writer.write("import org.springframework.beans.factory.annotation.Qualifier;");       
+        writeNewLine(writer);
 		
 		writer.write("import " + CompletableFuture.class.getName() + ";");
 		writeNewLine(writer);
@@ -137,20 +130,15 @@ final class RestControllerImplementationGenerator {
 
 	private void writeConstructor(Writer writer, RestControllerDescriptor desc, SourceCode sourceCode) throws IOException {
 
-		String threadName = "es_";
-		if (sourceCode.getCqrsConfiguration() != null) {
-			threadName = sourceCode.getCqrsConfiguration().eventStoreThread();
-		} 
-	    
 		writer.write("    public ");
 		writer.write(desc.getRestController().name());
 		writer.write("(");
 		writer.write(CommandGateway.class.getName());
-		writer.write(" gateway) {");
+		writer.write(" gateway,@Qualifier(\"event_store_executor\") Executor executor) {");
 		writeNewLine(writer);
 		writer.write("        this.gateway = gateway;");
 		writeNewLine(writer);
-	    writer.write("        this.executor = Executors.newFixedThreadPool(1, new NamedThreadFactory(\"" + Helper.toSnakeCase(threadName) + "\"));");
+	    writer.write("        this.executor = executor;");
         writeNewLine(writer);    
 		
 		writer.write("    }");
