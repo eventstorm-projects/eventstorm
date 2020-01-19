@@ -30,7 +30,10 @@ import eu.eventstorm.sql.annotation.PrimaryKey;
 import eu.eventstorm.sql.annotation.Sequence;
 import eu.eventstorm.sql.annotation.Table;
 
-public class FlywayGenerator {
+/**
+ * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
+ */
+public final class FlywayGenerator {
 
 	private final Logger logger;
 

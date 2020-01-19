@@ -7,6 +7,9 @@ import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.sql.annotation.Column;
 import eu.eventstorm.sql.type.Json;
 
+/**
+ * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
+ */
 final class FlywayDialectH2 implements FlywayDialect {
 
 	static final FlywayDialect INSTANCE = new FlywayDialectH2();

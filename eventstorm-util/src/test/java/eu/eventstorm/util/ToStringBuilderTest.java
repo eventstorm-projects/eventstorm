@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,6 +33,10 @@ class ToStringBuilderTest {
         builder = new ToStringBuilder(false);
         builder.append("test", (char[]) null);
         assertEquals("{}", builder.toString());
+    
+        builder = new ToStringBuilder(false);
+        builder.append("test", "jacques".toCharArray());
+        assertEquals("{\"test\":\"jacques\"}", builder.toString());
     }
 
     @Test
@@ -43,10 +48,14 @@ class ToStringBuilderTest {
         builder = new ToStringBuilder(true);
         builder.append("test", "mili");
         assertEquals("{\"test\":\"mili\"}", builder.toString());
-
+        
         builder = new ToStringBuilder(false);
         builder.append("test", (String) null);
         assertEquals("{}", builder.toString());
+        
+        builder = new ToStringBuilder(false);
+        builder.append("test", "mili");
+        assertEquals("{\"test\":\"mili\"}", builder.toString());
     }
 
     @Test
@@ -67,6 +76,9 @@ class ToStringBuilderTest {
         builder.append("object", new Toto());
         assertEquals("{\"object\":\"toto2\"}", builder.toString());
 
+        builder = new ToStringBuilder(true);
+        builder.append("number", 456789);
+        assertEquals("{\"number\":456789}", builder.toString());
     }
 
     @Test
@@ -194,7 +206,23 @@ class ToStringBuilderTest {
 		builder.append("map2", ImmutableMap.of(1, 2, 3, 4));
 		builder.append("map3", ImmutableMap.of(new Toto(), "2", "3", new Toto()));
 		assertEquals("{\"map\":[{\"key1\":\"key2\"}],\"map2\":[{\"1\":\"2\"},{\"3\":\"4\"}],\"map3\":[{\"toto2\":\"2\"},{\"3\":\"toto2\"}]}", builder.toString());
-    }
+  
+		builder = new ToStringBuilder(true);
+		builder.append("map", (Map<?,?>)null);
+		assertEquals("{\"map\":null}", builder.toString());
+		
+		builder = new ToStringBuilder(false);
+		builder.append("map", (Map<?,?>)null);
+		assertEquals("{}", builder.toString());
+
+		builder = new ToStringBuilder(false);
+		builder.append("map", ImmutableMap.of("key1", "key2"));
+		builder.append("map2", ImmutableMap.of(1, 2, 3, 4));
+		builder.append("map3", ImmutableMap.of(new Toto(), "2", "3", new Toto()));
+		assertEquals("{\"map\":[{\"key1\":\"key2\"}],\"map2\":[{\"1\":\"2\"},{\"3\":\"4\"}],\"map3\":[{\"toto2\":\"2\"},{\"3\":\"toto2\"}]}", builder.toString());
+
+	
+	}
 
     private static final class Toto {
 

@@ -34,7 +34,7 @@ class ComposeAggregateIdTest {
 		assertNotEquals(id1, id2);
 		assertNotEquals(id1, id4);
 		assertNotEquals(id1, id5);
-		assertNotEquals(null, id1);
+		assertNotEquals(id1, null);
 		assertNotEquals("hello", id1);
 		
 		assertEquals("123__456", id1.toStringValue());
