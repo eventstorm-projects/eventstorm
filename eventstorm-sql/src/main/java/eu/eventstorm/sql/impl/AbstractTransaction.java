@@ -220,12 +220,15 @@ abstract class AbstractTransaction implements TransactionSupport {
 		if (this == obj) {
 			return true;
 		}
-		if (!(obj instanceof TransactionSupport)) {
+		if (!(obj instanceof AbstractTransaction)) {
 			return false;
 		}
 		return this.uuid.equals(((TransactionSupport)obj).getUuid());
 	}
-	
-	
+
+	@Override
+	public int hashCode() {
+		return this.uuid.hashCode();
+	}
 
 }

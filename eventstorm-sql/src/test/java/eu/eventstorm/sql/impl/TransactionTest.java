@@ -209,15 +209,17 @@ class TransactionTest {
 			assertTrue(((TransactionSupport)tx).isMain());
 			try (Transaction tx2 = db.transactionManager().newTransactionReadOnly()) {
 				assertEquals(tx2, db.transactionManager().current());
-	        	assertEquals(tx,  tx2);
+	        	assertNotEquals(tx,  tx2);
+	        	assertNotEquals(tx2,  tx);
 	        	assertTrue(((TransactionSupport)tx).isMain());
 	        	assertFalse(((TransactionSupport)db.transactionManager().current()).isMain());
 	        	assertFalse(((TransactionSupport)tx2).isMain());
 	        	try (Transaction tx3 = db.transactionManager().newTransactionReadOnly()) {
 					assertEquals(tx3, db.transactionManager().current());
-		        	assertEquals(tx,  tx2);
-		        	assertEquals(tx,  tx3);
-		        	assertEquals(tx2,  tx3);
+					assertNotEquals(tx,  tx2);
+					assertNotEquals(tx,  tx3);
+					assertNotEquals(tx2,  tx3);
+					assertNotEquals(tx3,  tx2);
 		        	assertTrue(((TransactionSupport)tx).isMain());
 		        	assertFalse(((TransactionSupport)tx2).isMain());
 		        	assertFalse(((TransactionSupport)tx3).isMain());
@@ -229,6 +231,7 @@ class TransactionTest {
 					assertEquals(tx3, db.transactionManager().current());
 					tx3.rollback();
 				}
+				assertFalse(((TransactionSupport)db.transactionManager().current()).isMain());
 			}
 			assertTrue(((TransactionSupport)db.transactionManager().current()).isMain());
 			assertEquals(tx, db.transactionManager().current());

@@ -7,12 +7,20 @@ import java.util.UUID;
  */
 final class TransactionNested implements TransactionSupport {
 
+	private final AbstractTransaction main;
     private final TransactionSupport parent;
     private final TransactionManagerImpl transactionManager;
+    private final int count;
 
-    TransactionNested(TransactionSupport parent, TransactionManagerImpl transactionManager) {
-        this.parent = parent;
+    TransactionNested(AbstractTransaction main,  TransactionManagerImpl transactionManager) {
+        this(main, main, transactionManager, 1);
+    }
+    
+    TransactionNested(AbstractTransaction main, TransactionSupport parent, TransactionManagerImpl transactionManager, int count) {
+    	this.main = main;
+    	this.parent = parent;
         this.transactionManager = transactionManager;
+        this.count = count;
     }
 
     @Override
@@ -62,7 +70,7 @@ final class TransactionNested implements TransactionSupport {
 	
 	@Override
 	public TransactionSupport innerTransaction(TransactionDefinition definition) {
-		return new TransactionNested(this, this.transactionManager);
+		return new TransactionNested(this.main, this, this.transactionManager, this.count + 1);
 	}
 
 	@Override
@@ -73,10 +81,12 @@ final class TransactionNested implements TransactionSupport {
 		if (this == obj) {
 			return true;
 		}
-		if (!(obj instanceof TransactionSupport)) {
+		if (!(obj instanceof TransactionNested)) {
 			return false;
 		}
-		return this.parent.equals(obj);
+		
+		TransactionNested otherNested = (TransactionNested) obj;
+		return this.main.equals(otherNested.main) && this.count == otherNested.count;
 	}
 
 	@Override
@@ -84,6 +94,9 @@ final class TransactionNested implements TransactionSupport {
 		return false;
 	}
 	
-	
+	@Override
+	public int hashCode() {
+		return this.main.hashCode() + this.count;
+	}
 	
 }
