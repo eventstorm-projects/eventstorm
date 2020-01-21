@@ -7,9 +7,9 @@ import java.sql.Connection;
  */
 final class TransactionIsolatedReadWrite extends TransactionReadWrite {
 
-	private final AbstractTransaction parent;
+	private final TransactionSupport parent;
 
-	TransactionIsolatedReadWrite(TransactionManagerImpl transactionManager, Connection connection, AbstractTransaction parent) {
+	TransactionIsolatedReadWrite(TransactionManagerImpl transactionManager, Connection connection, TransactionSupport parent) {
 		super(transactionManager, connection);
 		this.parent = parent;
 	}

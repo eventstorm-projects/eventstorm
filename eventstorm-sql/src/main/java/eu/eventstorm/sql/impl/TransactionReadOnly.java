@@ -2,8 +2,6 @@ package eu.eventstorm.sql.impl;
 
 import java.sql.Connection;
 
-import eu.eventstorm.sql.Transaction;
-
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
@@ -28,11 +26,12 @@ final class TransactionReadOnly extends AbstractTransaction {
 		throw new TransactionException(TransactionException.Type.READ_ONLY);
 	}
 
-	public Transaction innerTransaction(TransactionDefinition definition) {
+	@Override
+	public TransactionSupport innerTransaction(TransactionDefinition definition) {
 		if (!definition.isReadOnly()) {
 			throw new TransactionException(TransactionException.Type.READ_ONLY);
 		}
-		return new TransactionNested(this);
+		return new TransactionNested(this, getTransactionManager());
 	}
 
 	@Override

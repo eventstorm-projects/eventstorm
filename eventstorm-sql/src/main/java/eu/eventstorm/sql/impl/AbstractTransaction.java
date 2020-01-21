@@ -19,14 +19,13 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.eventstorm.sql.Transaction;
 import eu.eventstorm.sql.tracer.TransactionSpan;
 import eu.eventstorm.sql.tracer.TransactionTracer;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-abstract class AbstractTransaction implements Transaction, TransactionContext {
+abstract class AbstractTransaction implements TransactionSupport {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTransaction.class);
 
@@ -111,6 +110,11 @@ abstract class AbstractTransaction implements Transaction, TransactionContext {
 		}
 		return preparedStatement(sql, this.select, Statement.NO_GENERATED_KEYS);
 	}
+	
+	@Override
+	public boolean isMain() {
+		return true;
+	}
 
 	@Override
 	public final void rollback() {
@@ -164,8 +168,6 @@ abstract class AbstractTransaction implements Transaction, TransactionContext {
     protected void afterRollback() {		
 	}
 
-	protected abstract Transaction innerTransaction(TransactionDefinition definition);
-
 	@Override
 	public final void addHook(Runnable runnable) {
 		this.hooks.add(runnable);
@@ -209,5 +211,21 @@ abstract class AbstractTransaction implements Transaction, TransactionContext {
 	protected final void deactivate() {
 		this.active = false;
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
+		if (this == obj) {
+			return true;
+		}
+		if (!(obj instanceof TransactionSupport)) {
+			return false;
+		}
+		return this.uuid.equals(((TransactionSupport)obj).getUuid());
+	}
+	
+	
 
 }

@@ -30,7 +30,7 @@ public final class TransactionManagerImpl implements TransactionManager {
 
     private final int defaultIsolationLevel;
 
-    private final ThreadLocal<AbstractTransaction> transactions;
+    private final ThreadLocal<TransactionSupport> transactions;
 
     private boolean enforceReadOnly = false;
 
@@ -88,7 +88,7 @@ public final class TransactionManagerImpl implements TransactionManager {
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("getTransaction({})", definition);
         }
-		AbstractTransaction tx = this.transactions.get();
+        TransactionSupport tx = this.transactions.get();
 
 		if (tx != null) {
 
@@ -96,7 +96,7 @@ public final class TransactionManagerImpl implements TransactionManager {
 				tx = new TransactionIsolatedReadWrite(this, doBegin(definition), tx);
 			} else {
 				// get TX inside another TX
-				return tx.innerTransaction(definition);
+				tx = tx.innerTransaction(definition);
 			}
 		} else {
 			switch (definition) {
@@ -133,7 +133,7 @@ public final class TransactionManagerImpl implements TransactionManager {
 		this.transactions.remove();
     }
     
-    void restart(AbstractTransaction transaction) {
+    void restart(TransactionSupport transaction) {
         this.transactions.set(transaction);
     }
 
