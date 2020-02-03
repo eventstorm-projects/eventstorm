@@ -2,17 +2,25 @@ package eu.eventstorm.sql.impl;
 
 import java.util.UUID;
 
-import eu.eventstorm.sql.Transaction;
-
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-final class TransactionNested implements Transaction, TransactionContext {
+final class TransactionNested implements TransactionSupport {
 
-    private final AbstractTransaction parent;
+	private final AbstractTransaction main;
+    private final TransactionSupport parent;
+    private final TransactionManagerImpl transactionManager;
+    private final int count;
 
-    TransactionNested(AbstractTransaction parent) {
-        this.parent = parent;
+    TransactionNested(AbstractTransaction main,  TransactionManagerImpl transactionManager) {
+        this(main, main, transactionManager, 1);
+    }
+    
+    TransactionNested(AbstractTransaction main, TransactionSupport parent, TransactionManagerImpl transactionManager, int count) {
+    	this.main = main;
+    	this.parent = parent;
+        this.transactionManager = transactionManager;
+        this.count = count;
     }
 
     @Override
@@ -32,7 +40,7 @@ final class TransactionNested implements Transaction, TransactionContext {
 
     @Override
     public void close() {
-        // skip
+    	this.transactionManager.restart(this.parent);
     }
 
     @Override
@@ -44,6 +52,11 @@ final class TransactionNested implements Transaction, TransactionContext {
     public TransactionQueryContext write(String sql) {
         return this.parent.write(sql);
     }
+    
+    @Override
+	public TransactionQueryContext writeAutoIncrement(String sql) {
+    	 return this.parent.writeAutoIncrement(sql);
+	}
 
     @Override
     public void addHook(Runnable runnable) {
@@ -52,14 +65,38 @@ final class TransactionNested implements Transaction, TransactionContext {
 
 	@Override
 	public UUID getUuid() {
-		// TODO Auto-generated method stub
-		return null;
+		return parent.getUuid();
+	}
+	
+	@Override
+	public TransactionSupport innerTransaction(TransactionDefinition definition) {
+		return new TransactionNested(this.main, this, this.transactionManager, this.count + 1);
 	}
 
 	@Override
-	public TransactionQueryContext writeAutoIncrement(String sql) {
-		// TODO Auto-generated method stub
-		return null;
+	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
+		if (this == obj) {
+			return true;
+		}
+		if (!(obj instanceof TransactionNested)) {
+			return false;
+		}
+		
+		TransactionNested otherNested = (TransactionNested) obj;
+		return this.main.equals(otherNested.main) && this.count == otherNested.count;
 	}
 
+	@Override
+	public boolean isMain() {
+		return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		return this.main.hashCode() + this.count;
+	}
+	
 }

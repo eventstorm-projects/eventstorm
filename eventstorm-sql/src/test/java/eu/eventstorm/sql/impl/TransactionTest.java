@@ -1,6 +1,8 @@
 package eu.eventstorm.sql.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -58,13 +60,12 @@ class TransactionTest {
 
 		Tracer tracer = Tracing.newBuilder().sampler(Sampler.ALWAYS_SAMPLE).spanReporter(new LoggingBraveReporter()).build().tracer();
 		db = DatabaseBuilder.from(Dialect.Name.H2)
-				.withTransactionManager(new TransactionManagerImpl(ds, new TransactionManagerConfiguration(TransactionTracers.brave(tracer))))
-				.withModule(new eu.eventstorm.sql.model.ex001.Module("test", null))
-				.build();
+		        .withTransactionManager(new TransactionManagerImpl(ds, new TransactionManagerConfiguration(TransactionTracers.brave(tracer))))
+		        .withModule(new eu.eventstorm.sql.model.ex001.Module("test", null)).build();
 	}
 
 	@AfterEach()
-	void after() throws SQLException{
+	void after() throws SQLException {
 		ds.getConnection().createStatement().execute("SHUTDOWN");
 		ds.close();
 	}
@@ -74,90 +75,91 @@ class TransactionTest {
 	void simpleTest() {
 
 		AbstractStudentRepository repository = new AbstractStudentRepository(db) {
-        };
+		};
 
-        UUID uuid;
+		UUID uuid;
 
-        try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
-        	uuid = tx.getUuid();
-        	Student student = new StudentImpl();
-            student.setId(1);
-            student.setAge(37);
-            student.setCode("Code1");
-            repository.insert(student);
-            tx.commit();
-        }
-        
-        try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
-        	assertNotNull(repository.findById(1));
-        	tx.rollback();
-        }
+		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
+			uuid = tx.getUuid();
+			Student student = new StudentImpl();
+			student.setId(1);
+			student.setAge(37);
+			student.setCode("Code1");
+			repository.insert(student);
+			tx.commit();
+		}
 
+		try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
+			assertNotNull(repository.findById(1));
+			tx.rollback();
+		}
 
 	}
-	
+
 	@Test
 	void testIsolatedReadWrite() {
 
 		AbstractStudentRepository repository = new AbstractStudentRepository(db) {
-        };
+		};
 
-        try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
-        	Student student = new StudentImpl();
-            student.setId(2);
-            student.setAge(37);
-            student.setCode("Code1");
-            repository.insert(student);
-            
-            try (Transaction isolated = db.transactionManager().newTransactionIsolatedReadWrite()) {
-            	assertNull(repository.findById(2));
-            	Student s2 = new StudentImpl();
-            	s2.setId(3);
-            	s2.setAge(37);
-            	s2.setCode("Code1");
-                repository.insert(s2);
-                isolated.commit();
-            }
-            tx.commit();
-        }
-        
-        try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
-        	assertNotNull(repository.findById(2));
-        	assertNotNull(repository.findById(3));
-        	tx.rollback();
-        }
+		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
+			Student student = new StudentImpl();
+			student.setId(2);
+			student.setAge(37);
+			student.setCode("Code1");
+			repository.insert(student);
+
+			try (Transaction isolated = db.transactionManager().newTransactionIsolatedReadWrite()) {
+				assertNull(repository.findById(2));
+				Student s2 = new StudentImpl();
+				s2.setId(3);
+				s2.setAge(37);
+				s2.setCode("Code1");
+				repository.insert(s2);
+				isolated.commit();
+			}
+			tx.commit();
+		}
+
+		try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
+			assertNotNull(repository.findById(2));
+			assertNotNull(repository.findById(3));
+			tx.rollback();
+		}
 
 	}
-	
+
 	@Test
 	void readTest() {
-		
+
 		try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
-			
+
 			assertEquals(true, tx.isReadOnly());
 			assertThrows(TransactionException.class, () -> tx.commit());
-			assertThrows(TransactionException.class, () -> ((TransactionReadOnly)tx).write("XXX"));
-			assertThrows(TransactionException.class, () -> ((TransactionReadOnly)tx).writeAutoIncrement("XXX"));
-			//assertThrows(EventstormTransactionException.class, () -> ((TransactionReadOnly)tx).innerTransaction(new TransactionDefinitionReadWrite()));
-			
+			assertThrows(TransactionException.class, () -> ((TransactionReadOnly) tx).write("XXX"));
+			assertThrows(TransactionException.class, () -> ((TransactionReadOnly) tx).writeAutoIncrement("XXX"));
+			// assertThrows(EventstormTransactionException.class, () ->
+			// ((TransactionReadOnly)tx).innerTransaction(new
+			// TransactionDefinitionReadWrite()));
+
 		}
 	}
-	
+
 	@Test
 	void writeTest() {
-		
+
 		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
 
 			assertEquals(false, tx.isReadOnly());
-			
-			try(TransactionNested tn = (TransactionNested) ((TransactionReadWrite)tx).innerTransaction(TransactionDefinition.READ_WRITE)) {
-				tn.rollback();	
+
+			try (TransactionNested tn = (TransactionNested) ((TransactionReadWrite) tx).innerTransaction(TransactionDefinition.READ_WRITE)) {
+				tn.rollback();
 			}
-			
+
 			tx.rollback();
 		}
 	}
-	
+
 	@Test
 	void createReadWriteInsideRead() {
 		try (Transaction ro = db.transactionManager().newTransactionReadOnly()) {
@@ -165,7 +167,7 @@ class TransactionTest {
 			assertEquals(TransactionException.Type.READ_ONLY, cause.getType());
 			ro.rollback();
 		}
-		
+
 		try (Transaction ro = db.transactionManager().newTransactionReadOnly()) {
 			try (Transaction tx = db.transactionManager().newTransactionIsolatedReadWrite()) {
 				assertTrue(true);
@@ -174,6 +176,70 @@ class TransactionTest {
 			ro.rollback();
 		}
 	}
-	
-	
+
+	@SuppressWarnings("all")
+	@Test
+	void testCurrent() {
+
+		assertThrows(TransactionException.class, () -> db.transactionManager().current());
+
+		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
+			assertEquals(tx, db.transactionManager().current());
+			tx.rollback();
+		}
+
+		assertThrows(TransactionException.class, () -> db.transactionManager().current());
+
+		try (Transaction tx = db.transactionManager().newTransactionIsolatedReadWrite()) {
+			assertEquals(tx, db.transactionManager().current());
+			tx.rollback();
+		}
+
+		assertThrows(TransactionException.class, () -> db.transactionManager().current());
+
+		try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
+			assertEquals(tx, db.transactionManager().current());
+			tx.rollback();
+		}
+
+		assertThrows(TransactionException.class, () -> db.transactionManager().current());
+
+		try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
+			assertEquals(tx, db.transactionManager().current());
+			assertTrue(((TransactionSupport)tx).isMain());
+			try (Transaction tx2 = db.transactionManager().newTransactionReadOnly()) {
+				assertEquals(tx2, db.transactionManager().current());
+	        	assertNotEquals(tx,  tx2);
+	        	assertNotEquals(tx2,  tx);
+	        	assertTrue(((TransactionSupport)tx).isMain());
+	        	assertFalse(((TransactionSupport)db.transactionManager().current()).isMain());
+	        	assertFalse(((TransactionSupport)tx2).isMain());
+	        	try (Transaction tx3 = db.transactionManager().newTransactionReadOnly()) {
+					assertEquals(tx3, db.transactionManager().current());
+					assertNotEquals(tx,  tx2);
+					assertNotEquals(tx,  tx3);
+					assertNotEquals(tx2,  tx3);
+					assertNotEquals(tx3,  tx2);
+		        	assertTrue(((TransactionSupport)tx).isMain());
+		        	assertFalse(((TransactionSupport)tx2).isMain());
+		        	assertFalse(((TransactionSupport)tx3).isMain());
+					tx3.rollback();
+				}
+				assertEquals(tx2, db.transactionManager().current());
+				tx2.rollback();
+				try (Transaction tx3 = db.transactionManager().newTransactionReadOnly()) {
+					assertEquals(tx3, db.transactionManager().current());
+					tx3.rollback();
+				}
+				assertFalse(((TransactionSupport)db.transactionManager().current()).isMain());
+			}
+			assertTrue(((TransactionSupport)db.transactionManager().current()).isMain());
+			assertEquals(tx, db.transactionManager().current());
+			tx.rollback();
+		}
+		
+		assertThrows(TransactionException.class, () -> db.transactionManager().current());
+
+	}
+
 }
