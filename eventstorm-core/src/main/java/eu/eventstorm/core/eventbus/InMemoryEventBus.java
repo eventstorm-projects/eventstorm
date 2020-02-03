@@ -10,7 +10,6 @@ import com.google.common.collect.ImmutableList;
 import eu.eventstorm.core.Event;
 import eu.eventstorm.core.EventBus;
 import eu.eventstorm.core.EventPayload;
-import reactor.core.publisher.Flux;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
