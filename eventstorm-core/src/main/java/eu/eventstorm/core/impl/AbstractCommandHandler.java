@@ -13,6 +13,7 @@ import eu.eventstorm.core.EventStore;
 import eu.eventstorm.core.validation.CommandValidationException;
 import eu.eventstorm.core.validation.ConstraintViolation;
 import eu.eventstorm.core.validation.Validator;
+import reactor.core.publisher.Flux;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -42,7 +43,7 @@ public abstract class AbstractCommandHandler<T extends Command> implements Comma
 		return this.type;
 	}
 	
-	public final ImmutableList<Event<EventPayload>> handle(T command) {
+	public final Flux<Event<EventPayload>> handle(T command) {
 		
 		ImmutableList<ConstraintViolation> constraintViolations = this.validator.validate(command);
 		
@@ -57,7 +58,7 @@ public abstract class AbstractCommandHandler<T extends Command> implements Comma
 		return doHandleAfterValidation(command);
 	}
 	
-	protected abstract ImmutableList<Event<EventPayload>> doHandleAfterValidation(T command);
+	protected abstract Flux<Event<EventPayload>> doHandleAfterValidation(T command);
 
 
 }

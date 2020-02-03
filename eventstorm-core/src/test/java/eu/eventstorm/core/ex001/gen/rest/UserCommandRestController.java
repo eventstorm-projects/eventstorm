@@ -5,6 +5,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.common.collect.ImmutableList;
+
 import eu.eventstorm.core.CommandGateway;
 import eu.eventstorm.core.ex001.command.CreateUserCommand;
 
@@ -25,7 +27,7 @@ public final class UserCommandRestController {
 		if (LOGGER.isTraceEnabled()) {
 			LOGGER.trace("createUserCommand (command/user/create) : [{}]", command);
 		}
-		gateway.dispatch(command);
+		gateway.dispatch(command).collect(ImmutableList.toImmutableList());
 	}
 
 }

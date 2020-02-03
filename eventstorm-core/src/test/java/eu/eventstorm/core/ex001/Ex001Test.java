@@ -7,10 +7,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import com.google.common.collect.ImmutableList;
+
 import eu.eventstorm.core.CommandGateway;
 import eu.eventstorm.core.CommandHandlerRegistry;
 import eu.eventstorm.core.Event;
 import eu.eventstorm.core.EventBus;
+import eu.eventstorm.core.EventPayload;
 import eu.eventstorm.core.EventStore;
 import eu.eventstorm.core.eventbus.InMemoryEventBus;
 import eu.eventstorm.core.eventstore.InMemoryEventStore;
@@ -22,6 +25,7 @@ import eu.eventstorm.core.ex001.handler.CreateUserCommandHandler;
 import eu.eventstorm.core.id.AggregateIdGenerator;
 import eu.eventstorm.core.id.AggregateIdGeneratorFactory;
 import eu.eventstorm.test.LoggerInstancePostProcessor;
+import reactor.core.scheduler.Schedulers;
 
 @ExtendWith(LoggerInstancePostProcessor.class)
 class Ex001Test {
@@ -59,11 +63,11 @@ class Ex001Test {
 		        // eventBus))
 		        .build();
 
-		CommandGateway gateway = new CommandGateway(registry, eventBus);
+		CommandGateway gateway = new CommandGateway(Schedulers.elastic(), registry, eventBus);
 
-		gateway.dispatch(command);
-		
-
+		ImmutableList.Builder<Event<EventPayload>> builder = ImmutableList.builder();
+		gateway.dispatch(command).doOnNext(event -> builder.add(event)).blockLast();
+;		
 		assertEquals(1, eventStore.readStream("user", from(1)).count());
 		Event event = eventStore.readStream("user", from(1)).findFirst().get();
 

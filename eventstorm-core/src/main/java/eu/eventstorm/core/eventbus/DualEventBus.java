@@ -1,7 +1,5 @@
 package eu.eventstorm.core.eventbus;
 
-import java.util.List;
-
 import eu.eventstorm.core.Event;
 import eu.eventstorm.core.EventBus;
 import eu.eventstorm.core.EventPayload;
@@ -22,11 +20,11 @@ public final class DualEventBus implements EventBus {
 
 
 	@Override
-	public void publish(List<Event<EventPayload>> events) {
+	public void publish(Event<EventPayload> event) {
 		try {
-			one.publish(events);
+			one.publish(event);
 		} finally {
-			two.publish(events);
+			two.publish(event);
 		}
 	}
 

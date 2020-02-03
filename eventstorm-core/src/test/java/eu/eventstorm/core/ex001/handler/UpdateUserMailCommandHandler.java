@@ -11,6 +11,7 @@ import eu.eventstorm.core.EventStore;
 import eu.eventstorm.core.ex001.command.UpdateUserMailCommand;
 import eu.eventstorm.core.impl.AbstractCommandHandler;
 import eu.eventstorm.core.validation.Validators;
+import reactor.core.publisher.Flux;
 
 public class UpdateUserMailCommandHandler extends AbstractCommandHandler<UpdateUserMailCommand> {
 
@@ -21,8 +22,8 @@ public class UpdateUserMailCommandHandler extends AbstractCommandHandler<UpdateU
 	}
 
 	@Override
-	protected ImmutableList<Event<EventPayload>> doHandleAfterValidation(UpdateUserMailCommand command) {
-		return ImmutableList.of();
+	protected Flux<Event<EventPayload>> doHandleAfterValidation(UpdateUserMailCommand command) {
+		return Flux.empty();
 	}
 
 }

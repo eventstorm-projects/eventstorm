@@ -15,6 +15,7 @@ import eu.eventstorm.core.ex001.gen.event.UserCreatedEventPayloadImpl;
 import eu.eventstorm.core.ex001.validator.CreateUserCommandValidator;
 import eu.eventstorm.core.id.AggregateIdGenerator;
 import eu.eventstorm.core.impl.AbstractCommandHandler;
+import reactor.core.publisher.Flux;
 
 public final class CreateUserCommandHandler extends AbstractCommandHandler<CreateUserCommand> {
 
@@ -28,7 +29,7 @@ public final class CreateUserCommandHandler extends AbstractCommandHandler<Creat
 	}
 
 	@Override
-	protected ImmutableList<Event<EventPayload>> doHandleAfterValidation(CreateUserCommand command) {
+	protected Flux<Event<EventPayload>> doHandleAfterValidation(CreateUserCommand command) {
 			
 		AggregateId id = this.aig.generate();
 		
@@ -48,7 +49,7 @@ public final class CreateUserCommandHandler extends AbstractCommandHandler<Creat
 			LOGGER.debug("event ({})", event);
 		}
 		
-		return ImmutableList.of(event);
+		return Flux.just(event);
 		
 	}
 

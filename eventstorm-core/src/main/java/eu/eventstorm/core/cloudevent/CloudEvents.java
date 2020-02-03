@@ -30,4 +30,15 @@ public final class CloudEvents {
 					.build());
 	}
 	
+	public static CloudEvent to(Event<EventPayload> event) {
+		return new CloudEventBuilder()
+					.withAggregateType(event.getAggregateType())
+					.withAggregateId(event.getAggregateId())
+					.withPayload(event.getPayload())
+					.withTimestamp(event.getTimestamp())
+					.withSubject(event.getPayload().getClass().getName())
+					.withVersion(event.getRevision())
+					.build();
+	}
+	
 }

@@ -6,7 +6,6 @@ import static eu.eventsotrm.sql.apt.Helper.writePackage;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.stream.Stream;
 
@@ -73,6 +72,9 @@ final class RestControllerImplementationGenerator {
 		writePackage(writer, javaPackage);
 		writeNewLine(writer);
 
+
+        writer.write("import java.util.logging.Level;");
+        writeNewLine(writer);
 		
         writer.write("import " + Stream.class.getName() +";");
         writeNewLine(writer);
@@ -85,10 +87,16 @@ final class RestControllerImplementationGenerator {
 		writeNewLine(writer);
 		writer.write("import org.springframework.beans.factory.annotation.Qualifier;");       
         writeNewLine(writer);
-		
-		writer.write("import " + CompletableFuture.class.getName() + ";");
-		writeNewLine(writer);
-		
+        
+        writer.write("import reactor.core.publisher.Flux;");       
+        writeNewLine(writer);
+        writer.write("import reactor.core.publisher.Mono;");       
+        writeNewLine(writer);
+        writer.write("import reactor.core.publisher.SignalType;");       
+        writeNewLine(writer);
+        writer.write("import reactor.core.scheduler.Scheduler;");       
+        writeNewLine(writer);
+        
 		writer.write("import " + CloudEvent.class.getName() + ";");
 		writeNewLine(writer);
 		writer.write("import " + CloudEvents.class.getName() + ";");
@@ -106,10 +114,7 @@ final class RestControllerImplementationGenerator {
 
 	private void writeVariables(Writer writer, String name) throws IOException {
 
-		writer.write("    private static final ");
-		writer.write(org.slf4j.Logger.class.getName());
-		writer.write(" LOGGER = ");
-		writer.write(org.slf4j.LoggerFactory.class.getName());
+		writer.write("    private static final reactor.util.Logger LOGGER = reactor.util.Loggers");
 		writer.write(".getLogger(");
 		writer.write(name);
 		writer.write(".class);");
@@ -120,9 +125,7 @@ final class RestControllerImplementationGenerator {
 		writer.write(CommandGateway.class.getName());
 		writer.write(" gateway;");
 		writeNewLine(writer);
-		writer.write("    private final ");
-        writer.write(Executor.class.getSimpleName());
-        writer.write(" executor;");
+		writer.write("    private final Scheduler scheduler;");
         writeNewLine(writer);
         
 		writeNewLine(writer);
@@ -134,11 +137,11 @@ final class RestControllerImplementationGenerator {
 		writer.write(desc.getRestController().name());
 		writer.write("(");
 		writer.write(CommandGateway.class.getName());
-		writer.write(" gateway,@Qualifier(\"event_store_executor\") Executor executor) {");
+		writer.write(" gateway,@Qualifier(\"event_store_scheduler\") Scheduler scheduler) {");
 		writeNewLine(writer);
 		writer.write("        this.gateway = gateway;");
 		writeNewLine(writer);
-	    writer.write("        this.executor = executor;");
+	    writer.write("        this.scheduler = scheduler;");
         writeNewLine(writer);    
 		
 		writer.write("    }");
@@ -157,7 +160,8 @@ final class RestControllerImplementationGenerator {
 
 	}
 
-	private static void writeMethodRestAsync(Writer writer, RestControllerDescriptor rcd) throws IOException {
+	/*
+	 * private static void writeMethodRestAsync(Writer writer, RestControllerDescriptor rcd) throws IOException {
 		writer.write("    public CompletableFuture<Stream<CloudEvent>> on(@RequestBody ");
 		writer.write(rcd.element().toString());
 		writer.write(" command) {");
@@ -179,7 +183,29 @@ final class RestControllerImplementationGenerator {
 		writeNewLine(writer);
 		
 	}
-
+*/
+    
+	private static void writeMethodRestAsync(Writer writer, RestControllerDescriptor rcd) throws IOException {
+		writer.write("    public Flux<CloudEvent> on(@RequestBody ");
+		writer.write(rcd.element().toString());
+		writer.write(" command) {");
+		writeNewLine(writer);
+		writeNewLine(writer);
+		writer.write("        return Mono.just(command)");
+		writeNewLine(writer);
+		writer.write("            .subscribeOn(scheduler)");
+		writeNewLine(writer);
+		writer.write("            .log(LOGGER, Level.INFO, false, SignalType.ON_NEXT)");
+		writeNewLine(writer);
+		writer.write("            .flatMapMany(c -> gateway.dispatch(c))");
+		writeNewLine(writer);
+		writer.write("            .map(CloudEvents::to);");
+		writeNewLine(writer);
+		writer.write("    }");
+		writeNewLine(writer);
+		
+	}
+	
 	private static void writeSpring(Writer writer, RestControllerDescriptor rcd) throws IOException {
 
 		if (HttpMethod.POST == rcd.getRestController().method()) {
