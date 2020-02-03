@@ -153,6 +153,10 @@ public final class Helper {
 		if ("java.sql.Date".equals(type)) {
 			return "setDate";
 		}
+		
+		if ("java.sql.Time".equals(type)) {
+            return "setTime";
+        }
 
 		if ("java.sql.Timestamp".equals(type)) {
 			return "setTimestamp";
@@ -206,6 +210,10 @@ public final class Helper {
 		if ("java.sql.Date".equals(type)) {
 			return "getDate";
 		}
+		
+		if ("java.sql.Time".equals(type)) {
+            return "getTime";
+        }
 
 		if ("java.sql.Timestamp".equals(type)) {
 			return "getTimestamp";
