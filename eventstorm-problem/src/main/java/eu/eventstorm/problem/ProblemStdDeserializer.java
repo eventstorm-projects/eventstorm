@@ -24,7 +24,7 @@ final class ProblemStdDeserializer extends StdDeserializer<Problem> {
 			.put("instance", (builder, value) -> builder.withInstance(URI.create(value)))
 			.put("title", (builder, value) -> builder.withTitle(value))
 			.put("detail", (builder, value) -> builder.withDetail(value))
-			.put("trace-id", (builder, value) -> builder.withTraceId(value))
+			.put("traceId", (builder, value) -> builder.withTraceId(value))
 			.put("status", (builder, value) -> builder.withStatus(Integer.valueOf(value)))
 			.put("timestamp", (builder, value) -> builder.withTimestamp(DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(value, OffsetDateTime::from)))
 			.build();

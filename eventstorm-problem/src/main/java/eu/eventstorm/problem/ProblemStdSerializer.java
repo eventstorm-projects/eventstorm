@@ -25,7 +25,7 @@ final class ProblemStdSerializer extends StdSerializer<Problem> {
 
 		gen.writeStartObject();
 
-		gen.writeFieldName("trace_id");
+		gen.writeFieldName("traceId");
 		gen.writeString(value.getTraceId());
 		
 		gen.writeFieldName("timestamp");
