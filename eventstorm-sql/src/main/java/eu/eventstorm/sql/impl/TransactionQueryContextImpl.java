@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 
 import eu.eventstorm.sql.EventstormSqlException;
 import eu.eventstorm.sql.tracer.TransactionSpan;
+import eu.eventstorm.util.ToStringBuilder;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -34,5 +35,15 @@ final class TransactionQueryContextImpl implements TransactionQueryContext {
         span.exception(cause);
 		return cause;
 	}
+
+	@Override
+	public String toString() {
+		return new ToStringBuilder(false)
+				.append("transactionSpan", span)
+				.append("preparedStatement", ps)
+				.toString();
+	}
+	
+	
 
 }

@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.h2.tools.RunScript;
 import org.junit.jupiter.api.AfterEach;
@@ -91,17 +92,19 @@ class DatabaseEventStoreTest {
 		eventStore.appendToStream("user", from(1), new UserCreatedEventPayloadImpl("ja","gmail",39));
 		eventStore.appendToStream("user", from(1), new UserCreatedEventPayloadImpl("ja","gmail",39));
 		
+		try (Stream<Event<EventPayload>> stream = eventStore.readStream("user", from(1))) {
 		
-		Optional<Event<EventPayload>> op = eventStore.readStream("user", from(1)).findFirst();
+			assertEquals(1, ds.getHikariPoolMXBean().getActiveConnections());
+			
+			Optional<Event<EventPayload>> op = stream.findFirst();
+			assertTrue(op.isPresent());
+			UserCreatedEventPayload payload = (UserCreatedEventPayload) op.get().getPayload();
+			assertEquals("ja", payload.getName());
+			assertEquals("gmail", payload.getEmail());
+			assertEquals(39, payload.getAge());	
+		}
 		
-		assertTrue(op.isPresent());
-		
-		UserCreatedEventPayload payload = (UserCreatedEventPayload) op.get().getPayload();
-		
-		assertEquals("ja", payload.getName());
-		assertEquals("gmail", payload.getEmail());
-		assertEquals(39, payload.getAge());
-		
+		assertEquals(0, ds.getHikariPoolMXBean().getActiveConnections());
 	}
 	
 	@Test

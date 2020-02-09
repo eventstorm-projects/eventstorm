@@ -8,6 +8,10 @@ import static eu.eventstorm.sql.model.ex001.StudentDescriptor.ID;
 import static eu.eventstorm.sql.model.ex001.StudentDescriptor.IDS;
 import static eu.eventstorm.sql.model.ex001.StudentDescriptor.TABLE;
 
+import java.util.stream.Stream;
+
+import eu.eventstorm.sql.jdbc.PreparedStatementSetter;
+
 public abstract class AbstractStudentRepository extends eu.eventstorm.sql.Repository {
 
 	public static final eu.eventstorm.sql.jdbc.Mapper<Student> STUDENT = new StudentMapper();
@@ -15,12 +19,14 @@ public abstract class AbstractStudentRepository extends eu.eventstorm.sql.Reposi
 	private final String findById;
 	private final String findByBusinessKey;
 	private final String findByIdForUpdate;
+	private final String findAll;
 	private final String insert;
 	private final String update;
 
 	protected AbstractStudentRepository(eu.eventstorm.sql.Database database) {
 		super(database);
 		this.findById = select(ALL).from(TABLE).where(eq(ID)).build();
+		this.findAll = select(ALL).from(TABLE).build();
 		this.findByIdForUpdate = select(ALL).from(TABLE).where(eq(ID)).forUpdate().build();
 		this.findByBusinessKey = select(ALL).from(TABLE).where(eq(CODE)).build();
 		this.insert = insert(TABLE, IDS, COLUMNS).build();
@@ -52,5 +58,9 @@ public abstract class AbstractStudentRepository extends eu.eventstorm.sql.Reposi
 
 	public final eu.eventstorm.sql.model.ex001.Student findByBusinessKey(java.lang.String code) {
 		return executeSelect(this.findByBusinessKey, ps -> ps.setString(1, code), STUDENT);
+	}
+	
+	public final Stream<Student> findAll() {
+		return stream(findAll, PreparedStatementSetter.EMPTY, STUDENT);
 	}
 }

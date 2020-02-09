@@ -9,10 +9,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.OffsetDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -35,13 +32,9 @@ abstract class AbstractTransaction implements TransactionSupport {
 
 	private final UUID uuid;
 
-	private final OffsetDateTime start;
-
 	private boolean active;
 
 	private final Map<String, PreparedStatement> select = new HashMap<>();
-
-	private final List<Runnable> hooks;
 
 	private final TransactionTracer tracer;
 
@@ -51,9 +44,7 @@ abstract class AbstractTransaction implements TransactionSupport {
 		this.transactionManager = transactionManager;
 		this.connection = connection;
 		this.uuid = UUID.randomUUID();
-		this.start = OffsetDateTime.now();
 		this.active = true;
-		this.hooks = new ArrayList<>();
 		this.tracer = transactionManager.getConfiguration().getTracer();
 		this.span = this.tracer.begin(this);
 		this.span.tag("uuid", this.uuid.toString());
@@ -121,7 +112,7 @@ abstract class AbstractTransaction implements TransactionSupport {
         
         try {
             if (!this.active) {
-                throw new TransactionException(NOT_ACTIVE, this, null);
+                throw new TransactionException(NOT_ACTIVE, this);
             }
 
             try {
@@ -143,7 +134,7 @@ abstract class AbstractTransaction implements TransactionSupport {
         
         try {
           if (!this.active) {
-                throw new TransactionException(NOT_ACTIVE, this, null);
+                throw new TransactionException(NOT_ACTIVE, this);
             }
 
             try {
@@ -166,11 +157,6 @@ abstract class AbstractTransaction implements TransactionSupport {
     }
     
     protected void afterRollback() {		
-	}
-
-	@Override
-	public final void addHook(Runnable runnable) {
-		this.hooks.add(runnable);
 	}
 
 	protected final Connection getConnection() {

@@ -1,6 +1,5 @@
 package eu.eventstorm.core.eventstore;
 
-import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.of;
 
 import java.sql.ResultSet;
@@ -13,7 +12,6 @@ import java.util.stream.Stream;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableList;
 
 import eu.eventstorm.core.AggregateId;
 import eu.eventstorm.core.Event;
@@ -26,6 +24,7 @@ import eu.eventstorm.sql.Dialect;
 import eu.eventstorm.sql.Transaction;
 import eu.eventstorm.sql.jdbc.ResultSetMapper;
 import eu.eventstorm.sql.type.common.Blobs;
+import eu.eventstorm.sql.util.TransactionStreamTemplate;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -39,23 +38,22 @@ public final class DatabaseEventStore implements EventStore {
 	private final ObjectMapper mapper;
 	
 	private final EventPayloadRegistry registry;
+	
+	private final TransactionStreamTemplate streamTemplate;
 
 	public DatabaseEventStore(Database database, EventPayloadRegistry registry) {
 		this.database = database;
 		this.databaseRepository = new DatabaseRepository(database);
 		this.mapper = new ObjectMapper();
 		this.registry = registry;
+		this.streamTemplate = new TransactionStreamTemplate(database);
 	}
 
 	@Override
 	public Stream<Event<EventPayload>> readStream(String aggregateType, AggregateId aggregateId) {
-		ImmutableList<Event<EventPayload>> list;
-		try (Transaction transaction = database.transactionManager().newTransactionReadWrite()) {
-			list = this.databaseRepository.findAllByAggragateTypeAndAggregateId(aggregateType, aggregateId.toStringValue(),
-			        new EventResultSetMapper(aggregateId, aggregateType)).collect(toImmutableList());
-			transaction.rollback();
-		}
-		return list.stream();
+		return streamTemplate.decorate(() -> 
+			this.databaseRepository.findAllByAggragateTypeAndAggregateId(aggregateType, aggregateId.toStringValue(),
+			        new EventResultSetMapper(aggregateId, aggregateType)));
 	}
 
 	@Override
@@ -73,31 +71,30 @@ public final class DatabaseEventStore implements EventStore {
 		DatabaseEvent de;
 		
 		try (Transaction transaction = database.transactionManager().newTransactionIsolatedReadWrite()) {
+			try (Stream<DatabaseEvent> events = this.databaseRepository.lock(aggregateType, id.toStringValue())) {
+				Optional<DatabaseEvent> optional = events.findFirst();
 
-			Stream<DatabaseEvent> events = this.databaseRepository.lock(aggregateType, id.toStringValue());
-			Optional<DatabaseEvent> optional = events.findFirst();
+				DatabaseEventBuilder builder = new DatabaseEventBuilder()
+						.withAggregateId(id.toStringValue())
+						.withAggregateType(aggregateType)
+				        .withTime(Timestamp.from(time.toInstant()))
+				        .withPayload(Blobs.newBlob(content))
+				        .withPayloadType(registry.getPayloadType(payload))
+				        .withPayloadVersion(registry.getPayloadVersion(payload))
+				        ;
 
-			DatabaseEventBuilder builder = new DatabaseEventBuilder()
-					.withAggregateId(id.toStringValue())
-					.withAggregateType(aggregateType)
-			        .withTime(Timestamp.from(time.toInstant()))
-			        .withPayload(Blobs.newBlob(content))
-			        .withPayloadType(registry.getPayloadType(payload))
-			        .withPayloadVersion(registry.getPayloadVersion(payload))
-			        ;
+				if (optional.isPresent()) {
+					// "update"
+					builder.withRevision(optional.get().getRevision() + 1);
+				} else {
+					// "insert"
+					builder.withRevision(1);
+				}
 
-			if (optional.isPresent()) {
-				// "update"
-				builder.withRevision(optional.get().getRevision() + 1);
-			} else {
-				// "insert"
-				builder.withRevision(1);
+				de = builder.build();
+				
+				this.databaseRepository.insert(de);
 			}
-
-			de = builder.build();
-			
-			this.databaseRepository.insert(de);
-
 			transaction.commit();
 		}
 		

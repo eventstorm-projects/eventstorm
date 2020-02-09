@@ -11,6 +11,4 @@ public interface TransactionContext {
 	
 	TransactionQueryContext writeAutoIncrement(String sql);
 
-	void addHook(Runnable runnable);
-
 }

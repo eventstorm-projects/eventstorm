@@ -234,7 +234,7 @@ public abstract class Repository {
 	protected final <T> Stream<T> stream(String sql, PreparedStatementSetter pss, ResultSetMapper<T> mapper) {
 
 		TransactionContext tc = database.transactionManager().context();
-
+		
 		TransactionQueryContext tqc = tc.read(sql);
 
 		try {
@@ -250,18 +250,8 @@ public abstract class Repository {
 			throw tqc.exception(new EventstormRepositoryException(STREAM_EXECUTE_QUERY, of(), cause));
 		}
 
-		tc.addHook(() -> {
-
-			try {
-				rs.close();
-			} catch (SQLException cause) {
-				LOGGER.warn("Hook -> failed to closed resultset for stream({})", sql);
-			} finally {
-				tqc.close();
-			}
-		});
-
-		return StreamSupport.stream(new Spliterator<T>() {
+		
+		Stream<T> stream =  StreamSupport.stream(new Spliterator<T>() {
 			@Override
 			public boolean tryAdvance(Consumer<? super T> action) {
 				try {
@@ -293,8 +283,25 @@ public abstract class Repository {
 			public int characteristics() {
 				return Spliterator.NONNULL;
 			}
+			
+			
 		}, false);
+		
 
+		stream.onClose(() -> {
+			if (LOGGER.isTraceEnabled()) {
+				LOGGER.trace("onClose() [{}]", tqc);
+			}
+			try {
+				rs.close();
+			} catch (SQLException cause) {
+				LOGGER.warn("onClose() -> failed to closed resultset for stream({})", sql);
+			} finally {
+				tqc.close();
+			}
+		});
+		
+		return stream;
     }
 
 	protected final <T> Page<T> executeSelectPage(String countSql, String sql, ResultSetMapper<T> mapper, Pageable pageable) {

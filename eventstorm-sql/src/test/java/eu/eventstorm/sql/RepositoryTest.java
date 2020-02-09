@@ -45,7 +45,7 @@ class RepositoryTest {
 
 	public static final eu.eventstorm.sql.jdbc.Mapper<Student> STUDENT = new StudentMapper();
 
-	private DataSource ds;
+	private JdbcConnectionPool ds;
 	private Database db;
 	private Repository repo;
 
@@ -179,12 +179,12 @@ class RepositoryTest {
 		SelectBuilder builder = repo.select(StudentDescriptor.ALL).from(StudentDescriptor.TABLE);
 
 		try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
-			Stream<Student> stream = repo.stream(builder.build(), PreparedStatementSetter.EMPTY, STUDENT);
-			assertNotNull(stream);
-			
-			List<Student> list = stream.collect(toList());
-			assertEquals(100, list.size());
-			
+			try (Stream<Student> stream = repo.stream(builder.build(), PreparedStatementSetter.EMPTY, STUDENT)) {
+				assertNotNull(stream);
+				
+				List<Student> list = stream.collect(toList());
+				assertEquals(100, list.size());	
+			}
 			tx.rollback();
 		}
 		
@@ -202,6 +202,8 @@ class RepositoryTest {
 			}
 			tx.commit();
 		}
+		
+		assertEquals(0, ds.getActiveConnections());
 	}
 
 	@Test

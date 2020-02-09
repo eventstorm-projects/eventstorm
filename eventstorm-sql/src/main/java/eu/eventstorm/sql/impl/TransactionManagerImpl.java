@@ -139,7 +139,11 @@ public final class TransactionManagerImpl implements TransactionManager {
 
 	@Override
 	public TransactionContext context() {
-		return this.transactions.get();
+		TransactionContext context = this.transactions.get();
+		if (context == null) {
+			throw new TransactionException(NO_CURRENT_TRANSACTION);
+		}
+		return context;
 	}
 
 	protected void prepareTransactionalConnection(Connection con, TransactionDefinition definition)

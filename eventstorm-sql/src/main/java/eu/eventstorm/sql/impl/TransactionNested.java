@@ -58,11 +58,6 @@ final class TransactionNested implements TransactionSupport {
     	 return this.parent.writeAutoIncrement(sql);
 	}
 
-    @Override
-    public void addHook(Runnable runnable) {
-        parent.addHook(runnable);
-    }
-
 	@Override
 	public UUID getUuid() {
 		return parent.getUuid();

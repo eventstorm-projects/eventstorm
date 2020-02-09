@@ -4,6 +4,7 @@ import java.sql.SQLException;
 
 import eu.eventstorm.sql.EventstormSqlException;
 import eu.eventstorm.sql.EventstormSqlExceptionType;
+import eu.eventstorm.sql.Transaction;
 import eu.eventstorm.sql.tracer.TransactionSpan;
 
 /**
@@ -21,11 +22,11 @@ public final class TransactionException extends EventstormSqlException {
     }
 
 
-    TransactionException(Type type, AbstractTransaction transaction, TransactionSpan span) {
+    public TransactionException(Type type, Transaction transaction) {
         super(type, null);
     }
 
-    TransactionException(Type type, AbstractTransaction transaction, TransactionSpan span, SQLException cause) {
+    TransactionException(Type type, Transaction transaction, TransactionSpan span, SQLException cause) {
         super(type, null, cause);
     }
 
