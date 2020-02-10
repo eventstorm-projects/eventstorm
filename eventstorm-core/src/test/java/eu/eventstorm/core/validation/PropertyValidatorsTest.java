@@ -1,4 +1,4 @@
-package eu.eventstorm.core.validation;
+	package eu.eventstorm.core.validation;
 
 import static com.google.common.collect.ImmutableList.of;
 import static org.junit.jupiter.api.Assertions.assertTrue;

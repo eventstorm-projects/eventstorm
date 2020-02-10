@@ -2,6 +2,7 @@ package eu.eventstorm.sql.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,6 +23,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Dialect;
 import eu.eventstorm.sql.impl.DatabaseBuilder;
+import eu.eventstorm.sql.impl.TransactionException;
 import eu.eventstorm.sql.impl.TransactionManagerImpl;
 import eu.eventstorm.sql.model.ex001.AbstractStudentRepository;
 import eu.eventstorm.sql.model.ex001.Student;
@@ -95,6 +97,19 @@ class TransactionStreamTemplateTest {
             	assertEquals(1, ds.getHikariPoolMXBean().getActiveConnections());
             }
         }
+	}
+	
+	@Test
+	void testInvalid() {
+
+		assertEquals(0, ds.getHikariPoolMXBean().getActiveConnections());
+        template.withReadWriteTransaction().supply(() -> {
+        	assertEquals(1, ds.getHikariPoolMXBean().getActiveConnections());
+        	assertThrows(TransactionException.class, () -> streamTemplate.decorate(() -> repository.findAll()));
+        	return null;
+        }).execute();
+        
+        assertEquals(0, ds.getHikariPoolMXBean().getActiveConnections());
 	}
 	
 	
