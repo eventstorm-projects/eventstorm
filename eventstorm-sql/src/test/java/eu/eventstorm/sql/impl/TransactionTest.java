@@ -182,6 +182,7 @@ class TransactionTest {
 	void testCurrent() {
 
 		assertThrows(TransactionException.class, () -> db.transactionManager().current());
+		assertThrows(TransactionException.class, () -> db.transactionManager().context());
 
 		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
 			assertEquals(tx, db.transactionManager().current());
@@ -238,6 +239,30 @@ class TransactionTest {
 			tx.rollback();
 		}
 		
+		assertThrows(TransactionException.class, () -> db.transactionManager().current());
+
+	}
+	
+	
+	
+	@Test
+	void testNested() {
+		assertThrows(TransactionException.class, () -> db.transactionManager().current());
+		try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
+			try (Transaction tx2 = db.transactionManager().newTransactionReadOnly()) {
+				assertTrue(tx2 instanceof TransactionNested);
+				assertTrue(tx2.isReadOnly());
+				assertFalse(tx2.equals(null));
+
+				assertThrows(TransactionException.class, () -> ((TransactionContext)tx2).write("Fake"));
+				assertThrows(TransactionException.class, () -> ((TransactionContext)tx2).writeAutoIncrement("Fake"));
+
+				
+				tx2.rollback();
+				tx2.commit();
+			}
+			tx.rollback();
+		}
 		assertThrows(TransactionException.class, () -> db.transactionManager().current());
 
 	}
