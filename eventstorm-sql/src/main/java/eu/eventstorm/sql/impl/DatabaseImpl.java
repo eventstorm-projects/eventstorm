@@ -28,131 +28,134 @@ import eu.eventstorm.sql.dialect.Dialects;
  */
 final class DatabaseImpl implements Database {
 
-    /**
-     * SLF4J Logger.
-     */
-    private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseImpl.class);
+	/**
+	 * SLF4J Logger.
+	 */
+	private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseImpl.class);
 
-    /**
-     * Dialect for the given datasource.
-     */
-    private final Dialect dialect;
+	/**
+	 * Dialect for the given datasource.
+	 */
+	private final Dialect dialect;
 
-    private final TransactionManager transactionManager;
+	private final TransactionManager transactionManager;
 
-    /**
-     * Modules supported for this instance of datatabase.
-     */
-    private final ImmutableList<Module> modules;
+	/**
+	 * Modules supported for this instance of datatabase.
+	 */
+	private final ImmutableList<Module> modules;
 
-    private final ImmutableMap<SqlTable, Module> tables;
+	private final ImmutableMap<SqlTable, Module> tables;
 
-    private final ImmutableMap<SqlSequence, Module> sequences;
-    
-    private final JsonMapper jsonMapper;
+	private final ImmutableMap<SqlSequence, Module> sequences;
 
-    DatabaseImpl(Dialect.Name dialect, TransactionManager transactionManager, JsonMapper jsonMapper, ImmutableList<Module> modules, ImmutableList<DatabaseExternalConfig> externals) {
-        this.dialect = Dialects.dialect(dialect, this);
-        this.transactionManager = transactionManager;
-        this.jsonMapper = jsonMapper;
-        this.modules = modules;
+	private final JsonMapper jsonMapper;
 
-        ImmutableMap.Builder<SqlTable, Module> builder = ImmutableMap.builder();
-        ImmutableMap.Builder<SqlSequence, Module> builderSequences = ImmutableMap.builder();
-        for (Module m : this.modules) {
-            m.descriptors().forEach(d -> {
-            	builder.put(d.table(), m);
-            	for (SqlPrimaryKey pk : d.ids()) {
-            		if (pk.sequence() != null) {
-            			builderSequences.put(pk.sequence(), m);
-            		}
-            	}
-            });
-        }
-        
-        for (DatabaseExternalConfig dec : externals) {
-        	dec.forEachSequence( (m, sequence) -> {
-                LOGGER.info("add External sequence [{}] to Module [{}]", sequence, m);
-                builderSequences.put(sequence, m);
-            });	
-        }
-        
-        tables = builder.build();
-        sequences = builderSequences.build();
+	DatabaseImpl(Dialect.Name dialect, TransactionManager transactionManager, JsonMapper jsonMapper, ImmutableList<Module> modules,
+	        ImmutableList<DatabaseExternalConfig> externals) {
+		this.dialect = Dialects.dialect(dialect, this);
+		this.transactionManager = transactionManager;
+		this.jsonMapper = jsonMapper;
+		this.modules = modules;
 
-        postInit();
-    }
+		ImmutableMap.Builder<SqlTable, Module> builder = ImmutableMap.builder();
+		ImmutableMap.Builder<SqlSequence, Module> builderSequences = ImmutableMap.builder();
+		for (Module m : this.modules) {
+			m.descriptors().forEach(d -> {
+				builder.put(d.table(), m);
+				for (SqlPrimaryKey pk : d.ids()) {
+					if (pk.sequence() != null) {
+						builderSequences.put(pk.sequence(), m);
+					}
+				}
+			});
+		}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Dialect dialect() {
-        return this.dialect;
-    }
+		for (DatabaseExternalConfig dec : externals) {
+			dec.forEachSequence((m, sequence) -> {
+				LOGGER.info("add External sequence [{}] to Module [{}]", sequence, m);
+				builderSequences.put(sequence, m);
+			});
+		}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public TransactionManager transactionManager() {
-        return this.transactionManager;
-    }
+		tables = builder.build();
+		sequences = builderSequences.build();
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Module getModule(SqlTable table) {
-        return this.tables.get(table);
-    }
+		postInit();
+	}
 
-    @Override
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Dialect dialect() {
+		return this.dialect;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public TransactionManager transactionManager() {
+		return this.transactionManager;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Module getModule(SqlTable table) {
+		return this.tables.get(table);
+	}
+
+	@Override
 	public Module getModule(SqlSequence sequence) {
 		return this.sequences.get(sequence);
 	}
-    
-    @Override
+
+	@Override
 	public JsonMapper jsonMapper() {
 		return jsonMapper;
 	}
 
-    public void postInit() {
-    	if (transactionManager instanceof TransactionManagerImpl) {
-    		trace(((TransactionManagerImpl)transactionManager).getDataSource(), this.modules);
-    	}
-    			
-    }
+	public void postInit() {
+		if (transactionManager instanceof TransactionManagerImpl) {
+			trace(((TransactionManagerImpl) transactionManager).getDataSource(), this.modules);
+		}
+	}
 
-    private static void trace(DataSource dataSource, List<Module> modules) {
+	private static void trace(DataSource dataSource, List<Module> modules) {
 
-        StringBuilder builder = new StringBuilder();
-        builder.append("\n--------------------------------------------------------------------------------");
-        try (Connection connection = dataSource.getConnection()) {
+		if (LOGGER.isInfoEnabled()) {
+			StringBuilder builder = new StringBuilder();
+			builder.append("\n--------------------------------------------------------------------------------");
+			try (Connection connection = dataSource.getConnection()) {
 
-            DatabaseMetaData meta = connection.getMetaData();
+				DatabaseMetaData meta = connection.getMetaData();
 
-            // @formatter:off
-            builder.append("\nDatabase -> name : [").append(meta.getDatabaseProductName()).append("] -> version : [")
-                    .append(meta.getDatabaseProductVersion()).append("] \n         -> Major [")
-                    .append(meta.getDatabaseMajorVersion()).append("] -> Minor [")
-                    .append(meta.getDatabaseMinorVersion()).append("]");
-            builder.append("\nJDBC     -> name : [").append(meta.getDriverName()).append("] -> version : [")
-                    .append(meta.getDriverVersion()).append("]").append("] \n         -> Major [")
-                    .append(meta.getDriverMajorVersion()).append("] -> Minor [").append(meta.getDriverMinorVersion())
-                    .append("]");
+				// @formatter:off
+                builder.append("\nDatabase -> name : [").append(meta.getDatabaseProductName()).append("] -> version : [")
+                        .append(meta.getDatabaseProductVersion()).append("] \n         -> Major [")
+                        .append(meta.getDatabaseMajorVersion()).append("] -> Minor [")
+                        .append(meta.getDatabaseMinorVersion()).append("]");
+                builder.append("\nJDBC     -> name : [").append(meta.getDriverName()).append("] -> version : [")
+                        .append(meta.getDriverVersion()).append("]").append("] \n         -> Major [")
+                        .append(meta.getDriverMajorVersion()).append("] -> Minor [").append(meta.getDriverMinorVersion())
+                        .append("]");
 
-            // @formatter:on
-            for (Module module : modules) {
-                DatabaseSchemaChecker.checkModule(builder, meta, module);
-            }
+                // @formatter:on
+				for (Module module : modules) {
+					DatabaseSchemaChecker.checkModule(builder, meta, module);
+				}
 
-        } catch (SQLException e) {
-            LOGGER.error(e.getMessage(), e);
-        }
-        builder.append("\n--------------------------------------------------------------------------------");
+			} catch (SQLException e) {
+				LOGGER.error(e.getMessage(), e);
+			}
+			builder.append("\n--------------------------------------------------------------------------------");
 
-        LOGGER.info("init database :{}", builder.toString());
-    }
+			LOGGER.info("init database :{}", builder.toString());
+
+		}
+	}
 
 }

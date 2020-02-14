@@ -1,18 +1,19 @@
 package eu.eventstorm.sql.builder;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.desc.SqlColumn;
 import eu.eventstorm.sql.desc.SqlTable;
 import eu.eventstorm.sql.expression.AggregateFunction;
 import eu.eventstorm.sql.expression.Expression;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -83,13 +84,8 @@ public final class SelectBuilder extends AbstractBuilder {
             builder.append(' ').append(this.database().dialect().range(offset, limit));
         } else if (limit != -1) {
             builder.append(" LIMIT ").append(this.limit);
-        } else {
-
-        }
-
-
-
-
+        } 
+        
         String sql = builder.toString();
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("SQL [{}]", sql);
@@ -143,21 +139,7 @@ public final class SelectBuilder extends AbstractBuilder {
      * @return
      */
     public SelectBuilder leftJoin(SqlTable targetTable, SqlColumn targetColumn, SqlColumn column) {
-        requireNonNull(targetTable, LEFT_JOIN + TARGET_TABLE_NN);
-        requireNonNull(targetColumn, LEFT_JOIN + TARGET_COLUMN_NN);
-        requireNonNull(column, LEFT_JOIN + COLUMN_NN);
-
-        if (this.from == null) {
-            throw new SelectBuilderException(LEFT_JOIN + " call from() before this.");
-        }
-
-        if (!this.from.contains(column.table())) {
-            throw new SelectBuilderException(LEFT_JOIN + " join column [" + column + "] not found in from clause.");
-        }
-
-        this.joins
-                .add(new JoinClause(this.database(), JoinType.LEFT, targetTable, targetColumn, column.table(), column));
-        return this;
+    	return leftJoin(targetTable, targetColumn, column.table(), column);
     }
 
     /**
@@ -169,19 +151,21 @@ public final class SelectBuilder extends AbstractBuilder {
      * @param otherColumn  is the _from_ column used for the 'ON'
      * @return
      */
-    public SelectBuilder leftJoin(SqlTable targetTable, SqlColumn targetColumn, SqlTable otherFrom,
-                                  SqlColumn otherColumn) {
+    public SelectBuilder leftJoin(SqlTable targetTable, SqlColumn targetColumn, SqlTable otherFrom, SqlColumn otherColumn) {
         requireNonNull(targetTable, LEFT_JOIN + TARGET_TABLE_NN);
         requireNonNull(targetColumn, LEFT_JOIN + TARGET_COLUMN_NN);
         requireNonNull(otherFrom, LEFT_JOIN + FROM_NN);
         requireNonNull(otherColumn, LEFT_JOIN + COLUMN_NN);
 
-        if (this.from.contains(otherFrom)) {
-            throw new SelectBuilderException(LEFT_JOIN + " from [" + otherFrom + "] found in from list.");
+        if (this.from == null) {
+            throw new SqlBuilderException(SqlBuilderException.Type.SELECT, ImmutableMap.of("method","leftJoin", "cause","call from() before this"));
         }
 
-        this.joins
-                .add(new JoinClause(this.database(), JoinType.LEFT, targetTable, targetColumn, otherFrom, otherColumn));
+        if (!this.from.contains(otherColumn.table())) {
+            throw new SqlBuilderException(SqlBuilderException.Type.SELECT, ImmutableMap.of("method","leftJoin", "cause ", "join column [" + otherColumn + "] not found in from clause"));
+        }
+        
+        this.joins.add(new JoinClause(this.database(), JoinType.LEFT, targetTable, targetColumn, otherFrom, otherColumn));
         return this;
     }
 
@@ -327,7 +311,7 @@ public final class SelectBuilder extends AbstractBuilder {
 
     private static void requireNonNull(Object obj, String message) {
         if (obj == null) {
-            throw new SelectBuilderException(message);
+            throw new SqlBuilderException(SqlBuilderException.Type.SELECT, ImmutableMap.of("method","todo", "cause ", message));
         }
     }
 }

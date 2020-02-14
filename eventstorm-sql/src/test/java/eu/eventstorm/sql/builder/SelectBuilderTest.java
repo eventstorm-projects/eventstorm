@@ -5,6 +5,7 @@ import static eu.eventstorm.sql.dialect.Dialects.h2;
 import static eu.eventstorm.sql.expression.Expressions.and;
 import static eu.eventstorm.sql.expression.Expressions.eq;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
@@ -124,22 +125,12 @@ class SelectBuilderTest {
 
         // without from
         SelectBuilder builder = new SelectBuilder(database, of(COL_T1_01, COL_T1_02, COL_T1_03));
-        try {
-            builder.leftJoin(TABLE_T2, COL_T2_01, COL_T1_01);
-            assertTrue(false);
-        } catch (SelectBuilderException cause) {
-            assertTrue(true);
-        }
+        SqlBuilderException sbe = assertThrows(SqlBuilderException.class, () -> builder.leftJoin(TABLE_T2, COL_T2_01, COL_T1_01));
 
 
-        builder = new SelectBuilder(database, of(COL_T1_01, COL_T1_02));
+        SelectBuilder builder2 = new SelectBuilder(database, of(COL_T1_01, COL_T1_02));
         builder.from(TABLE_T1, TABLE_T2);
-        try {
-            builder.leftJoin(TABLE_T2, COL_T2_01, TABLE_T2, COL_T2_01);
-            assertTrue(false);
-        } catch (SelectBuilderException cause) {
-            assertTrue(true);
-        }
+        sbe = assertThrows(SqlBuilderException.class, () -> builder2.leftJoin(TABLE_T2, COL_T2_01, TABLE_T2, COL_T2_01));
 
     }
 }

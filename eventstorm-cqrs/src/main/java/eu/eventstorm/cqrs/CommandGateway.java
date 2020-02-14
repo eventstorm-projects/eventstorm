@@ -40,7 +40,7 @@ public final class CommandGateway {
 				// handle the Command
 				.flatMapMany(ch -> ch.handle(command))
 				// publish events
-				.doOnNext(events -> this.eventBus.publish(events))
+				.doOnNext(this.eventBus::publish)
 				;
     }
 

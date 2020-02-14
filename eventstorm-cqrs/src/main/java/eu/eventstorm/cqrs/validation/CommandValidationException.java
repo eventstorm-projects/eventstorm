@@ -8,7 +8,7 @@ import eu.eventstorm.cqrs.Command;
 @SuppressWarnings("serial")
 public final class CommandValidationException extends ValidationException {
 
-	private final Command command;
+	private final transient Command command;
 
 	public CommandValidationException(ImmutableList<ConstraintViolation> constraintViolations, Command command) {
 		super(constraintViolations);
