@@ -56,7 +56,7 @@ final class JoinClause extends AbstractBuilder {
         }
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Fragment join [{}]", builder.toString());
+            LOGGER.debug("Fragment join [{}]", builder);
         }
     }
 }

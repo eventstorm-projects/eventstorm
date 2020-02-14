@@ -12,6 +12,7 @@ final class SqlFunctionColumn extends SqlColumn {
         this.function = function;
     }
 
+    @Override
     public String toSql() {
         return new StringBuilder().append(this.function).append('(').append(name()).append(')').toString();
     }

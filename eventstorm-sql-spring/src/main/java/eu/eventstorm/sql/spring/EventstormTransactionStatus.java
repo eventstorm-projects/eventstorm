@@ -1,7 +1,6 @@
 package eu.eventstorm.sql.spring;
 
 import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.TransactionStatus;
 
 import eu.eventstorm.sql.Transaction;
@@ -29,17 +28,17 @@ final class EventstormTransactionStatus implements TransactionStatus {
 	}
 
 	@Override
-	public Object createSavepoint() throws TransactionException {
+	public Object createSavepoint() {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public void rollbackToSavepoint(Object savepoint) throws TransactionException {
+	public void rollbackToSavepoint(Object savepoint) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public void releaseSavepoint(Object savepoint) throws TransactionException {
+	public void releaseSavepoint(Object savepoint) {
 		throw new UnsupportedOperationException();
 	}
 

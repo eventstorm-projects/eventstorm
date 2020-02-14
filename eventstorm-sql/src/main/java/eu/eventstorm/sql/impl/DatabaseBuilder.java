@@ -2,7 +2,6 @@ package eu.eventstorm.sql.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiConsumer;
 
 import com.google.common.collect.ImmutableList;
 
@@ -66,12 +65,10 @@ public final class DatabaseBuilder {
             return this;
         }
         public DatabaseBuilder and() {
-        	externals.add(new DatabaseExternalConfig() {
-        		public void forEachSequence(BiConsumer<Module, SqlSequence> consumer) {
+        	externals.add(consumer -> {
         			for (SqlSequence sequence : sequences) {
         				consumer.accept(module, sequence);
         			}
-        	    }
 			});
             return DatabaseBuilder.this;
         }

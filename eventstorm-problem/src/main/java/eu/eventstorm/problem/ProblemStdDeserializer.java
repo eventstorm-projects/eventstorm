@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
@@ -34,7 +33,7 @@ final class ProblemStdDeserializer extends StdDeserializer<Problem> {
 	}
 
 	@Override
-	public Problem deserialize(JsonParser parser, DeserializationContext ctx) throws IOException, JsonProcessingException {
+	public Problem deserialize(JsonParser parser, DeserializationContext ctx) throws IOException {
 		ProblemBuilder builder = Problem.builder();
 		parser.nextToken();
 		while (!JsonToken.END_OBJECT.equals(parser.currentToken())) {
