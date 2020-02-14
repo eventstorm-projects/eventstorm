@@ -25,18 +25,18 @@ import eu.eventsotrm.core.apt.model.RestControllerDescriptor;
 import eu.eventsotrm.sql.apt.Helper;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
-import eu.eventstorm.core.annotation.CqrsCommand;
-import eu.eventstorm.core.annotation.CqrsCommandRestController;
-import eu.eventstorm.core.annotation.CqrsConfiguration;
-import eu.eventstorm.core.annotation.CqrsEventPayload;
-import eu.eventstorm.core.annotation.CqrsQuery;
-import eu.eventstorm.core.annotation.CqrsQueryDatabaseView;
+import eu.eventstorm.annotation.CqrsCommand;
+import eu.eventstorm.annotation.CqrsCommandRestController;
+import eu.eventstorm.annotation.CqrsConfiguration;
+import eu.eventstorm.annotation.CqrsEventPayload;
+import eu.eventstorm.annotation.CqrsQuery;
+import eu.eventstorm.annotation.CqrsQueryDatabaseView;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
-@SupportedAnnotationTypes({ "eu.eventstorm.core.annotation.CqrsCommand", "eu.eventstorm.core.annotation.CqrsEvent" })
+@SupportedAnnotationTypes({ "eu.eventstorm.annotation.CqrsCommand", "eu.eventstorm.annotation.CqrsEvent" })
 public class EventProcessor extends AbstractProcessor {
 
 	private boolean firstTime = false;

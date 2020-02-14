@@ -17,10 +17,10 @@ import com.google.common.collect.ImmutableList;
 import eu.eventsotrm.core.apt.model.RestControllerDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
-import eu.eventstorm.core.CommandGateway;
-import eu.eventstorm.core.annotation.HttpMethod;
-import eu.eventstorm.core.cloudevent.CloudEvent;
-import eu.eventstorm.core.cloudevent.CloudEvents;
+import eu.eventstorm.annotation.HttpMethod;
+import eu.eventstorm.cloudevents.CloudEvent;
+import eu.eventstorm.cloudevents.CloudEvents;
+import eu.eventstorm.cqrs.CommandGateway;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>

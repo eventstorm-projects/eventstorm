@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration;
 
 import com.fasterxml.jackson.databind.Module;
 
-import eu.eventstorm.core.json.jackson.CloudEventsModule;
+import eu.eventstorm.cloudevents.json.jackson.CloudEventsModule;
 import eu.eventstorm.problem.ProblemModule;
 
 @Configuration

@@ -25,7 +25,7 @@ import eu.eventsotrm.core.apt.model.QueryDescriptor;
 import eu.eventsotrm.core.apt.model.RestControllerDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
-import eu.eventstorm.core.annotation.CqrsConfiguration;
+import eu.eventstorm.annotation.CqrsConfiguration;
 
 public final class SourceCode {
 

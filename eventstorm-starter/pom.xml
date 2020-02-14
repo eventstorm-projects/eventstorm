@@ -28,7 +28,13 @@
 
 		<dependency>
 			<groupId>eu.eventstorm</groupId>
-			<artifactId>eventstorm-core</artifactId>
+			<artifactId>eventstorm-cqrs</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>eu.eventstorm</groupId>
+			<artifactId>eventstorm-cloudevents</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 

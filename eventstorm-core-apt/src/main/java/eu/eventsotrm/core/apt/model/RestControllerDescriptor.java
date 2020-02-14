@@ -3,8 +3,8 @@ package eu.eventsotrm.core.apt.model;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
 
-import eu.eventstorm.core.annotation.CqrsCommand;
-import eu.eventstorm.core.annotation.CqrsCommandRestController;
+import eu.eventstorm.annotation.CqrsCommand;
+import eu.eventstorm.annotation.CqrsCommandRestController;
 
 public class RestControllerDescriptor {
 

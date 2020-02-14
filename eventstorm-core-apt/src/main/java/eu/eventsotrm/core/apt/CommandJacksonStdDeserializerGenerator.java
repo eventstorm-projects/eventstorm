@@ -10,6 +10,7 @@ import java.io.Writer;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
+import java.util.function.BiConsumer;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.JavaFileObject;
@@ -27,7 +28,6 @@ import eu.eventsotrm.sql.apt.Helper;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.core.json.DeserializerException;
-import eu.eventstorm.core.json.ParserConsumer;
 import eu.eventstorm.util.Dates;
 
 /**
@@ -83,7 +83,7 @@ final class CommandJacksonStdDeserializerGenerator {
 		writeNewLine(writer);
 		writer.write("import " + ImmutableMap.class.getName() + ";");
 		writeNewLine(writer);
-		writer.write("import " + ParserConsumer.class.getName() + ";");
+		writer.write("import " + BiConsumer.class.getName() + ";");
 		writeNewLine(writer);
 		writer.write("import " + DeserializerException.class.getName() + ";");
 		writeNewLine(writer);
@@ -128,15 +128,18 @@ final class CommandJacksonStdDeserializerGenerator {
 	private void writeStatic(Writer writer, CommandDescriptor cd) throws IOException {
 
 		writeNewLine(writer);
-		writer.write("    private static final ImmutableMap<String, ParserConsumer<" + cd.simpleName() + "Builder>> FIELDS;");
+		writer.write("    private static final ImmutableMap<String, BiConsumer<JsonParser," + cd.simpleName() + "Builder>> FIELDS;");
 		writeNewLine(writer);
 		writer.write("    static {");
 		writeNewLine(writer);
-		writer.write("        FIELDS = ImmutableMap.<String, ParserConsumer<"+ cd.simpleName() + "Builder>>builder()");
-		writeNewLine(writer);
+		writer.write("        FIELDS = ImmutableMap.<String, BiConsumer<JsonParser,"+ cd.simpleName() + "Builder>>builder()");
 		for (CommandPropertyDescriptor cpd : cd.properties()) {
-		    writer.write("				.put(\"" + cpd.name() + "\", (parser, builder) -> builder.with" + Helper.firstToUpperCase(cpd.name()) + "(");
-			
+		    writer.write(".put(\"" + cpd.name() + "\", (parser, builder) -> {");
+			writeNewLine(writer);
+		    writer.write("			try {");
+		    writeNewLine(writer);
+		    writer.write("				builder.with" + Helper.firstToUpperCase(cpd.name()) + "(");
+		    
 		    String returnType = getReturnType(cpd.getter());
 		    
 		    if ("java.lang.String".equals(returnType)) {
@@ -154,11 +157,20 @@ final class CommandJacksonStdDeserializerGenerator {
             } else {
 			    throw new UnsupportedOperationException("Type not supported [" + returnType + "]");
 			}
-			writer.write("))");
+			writer.write(");");
 			writeNewLine(writer);
+			writer.write("			} catch (IOException cause) {");
+		    writeNewLine(writer);
+		    writer.write("			    throw new DeserializerException(DeserializerException.Type.PARSE_ERROR, ImmutableMap.of(\"field\",\""+ cpd.name() +"\"), cause);");
+		    writeNewLine(writer);
+		    writer.write("			}");
+		    
+		   
+		    writeNewLine(writer);
+			writer.write("		})");
 		}
 		
-		writer.write("                .build();");
+		writer.write(".build();");
 		writeNewLine(writer);
 		writer.write("    }");
 		writeNewLine(writer);
@@ -208,7 +220,7 @@ final class CommandJacksonStdDeserializerGenerator {
 		writeNewLine(writer);
 		writer.write("            }");
 		writeNewLine(writer);
-		writer.write("            ParserConsumer<" + cd.simpleName() + "Builder> consumer = FIELDS.get(p.currentName());");
+		writer.write("            BiConsumer<JsonParser," + cd.simpleName() + "Builder> consumer = FIELDS.get(p.currentName());");
 		writeNewLine(writer);
 		writer.write("            if (consumer == null) {");
 		writeNewLine(writer);

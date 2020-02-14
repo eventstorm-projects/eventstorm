@@ -8,7 +8,7 @@ import javax.lang.model.element.ElementKind;
 import eu.eventsotrm.core.apt.model.RestControllerDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
-import eu.eventstorm.core.annotation.CqrsCommand;
+import eu.eventstorm.annotation.CqrsCommand;
 
 
 /**

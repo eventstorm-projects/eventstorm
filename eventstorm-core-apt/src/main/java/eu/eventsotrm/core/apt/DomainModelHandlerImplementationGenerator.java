@@ -19,10 +19,10 @@ import javax.tools.JavaFileObject;
 import eu.eventsotrm.core.apt.model.EventDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
+import eu.eventstorm.annotation.CqrsEventPayload;
 import eu.eventstorm.core.Event;
-import eu.eventstorm.core.EventListener;
 import eu.eventstorm.core.EventPayload;
-import eu.eventstorm.core.annotation.CqrsEventPayload;
+import eu.eventstorm.eventbus.EventListener;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>

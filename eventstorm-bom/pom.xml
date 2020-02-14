@@ -22,7 +22,7 @@
 				<artifactId>eventstorm-util</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-			
+
 			<dependency>
 				<groupId>eu.eventstorm</groupId>
 				<artifactId>eventstorm-problem</artifactId>
@@ -55,7 +55,13 @@
 
 			<dependency>
 				<groupId>eu.eventstorm</groupId>
-				<artifactId>eventstorm-core</artifactId>
+				<artifactId>eventstorm-annotation</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>eu.eventstorm</groupId>
+				<artifactId>eventstorm-core-api</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 
@@ -64,7 +70,25 @@
 				<artifactId>eventstorm-core-apt</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-			
+
+			<dependency>
+				<groupId>eu.eventstorm</groupId>
+				<artifactId>eventstorm-eventstore</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>eu.eventstorm</groupId>
+				<artifactId>eventstorm-eventbus</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>eu.eventstorm</groupId>
+				<artifactId>eventstorm-cloudevents</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
 			<dependency>
 				<groupId>eu.eventstorm</groupId>
 				<artifactId>eventstorm-starter</artifactId>
@@ -72,7 +96,7 @@
 			</dependency>
 
 		</dependencies>
-		
+
 	</dependencyManagement>
 
 </project>

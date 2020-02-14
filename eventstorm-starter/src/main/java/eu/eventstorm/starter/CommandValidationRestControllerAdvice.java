@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import eu.eventstorm.core.validation.CommandValidationException;
+import eu.eventstorm.cqrs.validation.CommandValidationException;
 import eu.eventstorm.problem.Problem;
 
 @RestControllerAdvice

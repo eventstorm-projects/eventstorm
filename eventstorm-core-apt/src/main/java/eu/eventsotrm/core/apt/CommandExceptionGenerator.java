@@ -15,7 +15,7 @@ import com.google.common.collect.ImmutableMap;
 import eu.eventsotrm.core.apt.model.CommandDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
-import eu.eventstorm.core.CommandException;
+import eu.eventstorm.cqrs.CommandException;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>

@@ -15,7 +15,7 @@ import javax.tools.JavaFileObject;
 import eu.eventsotrm.core.apt.model.QueryDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
-import eu.eventstorm.core.annotation.CqrsQueryDatabaseView;
+import eu.eventstorm.annotation.CqrsQueryDatabaseView;
 import eu.eventstorm.sql.Module;
 
 /**

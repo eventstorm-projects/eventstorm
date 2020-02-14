@@ -1,5 +1,6 @@
 package eu.eventsotrm.core.apt;
 
+import static eu.eventsotrm.sql.apt.Helper.getReturnType;
 import static eu.eventsotrm.sql.apt.Helper.writeGenerated;
 import static eu.eventsotrm.sql.apt.Helper.writeNewLine;
 import static eu.eventsotrm.sql.apt.Helper.writePackage;
@@ -9,6 +10,7 @@ import java.io.Writer;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
+import java.util.function.BiConsumer;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.JavaFileObject;
@@ -20,13 +22,13 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
+import eu.eventsotrm.core.apt.model.CommandPropertyDescriptor;
 import eu.eventsotrm.core.apt.model.EventDescriptor;
 import eu.eventsotrm.core.apt.model.EventPropertyDescriptor;
 import eu.eventsotrm.sql.apt.Helper;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.core.json.DeserializerException;
-import eu.eventstorm.core.json.ParserConsumer;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -81,7 +83,7 @@ final class EventPayloadJacksonStdDeserializerGenerator {
 		writeNewLine(writer);
 		writer.write("import " + ImmutableMap.class.getName() + ";");
 		writeNewLine(writer);
-		writer.write("import " + ParserConsumer.class.getName() + ";");
+		writer.write("import " + BiConsumer.class.getName() + ";");
 		writeNewLine(writer);
 		writer.write("import " + DeserializerException.class.getName() + ";");
 		writeNewLine(writer);
@@ -126,38 +128,49 @@ final class EventPayloadJacksonStdDeserializerGenerator {
 	private void writeStatic(Writer writer, EventDescriptor ed) throws IOException {
 
 		writeNewLine(writer);
-		writer.write("    private static final ImmutableMap<String, ParserConsumer<" + ed.simpleName() + "Builder>> FIELDS;");
+		writer.write("    private static final ImmutableMap<String, BiConsumer<JsonParser," + ed.simpleName() + "Builder>> FIELDS;");
 		writeNewLine(writer);
 		writer.write("    static {");
 		writeNewLine(writer);
-		writer.write("        FIELDS = ImmutableMap.<String, ParserConsumer<"+ ed.simpleName() + "Builder>>builder()");
-		writeNewLine(writer);
+		writer.write("        FIELDS = ImmutableMap.<String, BiConsumer<JsonParser,"+ ed.simpleName() + "Builder>>builder()");
 		for (EventPropertyDescriptor epd : ed.properties()) {
-		    writer.write("				.put(\"" + epd.name() + "\", (parser, builder) -> builder.with" + Helper.firstToUpperCase(epd.name()) + "(");
-			if ("java.lang.String".equals(epd.getter().getReturnType().toString())) {
-				writer.write("parser.nextTextValue()");
-			} else if ("int".equals(epd.getter().getReturnType().toString())) {
-				writer.write("parser.nextIntValue(0)");
-			} else if ("java.lang.Integer".equals(epd.getter().getReturnType().toString())) {
-                writer.write("(parser.nextToken() == JsonToken.VALUE_NUMBER_INT) ? parser.getIntValue() : null");
-            } else if ("long".equals(epd.getter().getReturnType().toString())) {
-				writer.write("parser.nextLongValue(0l)");
-			} else if ("boolean".equals(epd.getter().getReturnType().toString())) {
-                writer.write("parser.nextBooleanValue()");
-            } else if (OffsetDateTime.class.getName().equals(epd.getter().getReturnType().toString())) {
-                writer.write("OffsetDateTime.parse(parser.nextTextValue())");
-            } else if (LocalDate.class.getName().equals(epd.getter().getReturnType().toString())) {
-                writer.write("LocalDate.parse(parser.nextTextValue())");
-            } else if (LocalTime.class.getName().equals(epd.getter().getReturnType().toString())) {
-                writer.write("LocalTime.parse(parser.nextTextValue())");
-            } else {
-                throw new UnsupportedOperationException("Type not supported [" + epd.getter().getReturnType().toString() + "]");
-            }
-			writer.write("))");
+		    writer.write(".put(\"" + epd.name() + "\", (parser, builder) -> {");
 			writeNewLine(writer);
+		    writer.write("			try {");
+		    writeNewLine(writer);
+		    writer.write("				builder.with" + Helper.firstToUpperCase(epd.name()) + "(");
+		    
+		    String returnType = getReturnType(epd.getter());
+		    
+		    if ("java.lang.String".equals(returnType)) {
+				writer.write("parser.nextTextValue()");
+			} else if ("int".equals(returnType)) {
+				writer.write("parser.nextIntValue(0)");
+			} else if ("int".equals(returnType)) {
+				writer.write("parser.nextLongValue(0l)");
+			} else if (OffsetDateTime.class.getName().equals(returnType)) {
+				writer.write("parseOffsetDateTime(parser.nextTextValue())");
+			} else if (LocalDate.class.getName().equals(returnType)) {
+                writer.write("parseLocalDate(parser.nextTextValue())");
+            } else if (LocalTime.class.getName().equals(returnType)) {
+                writer.write("parseLocalTime(parser.nextTextValue())");
+            } else {
+			    throw new UnsupportedOperationException("Type not supported [" + returnType + "]");
+			}
+			writer.write(");");
+			writeNewLine(writer);
+			writer.write("			} catch (IOException cause) {");
+		    writeNewLine(writer);
+		    writer.write("			    throw new DeserializerException(DeserializerException.Type.PARSE_ERROR, ImmutableMap.of(\"field\",\""+ epd.name() +"\"), cause);");
+		    writeNewLine(writer);
+		    writer.write("			}");
+		    
+		   
+		    writeNewLine(writer);
+			writer.write("		})");
 		}
 		
-		writer.write("                .build();");
+		writer.write(".build();");
 		writeNewLine(writer);
 		writer.write("    }");
 		writeNewLine(writer);
@@ -206,7 +219,7 @@ final class EventPayloadJacksonStdDeserializerGenerator {
 		writeNewLine(writer);
 		writer.write("            }");
 		writeNewLine(writer);
-		writer.write("            ParserConsumer<" + ed.simpleName() + "Builder> consumer = FIELDS.get(p.currentName());");
+		writer.write("            BiConsumer<JsonParser," + ed.simpleName() + "Builder> consumer = FIELDS.get(p.currentName());");
 		writeNewLine(writer);
 		writer.write("            if (consumer == null) {");
 		writeNewLine(writer);

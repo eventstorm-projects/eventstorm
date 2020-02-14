@@ -19,7 +19,7 @@ import eu.eventsotrm.core.apt.model.QueryPropertyDescriptor;
 import eu.eventsotrm.sql.apt.Helper;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
-import eu.eventstorm.core.annotation.CqrsQueryDatabaseProperty;
+import eu.eventstorm.annotation.CqrsQueryDatabaseProperty;
 import eu.eventstorm.sql.Dialect;
 import eu.eventstorm.sql.jdbc.ResultSetMapper;
 
