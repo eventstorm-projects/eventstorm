@@ -25,6 +25,8 @@ public final class SelectBuilder extends AbstractBuilder {
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(SelectBuilder.class);
 
+    private static final String METHOD = "method";
+    
     private static final String LAMBDA_ARROW_OPERATOR = " -> ";
     private static final String LEFT_JOIN = "leftJoin()" + LAMBDA_ARROW_OPERATOR;
     private static final String RIGHT_JOIN = "rightJoin()" + LAMBDA_ARROW_OPERATOR;
@@ -158,11 +160,11 @@ public final class SelectBuilder extends AbstractBuilder {
         requireNonNull(otherColumn, LEFT_JOIN + COLUMN_NN);
 
         if (this.from == null) {
-            throw new SqlBuilderException(SqlBuilderException.Type.SELECT, ImmutableMap.of("method","leftJoin", "cause","call from() before this"));
+            throw new SqlBuilderException(SqlBuilderException.Type.SELECT, ImmutableMap.of(METHOD,"leftJoin", "cause","call from() before this"));
         }
 
         if (!this.from.contains(otherColumn.table())) {
-            throw new SqlBuilderException(SqlBuilderException.Type.SELECT, ImmutableMap.of("method","leftJoin", "cause ", "join column [" + otherColumn + "] not found in from clause"));
+            throw new SqlBuilderException(SqlBuilderException.Type.SELECT, ImmutableMap.of(METHOD,"leftJoin", "cause ", "join column [" + otherColumn + "] not found in from clause"));
         }
         
         this.joins.add(new JoinClause(this.database(), JoinType.LEFT, targetTable, targetColumn, otherFrom, otherColumn));
@@ -311,7 +313,7 @@ public final class SelectBuilder extends AbstractBuilder {
 
     private static void requireNonNull(Object obj, String message) {
         if (obj == null) {
-            throw new SqlBuilderException(SqlBuilderException.Type.SELECT, ImmutableMap.of("method","todo", "cause ", message));
+            throw new SqlBuilderException(SqlBuilderException.Type.SELECT, ImmutableMap.of(METHOD,"todo", "cause ", message));
         }
     }
 }

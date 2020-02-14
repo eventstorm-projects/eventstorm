@@ -7,7 +7,7 @@ import eu.eventstorm.core.validation.ConstraintViolation;
 @SuppressWarnings("serial")
 public class ValidationException extends RuntimeException{
 
-	private final ImmutableList<ConstraintViolation> constraintViolations;
+	private final transient ImmutableList<ConstraintViolation> constraintViolations;
 
 	public ValidationException(ImmutableList<ConstraintViolation> constraintViolations) {
 		this.constraintViolations = constraintViolations;

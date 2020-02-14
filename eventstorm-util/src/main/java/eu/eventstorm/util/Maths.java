@@ -22,7 +22,8 @@ public final class Maths {
 	}
 
 	public static int div10(int number) {
-		int q, r;
+		int q;
+		int r;
 		int n = number;
 		n = n + (n >> 31 & 9);
 		q = (n >> 1) + (n >> 2);
@@ -35,7 +36,8 @@ public final class Maths {
 	}
 
 	public static int unsignedDiv10(int number) {
-		int q, r;
+		int q;
+		int r;
 		int n = number;
 		q = (n >> 1) + (n >> 2);
 		q = q + (q >> 4);
@@ -47,7 +49,9 @@ public final class Maths {
 	}
 
 	public static int unsignedDiv1000(int n) {
-		int q, r, t;
+		int q;
+		int r;
+		int t;
 		t = (n >> 7) + (n >> 8) + (n >> 12);
 		q = (n >> 1) + t + (n >> 15) + (t >> 11) + (t >> 14);
 		q = q >> 9;

@@ -7,6 +7,8 @@ import java.sql.SQLWarning;
 import java.sql.Statement;
 import java.util.Arrays;
 
+import brave.SpanCustomizer;
+
 class BraveStatement implements Statement {
 
 	public static final String TAG_SQL = "sql";
@@ -20,14 +22,21 @@ class BraveStatement implements Statement {
 	private final Statement ps;
 
 	private final BraveTracer tracer;
+	
+	private final SpanCustomizer spanCustomizer;
 
 	BraveStatement(Statement ps, BraveTracer tracer) {
 		this.ps = ps;
 		this.tracer = tracer;
+		this.spanCustomizer = tracer.getTracer().currentSpanCustomizer();
+	}
+
+	protected void annotate(String value) {
+		this.spanCustomizer.annotate(value);
 	}
 	
-	protected final BraveTracer getBraveTracer() {
-		return tracer;
+	protected TransactionSpan span(String name) {
+		return this.tracer.span(name);
 	}
 
 	@Override

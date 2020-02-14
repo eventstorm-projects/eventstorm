@@ -11,7 +11,7 @@ import eu.eventstorm.sql.Transaction;
  */
 final class NoOpTracer implements TransactionTracer {
 
-	private final static TransactionSpan NO_OP_SPAN = new TransactionSpan() {
+	private static final TransactionSpan NO_OP_SPAN = new TransactionSpan() {
 		@Override
 		public void tag(String key, String value) {
 			 // Do nothing because no tracing op
