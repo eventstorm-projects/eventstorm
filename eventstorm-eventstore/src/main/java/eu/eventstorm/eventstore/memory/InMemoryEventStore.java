@@ -59,11 +59,11 @@ public final class InMemoryEventStore implements EventStore {
 
 		// @formatter:off
 		Event<T> event =  new EventBuilder<T>()
-				.aggregateId(id)
-				.aggreateType(aggregateType)
-				.timestamp(OffsetDateTime.now())
-				.revision(1)
-				.payload(payload)
+				.withAggregateId(id)
+				.withAggreateType(aggregateType)
+				.withTimestamp(OffsetDateTime.now())
+				.withRevision(1)
+				.withPayload(payload)
 				.build();
 				
 		// @formatter:on

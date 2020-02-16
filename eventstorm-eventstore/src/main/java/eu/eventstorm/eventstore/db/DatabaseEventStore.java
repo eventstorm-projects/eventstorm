@@ -101,11 +101,11 @@ public final class DatabaseEventStore implements EventStore {
 		
 		// @formatter:off
 		return  new EventBuilder<T>()
-					.aggregateId(id)
-					.aggreateType(aggregateType)
-					.timestamp(time)
-					.revision(de.getRevision())
-					.payload(payload)
+					.withAggregateId(id)
+					.withAggreateType(aggregateType)
+					.withTimestamp(time)
+					.withRevision(de.getRevision())
+					.withPayload(payload)
 					.build();
 		// @formatter:on
 	}
@@ -128,11 +128,11 @@ public final class DatabaseEventStore implements EventStore {
 			EventPayload eventPayload = registry.getDeserializer(rs.getString(4)).deserialize(payload);
 			// @formatter:off
 			return new EventBuilder<EventPayload>()
-						.aggregateId(aggregateId)
-						.aggreateType(aggregateType)
-						.timestamp(OffsetDateTime.ofInstant(rs.getTimestamp(1).toInstant(), ZONE_ID))
-						.revision(rs.getInt(2))
-						.payload(eventPayload)
+						.withAggregateId(aggregateId)
+						.withAggreateType(aggregateType)
+						.withTimestamp(OffsetDateTime.ofInstant(rs.getTimestamp(1).toInstant(), ZONE_ID))
+						.withRevision(rs.getInt(2))
+						.withPayload(eventPayload)
 						.build();
 			// @formatter:on
 		}

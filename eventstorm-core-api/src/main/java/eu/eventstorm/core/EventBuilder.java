@@ -17,27 +17,27 @@ public final class EventBuilder<T extends EventPayload> {
         return new EventImpl<>(aggregateId, aggreateType, timestamp, revision, payload);
     }
 
-    public EventBuilder<T> aggregateId(AggregateId aggregateId) {
+    public EventBuilder<T> withAggregateId(AggregateId aggregateId) {
         this.aggregateId = aggregateId;
         return this;
     }
     
-    public EventBuilder<T> aggreateType(String aggreateType) {
+    public EventBuilder<T> withAggreateType(String aggreateType) {
         this.aggreateType = aggreateType;
         return this;
     }
     
-    public EventBuilder<T> revision(int revision) {
+    public EventBuilder<T> withRevision(int revision) {
         this.revision = revision;
         return this;
     }
     
-    public EventBuilder<T> payload(T payload) {
+    public EventBuilder<T> withPayload(T payload) {
         this.payload = payload;
         return this;
     }
     
-    public EventBuilder<T> timestamp(OffsetDateTime timestamp) {
+    public EventBuilder<T> withTimestamp(OffsetDateTime timestamp) {
         this.timestamp = timestamp;
         return this;
     }
