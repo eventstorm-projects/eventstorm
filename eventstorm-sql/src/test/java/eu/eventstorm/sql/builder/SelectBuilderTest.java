@@ -6,7 +6,6 @@ import static eu.eventstorm.sql.expression.Expressions.and;
 import static eu.eventstorm.sql.expression.Expressions.eq;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +18,7 @@ import eu.eventstorm.sql.Module;
 import eu.eventstorm.sql.desc.SqlColumn;
 import eu.eventstorm.sql.desc.SqlSingleColumn;
 import eu.eventstorm.sql.desc.SqlTable;
+import eu.eventstorm.sql.expression.Expressions;
 import eu.eventstorm.test.LoggerInstancePostProcessor;
 
 @ExtendWith(LoggerInstancePostProcessor.class)
@@ -110,6 +110,18 @@ class SelectBuilderTest {
         assertEquals("SELECT a.col_T1_01,a.col_T1_02,a.col_T1_03 FROM T1 AS a LEFT JOIN T2 AS b ON b.col_T2_01=a.col_T1_01", builder.build());
         builder.leftJoin(TABLE_T3, COL_T3_01, COL_T1_01);
         assertEquals("SELECT a.col_T1_01,a.col_T1_02,a.col_T1_03 FROM T1 AS a LEFT JOIN T2 AS b ON b.col_T2_01=a.col_T1_01 LEFT JOIN T3 AS c ON c.col_T3_01=a.col_T1_01", builder.build());
+
+        builder = new SelectBuilder(database, of(COL_T1_01, COL_T1_02, COL_T1_03));
+        builder.from(TABLE_T1);
+        builder.leftJoin(TABLE_T2, COL_T2_01, COL_T1_01, eq(COL_T2_02));
+        assertEquals("SELECT a.col_T1_01,a.col_T1_02,a.col_T1_03 FROM T1 AS a LEFT JOIN T2 AS b ON b.col_T2_01=a.col_T1_01 AND b.col_T2_02=?", builder.build());
+
+        // test exceptions
+        SelectBuilder builderEx = new SelectBuilder(database, of(COL_T1_01, COL_T1_02, COL_T1_03));
+        builderEx.from(TABLE_T3);
+        SqlBuilderException ex = assertThrows(SqlBuilderException.class, () -> builderEx.leftJoin(TABLE_T2, COL_T2_01, COL_T1_01));
+        
+        assertEquals("leftJoin", ex.getValues().get(SelectBuilder.METHOD));
     }
 
     @Test

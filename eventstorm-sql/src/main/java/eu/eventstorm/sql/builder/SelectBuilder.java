@@ -25,7 +25,7 @@ public final class SelectBuilder extends AbstractBuilder {
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(SelectBuilder.class);
 
-    private static final String METHOD = "method";
+    public static final String METHOD = "method";
     
     private static final String LAMBDA_ARROW_OPERATOR = " -> ";
     private static final String LEFT_JOIN = "leftJoin()" + LAMBDA_ARROW_OPERATOR;
@@ -154,6 +154,23 @@ public final class SelectBuilder extends AbstractBuilder {
      * @return
      */
     public SelectBuilder leftJoin(SqlTable targetTable, SqlColumn targetColumn, SqlTable otherFrom, SqlColumn otherColumn) {
+       return leftJoin(targetTable, targetColumn, otherFrom, otherColumn, null);
+    }
+
+    public SelectBuilder leftJoin(SqlTable targetTable, SqlColumn targetColumn, SqlColumn column, Expression expression) {
+    	return leftJoin(targetTable, targetColumn, column.table(), column, expression);
+    }
+    
+    /**
+     * Used when : select * from _from_ on xxx JOIN _targetTable_ ON _otherColumn_=_targetColumn_
+     *
+     * @param targetTable  is the first table to be joined
+     * @param targetColumn is the _targetColumn_ used for the 'ON'
+     * @param otherFrom    is the first table to be joined
+     * @param otherColumn  is the _from_ column used for the 'ON'
+     * @return
+     */
+    public SelectBuilder leftJoin(SqlTable targetTable, SqlColumn targetColumn, SqlTable otherFrom, SqlColumn otherColumn, Expression expression) {
         requireNonNull(targetTable, LEFT_JOIN + TARGET_TABLE_NN);
         requireNonNull(targetColumn, LEFT_JOIN + TARGET_COLUMN_NN);
         requireNonNull(otherFrom, LEFT_JOIN + FROM_NN);
@@ -163,29 +180,20 @@ public final class SelectBuilder extends AbstractBuilder {
             throw new SqlBuilderException(SqlBuilderException.Type.SELECT, ImmutableMap.of(METHOD,"leftJoin", "cause","call from() before this"));
         }
 
-        if (!this.from.contains(otherColumn.table())) {
+        if (!this.from.contains(otherFrom)) {
             throw new SqlBuilderException(SqlBuilderException.Type.SELECT, ImmutableMap.of(METHOD,"leftJoin", "cause ", "join column [" + otherColumn + "] not found in from clause"));
         }
         
-        this.joins.add(new JoinClause(this.database(), JoinType.LEFT, targetTable, targetColumn, otherFrom, otherColumn));
+        this.joins.add(new JoinClause(this.database(), JoinType.LEFT, targetTable, targetColumn, otherFrom, otherColumn, expression));
         return this;
     }
 
-    public SelectBuilder leftJoin(SqlTable targetTable, SqlColumn targetColumn, SqlColumn column,
-                                  Expression expression) {
-        requireNonNull(targetTable, LEFT_JOIN + TARGET_TABLE_NN);
-        requireNonNull(targetColumn, LEFT_JOIN + TARGET_COLUMN_NN);
-        requireNonNull(column, LEFT_JOIN + COLUMN_NN);
-        requireNonNull(expression, LEFT_JOIN + EXPRESSION_NN);
-        this.joins.add(new JoinClause(this.database(), JoinType.LEFT, targetTable, targetColumn, column.table(), column, expression));
-        return this;
-    }
 
     public SelectBuilder innerJoin(SqlTable targetTable, SqlColumn targetColumn, SqlColumn column) {
-        return innerJoinAlias(targetTable, targetColumn, column.table(), column);
+        return innerJoin(targetTable, targetColumn, column.table(), column);
     }
 
-    public SelectBuilder innerJoinAlias(SqlTable targetTable, SqlColumn targetColumn, SqlTable fromTable, SqlColumn fromColumn) {
+    public SelectBuilder innerJoin(SqlTable targetTable, SqlColumn targetColumn, SqlTable fromTable, SqlColumn fromColumn) {
         requireNonNull(targetTable, INNER_JOIN + TARGET_TABLE_NN);
         requireNonNull(targetColumn, INNER_JOIN + TARGET_COLUMN_NN);
         requireNonNull(fromColumn, INNER_JOIN + COLUMN_NN);
@@ -194,10 +202,10 @@ public final class SelectBuilder extends AbstractBuilder {
     }
 
     public SelectBuilder innerJoin(SqlTable targetTable, SqlColumn targetColumn, SqlColumn column, Expression expression) {
-        return innerJoinAlias(targetTable, targetColumn, column.table(), column, expression);
+        return innerJoin(targetTable, targetColumn, column.table(), column, expression);
     }
 
-    public SelectBuilder innerJoinAlias(SqlTable targetTable, SqlColumn targetColumn, SqlTable fromTable, SqlColumn fromColumn, Expression expression) {
+    public SelectBuilder innerJoin(SqlTable targetTable, SqlColumn targetColumn, SqlTable fromTable, SqlColumn fromColumn, Expression expression) {
         requireNonNull(targetTable, INNER_JOIN + TARGET_TABLE_NN);
         requireNonNull(targetColumn, INNER_JOIN + TARGET_COLUMN_NN);
         requireNonNull(fromColumn, INNER_JOIN + COLUMN_NN);
