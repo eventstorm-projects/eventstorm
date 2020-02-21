@@ -22,7 +22,6 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
-import eu.eventsotrm.core.apt.model.CommandPropertyDescriptor;
 import eu.eventsotrm.core.apt.model.EventDescriptor;
 import eu.eventsotrm.core.apt.model.EventPropertyDescriptor;
 import eu.eventsotrm.sql.apt.Helper;
@@ -144,16 +143,16 @@ final class EventPayloadJacksonStdDeserializerGenerator {
 		    
 		    if ("java.lang.String".equals(returnType)) {
 				writer.write("parser.nextTextValue()");
-			} else if ("int".equals(returnType)) {
+			} else if ("int".equals(returnType) || "java.lang.Integer".equals(returnType)) {
 				writer.write("parser.nextIntValue(0)");
-			} else if ("int".equals(returnType)) {
+			} else if ("long".equals(returnType) || "java.lang.Long".equals(returnType)) {
 				writer.write("parser.nextLongValue(0l)");
 			} else if (OffsetDateTime.class.getName().equals(returnType)) {
-				writer.write("parseOffsetDateTime(parser.nextTextValue())");
+				writer.write("eu.eventstorm.util.Dates.parseOffsetDateTime(parser.nextTextValue())");
 			} else if (LocalDate.class.getName().equals(returnType)) {
-                writer.write("parseLocalDate(parser.nextTextValue())");
+                writer.write("eu.eventstorm.util.Dates.parseLocalDate(parser.nextTextValue())");
             } else if (LocalTime.class.getName().equals(returnType)) {
-                writer.write("parseLocalTime(parser.nextTextValue())");
+                writer.write("eu.eventstorm.util.Dates.parseLocalTime(parser.nextTextValue())");
             } else {
 			    throw new UnsupportedOperationException("Type not supported [" + returnType + "]");
 			}
