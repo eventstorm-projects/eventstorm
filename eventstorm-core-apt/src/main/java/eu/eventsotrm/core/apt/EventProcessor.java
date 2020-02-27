@@ -128,6 +128,8 @@ public class EventProcessor extends AbstractProcessor {
 		new CommandRestControllerAdviceImplementationGenerator().generate(processingEnv, sourceCode);
 		new CommandValidatorGenerator().generate(processingEnv, sourceCode);
 		
+		new CommandOpenApiGenerator().generate(processingEnv, sourceCode);
+		
 		new EventPayloadImplementationGenerator().generate(this.processingEnv, sourceCode);
 		new EventPayloadBuilderGenerator().generate(this.processingEnv, sourceCode);
 		new EventPayloadFactoryGenerator().generate(this.processingEnv, sourceCode);
