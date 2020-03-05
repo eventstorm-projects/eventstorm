@@ -79,6 +79,7 @@ final class PojoDescriptorGenerator implements Generator {
 		writePrimaryKeys(writer, descriptor);
 		writeProperties(writer, descriptor);
 		writeAllColumns(writer, descriptor);
+		writeAllIndexes(writer, descriptor);
 		writeAllIds(writer, descriptor);
 		writeAllSingleColumns(writer, descriptor);
 		writeMethods(writer, descriptor);
@@ -234,6 +235,31 @@ final class PojoDescriptorGenerator implements Generator {
 
 	}
 
+	private static void writeAllIndexes(Writer writer, PojoDescriptor descriptor) throws IOException {
+
+	    writeNewLine(writer);
+        writer.write("    // ALL COLUMNS INDEXES");
+        writeNewLine(writer);
+
+        int i = 1;
+
+        for (PojoPropertyDescriptor id : descriptor.ids()) {
+            writer.write("    public static final int INDEX__");
+            writer.write(toUpperCase(id.name()));
+            writer.write(" = " + i++ + ";");
+            writeNewLine(writer);
+        }
+
+        for (PojoPropertyDescriptor id : descriptor.properties()) {
+            writer.write("    public static final int INDEX__");
+            writer.write(toUpperCase(id.name()));
+            writer.write(" = " + i++ + ";");
+            writeNewLine(writer);
+        }
+        
+	}
+
+	
 	private static void writeAllColumns(Writer writer, PojoDescriptor descriptor) throws IOException {
 
 		writeNewLine(writer);
