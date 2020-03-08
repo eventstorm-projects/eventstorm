@@ -58,17 +58,9 @@ public final class DatabaseEventStore implements EventStore {
 	}
 
 	@Override
-	public <T extends EventPayload> Event<T> appendToStream(String aggregateType, AggregateId id, T payload) {
-		OffsetDateTime time = OffsetDateTime.now();
-		
-		byte[] content;
+	public <T extends EventPayload> Event<T> appendToStream(String aggregateType, AggregateId id, T payload, byte[] payloadJson) {
 
-		try {
-			content = this.mapper.writeValueAsBytes(payload);
-		} catch (JsonProcessingException cause) {
-			throw new EventStoreException(EventStoreException.Type.FAILED_TO_SERILIAZE_PAYLOAD, of("aggregateType", aggregateType, "aggregateId", id, "payload", payload), cause);
-		}
-		
+		OffsetDateTime time = OffsetDateTime.now();
 		DatabaseEvent de;
 		
 		try (Transaction transaction = database.transactionManager().newTransactionIsolatedReadWrite()) {
@@ -79,7 +71,7 @@ public final class DatabaseEventStore implements EventStore {
 						.withAggregateId(id.toStringValue())
 						.withAggregateType(aggregateType)
 				        .withTime(Timestamp.from(time.toInstant()))
-				        .withPayload(Blobs.newBlob(content))
+				        .withPayload(Blobs.newBlob(payloadJson))
 				        .withPayloadType(registry.getPayloadType(payload))
 				        .withPayloadVersion(registry.getPayloadVersion(payload))
 				        ;
@@ -109,6 +101,23 @@ public final class DatabaseEventStore implements EventStore {
 					.build();
 		// @formatter:on
 	}
+	
+	@Override
+	public <T extends EventPayload> Event<T> appendToStream(String aggregateType, AggregateId id, T payload) {
+		
+		
+		byte[] content;
+
+		try {
+			content = this.mapper.writeValueAsBytes(payload);
+		} catch (JsonProcessingException cause) {
+			throw new EventStoreException(EventStoreException.Type.FAILED_TO_SERILIAZE_PAYLOAD, of("aggregateType", aggregateType, "aggregateId", id, "payload", payload), cause);
+		}
+		
+		return appendToStream(aggregateType, id, payload, content);
+		
+		
+	}
 
 	private static final ZoneId ZONE_ID = ZoneId.of("UTC");
 
@@ -137,4 +146,5 @@ public final class DatabaseEventStore implements EventStore {
 			// @formatter:on
 		}
 	}
+	
 }

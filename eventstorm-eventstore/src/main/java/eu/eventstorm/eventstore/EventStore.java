@@ -14,5 +14,7 @@ public interface EventStore {
 	Stream<Event<EventPayload>> readStream(String aggregateType, AggregateId aggregateId);
 
 	<T extends EventPayload> Event<T> appendToStream(String aggregateType, AggregateId id, T payload);
+	
+	<T extends EventPayload> Event<T> appendToStream(String aggregateType, AggregateId id, T payload, byte[] payloadJson);
 
 }

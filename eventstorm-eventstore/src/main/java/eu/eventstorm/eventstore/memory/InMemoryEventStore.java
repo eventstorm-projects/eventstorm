@@ -57,23 +57,43 @@ public final class InMemoryEventStore implements EventStore {
 			LOGGER.debug("store to [{}] with Id [{}] with data[{}]", aggregateType, id, payload);
 		}
 
+		Map<AggregateId, List<Event<EventPayload>>> mapType = this.map.get(aggregateType);
+		
+		int revision = 1;
+		
+		if (mapType == null) {
+			mapType = new HashMap<>();
+			map.put(aggregateType, mapType);
+		} 
+		
+		List<Event<EventPayload>> events = mapType.get(id);
+		if (events == null) {
+			events = new ArrayList<>();
+			mapType.put(id, events);
+		} else {
+			revision = events.get(events.size() - 1).getRevision() + 1;
+		}
+		
 		// @formatter:off
 		Event<T> event =  new EventBuilder<T>()
 				.withAggregateId(id)
 				.withAggreateType(aggregateType)
 				.withTimestamp(OffsetDateTime.now())
-				.withRevision(1)
+				.withRevision(revision)
 				.withPayload(payload)
 				.build();
 				
 		// @formatter:on
 
 		this.allEvents.add(event);
-
-		this.map.computeIfAbsent(aggregateType, key -> new HashMap<>()).computeIfAbsent(id, key -> new ArrayList<>())
-		    .add((Event<EventPayload>) event);
+		events.add((Event<EventPayload>) event);
 
 		return event;
+	}
+
+	@Override
+	public <T extends EventPayload> Event<T> appendToStream(String aggregateType, AggregateId id, T payload, byte[] payloadJson) {
+		return appendToStream(aggregateType, id, payload);
 	}
 
 }

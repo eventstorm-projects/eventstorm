@@ -35,6 +35,20 @@ class ApiRestControllerTest {
 			.exchange()
 			.expectStatus().isOk()
 			.expectBody().consumeWith(b -> System.out.println(new String(b.getResponseBodyContent())));
+		
+		webTestClient.post()
+			.uri("/append/{aggregateType}/{aggregateId}", UserCreatedEventPayload.class.getName(),"123")
+			.contentType(MediaType.APPLICATION_JSON)
+			.body(BodyInserters.fromValue(payload))
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody().consumeWith(b -> System.out.println(new String(b.getResponseBodyContent())));
+		
+		webTestClient.get()
+			.uri("/read/{aggregateType}/{aggregateId}", UserCreatedEventPayload.class.getName(),"123")
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody().consumeWith(b -> System.out.println(new String(b.getResponseBodyContent())));
 	}
 	
 
