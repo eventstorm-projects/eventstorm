@@ -243,8 +243,8 @@
 		<module>eventstorm-sql-spring</module>
 		<module>eventstorm-core-api</module>
 		<module>eventstorm-annotation</module>
-		<module>eventstorm-eventstore</module>
 		<module>eventstorm-cloudevents</module>
+		<module>eventstorm-eventstore</module>
 		<module>eventstorm-eventbus</module>
 		<module>eventstorm-cqrs</module>
 		<module>eventstorm-core-apt</module>

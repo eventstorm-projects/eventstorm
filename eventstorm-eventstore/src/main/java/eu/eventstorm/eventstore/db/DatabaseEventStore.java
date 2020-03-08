@@ -17,7 +17,7 @@ import eu.eventstorm.core.AggregateId;
 import eu.eventstorm.core.Event;
 import eu.eventstorm.core.EventBuilder;
 import eu.eventstorm.core.EventPayload;
-import eu.eventstorm.core.EventPayloadRegistry;
+import eu.eventstorm.eventstore.EventPayloadRegistry;
 import eu.eventstorm.eventstore.EventStore;
 import eu.eventstorm.eventstore.EventStoreException;
 import eu.eventstorm.sql.Database;

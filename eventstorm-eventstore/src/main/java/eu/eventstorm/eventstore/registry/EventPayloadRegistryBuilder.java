@@ -13,10 +13,10 @@ import java.util.Set;
 import com.google.common.collect.ImmutableMap;
 
 import eu.eventstorm.core.EventPayload;
-import eu.eventstorm.core.EventPayloadRegistry;
 import eu.eventstorm.annotation.CqrsEventPayload;
 import eu.eventstorm.core.json.Deserializer;
 import eu.eventstorm.core.json.Serializer;
+import eu.eventstorm.eventstore.EventPayloadRegistry;
 import eu.eventstorm.eventstore.registry.EventPayloadRegistryImpl.EventPayloadDefinition;
 import eu.eventstorm.util.Strings;
 

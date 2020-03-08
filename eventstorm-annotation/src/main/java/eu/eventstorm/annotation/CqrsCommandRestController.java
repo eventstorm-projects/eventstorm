@@ -6,6 +6,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import eu.eventstorm.core.EventPayload;
+
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
@@ -26,5 +28,7 @@ public @interface CqrsCommandRestController {
 	String uri();
 	
 	HttpMethod method();
+	
+	Class<? extends EventPayload>[] events() default {};
 	
 }

@@ -3,11 +3,11 @@ package eu.eventstorm.core.id;
 import eu.eventstorm.core.AggregateId;
 import eu.eventstorm.util.ToStringBuilder;
 
-final class StringAggregateId implements AggregateId {
+public final class StringAggregateId implements AggregateId {
 
 	private final String id;
 
-	public StringAggregateId(String id) {
+	StringAggregateId(String id) {
 		this.id = id;
 	}
 

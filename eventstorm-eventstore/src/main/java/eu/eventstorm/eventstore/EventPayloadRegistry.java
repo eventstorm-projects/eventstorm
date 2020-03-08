@@ -1,5 +1,6 @@
-package eu.eventstorm.core;
+package eu.eventstorm.eventstore;
 
+import eu.eventstorm.core.EventPayload;
 import eu.eventstorm.core.json.Deserializer;
 import eu.eventstorm.core.json.Serializer;
 

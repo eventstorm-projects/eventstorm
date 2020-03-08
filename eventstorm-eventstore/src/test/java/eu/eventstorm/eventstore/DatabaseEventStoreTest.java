@@ -19,26 +19,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.google.common.collect.ImmutableMap;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 import eu.eventstorm.core.Event;
 import eu.eventstorm.core.EventPayload;
-import eu.eventstorm.core.json.Deserializer;
-import eu.eventstorm.core.json.DeserializerException;
 import eu.eventstorm.eventstore.db.DatabaseEventStore;
 import eu.eventstorm.eventstore.db.Module;
 import eu.eventstorm.eventstore.ex.UserCreatedEventPayload;
+import eu.eventstorm.eventstore.ex.UserCreatedEventPayloadDeserializer;
 import eu.eventstorm.eventstore.ex.UserCreatedEventPayloadImpl;
 import eu.eventstorm.eventstore.registry.EventPayloadRegistryBuilder;
-import eu.eventstorm.eventstore.util.ParserConsumer;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Dialect;
 import eu.eventstorm.sql.impl.DatabaseBuilder;
@@ -118,87 +109,5 @@ class DatabaseEventStoreTest {
 	
 	private static final class BadEventPayload implements EventPayload {
 		
-	}
-	
-	private static final class UserCreatedEventPayloadBuilder {
-	    
-	    private String name;
-	    private String email;
-	    private int age;
-
-        public UserCreatedEventPayloadBuilder name(String name) {
-            this.name = name;
-            return this;
-        }
-
-        public UserCreatedEventPayloadBuilder email(String email) {
-            this.email=email;
-            return this;
-        }
-
-        public UserCreatedEventPayloadBuilder age(int age) {
-            this.age = age;
-            return this;
-        }
-        
-        UserCreatedEventPayload build() {
-            return new UserCreatedEventPayloadImpl(name, email, age);
-        }
-	    
-	}
-
-	@SuppressWarnings("serial")
-	private static final class UserCreatedEventPayloadStdDeserializer extends StdDeserializer<UserCreatedEventPayload> {
-
-	    private static final ImmutableMap<String, ParserConsumer<UserCreatedEventPayloadBuilder>> FIELDS;
-	    static {
-	        FIELDS = ImmutableMap.<String, ParserConsumer<UserCreatedEventPayloadBuilder>>builder()
-	                .put("name", (parser, builder) -> builder.name(parser.nextTextValue()))
-	                .put("email", (parser, builder) -> builder.email(parser.nextTextValue()))
-	                .put("age", (parser, builder) -> builder.age(parser.nextIntValue(0)))
-	                .build();
-	    }
-
-	    UserCreatedEventPayloadStdDeserializer() {
-	        super(UserCreatedEventPayload.class);
-	    }
-
-	    @Override
-	    public UserCreatedEventPayload deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-	        if (JsonToken.START_OBJECT != p.currentToken()) {
-	            throw new DeserializerException(DeserializerException.Type.PARSE_ERROR, ImmutableMap.of("expected",JsonToken.START_OBJECT,"current", p.currentToken()));
-	        }
-	        UserCreatedEventPayloadBuilder builder = new UserCreatedEventPayloadBuilder();
-	        p.nextToken();
-	        while (p.currentToken() != JsonToken.END_OBJECT) {
-	            if (JsonToken.FIELD_NAME != p.currentToken()) {
-	                throw new DeserializerException(DeserializerException.Type.PARSE_ERROR, ImmutableMap.of("expected",JsonToken.FIELD_NAME,"current", p.currentToken()));
-	            }
-	            ParserConsumer<UserCreatedEventPayloadBuilder> consumer = FIELDS.get(p.currentName());
-	            if (consumer == null) {
-	                throw new DeserializerException(DeserializerException.Type.FIELD_NOT_FOUND, ImmutableMap.of("field",p.currentName(),"command", "CreateMissionObjectCodeCommand"));
-	            }
-	            consumer.accept(p, builder);
-	            p.nextToken();
-	        }
-	        return builder.build();
-	     }
-	}
-	
-	
-	private static final class UserCreatedEventPayloadDeserializer  implements Deserializer<UserCreatedEventPayload> {
-        @Override
-        public UserCreatedEventPayload deserialize(byte[] bytes) {
-            ObjectMapper mapper = new ObjectMapper();
-            SimpleModule module = new SimpleModule();
-            module. addDeserializer(UserCreatedEventPayload.class, new UserCreatedEventPayloadStdDeserializer());
-            mapper.registerModule(module);
-            try {
-                return mapper.readValue(bytes, UserCreatedEventPayload.class);
-            } catch (IOException e) {               
-                e.printStackTrace();
-                return null;
-            }
-        }
 	}
 }

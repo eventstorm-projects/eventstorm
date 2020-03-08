@@ -9,9 +9,9 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableMap;
 
 import eu.eventstorm.core.EventPayload;
-import eu.eventstorm.core.EventPayloadRegistry;
 import eu.eventstorm.core.json.Deserializer;
 import eu.eventstorm.core.json.Serializer;
+import eu.eventstorm.eventstore.EventPayloadRegistry;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -48,9 +48,13 @@ final class EventPayloadRegistryImpl implements EventPayloadRegistry {
 		return (Deserializer<T>) this.registry.get(payloadType).getDeserializer();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Serializer<EventPayload> getSerializer(String payloadType) {
-		return null;
+		  if (LOGGER.isDebugEnabled()) {
+		        LOGGER.debug("getSerializer({})", payloadType);
+		    }
+		return (Serializer<EventPayload>) this.registry.get(payloadType).getSerializer();
 	}
 
 	private String buildCacheKey(EventPayload payload) {

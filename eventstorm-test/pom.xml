@@ -22,6 +22,12 @@
 		<dependency>
 			<groupId>org.junit.platform</groupId>
 			<artifactId>junit-platform-runner</artifactId>
+			<exclusions>
+                <exclusion>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
+                </exclusion>
+            </exclusions>
 			<scope>compile</scope>
 		</dependency>
 
@@ -30,7 +36,6 @@
 			<artifactId>junit-jupiter-engine</artifactId>
 			<scope>compile</scope>
 		</dependency>
-
 
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
