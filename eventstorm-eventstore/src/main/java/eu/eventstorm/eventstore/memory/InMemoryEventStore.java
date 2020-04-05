@@ -53,41 +53,7 @@ public final class InMemoryEventStore implements EventStore {
 	
 	@Override
 	public	<T extends EventPayload> Event<T> appendToStream(StreamEvantPayloadDefinition<T> sepd, String streamId, byte[] data) {
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("store to [{}] with Id [{}]", sepd, streamId);
-		}
-
-		Map<String, List<Event<?>>> mapType = this.map.get(sepd.getStream());
-		
-		int revision = 1;
-		
-		if (mapType == null) {
-			mapType = new HashMap<>();
-			map.put(sepd.getStream(), mapType);
-		} 
-		
-		List<Event<?>> events = mapType.get(streamId);
-		if (events == null) {
-			events = new ArrayList<>();
-			mapType.put(streamId, events);
-		} else {
-			revision = events.get(events.size() - 1).getRevision() + 1;
-		}
-		
-		// @formatter:off
-		Event<T> event =  new EventBuilder<T>()
-				.withStreamId(StreamIds.from(streamId))
-				.withStream(sepd.getStream())
-				.withTimestamp(OffsetDateTime.now())
-				.withRevision(revision)
-				.withPayload(sepd.getPayloadDeserializer().deserialize(data))
-				.build();
-		// @formatter:on
-
-		this.allEvents.add(event);
-		events.add(event);
-		return event;
+		return appendToStream(sepd, streamId, sepd.getPayloadDeserializer().deserialize(data));
 	}
 
 	@Override
@@ -127,44 +93,5 @@ public final class InMemoryEventStore implements EventStore {
 		events.add(event);
 		return event;
 	}
-
-	public <T extends EventPayload> Event<T> appendToStream(StreamDefinition definition, String streamId, T eventPayload) {
-		
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("appendToStream to [{}] with Id [{}]", definition, streamId);
-		}
-
-		Map<String, List<Event<?>>> mapType = this.map.get(definition.getName());
-		
-		int revision = 1;
-		
-		if (mapType == null) {
-			mapType = new HashMap<>();
-			map.put(definition.getName(), mapType);
-		} 
-		
-		List<Event<?>> events = mapType.get(streamId);
-		if (events == null) {
-			events = new ArrayList<>();
-			mapType.put(streamId, events);
-		} else {
-			revision = events.get(events.size() - 1).getRevision() + 1;
-		}
-		
-		// @formatter:off
-		Event<T> event =  new EventBuilder<T>()
-				.withStreamId(StreamIds.from(streamId))
-				.withStream(definition.getName())
-				.withTimestamp(OffsetDateTime.now())
-				.withRevision(revision)
-				.withPayload(eventPayload)
-				.build();
-		// @formatter:on
-
-		this.allEvents.add(event);
-		events.add(event);
-		return event;
-	}
-
 
 }

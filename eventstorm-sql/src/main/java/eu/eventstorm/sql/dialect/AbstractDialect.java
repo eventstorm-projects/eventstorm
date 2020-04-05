@@ -53,7 +53,7 @@ abstract class AbstractDialect implements Dialect {
 				appendable.append(table.alias());
 			}
 		} catch (IOException cause) {
-			LOGGER.warn("Failed to wrap({},{},{}) -> [{}]", appendable, table, alias, cause);
+			LOGGER.warn("Failed to wrap({},{},{}) -> {}", appendable, table, alias, cause.getMessage());
 		}
 	}
 
@@ -67,7 +67,7 @@ abstract class AbstractDialect implements Dialect {
 
 			appendable.append(column.toSql());
 		} catch (IOException cause) {
-			LOGGER.warn("Failed to wrap({},{},{}) -> [{}]", appendable, column, alias, cause);
+			LOGGER.warn("Failed to wrap({},{},{}) -> {}", appendable, column, alias, cause.getMessage());
 		}
 	}
 
