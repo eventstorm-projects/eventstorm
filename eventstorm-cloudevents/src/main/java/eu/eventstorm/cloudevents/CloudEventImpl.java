@@ -2,7 +2,7 @@ package eu.eventstorm.cloudevents;
 
 import java.time.OffsetDateTime;
 
-import eu.eventstorm.core.AggregateId;
+import eu.eventstorm.core.StreamId;
 import eu.eventstorm.core.EventPayload;
 import eu.eventstorm.util.ToStringBuilder;
 
@@ -13,7 +13,7 @@ final class CloudEventImpl implements CloudEvent {
 
 	private final String specVersion;
 
-	private final AggregateId aggregateId;
+	private final StreamId aggregateId;
 
 	private final String aggreateType;
 
@@ -25,7 +25,7 @@ final class CloudEventImpl implements CloudEvent {
 
 	private final EventPayload payload;
 
-	public CloudEventImpl(String specVersion, AggregateId aggregateId, String aggreateType, OffsetDateTime timestamp, int version, String subject,
+	public CloudEventImpl(String specVersion, StreamId aggregateId, String aggreateType, OffsetDateTime timestamp, int version, String subject,
 	        EventPayload payload) {
 		this.specVersion = specVersion;
 		this.aggregateId = aggregateId;

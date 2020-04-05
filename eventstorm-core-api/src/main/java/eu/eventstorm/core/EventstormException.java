@@ -34,8 +34,11 @@ public abstract class EventstormException extends RuntimeException {
 	private static String build(EventstormExceptionType type, ImmutableMap<String, Object> params, Throwable cause) {
 		StringBuilder builder = new StringBuilder(256);
 		builder.append("type=[").append(type).append("]");
-		if (params != null) {
-			params.forEach((key, value) -> builder.append(" [").append(key).append("]=[").append(value).append("]"));
+		if (params != null && params.size() > 0) {
+			builder.append(", params:{");
+			params.forEach((key, value) -> builder.append("[").append(key).append("]=[").append(value).append("] "));
+			builder.deleteCharAt(builder.length() -1);
+			builder.append("}");
 		}
 		if (cause != null) {
 			builder.append(" cause=[").append(cause.getMessage()).append("]");

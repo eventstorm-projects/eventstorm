@@ -1,16 +1,16 @@
 package eu.eventstorm.core.id;
 
-import eu.eventstorm.core.AggregateId;
+import eu.eventstorm.core.StreamId;
 import eu.eventstorm.util.ToStringBuilder;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-final class IntegerAggregateId implements AggregateId {
+final class IntegerStreamId implements StreamId {
 
 	private final int id;
 
-	public IntegerAggregateId(int id) {
+	public IntegerStreamId(int id) {
 		this.id = id;
 	}
 
@@ -28,7 +28,7 @@ final class IntegerAggregateId implements AggregateId {
 			return false;
 		}
 		
-		return this.id == ((IntegerAggregateId) obj).id;
+		return this.id == ((IntegerStreamId) obj).id;
 	}
 
 	@Override

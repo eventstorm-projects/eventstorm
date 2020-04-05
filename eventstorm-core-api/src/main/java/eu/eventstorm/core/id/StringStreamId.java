@@ -1,13 +1,13 @@
 package eu.eventstorm.core.id;
 
-import eu.eventstorm.core.AggregateId;
+import eu.eventstorm.core.StreamId;
 import eu.eventstorm.util.ToStringBuilder;
 
-public final class StringAggregateId implements AggregateId {
+public final class StringStreamId implements StreamId {
 
 	private final String id;
 
-	StringAggregateId(String id) {
+	StringStreamId(String id) {
 		this.id = id;
 	}
 
@@ -24,11 +24,11 @@ public final class StringAggregateId implements AggregateId {
 		if (obj == null) {
 			return false;
 		}
-		if (StringAggregateId.class == obj.getClass()) {
-			return this.id.equals(((StringAggregateId)obj).id);
+		if (StringStreamId.class == obj.getClass()) {
+			return this.id.equals(((StringStreamId)obj).id);
 		}
-		if (AggregateId.class.isAssignableFrom(obj.getClass())) {
-			return this.id.equals(((AggregateId)obj).toStringValue());
+		if (StreamId.class.isAssignableFrom(obj.getClass())) {
+			return this.id.equals(((StreamId)obj).toStringValue());
 		}
 		return false;
 	}

@@ -6,7 +6,7 @@ import java.time.OffsetDateTime;
 
 import org.junit.jupiter.api.Test;
 
-import eu.eventstorm.core.id.AggregateIds;
+import eu.eventstorm.core.id.StreamIds;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -22,16 +22,16 @@ class EventTest {
 		};
 		
 		Event<EventPayload> event = new EventBuilder<>()
-				.withAggreateType("user")
-				.withAggregateId(AggregateIds.from(1))
+				.withStream("user")
+				.withStreamId(StreamIds.from(1))
 				.withRevision(1)
 				.withTimestamp(now)
 				.withPayload(payload)
 				.build();
 		
 		assertEquals(now, event.getTimestamp());
-		assertEquals("user", event.getAggregateType());
-		assertEquals(AggregateIds.from(1), event.getAggregateId());
+		assertEquals("user", event.getStream());
+		assertEquals(StreamIds.from(1), event.getStreamId());
 		assertEquals(1, event.getRevision());
 		assertEquals(payload, event.getPayload());
 				

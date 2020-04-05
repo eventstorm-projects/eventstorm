@@ -7,9 +7,9 @@ import java.time.OffsetDateTime;
  */
 public interface Event<T extends EventPayload> {
 
-	AggregateId getAggregateId();
+	StreamId getStreamId();
 	
-	String getAggregateType();
+	String getStream();
 
 	T getPayload();
 	

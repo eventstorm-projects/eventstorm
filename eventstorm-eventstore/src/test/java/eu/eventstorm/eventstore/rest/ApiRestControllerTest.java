@@ -9,7 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 
-import eu.eventstorm.eventstore.EventPayloadRegistry;
+import eu.eventstorm.eventstore.StreamManager;
 import eu.eventstorm.eventstore.ex.UserCreatedEventPayload;
 import eu.eventstorm.eventstore.ex.UserCreatedEventPayloadImpl;
 
@@ -21,15 +21,18 @@ class ApiRestControllerTest {
 	private WebTestClient webTestClient;
 	
 	@Autowired
-	private EventPayloadRegistry registry;
-
+	private StreamManager am;
+	
 	@Test
 	void testAppend() {
 		
-		byte[] payload = registry.getSerializer(UserCreatedEventPayload.class.getName()).serialize(new UserCreatedEventPayloadImpl("ja","gmail",39));
+		byte[] payload = am.getDefinition("user")
+				.getStreamEvantPayloadDefinition(UserCreatedEventPayload.class.getSimpleName())
+				.getPayloadSerializer()
+				.serialize(new UserCreatedEventPayloadImpl("ja","gmail",39));
 		
 		webTestClient.post()
-			.uri("/append/{aggregateType}/{aggregateId}", UserCreatedEventPayload.class.getName(),"123")
+			.uri("/append/{stream}/{streamId}/{eventPayloadType}", "user","123", UserCreatedEventPayload.class.getSimpleName())
 			.contentType(MediaType.APPLICATION_JSON)
 			.body(BodyInserters.fromValue(payload))
 			.exchange()
@@ -37,7 +40,7 @@ class ApiRestControllerTest {
 			.expectBody().consumeWith(b -> System.out.println(new String(b.getResponseBodyContent())));
 		
 		webTestClient.post()
-			.uri("/append/{aggregateType}/{aggregateId}", UserCreatedEventPayload.class.getName(),"123")
+		.uri("/append/{stream}/{streamId}/{eventPayloadType}", "user","123", UserCreatedEventPayload.class.getSimpleName())
 			.contentType(MediaType.APPLICATION_JSON)
 			.body(BodyInserters.fromValue(payload))
 			.exchange()
@@ -45,7 +48,7 @@ class ApiRestControllerTest {
 			.expectBody().consumeWith(b -> System.out.println(new String(b.getResponseBodyContent())));
 		
 		webTestClient.get()
-			.uri("/read/{aggregateType}/{aggregateId}", UserCreatedEventPayload.class.getName(),"123")
+			.uri("/read/{aggregateType}/{aggregateId}", "user","123")
 			.exchange()
 			.expectStatus().isOk()
 			.expectBody().consumeWith(b -> System.out.println(new String(b.getResponseBodyContent())));

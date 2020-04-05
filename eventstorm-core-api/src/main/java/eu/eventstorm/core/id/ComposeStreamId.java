@@ -2,27 +2,27 @@ package eu.eventstorm.core.id;
 
 import com.google.common.base.Objects;
 
-import eu.eventstorm.core.AggregateId;
+import eu.eventstorm.core.StreamId;
 import eu.eventstorm.util.ToStringBuilder;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-final class ComposeAggregateId implements AggregateId{
+final class ComposeStreamId implements StreamId{
 
-    private final AggregateId id1;
-    private final AggregateId id2;
+    private final StreamId id1;
+    private final StreamId id2;
     
-    ComposeAggregateId(AggregateId id1, AggregateId id2) {
+    ComposeStreamId(StreamId id1, StreamId id2) {
         this.id1 = id1;
         this.id2 = id2;
     }
     
-    public AggregateId getId1() {
+    public StreamId getId1() {
         return id1;
     }
 
-    public AggregateId getId2() {
+    public StreamId getId2() {
         return id2;
     }
 
@@ -37,11 +37,11 @@ final class ComposeAggregateId implements AggregateId{
             return true;
         }
 
-        if ((obj == null) || ComposeAggregateId.class != obj.getClass()) {
+        if ((obj == null) || ComposeStreamId.class != obj.getClass()) {
             return false;
         }
 
-        ComposeAggregateId cai = (ComposeAggregateId)obj;
+        ComposeStreamId cai = (ComposeStreamId)obj;
         return Objects.equal(cai.id1, id1) && Objects.equal(cai.id2, id2);
     }
 

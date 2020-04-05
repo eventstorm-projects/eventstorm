@@ -2,12 +2,13 @@ package eu.eventstorm.eventstore;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
 
 import eu.eventstorm.core.Event;
-import eu.eventstorm.core.EventPayload;
-import eu.eventstorm.core.id.AggregateIds;
+import eu.eventstorm.core.json.Deserializer;
 import eu.eventstorm.eventstore.memory.InMemoryEventStore;
 
 /**
@@ -15,19 +16,28 @@ import eu.eventstorm.eventstore.memory.InMemoryEventStore;
  */
 class InMemoryEventStoreTest {
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	void test() {
+		
+		StreamDefinition sd = mock(StreamDefinition.class);
+		when(sd.getName()).thenReturn("toto");
+		
+		Deserializer deserializer = mock(Deserializer.class);
+		
+		StreamEvantPayloadDefinition<?> sepd = mock(StreamEvantPayloadDefinition.class);
+		when(sepd.getPayloadDeserializer()).thenReturn(deserializer);
+		when(sepd.getStream()).thenReturn("toto");
 
 		InMemoryEventStore eventStore = new InMemoryEventStore();
-		EventStoreException ex = assertThrows(EventStoreException.class, () -> eventStore.readStream("fake", AggregateIds.from(12)));
+		
+		EventStoreException ex = assertThrows(EventStoreException.class, () -> eventStore.readStream(sd, "12"));
 		assertEquals(EventStoreException.Type.STREAM_NOT_FOUND, ex.getType());
 		
-		Event<?> event = eventStore.appendToStream("toto", AggregateIds.from(12), new EventPayload() {
-		});
+		Event<?> event = eventStore.appendToStream(sepd, "12", new byte[0]);
 		
-		assertEquals(1, eventStore.readStream("toto", AggregateIds.from(12)).count());
-			
-		assertEquals(event, eventStore.readStream("toto", AggregateIds.from(12)).findFirst().get());
-		assertEquals(0, eventStore.readStream("toto", AggregateIds.from(13)).count());
+		assertEquals(1, eventStore.readStream(sd, "12").count());
+		assertEquals(event, eventStore.readStream(sd, "12").findFirst().get());
+		assertEquals(0, eventStore.readStream(sd, "13").count());
 	}
 }

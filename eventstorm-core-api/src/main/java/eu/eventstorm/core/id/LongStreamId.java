@@ -1,16 +1,16 @@
 package eu.eventstorm.core.id;
 
-import eu.eventstorm.core.AggregateId;
+import eu.eventstorm.core.StreamId;
 import eu.eventstorm.util.ToStringBuilder;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-final class LongAggregateId implements AggregateId {
+final class LongStreamId implements StreamId {
 
     private final long id;
 
-    public LongAggregateId(long id) {
+    public LongStreamId(long id) {
         this.id = id;
     }
 
@@ -25,11 +25,11 @@ final class LongAggregateId implements AggregateId {
             return true;
         }
 
-        if ((obj == null) || LongAggregateId.class != obj.getClass()) {
+        if ((obj == null) || LongStreamId.class != obj.getClass()) {
             return false;
         }
 
-        return this.id == ((LongAggregateId) obj).id;
+        return this.id == ((LongStreamId) obj).id;
     }
 
     @Override

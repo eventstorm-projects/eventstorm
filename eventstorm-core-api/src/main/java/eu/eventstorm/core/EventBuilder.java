@@ -7,23 +7,23 @@ import java.time.OffsetDateTime;
  */
 public final class EventBuilder<T extends EventPayload> {
 
-    private AggregateId aggregateId;
-    private String aggreateType;
+    private StreamId streamId;
+    private String stream;
     private int revision;
     private T payload;
     private OffsetDateTime timestamp;
 
     public Event<T> build() {
-        return new EventImpl<>(aggregateId, aggreateType, timestamp, revision, payload);
+        return new EventImpl<>(streamId, stream, timestamp, revision, payload);
     }
 
-    public EventBuilder<T> withAggregateId(AggregateId aggregateId) {
-        this.aggregateId = aggregateId;
+    public EventBuilder<T> withStreamId(StreamId streamId) {
+        this.streamId = streamId;
         return this;
     }
     
-    public EventBuilder<T> withAggreateType(String aggreateType) {
-        this.aggreateType = aggreateType;
+    public EventBuilder<T> withStream(String stream) {
+        this.stream = stream;
         return this;
     }
     

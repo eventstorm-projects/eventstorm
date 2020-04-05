@@ -1,6 +1,6 @@
 package eu.eventstorm.cqrs.ex001;
 
-import static eu.eventstorm.core.id.AggregateIds.from;
+import static eu.eventstorm.core.id.StreamIds.from;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -12,8 +12,8 @@ import com.google.common.collect.ImmutableList;
 
 import eu.eventstorm.core.Event;
 import eu.eventstorm.core.EventPayload;
-import eu.eventstorm.core.id.AggregateIdGenerator;
-import eu.eventstorm.core.id.AggregateIdGeneratorFactory;
+import eu.eventstorm.core.id.StreamIdGenerator;
+import eu.eventstorm.core.id.StreamIdGeneratorFactory;
 import eu.eventstorm.cqrs.CommandGateway;
 import eu.eventstorm.cqrs.CommandHandlerRegistry;
 import eu.eventstorm.cqrs.ex001.command.CreateUserCommand;
@@ -24,8 +24,11 @@ import eu.eventstorm.cqrs.ex001.handler.CreateUserCommandHandler;
 import eu.eventstorm.cqrs.validation.CommandValidationException;
 import eu.eventstorm.eventbus.EventBus;
 import eu.eventstorm.eventbus.InMemoryEventBus;
-import eu.eventstorm.eventstore.EventStore;
+import eu.eventstorm.eventstore.EventStoreClient;
+import eu.eventstorm.eventstore.StreamManager;
 import eu.eventstorm.eventstore.memory.InMemoryEventStore;
+import eu.eventstorm.eventstore.memory.InMemoryEventStoreClient;
+import eu.eventstorm.eventstore.memory.InMemoryStreamManagerBuilder;
 import eu.eventstorm.test.LoggerInstancePostProcessor;
 import reactor.core.scheduler.Schedulers;
 
@@ -33,18 +36,24 @@ import reactor.core.scheduler.Schedulers;
 class Ex001Test {
 
 	private CommandGateway gateway;
-	private EventStore eventStore;
+	private EventStoreClient eventStoreClient;
 
 	@BeforeEach
 	void before() {
 		EventBus eventBus = InMemoryEventBus.builder().add(new UserDomainHandlerImpl()).build();
 		
-		eventStore = new InMemoryEventStore();
+		StreamManager manager = new InMemoryStreamManagerBuilder()
+				.withDefinition("user")
+					.withPayload(UserCreatedEventPayload.class, null, null)
+				.and()
+				.build();
+		
+		eventStoreClient = new InMemoryEventStoreClient(manager, new InMemoryEventStore());
 
-		AggregateIdGenerator userGenerator = AggregateIdGeneratorFactory.inMemoryInteger();
+		StreamIdGenerator userGenerator = StreamIdGeneratorFactory.inMemoryInteger();
 
 		CommandHandlerRegistry registry = CommandHandlerRegistry.newBuilder()
-		        .add(new CreateUserCommandHandler(eventStore, userGenerator))
+		        .add(new CreateUserCommandHandler(eventStoreClient, userGenerator))
 		        // .add(CreateUserCommandImpl.class, new CreateUserCommandHandler(eventStore,
 		        // eventBus))
 		        .build();
@@ -63,11 +72,11 @@ class Ex001Test {
 		ImmutableList.Builder<Event<EventPayload>> builder = ImmutableList.builder();
 		gateway.dispatch(command).doOnNext(event -> builder.add(event)).blockLast();
 ;		
-		assertEquals(1, eventStore.readStream("user", from(1)).count());
-		Event event = eventStore.readStream("user", from(1)).findFirst().get();
+		assertEquals(1, eventStoreClient.readStream("user", from(1)).count());
+		Event event = eventStoreClient.readStream("user", from(1)).findFirst().get();
 
-		assertEquals("user", event.getAggregateType());
-		assertEquals(from(1), event.getAggregateId());
+		assertEquals("user", event.getStream());
+		assertEquals(from("1"), event.getStreamId());
 
 		UserCreatedEventPayload userCreatedEvent = UserCreatedEventPayload.class.cast(event.getPayload());
 

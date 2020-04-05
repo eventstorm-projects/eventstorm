@@ -6,14 +6,14 @@ import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableMap;
 
-class AggregateIdGeneratorManagerTest {
+class StreamIdGeneratorManagerTest {
 
 	@Test
 	void test() {
-		ImmutableMap.Builder<String, AggregateIdGenerator> builder = ImmutableMap.builder();
-		builder.put("id01", AggregateIdGeneratorFactory.inMemoryInteger());
-		builder.put("id02", AggregateIdGeneratorFactory.inMemoryLong());
-		AggregateIdGeneratorManager manager = new AggregateIdGeneratorManager(builder.build());
+		ImmutableMap.Builder<String, StreamIdGenerator> builder = ImmutableMap.builder();
+		builder.put("id01", StreamIdGeneratorFactory.inMemoryInteger());
+		builder.put("id02", StreamIdGeneratorFactory.inMemoryLong());
+		StreamIdGeneratorManager manager = new StreamIdGeneratorManager(builder.build());
 		
 		assertEquals("1", manager.getAggregateIdGenerator("id01").generate().toStringValue());
 		assertEquals("2", manager.getAggregateIdGenerator("id01").generate().toStringValue());

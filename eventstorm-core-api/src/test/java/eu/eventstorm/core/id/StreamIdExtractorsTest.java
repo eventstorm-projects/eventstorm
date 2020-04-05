@@ -1,19 +1,19 @@
 package eu.eventstorm.core.id;
 
-import static eu.eventstorm.core.id.AggregateIdExtractors.extractInteger;
-import static eu.eventstorm.core.id.AggregateIdExtractors.extractLong;
-import static eu.eventstorm.core.id.AggregateIdExtractors.extractComposePart1;
+import static eu.eventstorm.core.id.StreamIdExtractors.extractInteger;
+import static eu.eventstorm.core.id.StreamIdExtractors.extractLong;
+import static eu.eventstorm.core.id.StreamIdExtractors.extractComposePart1;
 
-import static eu.eventstorm.core.id.AggregateIdExtractors.extractComposePart2;
-import static eu.eventstorm.core.id.AggregateIds.from;
+import static eu.eventstorm.core.id.StreamIdExtractors.extractComposePart2;
+import static eu.eventstorm.core.id.StreamIds.from;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
-import eu.eventstorm.core.AggregateId;
+import eu.eventstorm.core.StreamId;
 
-class AggregateIdExtractorsTest {
+class StreamIdExtractorsTest {
 
     @Test
     void testExtractInteger() {
@@ -37,7 +37,7 @@ class AggregateIdExtractorsTest {
     @Test
     void testExtractCompose() {
         
-    	AggregateId compose = AggregateIds.compose(from(123), from(456l));
+    	StreamId compose = StreamIds.compose(from(123), from(456l));
     	
         assertEquals(from(123), extractComposePart1(compose));
         assertEquals(from(456l), extractComposePart2(compose));

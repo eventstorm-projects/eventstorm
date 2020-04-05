@@ -15,13 +15,13 @@ import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.eventstorm.core.json.jackson.CoreApiModule;
-import eu.eventstorm.eventstore.EventPayloadRegistry;
 import eu.eventstorm.eventstore.EventStore;
+import eu.eventstorm.eventstore.StreamManager;
 import eu.eventstorm.eventstore.ex.UserCreatedEventPayload;
 import eu.eventstorm.eventstore.ex.UserCreatedEventPayloadDeserializer;
 import eu.eventstorm.eventstore.ex.UserCreatedEventPayloadSerializer;
 import eu.eventstorm.eventstore.memory.InMemoryEventStore;
-import eu.eventstorm.eventstore.registry.EventPayloadRegistryBuilder;
+import eu.eventstorm.eventstore.memory.InMemoryStreamManagerBuilder;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
@@ -44,16 +44,26 @@ class ApiRestControllerConfigurationTest implements WebFluxConfigurer {
             new Jackson2JsonDecoder(objectMapper)
         );
     }
-	@Bean
-	EventPayloadRegistry registry() {
-		EventPayloadRegistryBuilder builder = new EventPayloadRegistryBuilder();
-		builder.add(UserCreatedEventPayload.class, new UserCreatedEventPayloadSerializer(new ObjectMapper()), new UserCreatedEventPayloadDeserializer());
-		return builder.build();
-	}
+    
+//	@Bean
+//	EventPayloadRegistry registry() {
+//		EventPayloadRegistryBuilder builder = new EventPayloadRegistryBuilder();
+//		builder.add(UserCreatedEventPayload.class, new UserCreatedEventPayloadSerializer(new ObjectMapper()), new UserCreatedEventPayloadDeserializer());
+//		return builder.build();
+//	}
 	
 	@Bean
 	EventStore eventStore() {
 		return new InMemoryEventStore();
+	}
+	
+	@Bean
+	StreamManager streamManager() {
+		return new InMemoryStreamManagerBuilder()
+				.withDefinition("user")
+					.withPayload(UserCreatedEventPayload.class, new UserCreatedEventPayloadSerializer(new ObjectMapper()), new UserCreatedEventPayloadDeserializer())
+				.and()
+				.build();
 	}
 	
 	@Bean

@@ -25,7 +25,7 @@ import eu.eventstorm.sql.id.SequenceGenerator4Long;
 import eu.eventstorm.sql.impl.DatabaseBuilder;
 import eu.eventstorm.sql.impl.TransactionManagerImpl;
 
-class SqlSequenceAggregateIdGeneratorTest {
+class SqlSequenceStreamIdGeneratorTest {
 
 	private HikariDataSource ds;
 	private Database db;
@@ -41,7 +41,7 @@ class SqlSequenceAggregateIdGeneratorTest {
 		ds = new HikariDataSource(config);
 
 		try (Connection conn = ds.getConnection()) {
-			try (InputStream inputStream = SqlSequenceAggregateIdGeneratorTest.class.getResourceAsStream("/sql/sequence.sql")) {
+			try (InputStream inputStream = SqlSequenceStreamIdGeneratorTest.class.getResourceAsStream("/sql/sequence.sql")) {
 				RunScript.execute(conn, new InputStreamReader(inputStream));
 			}
 		}
@@ -63,17 +63,17 @@ class SqlSequenceAggregateIdGeneratorTest {
 	
 	@Test
 	void testInteger() {
-		AggregateIdGenerator generator = AggregateIdGeneratorFactory.sequenceInteger(new SequenceGenerator4Integer(db, sequence));
+		StreamIdGenerator generator = StreamIdGeneratorFactory.sequenceInteger(new SequenceGenerator4Integer(db, sequence));
 		for (int i = 1 ; i < 20 ; i++) {
-			assertEquals(AggregateIds.from(i),  generator.generate());	
+			assertEquals(StreamIds.from(i),  generator.generate());	
 		}
 	}
 
 	@Test
 	void testLong() {
-		AggregateIdGenerator generator = AggregateIdGeneratorFactory.sequenceLong(new SequenceGenerator4Long(db, sequence));
+		StreamIdGenerator generator = StreamIdGeneratorFactory.sequenceLong(new SequenceGenerator4Long(db, sequence));
 		for (long i = 1 ; i < 20 ; i++) {
-			assertEquals(AggregateIds.from(i),  generator.generate());	
+			assertEquals(StreamIds.from(i),  generator.generate());	
 		}
 	}
 

@@ -9,9 +9,9 @@ import eu.eventstorm.util.ToStringBuilder;
  */
 final class EventImpl<T extends EventPayload> implements Event<T> {
 
-	private final AggregateId aggregateId;
+	private final StreamId streamId;
 
-	private final String aggregateType;
+	private final String stream;
 
 	private final OffsetDateTime timestamp;
 
@@ -19,22 +19,22 @@ final class EventImpl<T extends EventPayload> implements Event<T> {
 
 	private final T payload;
 
-	public EventImpl(AggregateId aggregateId, String aggregateType, OffsetDateTime timestamp, int revision, T payload) {
-		this.aggregateId = aggregateId;
-		this.aggregateType = aggregateType;
+	public EventImpl(StreamId streamId, String stream, OffsetDateTime timestamp, int revision, T payload) {
+		this.streamId = streamId;
+		this.stream = stream;
 		this.timestamp = timestamp;
 		this.payload = payload;
 		this.revision = revision;
 	}
 
 	@Override
-	public AggregateId getAggregateId() {
-		return aggregateId;
+	public StreamId getStreamId() {
+		return streamId;
 	}
 
 	@Override
-	public String getAggregateType() {
-		return this.aggregateType;
+	public String getStream() {
+		return this.stream;
 	}
 
 	@Override
@@ -54,8 +54,8 @@ final class EventImpl<T extends EventPayload> implements Event<T> {
 	public String toString() {
 		// @formatter:off
 		return new ToStringBuilder(true)
-				.append("aggregateId", aggregateId)
-				.append("aggreateType", aggregateType)
+				.append("streamId", streamId)
+				.append("streamI", stream)
 				.append("revision", revision)
 		        .append("timestamp", timestamp)
 		        .append("payload", payload)

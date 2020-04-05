@@ -1,8 +1,6 @@
 package eu.eventstorm.eventstore;
 
-import static eu.eventstorm.core.id.AggregateIds.from;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -19,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -29,7 +28,8 @@ import eu.eventstorm.eventstore.db.Module;
 import eu.eventstorm.eventstore.ex.UserCreatedEventPayload;
 import eu.eventstorm.eventstore.ex.UserCreatedEventPayloadDeserializer;
 import eu.eventstorm.eventstore.ex.UserCreatedEventPayloadImpl;
-import eu.eventstorm.eventstore.registry.EventPayloadRegistryBuilder;
+import eu.eventstorm.eventstore.ex.UserCreatedEventPayloadSerializer;
+import eu.eventstorm.eventstore.memory.InMemoryStreamManagerBuilder;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Dialect;
 import eu.eventstorm.sql.impl.DatabaseBuilder;
@@ -58,6 +58,9 @@ class DatabaseEventStoreTest {
 			try (InputStream inputStream = DatabaseEventStoreTest.class.getResourceAsStream("/db/migration/eventstore/h2/V1.0.0__init-schema.sql")) {
 				RunScript.execute(conn, new InputStreamReader(inputStream));
 			}
+			try (InputStream inputStream = DatabaseEventStoreTest.class.getResourceAsStream("/db/migration/eventstore/h2/V1.0.0.1__test.sql")) {
+				RunScript.execute(conn, new InputStreamReader(inputStream));
+			}
 		}
 		
 		db = DatabaseBuilder.from(Dialect.Name.H2)
@@ -75,20 +78,25 @@ class DatabaseEventStoreTest {
 	@Test
 	void testAppend() {
 		
-		EventPayloadRegistryBuilder builder = new EventPayloadRegistryBuilder();
-		builder.add(UserCreatedEventPayload.class, null, new UserCreatedEventPayloadDeserializer());
+		StreamManager manager = new InMemoryStreamManagerBuilder()
+				.withDefinition("user")
+					.withPayload(UserCreatedEventPayload.class, new UserCreatedEventPayloadSerializer(new ObjectMapper()), new UserCreatedEventPayloadDeserializer())
+				.and()
+				.build();
 		
-		EventStore eventStore = new DatabaseEventStore(db,builder.build());
 		
+		EventStore eventStore = new DatabaseEventStore(db, manager);
 		
-		eventStore.appendToStream("user", from(1), new UserCreatedEventPayloadImpl("ja","gmail",39));
-		eventStore.appendToStream("user", from(1), new UserCreatedEventPayloadImpl("ja","gmail",39));
+		//manager.getDefinition("user")
 		
-		try (Stream<Event<EventPayload>> stream = eventStore.readStream("user", from(1))) {
+		eventStore.appendToStream(manager.getDefinition("user").getStreamEvantPayloadDefinition(UserCreatedEventPayload.class.getSimpleName()), "1", new UserCreatedEventPayloadImpl("ja","gmail",39));
+		eventStore.appendToStream(manager.getDefinition("user").getStreamEvantPayloadDefinition(UserCreatedEventPayload.class.getSimpleName()), "1", new UserCreatedEventPayloadImpl("ja","gmail",39));
+		
+		try (Stream<Event<?>> stream = eventStore.readStream(manager.getDefinition("user"), "1")) {
 		
 			assertEquals(1, ds.getHikariPoolMXBean().getActiveConnections());
 			
-			Optional<Event<EventPayload>> op = stream.findFirst();
+			Optional<Event<?>> op = stream.findFirst();
 			assertTrue(op.isPresent());
 			UserCreatedEventPayload payload = (UserCreatedEventPayload) op.get().getPayload();
 			assertEquals("ja", payload.getName());
@@ -101,9 +109,14 @@ class DatabaseEventStoreTest {
 	
 	@Test
 	void testEventStoreException() {
-		EventStore eventStore = new DatabaseEventStore(db,new EventPayloadRegistryBuilder().build());
-		EventStoreException ese = assertThrows(EventStoreException.class , () -> eventStore.appendToStream("user", from(1), new BadEventPayload()));
-		assertEquals(EventStoreException.Type.FAILED_TO_SERILIAZE_PAYLOAD, ese.getType());
+		StreamManager manager = new InMemoryStreamManagerBuilder()
+				.withDefinition("user")
+				.and()
+				.build();
+		
+		EventStore eventStore = new DatabaseEventStore(db, manager);
+		//EventStoreException ese = assertThrows(EventStoreException.class , () -> eventStore.appendToStream(manager.getDefinition("user"), "1", new BadEventPayload()));
+		//assertEquals(EventStoreException.Type.FAILED_TO_SERILIAZE_PAYLOAD, ese.getType());
 	}
 	
 	

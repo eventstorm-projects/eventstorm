@@ -1,7 +1,7 @@
 package eu.eventstorm.cloudevents;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
-import static eu.eventstorm.core.id.AggregateIds.from;
+import static eu.eventstorm.core.id.StreamIds.from;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.OffsetDateTime;

@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.eventstorm.cloudevents.json.jackson.CloudEventsModule;
 import eu.eventstorm.core.EventPayload;
-import eu.eventstorm.core.id.AggregateIds;
+import eu.eventstorm.core.id.StreamIds;
 
 class CloudEventsModuleTest {
 
@@ -32,7 +32,7 @@ class CloudEventsModuleTest {
 		temp.setValue("valuz01");
 		
 		CloudEvent event = new CloudEventBuilder()
-				.withAggregateId(AggregateIds.from(1))
+				.withAggregateId(StreamIds.from(1))
 				.withAggregateType("test")
 				.withTimestamp(OffsetDateTime.now())
 				.withVersion(1)

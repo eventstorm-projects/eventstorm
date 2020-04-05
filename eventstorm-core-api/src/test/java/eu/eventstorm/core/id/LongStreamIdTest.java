@@ -12,20 +12,20 @@ import org.json.JSONException;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
-import eu.eventstorm.core.AggregateId;
+import eu.eventstorm.core.StreamId;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-class IntegerAggregateIdTest {
+class LongStreamIdTest {
 
 	@Test
 	void testEquals() {
 		
-		AggregateId id1 = new IntegerAggregateId(123);
-		AggregateId id2 = new IntegerAggregateId(124);
-		AggregateId id3 = new IntegerAggregateId(123);
-		AggregateId id4 = new LongAggregateId(123l);
+		StreamId id1 = new LongStreamId(123l);
+		StreamId id2 = new LongStreamId(124l);
+		StreamId id3 = StreamIds.from(123l);
+		StreamId id4 = new IntegerStreamId(123);
 		
 		assertEquals(id1, id1);
 		assertEquals(id1, id3);
@@ -38,14 +38,15 @@ class IntegerAggregateIdTest {
 	@Test
 	void testHashCode() throws JSONException {
 		
-		Set<AggregateId> set = new HashSet<>();
-		set.add(new IntegerAggregateId(123));
+		Set<StreamId> set = new HashSet<>();
+		set.add(new LongStreamId(123l));
 		
-		assertTrue(set.contains(new IntegerAggregateId(123)));
-		assertFalse(set.contains(new IntegerAggregateId(124)));
-		assertFalse(set.contains(new LongAggregateId(125l)));
+		assertTrue(set.contains(new LongStreamId(123l)));
+		assertFalse(set.contains(new LongStreamId(124l)));
+		assertFalse(set.contains(new IntegerStreamId(125)));
 		
+		JSONAssert.assertEquals("{id:123}", new LongStreamId(123l).toString(), false);
 
-		JSONAssert.assertEquals("{id:123}", new IntegerAggregateId(123).toString(), false);
+		
 	}
 }

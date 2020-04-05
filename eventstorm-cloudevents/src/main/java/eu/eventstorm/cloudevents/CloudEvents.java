@@ -25,8 +25,8 @@ public final class CloudEvents {
 	
 	public static CloudEvent to(Event<EventPayload> event) {
 		return new CloudEventBuilder()
-					.withAggregateType(event.getAggregateType())
-					.withAggregateId(event.getAggregateId())
+					.withAggregateType(event.getStream())
+					.withAggregateId(event.getStreamId())
 					.withPayload(event.getPayload())
 					.withTimestamp(event.getTimestamp())
 					.withSubject(event.getPayload().getClass().getName())

@@ -10,7 +10,7 @@ import eu.eventstorm.core.EventPayload;
 import eu.eventstorm.core.validation.ConstraintViolation;
 import eu.eventstorm.cqrs.validation.CommandValidationException;
 import eu.eventstorm.cqrs.validation.Validator;
-import eu.eventstorm.eventstore.EventStore;
+import eu.eventstorm.eventstore.EventStoreClient;
 import reactor.core.publisher.Flux;
 
 /**
@@ -20,19 +20,19 @@ public abstract class AbstractCommandHandler<T extends Command> implements Comma
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractCommandHandler.class);
 
-	private final EventStore eventStore;
+	private final EventStoreClient eventStore;
 	
 	private final Validator<T> validator;
 	
 	private final Class<T> type;
 
-	public AbstractCommandHandler(Class<T> type, Validator<T> validator, EventStore eventStore) {
+	public AbstractCommandHandler(Class<T> type, Validator<T> validator, EventStoreClient eventStore) {
 		this.type = type;
 		this.validator = validator;
 		this.eventStore = eventStore;
 	}
 
-	protected EventStore getEventStore() {
+	protected EventStoreClient getEventStore() {
 		return eventStore;
 	}
 

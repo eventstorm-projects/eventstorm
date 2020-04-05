@@ -1,31 +1,31 @@
 package eu.eventstorm.core.id;
 
-import eu.eventstorm.core.AggregateId;
+import eu.eventstorm.core.StreamId;
 import eu.eventstorm.sql.Transaction;
 import eu.eventstorm.sql.id.SequenceGenerator;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-abstract class SqlSequenceAggregateIdGenerator<T> implements AggregateIdGenerator {
+abstract class SqlSequenceStreamIdGenerator<T> implements StreamIdGenerator {
 
     final SequenceGenerator<T> sequenceGenerator;
     
-	public SqlSequenceAggregateIdGenerator(SequenceGenerator<T> sequenceGenerator) {
+	public SqlSequenceStreamIdGenerator(SequenceGenerator<T> sequenceGenerator) {
         this.sequenceGenerator = sequenceGenerator;
     }
 
-    static final class Long extends SqlSequenceAggregateIdGenerator<java.lang.Long> {
+    static final class Long extends SqlSequenceStreamIdGenerator<java.lang.Long> {
 
         public Long(SequenceGenerator<java.lang.Long> sequenceGenerator) {
             super(sequenceGenerator);
         }
         
         @Override
-        public AggregateId generate() {
-            AggregateId aggregateId;
+        public StreamId generate() {
+            StreamId aggregateId;
             try (Transaction tx = sequenceGenerator.getDatabase().transactionManager().newTransactionReadOnly()) {
-                aggregateId = AggregateIds.from(sequenceGenerator.next());
+                aggregateId = StreamIds.from(sequenceGenerator.next());
                 tx.rollback();
             }
             return aggregateId;
@@ -33,17 +33,17 @@ abstract class SqlSequenceAggregateIdGenerator<T> implements AggregateIdGenerato
 	    
 	}
     
-    static final class Integer extends SqlSequenceAggregateIdGenerator<java.lang.Integer> {
+    static final class Integer extends SqlSequenceStreamIdGenerator<java.lang.Integer> {
 
         public Integer(SequenceGenerator<java.lang.Integer> sequenceGenerator) {
             super(sequenceGenerator);
         }
         
         @Override
-        public AggregateId generate() {
-            AggregateId aggregateId;
+        public StreamId generate() {
+            StreamId aggregateId;
             try (Transaction tx = sequenceGenerator.getDatabase().transactionManager().newTransactionReadOnly()) {
-                aggregateId = AggregateIds.from(sequenceGenerator.next());
+                aggregateId = StreamIds.from(sequenceGenerator.next());
                 tx.rollback();
             }
             return aggregateId;

@@ -41,7 +41,7 @@ final class DatabaseRepository extends AbstractDatabaseEventRepository {
 		}, Mappers.DATABASE_EVENT);
 	}
 
-	public <T> Stream<T> findAllByAggragateTypeAndAggregateId(String aggregateType, String aggregateId, ResultSetMapper<T> rsm) {
+	public  <T> Stream<T> findAllByAggragateTypeAndAggregateId(String aggregateType, String aggregateId, ResultSetMapper<T> rsm) {
 		return stream(this.findByAggreateTypeAndAggregateId, ps -> {
 			ps.setString(1, aggregateType);
 			ps.setString(2, aggregateId);
