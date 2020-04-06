@@ -46,12 +46,8 @@ public final class InMemoryEventStoreClient implements EventStoreClient {
 			throw new EventStoreException(EventStoreException.Type.STREAM_NOT_FOUND, of(PARAM_STREAM, stream));
 		}
 		
+		// if sepd not found => exception.
 		StreamEvantPayloadDefinition<T> sepd = sd.getStreamEvantPayloadDefinition(evantPayload);
-		
-		if (sepd == null) {
-			//throw new EventStoreException(EventStoreException.Type.STREAM_NOT_FOUND, of(PARAM_STREAM, stream));
-			return null;
-		}
 		
 		return this.inMemoryEventStore.appendToStream(sepd, streamId.toStringValue(), evantPayload);
 	}

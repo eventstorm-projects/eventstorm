@@ -14,7 +14,7 @@ public final class EventStoreException extends EventstormException {
 	public static final String PARAM_STREAM = "stream";
 	
 	public enum Type implements EventstormExceptionType {
-		STREAM_NOT_FOUND, FAILED_TO_SERILIAZE_PAYLOAD
+		STREAM_NOT_FOUND, STREAM_EVENT_PAYLOAD_NOT_FOUND, FAILED_TO_SERILIAZE_PAYLOAD
 	}
 	
 	public EventStoreException(EventstormExceptionType type, ImmutableMap<String, Object> values) {

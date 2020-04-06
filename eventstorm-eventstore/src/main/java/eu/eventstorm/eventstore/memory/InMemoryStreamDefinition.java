@@ -72,14 +72,10 @@ final class InMemoryStreamDefinition implements StreamDefinition {
 			return def;
 		}
 		
-		Class<?>[] classes = clazz.getInterfaces();
-		
-		if (classes != null) {
-			for (Class<?> item : classes) {
-				def = (InMemoryStreamEvantPayloadDefinition<?>) getFromCache(classname, item);
-				if (def != null) {
-					return def;
-				}
+		for (Class<?> item : clazz.getInterfaces()) {
+			def = (InMemoryStreamEvantPayloadDefinition<?>) getFromCache(classname, item);
+			if (def != null) {
+				return def;
 			}
 		}
 		return null;
