@@ -4,7 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.OffsetDateTime;
 
+import org.json.JSONException;
 import org.junit.jupiter.api.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
 
 import eu.eventstorm.core.id.StreamIds;
 
@@ -14,7 +16,7 @@ import eu.eventstorm.core.id.StreamIds;
 class EventTest {
 
 	@Test
-	void test01() {
+	void test01() throws JSONException {
 		
 		OffsetDateTime now = OffsetDateTime.now();
 		
@@ -34,6 +36,8 @@ class EventTest {
 		assertEquals(StreamIds.from(1), event.getStreamId());
 		assertEquals(1, event.getRevision());
 		assertEquals(payload, event.getPayload());
-				
+		
+		JSONAssert.assertEquals("{stream:user, revision:1}", event.toString(), false);
+
 	}
 }

@@ -24,7 +24,7 @@ final class IntegerStreamId implements StreamId {
 		if (this == obj) {
 			return true;
 		}
-		if ((obj == null) || getClass() != obj.getClass()) {
+		if ((obj == null) || IntegerStreamId.class != obj.getClass()) {
 			return false;
 		}
 		

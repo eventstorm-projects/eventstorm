@@ -24,7 +24,7 @@ final class LongStreamId implements StreamId {
         if (this == obj) {
             return true;
         }
-
+        
         if ((obj == null) || LongStreamId.class != obj.getClass()) {
             return false;
         }

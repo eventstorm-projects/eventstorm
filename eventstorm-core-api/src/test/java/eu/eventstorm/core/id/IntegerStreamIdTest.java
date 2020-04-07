@@ -32,6 +32,7 @@ class IntegerStreamIdTest {
 		assertNotEquals(id1, id2);
 		assertNotEquals(id1, id4);
 		assertNotEquals(null, id1);
+		assertNotEquals(id1, null);
 		
 	}
 	

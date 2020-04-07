@@ -42,10 +42,12 @@ final class EventImpl<T extends EventPayload> implements Event<T> {
 		return this.payload;
 	}
 
+	@Override
 	public OffsetDateTime getTimestamp() {
 		return timestamp;
 	}
-
+	
+	@Override
 	public int getRevision() {
 		return revision;
 	}
@@ -55,7 +57,7 @@ final class EventImpl<T extends EventPayload> implements Event<T> {
 		// @formatter:off
 		return new ToStringBuilder(true)
 				.append("streamId", streamId)
-				.append("streamI", stream)
+				.append("stream", stream)
 				.append("revision", revision)
 		        .append("timestamp", timestamp)
 		        .append("payload", payload)
