@@ -54,7 +54,7 @@ public final class InMemoryEventStoreClient implements EventStoreClient {
 
 
 	@Override
-	public Stream<Event<?>> readStream(String stream, StreamId streamId) {
+	public Stream<Event<EventPayload>> readStream(String stream, StreamId streamId) {
 		return inMemoryEventStore.readStream(streamManager.getDefinition(stream), streamId.toStringValue());
 	}
 

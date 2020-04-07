@@ -1,7 +1,5 @@
 package eu.eventstorm.eventstore.rest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -13,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.common.collect.ImmutableMap;
 
 import eu.eventstorm.core.Event;
+import eu.eventstorm.core.EventPayload;
 import eu.eventstorm.eventstore.EventStore;
 import eu.eventstorm.eventstore.StreamDefinition;
 import eu.eventstorm.eventstore.StreamDefinitionException;
@@ -25,8 +24,6 @@ import reactor.util.function.Tuples;
 
 @RestController
 public final class ApiRestController {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(ApiRestController.class);
 
 	private final EventStore eventStore;
 
@@ -41,7 +38,7 @@ public final class ApiRestController {
 	}
 
 	@PostMapping(path = "append/{stream}/{streamId}/{eventPayloadType}", consumes = MediaType.APPLICATION_JSON_VALUE)
-	public Mono<Event<?>> append(@PathVariable("stream") String stream, @PathVariable("streamId") String streamId,
+	public Mono<Event<EventPayload>> append(@PathVariable("stream") String stream, @PathVariable("streamId") String streamId,
 	        @PathVariable("eventPayloadType") String payloadType, ServerHttpRequest request) {
 
 		StreamDefinition definition = streamManager.getDefinition(stream);
@@ -66,13 +63,17 @@ public final class ApiRestController {
 					return result;
 				}))
 				.publishOn(scheduler)
-		        .map(tuple -> eventStore.appendToStream(tuple.getT1().getT1(), tuple.getT1().getT2(), tuple.getT2()));
+		        .map(tuple -> {
+		        	@SuppressWarnings("unchecked")
+		        	Event<EventPayload> event = (Event<EventPayload>) eventStore.appendToStream(tuple.getT1().getT1(), tuple.getT1().getT2(), tuple.getT2());
+					return event;
+		        });
 		// @formatter:on
 
 	}
 
 	@GetMapping(path = "read/{stream}/{streamId}")
-	public Flux<Event<?>> read(@PathVariable("stream") String stream, @PathVariable("streamId") String streamId) {
+	public Flux<Event<EventPayload>> read(@PathVariable("stream") String stream, @PathVariable("streamId") String streamId) {
 
 		StreamDefinition definition = streamManager.getDefinition(stream);
 

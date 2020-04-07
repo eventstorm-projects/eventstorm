@@ -14,6 +14,6 @@ public interface EventStore {
 
 	<T extends EventPayload> Event<T> appendToStream(StreamEvantPayloadDefinition<T> sepd, String streamId, T eventPayload);
 	
-	Stream<Event<?>> readStream(StreamDefinition definition, String streamId);
+	Stream<Event<EventPayload>> readStream(StreamDefinition definition, String streamId);
 
 }

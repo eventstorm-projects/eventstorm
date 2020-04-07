@@ -49,7 +49,7 @@ public final class DatabaseEventStore implements EventStore {
 	}
 
 	@Override
-	public Stream<Event<?>> readStream(StreamDefinition definition, String streamId) {
+	public Stream<Event<EventPayload>> readStream(StreamDefinition definition, String streamId) {
 		return streamTemplate.decorate(() -> 
 			this.databaseRepository.findAllByAggragateTypeAndAggregateId(definition.getName(), streamId,  new EventResultSetMapper(definition)));
 	}
@@ -120,7 +120,7 @@ public final class DatabaseEventStore implements EventStore {
 
 	private static final ZoneId ZONE_ID = ZoneId.of("UTC");
 
-	private final class EventResultSetMapper implements ResultSetMapper<Event<?>> {
+	private final class EventResultSetMapper implements ResultSetMapper<Event<EventPayload>> {
 		
 		private final StreamDefinition definition;
 

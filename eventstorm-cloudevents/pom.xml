@@ -9,6 +9,7 @@
 	<artifactId>eventstorm-cloudevents</artifactId>
 
 	<dependencies>
+		
 		<dependency>
 			<groupId>eu.eventstorm</groupId>
 			<artifactId>eventstorm-core-api</artifactId>
@@ -24,6 +25,13 @@
 		<dependency>
 			<groupId>eu.eventstorm</groupId>
 			<artifactId>eventstorm-test</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>eu.eventstorm</groupId>
+			<artifactId>eventstorm-eventstore</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>

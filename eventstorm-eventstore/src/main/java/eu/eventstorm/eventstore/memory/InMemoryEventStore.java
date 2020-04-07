@@ -29,20 +29,20 @@ public final class InMemoryEventStore implements EventStore {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(InMemoryEventStore.class);
 
-	private final Map<String, Map<String, List<Event<?>>>> map = new HashMap<>();
+	private final Map<String, Map<String, List<Event<EventPayload>>>> map = new HashMap<>();
 
 	private final List<Event<? extends EventPayload>> allEvents = new LinkedList<>();
 
 	@Override
-	public Stream<Event<?>> readStream(StreamDefinition definition, String streamId) {
+	public Stream<Event<EventPayload>> readStream(StreamDefinition definition, String streamId) {
 	
-		Map<String, List<Event<?>>> stream = map.get(definition.getName());
+		Map<String, List<Event<EventPayload>>> stream = map.get(definition.getName());
 
 		if (stream == null) {
 			throw new EventStoreException(EventStoreException.Type.STREAM_NOT_FOUND, ImmutableMap.of("stream", definition.getName()));
 		}
 
-		List<Event<?>> events = stream.get(streamId);
+		List<Event<EventPayload>> events = stream.get(streamId);
 
 		if (events == null) {
 			return Stream.empty();
@@ -56,13 +56,14 @@ public final class InMemoryEventStore implements EventStore {
 		return appendToStream(sepd, streamId, sepd.getPayloadDeserializer().deserialize(data));
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public <T extends EventPayload> Event<T> appendToStream(StreamEvantPayloadDefinition<T> sepd, String streamId, T eventPayload) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("store to [{}] with Id [{}]", sepd, streamId);
 		}
 
-		Map<String, List<Event<?>>> mapType = this.map.get(sepd.getStream());
+		Map<String, List<Event<EventPayload>>> mapType = this.map.get(sepd.getStream());
 		
 		int revision = 1;
 		
@@ -71,7 +72,7 @@ public final class InMemoryEventStore implements EventStore {
 			map.put(sepd.getStream(), mapType);
 		} 
 		
-		List<Event<?>> events = mapType.get(streamId);
+		List<Event<EventPayload>> events = mapType.get(streamId);
 		if (events == null) {
 			events = new ArrayList<>();
 			mapType.put(streamId, events);
@@ -90,7 +91,7 @@ public final class InMemoryEventStore implements EventStore {
 		// @formatter:on
 
 		this.allEvents.add(event);
-		events.add(event);
+		events.add((Event<EventPayload>) event);
 		return event;
 	}
 

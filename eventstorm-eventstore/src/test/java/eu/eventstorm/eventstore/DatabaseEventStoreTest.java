@@ -92,11 +92,11 @@ class DatabaseEventStoreTest {
 		eventStore.appendToStream(manager.getDefinition("user").getStreamEvantPayloadDefinition(UserCreatedEventPayload.class.getSimpleName()), "1", new UserCreatedEventPayloadImpl("ja","gmail",39));
 		eventStore.appendToStream(manager.getDefinition("user").getStreamEvantPayloadDefinition(UserCreatedEventPayload.class.getSimpleName()), "1", new UserCreatedEventPayloadImpl("ja","gmail",39));
 		
-		try (Stream<Event<?>> stream = eventStore.readStream(manager.getDefinition("user"), "1")) {
+		try (Stream<Event<EventPayload>> stream = eventStore.readStream(manager.getDefinition("user"), "1")) {
 		
 			assertEquals(1, ds.getHikariPoolMXBean().getActiveConnections());
 			
-			Optional<Event<?>> op = stream.findFirst();
+			Optional<Event<EventPayload>> op = stream.findFirst();
 			assertTrue(op.isPresent());
 			UserCreatedEventPayload payload = (UserCreatedEventPayload) op.get().getPayload();
 			assertEquals("ja", payload.getName());

@@ -11,31 +11,43 @@ import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import eu.eventstorm.core.EventPayload;
+import eu.eventstorm.eventstore.EventStoreClient;
+import eu.eventstorm.eventstore.memory.InMemoryEventStore;
+import eu.eventstorm.eventstore.memory.InMemoryEventStoreClient;
+import eu.eventstorm.eventstore.memory.InMemoryStreamManagerBuilder;
 
 class CloudeventTest {
 
 	@Test
 	void test() {
-//		InMemoryEventStore eventStore = new InMemoryEventStore();
-//		
-//		eventStore.appendToStream("toto", from(12), new EventPayload() {});
-//		eventStore.appendToStream("toto", from(12), new EventPayload() {});
-//		eventStore.appendToStream("toto", from(12), new EventPayload() {});
-//		eventStore.appendToStream("toto", from(12), new EventPayload() {});
-//		
-//		List<CloudEvent> events = CloudEvents.to(eventStore.readStream("toto", from(12))).collect(toImmutableList());
-//		
-//		for (CloudEvent event : events) {
-//			assertEquals("12", event.id());
-//			assertEquals("1.0", event.specVersion());
-//		}
-//		
-//		events = CloudEvents.to(eventStore.readStream("toto", from(12)).collect(toImmutableList())).collect(toImmutableList());
-//		
-//		for (CloudEvent event : events) {
-//			assertEquals("12", event.id());
-//			assertEquals("1.0", event.specVersion());
-//		}
+		
+		EventStoreClient eventStore = new InMemoryEventStoreClient(
+				new InMemoryStreamManagerBuilder()
+					.withDefinition("toto")
+						.withPayload(EventPayload.class, null, null)
+					.and()
+					.build(),
+				new InMemoryEventStore()
+				);
+		
+		eventStore.appendToStream("toto", from(12), new EventPayload() {});
+		eventStore.appendToStream("toto", from(12), new EventPayload() {});
+		eventStore.appendToStream("toto", from(12), new EventPayload() {});
+		eventStore.appendToStream("toto", from(12), new EventPayload() {});
+		
+		List<CloudEvent> events = CloudEvents.to(eventStore.readStream("toto", from(12))).collect(toImmutableList());
+		
+		for (CloudEvent event : events) {
+			assertEquals("12", event.id());
+			assertEquals("1.0", event.specVersion());
+		}
+		
+		events = CloudEvents.to(eventStore.readStream("toto", from(12)).collect(toImmutableList())).collect(toImmutableList());
+		
+		for (CloudEvent event : events) {
+			assertEquals("12", event.id());
+			assertEquals("1.0", event.specVersion());
+		}
 	}
 	
 	@Test

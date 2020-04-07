@@ -13,6 +13,6 @@ public interface EventStoreClient {
 
 	<T extends EventPayload> Event<T> appendToStream(String stream, StreamId streamId, T evantPayload);
 
-	Stream<Event<?>> readStream(String stream, StreamId streamId);
+	Stream<Event<EventPayload>> readStream(String stream, StreamId streamId);
 
 }
