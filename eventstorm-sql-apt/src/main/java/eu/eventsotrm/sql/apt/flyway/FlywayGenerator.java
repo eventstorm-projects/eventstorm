@@ -145,7 +145,7 @@ public final class FlywayGenerator {
 			if (autoIncrement != null) {
 				builder.append(fd.autoIncrementType(id.getter().getReturnType().toString()));
 			} else {
-				builder.append(fd.toSqlType(id.getter().getReturnType().toString(), id.getter().getAnnotation(Column.class)));
+				builder.append(fd.toSqlType(id.getter().getReturnType().toString(), anno));
 			}
 			builder.append(",");
 

@@ -6,6 +6,7 @@ import java.sql.Timestamp;
 
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.sql.annotation.Column;
+import eu.eventstorm.sql.annotation.PrimaryKey;
 import eu.eventstorm.sql.type.Json;
 
 /**
@@ -15,6 +16,25 @@ final class FlywayDialectH2 implements FlywayDialect {
 
 	static final FlywayDialect INSTANCE = new FlywayDialectH2();
 
+	@Override
+	public String toSqlType(String javaType, PrimaryKey column) {
+		
+		if (int.class.getName().equals(javaType) || Integer.class.getName().equals(javaType)) {
+			return "INT";
+		}
+
+		if (long.class.getName().equals(javaType) || Long.class.getName().equals(javaType)) {
+			return "BIGINT";
+		}
+		
+		if (String.class.getName().equals(javaType)) {
+			return "VARCHAR(" + column.length() + ")";
+		}
+		
+		LoggerFactory.getInstance().getLogger(FlywayDialectH2.class).error("No sql type for java type (PrimaryKey) [" + javaType + "]");
+		return null;
+	}
+	
 	@Override
 	public String toSqlType(String javaType, Column column) {
 
@@ -82,4 +102,5 @@ final class FlywayDialectH2 implements FlywayDialect {
 
 		return null;
 	}
+
 }

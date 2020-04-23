@@ -11,6 +11,7 @@ import static eu.eventstorm.sql.model.ex001.StudentDescriptor.TABLE;
 import java.util.stream.Stream;
 
 import eu.eventstorm.sql.jdbc.PreparedStatementSetter;
+import eu.eventstorm.sql.jdbc.PreparedStatementSetters;
 
 public abstract class AbstractStudentRepository extends eu.eventstorm.sql.Repository {
 
@@ -61,6 +62,6 @@ public abstract class AbstractStudentRepository extends eu.eventstorm.sql.Reposi
 	}
 	
 	public final Stream<Student> findAll() {
-		return stream(findAll, PreparedStatementSetter.EMPTY, STUDENT);
+		return stream(findAll, PreparedStatementSetters.noParameter(), STUDENT);
 	}
 }

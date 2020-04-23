@@ -1,6 +1,7 @@
 package eu.eventstorm.sql;
 
 import static eu.eventstorm.sql.expression.Expressions.eq;
+import static eu.eventstorm.sql.jdbc.PreparedStatementSetters.noParameter;
 import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -30,6 +31,7 @@ import eu.eventstorm.sql.impl.DatabaseBuilder;
 import eu.eventstorm.sql.impl.TransactionManagerImpl;
 import eu.eventstorm.sql.jdbc.Batch;
 import eu.eventstorm.sql.jdbc.PreparedStatementSetter;
+import eu.eventstorm.sql.jdbc.PreparedStatementSetters;
 import eu.eventstorm.sql.jdbc.ResultSetMappers;
 import eu.eventstorm.sql.model.ex001.Student;
 import eu.eventstorm.sql.model.ex001.StudentDescriptor;
@@ -72,7 +74,7 @@ class RepositoryTest {
 		SelectBuilder builder = repo.select(StudentDescriptor.ALL).from(StudentDescriptor.TABLE);
 		assertEquals("SELECT id,code,age,overall_rating,created_at,readonly FROM student", builder.build());
 		try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
-			Student s = repo.executeSelect(builder.build(), PreparedStatementSetter.EMPTY, STUDENT);
+			Student s = repo.executeSelect(builder.build(), noParameter(), STUDENT);
 			assertNull(s);
 			tx.rollback();
 		}
@@ -94,7 +96,7 @@ class RepositoryTest {
 
 		SelectBuilder builder = repo.select(StudentDescriptor.ALL).from(StudentDescriptor.TABLE);
 		try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
-			Student s = repo.executeSelect(builder.build(), PreparedStatementSetter.EMPTY, STUDENT);
+			Student s = repo.executeSelect(builder.build(), noParameter(), STUDENT);
 			assertNotNull(s);
 			tx.rollback();
 		}
@@ -141,7 +143,7 @@ class RepositoryTest {
 
 		try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
 			EventstormRepositoryException ex = assertThrows(EventstormRepositoryException.class, () -> repo
-			        .executeSelect(repo.select(StudentDescriptor.ALL).from(StudentDescriptor.TABLE).build(), PreparedStatementSetter.EMPTY, (dialect, rs) -> {
+			        .executeSelect(repo.select(StudentDescriptor.ALL).from(StudentDescriptor.TABLE).build(), noParameter(), (dialect, rs) -> {
 				        rs.getShort(100);
 				        return null;
 			        }));
@@ -154,7 +156,7 @@ class RepositoryTest {
 	void testSelectExceptionOnExecuteQuery() {
 		try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
 			EventstormRepositoryException ex = assertThrows(EventstormRepositoryException.class,
-			        () -> repo.executeSelect("select nextval('Hello world')", PreparedStatementSetter.EMPTY, STUDENT));
+			        () -> repo.executeSelect("select nextval('Hello world')", noParameter(), STUDENT));
 			assertEquals(EventstormRepositoryException.Type.SELECT_EXECUTE_QUERY, ex.getType());
 			tx.rollback();
 		}
@@ -179,7 +181,7 @@ class RepositoryTest {
 		SelectBuilder builder = repo.select(StudentDescriptor.ALL).from(StudentDescriptor.TABLE);
 
 		try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
-			try (Stream<Student> stream = repo.stream(builder.build(), PreparedStatementSetter.EMPTY, STUDENT)) {
+			try (Stream<Student> stream = repo.stream(builder.build(), noParameter(), STUDENT)) {
 				assertNotNull(stream);
 				
 				List<Student> list = stream.collect(toList());
@@ -264,7 +266,7 @@ class RepositoryTest {
                 .build();
 
         try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
-            long count = repo.executeSelect(select, PreparedStatementSetter.EMPTY, ResultSetMappers.SINGLE_LONG);
+            long count = repo.executeSelect(select, noParameter(), ResultSetMappers.SINGLE_LONG);
             assertEquals(100, count);
 			tx.rollback();
         }
@@ -279,7 +281,7 @@ class RepositoryTest {
         }
 
         try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
-            long count = repo.executeSelect(select, PreparedStatementSetter.EMPTY, ResultSetMappers.SINGLE_LONG);
+            long count = repo.executeSelect(select, noParameter(), ResultSetMappers.SINGLE_LONG);
             assertEquals(0, count);
 			tx.rollback();
         }
@@ -312,7 +314,7 @@ class RepositoryTest {
                 .build();
 
         try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
-            long count = repo.executeSelect(select, PreparedStatementSetter.EMPTY, ResultSetMappers.SINGLE_LONG);
+            long count = repo.executeSelect(select, noParameter(), ResultSetMappers.SINGLE_LONG);
             assertEquals(100, count);
 			tx.rollback();
         }
@@ -327,7 +329,7 @@ class RepositoryTest {
         }
 
         try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
-            long count = repo.executeSelect(select, PreparedStatementSetter.EMPTY, ResultSetMappers.SINGLE_LONG);
+            long count = repo.executeSelect(select, noParameter(), ResultSetMappers.SINGLE_LONG);
             assertEquals(0, count);
 			tx.rollback();
         }

@@ -6,9 +6,8 @@ import java.sql.SQLException;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
+@FunctionalInterface
 public interface PreparedStatementSetter {
-
-    PreparedStatementSetter EMPTY = ps -> {};
 
     void set(PreparedStatement ps) throws SQLException;
 
