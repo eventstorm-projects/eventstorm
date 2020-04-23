@@ -11,11 +11,17 @@ public final class Dialects {
     public static Dialect h2(Database database) {
         return new H2Dialect(database);
     }
+    
+    public static Dialect oracle(Database database) {
+        return new OracleDialect(database);
+    }
 
     public static Dialect dialect(Dialect.Name name, Database database) {
         switch (name) {
             case H2:
                 return h2(database);
+            case ORACLE:
+                return oracle(database);
             default:
                 throw new IllegalStateException("invalid dialect name [" + name + "]");
         }

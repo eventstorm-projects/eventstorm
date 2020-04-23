@@ -128,7 +128,7 @@ final class CsvReaderImpl implements CsvReader {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         Buffers.releaseDirectByteBuffer(buffer);
     }
 

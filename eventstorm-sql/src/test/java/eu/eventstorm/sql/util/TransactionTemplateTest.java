@@ -57,7 +57,7 @@ class TransactionTemplateTest {
 				.withModule(new eu.eventstorm.sql.model.ex001.Module("test", null))
 				.build();
 		
-		template = new TransactionTemplate(db);
+		template = new TransactionTemplate(db.transactionManager());
 		
 		repository = new AbstractStudentRepository(db) {
         };

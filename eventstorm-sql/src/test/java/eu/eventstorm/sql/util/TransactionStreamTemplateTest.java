@@ -1,7 +1,6 @@
 package eu.eventstorm.sql.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
@@ -13,7 +12,6 @@ import java.util.stream.Stream;
 
 import org.h2.tools.RunScript;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -56,7 +54,7 @@ class TransactionStreamTemplateTest {
 				.withModule(new eu.eventstorm.sql.model.ex001.Module("test", null))
 				.build();
 		
-		template = new TransactionTemplate(db);
+		template = new TransactionTemplate(db.transactionManager());
 		streamTemplate = new TransactionStreamTemplate(db);
 		
 		repository = new AbstractStudentRepository(db) {

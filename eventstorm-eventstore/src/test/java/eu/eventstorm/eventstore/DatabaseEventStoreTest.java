@@ -58,9 +58,6 @@ class DatabaseEventStoreTest {
 			try (InputStream inputStream = DatabaseEventStoreTest.class.getResourceAsStream("/db/migration/eventstore/h2/V1.0.0__init-schema.sql")) {
 				RunScript.execute(conn, new InputStreamReader(inputStream));
 			}
-			try (InputStream inputStream = DatabaseEventStoreTest.class.getResourceAsStream("/db/migration/eventstore/h2/V1.0.0.1__test.sql")) {
-				RunScript.execute(conn, new InputStreamReader(inputStream));
-			}
 		}
 		
 		db = DatabaseBuilder.from(Dialect.Name.H2)
@@ -85,7 +82,7 @@ class DatabaseEventStoreTest {
 				.build();
 		
 		
-		EventStore eventStore = new DatabaseEventStore(db, manager);
+		EventStore eventStore = new DatabaseEventStore(db);
 		
 		//manager.getDefinition("user")
 		
@@ -114,7 +111,7 @@ class DatabaseEventStoreTest {
 				.and()
 				.build();
 		
-		EventStore eventStore = new DatabaseEventStore(db, manager);
+		EventStore eventStore = new DatabaseEventStore(db);
 		//EventStoreException ese = assertThrows(EventStoreException.class , () -> eventStore.appendToStream(manager.getDefinition("user"), "1", new BadEventPayload()));
 		//assertEquals(EventStoreException.Type.FAILED_TO_SERILIAZE_PAYLOAD, ese.getType());
 	}

@@ -8,16 +8,14 @@ import java.time.ZoneId;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import eu.eventstorm.core.Event;
 import eu.eventstorm.core.EventBuilder;
 import eu.eventstorm.core.EventPayload;
 import eu.eventstorm.core.id.StreamIds;
 import eu.eventstorm.eventstore.EventStore;
+import eu.eventstorm.eventstore.Statistics;
 import eu.eventstorm.eventstore.StreamDefinition;
 import eu.eventstorm.eventstore.StreamEvantPayloadDefinition;
-import eu.eventstorm.eventstore.StreamManager;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Dialect;
 import eu.eventstorm.sql.Transaction;
@@ -34,24 +32,18 @@ public final class DatabaseEventStore implements EventStore {
 	
 	private final DatabaseRepository databaseRepository;
 	
-	private final ObjectMapper mapper;
-	
 	private final TransactionStreamTemplate streamTemplate;
 	
-	private final StreamManager streamManager;
-	
-	public DatabaseEventStore(Database database, StreamManager streamManager) {
+	public DatabaseEventStore(Database database) {
 		this.database = database;
-		this.streamManager = streamManager;
 		this.databaseRepository = new DatabaseRepository(database);
-		this.mapper = new ObjectMapper();
 		this.streamTemplate = new TransactionStreamTemplate(database);
 	}
 
 	@Override
 	public Stream<Event<EventPayload>> readStream(StreamDefinition definition, String streamId) {
 		return streamTemplate.decorate(() -> 
-			this.databaseRepository.findAllByAggragateTypeAndAggregateId(definition.getName(), streamId,  new EventResultSetMapper(definition)));
+			this.databaseRepository.findAllByStreamAndStreamId(definition.getName(), streamId,  new EventResultSetMapper(definition)));
 	}
 
 	@Override
@@ -70,11 +62,11 @@ public final class DatabaseEventStore implements EventStore {
 				Optional<DatabaseEvent> optional = events.findFirst();
 
 				DatabaseEventBuilder builder = new DatabaseEventBuilder()
-						.withAggregateId(streamId)
-						.withAggregateType(sepd.getStream())
+						.withStreamId(streamId)
+						.withStream(sepd.getStream())
 				        .withTime(Timestamp.from(time.toInstant()))
 				        .withPayload(Blobs.newBlob(eventPayload))
-				        .withPayloadType(sepd.getPayloadType())
+				        .withEventType(sepd.getPayloadType())
 				        ;
 
 				if (optional.isPresent()) {
@@ -143,6 +135,11 @@ public final class DatabaseEventStore implements EventStore {
 						.build();
 			// @formatter:on
 		}
+	}
+
+	@Override
+	public Statistics stat(String stream) {
+		return null;
 	}
 
 }

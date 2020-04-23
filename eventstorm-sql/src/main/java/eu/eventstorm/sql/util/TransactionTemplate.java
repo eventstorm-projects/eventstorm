@@ -2,36 +2,36 @@ package eu.eventstorm.sql.util;
 
 import java.util.function.Supplier;
 
-import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Transaction;
+import eu.eventstorm.sql.TransactionManager;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 public final class TransactionTemplate {
 
-    private final Database database;
+    private final TransactionManager transactionManager;
     
-    public TransactionTemplate(Database database) {
-        this.database = database;
+    public TransactionTemplate(TransactionManager transactionManager) {
+        this.transactionManager = transactionManager;
     }
 
     public <T> TransactionTemplateBuilder<T> withReadWriteTransaction() {
-        return new TransactionTemplateBuilderReadWrite<>(database);
+        return new TransactionTemplateBuilderReadWrite<>(transactionManager);
     }
     
     public <T> TransactionTemplateBuilder<T> withReadOnlyTransaction() {
-        return new TransactionTemplateBuilderReadOnly<>(database);
+        return new TransactionTemplateBuilderReadOnly<>(transactionManager);
     }
 
     public abstract static class TransactionTemplateBuilder<T> {
         
-        protected final Database database;
+        protected final TransactionManager transactionManager;
         
         protected Supplier<T> supplier;
 
-        public TransactionTemplateBuilder(Database database) {
-            this.database = database;
+        public TransactionTemplateBuilder(TransactionManager transactionManager) {
+            this.transactionManager = transactionManager;
         }
 
         public TransactionTemplateBuilder<T> supply(Supplier<T> supplier) {
@@ -45,13 +45,13 @@ public final class TransactionTemplate {
     
     static final class TransactionTemplateBuilderReadWrite<T> extends TransactionTemplateBuilder<T> {
 
-        public TransactionTemplateBuilderReadWrite(Database database) {
-            super(database);
+        public TransactionTemplateBuilderReadWrite(TransactionManager transactionManager) {
+            super(transactionManager);
         }
         
         public T execute() {
             T returnValue;
-            try (Transaction tx = database.transactionManager().newTransactionReadWrite()) {
+            try (Transaction tx = transactionManager.newTransactionReadWrite()) {
                 try {
                     returnValue = supplier.get();                    
                     tx.commit();
@@ -68,13 +68,13 @@ public final class TransactionTemplate {
     
     static final class TransactionTemplateBuilderReadOnly<T> extends TransactionTemplateBuilder<T> {
 
-        public TransactionTemplateBuilderReadOnly(Database database) {
-            super(database);
+        public TransactionTemplateBuilderReadOnly(TransactionManager transactionManager) {
+            super(transactionManager);
         }
         
         public T execute() {
             T returnValue;
-            try (Transaction tx = database.transactionManager().newTransactionReadOnly()) {
+            try (Transaction tx = transactionManager.newTransactionReadOnly()) {
                 try {
                     returnValue = supplier.get();                    
                     tx.rollback();

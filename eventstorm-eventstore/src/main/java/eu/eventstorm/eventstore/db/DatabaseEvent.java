@@ -20,15 +20,15 @@ interface DatabaseEvent {
 
 	void setId(long id);
 
-	@Column(value = "aggregate_type", length = 128)
-	String getAggregateType();
+	@Column(value = "stream", length = 128)
+	String getStream();
 
-	void setAggregateType(String type);
+	void setStream(String stream);
 	
-	@Column(value = "aggregate_id", length = 128)
-	String getAggregateId();
+	@Column(value = "stream_id", length = 128)
+	String getStreamId();
 
-	void setAggregateId(String aggregateId);
+	void setStreamId(String streamId);
 	
 	@Column(value = "time")
 	Timestamp getTime();
@@ -40,10 +40,10 @@ interface DatabaseEvent {
 	
 	void setRevision(int revision);
 	
-	@Column(value = "payload_type", length = 128)
-	String getPayloadType();
+	@Column(value = "event_type", length = 128)
+	String getEventType();
 
-	void setPayloadType(String type);
+	void setEventType(String type);
 	
 	@Column(value = "payload")
 	Blob getPayload();

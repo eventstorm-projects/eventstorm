@@ -1,10 +1,10 @@
 package eu.eventstorm.eventstore.db;
 
-import static eu.eventstorm.eventstore.db.DatabaseEventDescriptor.AGGREGATE_ID;
-import static eu.eventstorm.eventstore.db.DatabaseEventDescriptor.AGGREGATE_TYPE;
+import static eu.eventstorm.eventstore.db.DatabaseEventDescriptor.STREAM;
+import static eu.eventstorm.eventstore.db.DatabaseEventDescriptor.STREAM_ID;
 import static eu.eventstorm.eventstore.db.DatabaseEventDescriptor.ALL;
 import static eu.eventstorm.eventstore.db.DatabaseEventDescriptor.PAYLOAD;
-import static eu.eventstorm.eventstore.db.DatabaseEventDescriptor.PAYLOAD_TYPE;
+import static eu.eventstorm.eventstore.db.DatabaseEventDescriptor.EVENT_TYPE;
 import static eu.eventstorm.eventstore.db.DatabaseEventDescriptor.REVISION;
 import static eu.eventstorm.eventstore.db.DatabaseEventDescriptor.TABLE;
 import static eu.eventstorm.eventstore.db.DatabaseEventDescriptor.TIME;
@@ -28,23 +28,23 @@ final class DatabaseRepository extends AbstractDatabaseEventRepository {
 
 	DatabaseRepository(Database database) {
 		super(database);
-		this.findByAggreateTypeAndAggregateIdLock = select(ALL).from(TABLE).where(and(eq(AGGREGATE_TYPE), eq(AGGREGATE_ID))).orderBy(desc(REVISION)).forUpdate()
+		this.findByAggreateTypeAndAggregateIdLock = select(ALL).from(TABLE).where(and(eq(STREAM), eq(STREAM_ID))).orderBy(desc(REVISION)).forUpdate()
 		        .build();
-		this.findByAggreateTypeAndAggregateId = select(TIME, REVISION, PAYLOAD, PAYLOAD_TYPE).from(TABLE).where(and(eq(AGGREGATE_TYPE), eq(AGGREGATE_ID))).orderBy(asc(REVISION))
+		this.findByAggreateTypeAndAggregateId = select(TIME, REVISION, PAYLOAD, EVENT_TYPE).from(TABLE).where(and(eq(STREAM), eq(STREAM_ID))).orderBy(asc(REVISION))
 		        .build();
 	}
 
-	public Stream<DatabaseEvent> lock(String aggregateType, String aggregateId) {
+	public Stream<DatabaseEvent> lock(String stream, String streamId) {
 		return stream(this.findByAggreateTypeAndAggregateIdLock, ps -> {
-			ps.setString(1, aggregateType);
-			ps.setString(2, aggregateId);
+			ps.setString(1, stream);
+			ps.setString(2, streamId);
 		}, Mappers.DATABASE_EVENT);
 	}
 
-	public  <T> Stream<T> findAllByAggragateTypeAndAggregateId(String aggregateType, String aggregateId, ResultSetMapper<T> rsm) {
+	public  <T> Stream<T> findAllByStreamAndStreamId(String stream, String streamId, ResultSetMapper<T> rsm) {
 		return stream(this.findByAggreateTypeAndAggregateId, ps -> {
-			ps.setString(1, aggregateType);
-			ps.setString(2, aggregateId);
+			ps.setString(1, stream);
+			ps.setString(2, streamId);
 		}, rsm);
 	}
 

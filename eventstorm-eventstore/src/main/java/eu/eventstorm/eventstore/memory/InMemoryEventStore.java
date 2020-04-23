@@ -19,6 +19,7 @@ import eu.eventstorm.core.EventPayload;
 import eu.eventstorm.core.id.StreamIds;
 import eu.eventstorm.eventstore.EventStore;
 import eu.eventstorm.eventstore.EventStoreException;
+import eu.eventstorm.eventstore.Statistics;
 import eu.eventstorm.eventstore.StreamDefinition;
 import eu.eventstorm.eventstore.StreamEvantPayloadDefinition;
 
@@ -93,6 +94,12 @@ public final class InMemoryEventStore implements EventStore {
 		this.allEvents.add(event);
 		events.add((Event<EventPayload>) event);
 		return event;
+	}
+
+	@Override
+	public Statistics stat(String stream) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
