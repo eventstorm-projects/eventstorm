@@ -29,6 +29,7 @@ import eu.eventstorm.sql.annotation.JoinTable;
 import eu.eventstorm.sql.annotation.PrimaryKey;
 import eu.eventstorm.sql.annotation.Sequence;
 import eu.eventstorm.sql.annotation.Table;
+import eu.eventstorm.sql.annotation.UpdateTimestamp;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -173,7 +174,7 @@ public final class FlywayGenerator {
 			for (int i = type.length() ; i < 16 ; i++) {
 				builder.append(' ');
 			}
-			if (!anno.nullable()) {
+			if (!anno.nullable() || col.getter().getAnnotation(UpdateTimestamp.class) != null) {
 				builder.append(" NOT NULL");
 			}
 
