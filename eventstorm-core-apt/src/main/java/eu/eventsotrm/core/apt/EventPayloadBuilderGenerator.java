@@ -12,7 +12,7 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.JavaFileObject;
 
 import eu.eventsotrm.core.apt.model.EventDescriptor;
-import eu.eventsotrm.core.apt.model.EventPropertyDescriptor;
+import eu.eventsotrm.core.apt.model.PropertyDescriptor;
 import eu.eventsotrm.sql.apt.Helper;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
@@ -85,8 +85,8 @@ final class EventPayloadBuilderGenerator {
         writeVariables(writer, descriptor.properties());
     }
 
-    private static void writeVariables(Writer writer, List<EventPropertyDescriptor> descriptors) throws IOException {
-    	for (EventPropertyDescriptor ppd : descriptors) {
+    private static void writeVariables(Writer writer, List<PropertyDescriptor> descriptors) throws IOException {
+    	for (PropertyDescriptor ppd : descriptors) {
             writer.write("    private ");
             writer.write(ppd.getter().getReturnType().toString());
             writer.write(" ");
@@ -125,12 +125,12 @@ final class EventPayloadBuilderGenerator {
 	}
 
 	private static void writeMethod(Writer writer, EventDescriptor descriptor) throws IOException {
-        for (EventPropertyDescriptor ppd : descriptor.properties()) {
+        for (PropertyDescriptor ppd : descriptor.properties()) {
             writeMethod(writer, descriptor, ppd);
         }
     }
 
-    private static void writeMethod(Writer writer,EventDescriptor ed, EventPropertyDescriptor epd) throws IOException {
+    private static void writeMethod(Writer writer,EventDescriptor ed, PropertyDescriptor epd) throws IOException {
         writeNewLine(writer);
         writer.write("    public ");
         writer.write(ed.simpleName() + "Builder");

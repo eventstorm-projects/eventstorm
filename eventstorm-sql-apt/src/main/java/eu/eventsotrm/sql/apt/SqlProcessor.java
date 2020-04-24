@@ -33,7 +33,7 @@ import eu.eventstorm.sql.annotation.View;
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
-@SupportedAnnotationTypes({"eu.eventstorm.sql.annotation.Table","eu.eventstorm.sql.annotation.View"})
+@SupportedAnnotationTypes({"eu.eventstorm.sql.annotation.GlobalConfiguration","eu.eventstorm.sql.annotation.Table","eu.eventstorm.sql.annotation.View"})
 public final class SqlProcessor extends AbstractProcessor {
 
     private ProcessingEnvironment processingEnvironment;

@@ -7,7 +7,7 @@
 		<artifactId>eventstorm</artifactId>
 		<version>0.8.0</version>
 	</parent>
-	<artifactId>eventstorm-starter</artifactId>
+	<artifactId>eventstorm-starter-web</artifactId>
 
 	<dependencies>
 

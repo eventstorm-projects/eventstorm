@@ -1,4 +1,4 @@
-package eu.eventsotrm.core.apt;
+package eu.eventsotrm.core.apt.command;
 
 import static eu.eventsotrm.sql.apt.Helper.writeGenerated;
 import static eu.eventsotrm.sql.apt.Helper.writeNewLine;
@@ -18,8 +18,9 @@ import javax.tools.JavaFileObject;
 
 import com.google.common.collect.ImmutableList;
 
+import eu.eventsotrm.core.apt.SourceCode;
 import eu.eventsotrm.core.apt.model.CommandDescriptor;
-import eu.eventsotrm.core.apt.model.CommandPropertyDescriptor;
+import eu.eventsotrm.core.apt.model.PropertyDescriptor;
 import eu.eventsotrm.sql.apt.Helper;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
@@ -38,13 +39,13 @@ import eu.eventstorm.util.tuple.Tuples;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-final class CommandValidatorGenerator {
+public final class CommandValidatorGenerator {
 
 	private Logger logger;
 	
-	private final List<Tuple2<String,CommandPropertyDescriptor>> variables = new ArrayList<Tuple2<String,CommandPropertyDescriptor>>();
+	private final List<Tuple2<String,PropertyDescriptor>> variables = new ArrayList<Tuple2<String,PropertyDescriptor>>();
 	
-	CommandValidatorGenerator() {
+	public CommandValidatorGenerator() {
 		logger = LoggerFactory.getInstance().getLogger(CommandValidatorGenerator.class);
 	}
 
@@ -121,7 +122,7 @@ final class CommandValidatorGenerator {
         writer.write("        ImmutableList.Builder<ConstraintViolation> builder = ImmutableList.builder();");
         writeNewLine(writer);
         
-        for (CommandPropertyDescriptor ppd : descriptor.properties()) {
+        for (PropertyDescriptor ppd : descriptor.properties()) {
             for (AnnotationMirror am : ppd.getter().getAnnotationMirrors()) {
                 if (isConstraint(am)) {
                     writeMethodPart(writer, descriptor, ppd, am);
@@ -165,7 +166,7 @@ final class CommandValidatorGenerator {
     	writeNewLine(writer);
 	}
 
-	private void writeMethodPart(Writer writer, CommandDescriptor descriptor, CommandPropertyDescriptor ppd, AnnotationMirror am) throws IOException {
+	private void writeMethodPart(Writer writer, CommandDescriptor descriptor, PropertyDescriptor ppd, AnnotationMirror am) throws IOException {
        
         if (NotEmpty.class.getName().equals(am.getAnnotationType().asElement().toString())) {
             writeMethodPartNotEmpty(writer, descriptor, ppd, am);
@@ -179,7 +180,7 @@ final class CommandValidatorGenerator {
         
     }
 
-    private void writeMethodPartNotEmpty(Writer writer, CommandDescriptor descriptor, CommandPropertyDescriptor ppd, AnnotationMirror am) throws IOException {
+    private void writeMethodPartNotEmpty(Writer writer, CommandDescriptor descriptor, PropertyDescriptor ppd, AnnotationMirror am) throws IOException {
         writeNewLine(writer);
         writer.write("        // validate property " + ppd.name() + " from " + am.toString());
     	writeNewLine(writer);
@@ -190,7 +191,7 @@ final class CommandValidatorGenerator {
     }
 
     
-    private void writeMethodPartCustomPropertyValidator(Writer writer, CommandDescriptor descriptor, CommandPropertyDescriptor ppd, AnnotationMirror am) throws IOException {
+    private void writeMethodPartCustomPropertyValidator(Writer writer, CommandDescriptor descriptor, PropertyDescriptor ppd, AnnotationMirror am) throws IOException {
         writeNewLine(writer);
         writer.write("        // validate property " + ppd.name() + " from " + am.toString());
     	writeNewLine(writer);
@@ -213,7 +214,7 @@ final class CommandValidatorGenerator {
         writer.write("(");
         
         for (int i = 0 ; i < variables.size(); i++) {
-        	Tuple2<String, CommandPropertyDescriptor> var = variables.get(i);
+        	Tuple2<String, PropertyDescriptor> var = variables.get(i);
         	writer.write(var.getT1());
         	writer.write(" validatorCustom" + Helper.firstToUpperCase(var.getT2().name()));
         	if (i + 1 < variables.size()) {
@@ -259,7 +260,7 @@ final class CommandValidatorGenerator {
         writeNewLine(writer);
     	
         for (int i = 0 ; i < variables.size(); i++) {
-        	Tuple2<String, CommandPropertyDescriptor> var = variables.get(i);
+        	Tuple2<String, PropertyDescriptor> var = variables.get(i);
         	writer.write("        this.validatorCustom" + Helper.firstToUpperCase(var.getT2().name()));
         	writer.write(" = validatorCustom" + Helper.firstToUpperCase(var.getT2().name()) + ";");
             writeNewLine(writer);
@@ -289,7 +290,7 @@ final class CommandValidatorGenerator {
     private void writeVariables(Writer writer, CommandDescriptor descriptor) throws IOException {
     	
     	// for @CustomPropertyValidator
-    	for (CommandPropertyDescriptor ppd : descriptor.properties()) {
+    	for (PropertyDescriptor ppd : descriptor.properties()) {
     		 for (AnnotationMirror am : ppd.getter().getAnnotationMirrors()) {
                  if (isConstraint(am)) {
          			writer.write("    private static final ImmutableList<String> PROPERTIES_" + Helper.toUpperCase(ppd.name()) + " = ");
@@ -324,7 +325,7 @@ final class CommandValidatorGenerator {
     	
 		writeNewLine(writer);
 
-    	for (CommandPropertyDescriptor ppd : descriptor.properties()) {
+    	for (PropertyDescriptor ppd : descriptor.properties()) {
     		CustomPropertyValidator cpv = ppd.getter().getAnnotation(CustomPropertyValidator.class);
     		if (cpv != null) {
     			String classname = getClassname(cpv);

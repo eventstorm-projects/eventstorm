@@ -1,4 +1,4 @@
-package eu.eventsotrm.core.apt;
+package eu.eventsotrm.core.apt.command;
 
 import static eu.eventsotrm.sql.apt.Helper.getReturnType;
 import static eu.eventsotrm.sql.apt.Helper.writeGenerated;
@@ -14,19 +14,20 @@ import javax.tools.JavaFileObject;
 
 import com.google.common.collect.ImmutableList;
 
+import eu.eventsotrm.core.apt.SourceCode;
 import eu.eventsotrm.core.apt.model.CommandDescriptor;
-import eu.eventsotrm.core.apt.model.CommandPropertyDescriptor;
+import eu.eventsotrm.core.apt.model.PropertyDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-final class CommandFactoryGenerator {
+public final class CommandFactoryGenerator {
 
 	private final Logger logger;
 
-	CommandFactoryGenerator() {
+	public CommandFactoryGenerator() {
 		logger = LoggerFactory.getInstance().getLogger(CommandFactoryGenerator.class);
 	}
 
@@ -96,7 +97,7 @@ final class CommandFactoryGenerator {
             
             StringBuilder builder = new StringBuilder();
             StringBuilder builder2 = new StringBuilder();
-            for (CommandPropertyDescriptor prop : descriptor.properties()) {
+            for (PropertyDescriptor prop : descriptor.properties()) {
             	builder.append(getReturnType(prop.getter()));
             	builder.append(' ');
             	builder.append(prop.name());

@@ -23,7 +23,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import eu.eventsotrm.core.apt.model.EventDescriptor;
-import eu.eventsotrm.core.apt.model.EventPropertyDescriptor;
+import eu.eventsotrm.core.apt.model.PropertyDescriptor;
 import eu.eventsotrm.sql.apt.Helper;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
@@ -115,7 +115,7 @@ final class EventPayloadJacksonStdDeserializerGenerator {
 	
 	
 	private static void writeImport(Writer writer, EventDescriptor ed, String fcqn) throws IOException {
-        for (EventPropertyDescriptor epd : ed.properties()) {
+        for (PropertyDescriptor epd : ed.properties()) {
             if (fcqn.equals(epd.getter().getReturnType().toString())) {
                 writer.write("import " + fcqn + ";");
                 writeNewLine(writer);
@@ -132,7 +132,7 @@ final class EventPayloadJacksonStdDeserializerGenerator {
 		writer.write("    static {");
 		writeNewLine(writer);
 		writer.write("        FIELDS = ImmutableMap.<String, BiConsumer<JsonParser,"+ ed.simpleName() + "Builder>>builder()");
-		for (EventPropertyDescriptor epd : ed.properties()) {
+		for (PropertyDescriptor epd : ed.properties()) {
 		    writer.write(".put(\"" + epd.name() + "\", (parser, builder) -> {");
 			writeNewLine(writer);
 		    writer.write("			try {");

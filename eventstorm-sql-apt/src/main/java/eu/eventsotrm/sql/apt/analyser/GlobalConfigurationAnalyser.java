@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.function.Function;
 
 import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
 
 import eu.eventsotrm.sql.apt.SourceCode;
 import eu.eventsotrm.sql.apt.log.Logger;
@@ -30,11 +29,6 @@ public final class GlobalConfigurationAnalyser implements Function<Element, Glob
 
 	@Override
 	public GlobalConfigurationDescriptor apply(Element element) {
-
-		if (ElementKind.INTERFACE != element.getKind()) {
-			logger.error("element [" + element + "] should be an interface");
-			return null;
-		}
 
 		logger.info("Analyse Global Configuration " + element);
 
