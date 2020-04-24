@@ -80,17 +80,21 @@ public final class FlywayGenerator {
 						logger.error("Failed to generate [" + flyway + "] -> " + db, cause);
 					}
 				}
+				
+				holders.forEach((filename, tuple) -> {
+					try {
+						tuple.getY().close();
+					} catch (IOException cause) {
+						LoggerFactory.getInstance().getLogger(FlywayGenerator.class).error("Failed to close [" + tuple + "]", cause);
+					}
+				});
+				
+				holders.clear();
 
 			}
 		});
 
-		holders.forEach((filename, tuple) -> {
-			try {
-				tuple.getY().close();
-			} catch (IOException cause) {
-				LoggerFactory.getInstance().getLogger(FlywayGenerator.class).error("Failed to close [" + tuple + "]", cause);
-			}
-		});
+		
 	}
 
 
@@ -136,56 +140,69 @@ public final class FlywayGenerator {
 		primaryKey.append("PRIMARY KEY (");
 		String sequence = null;
 
-		for (PojoPropertyDescriptor id : descriptor.ids()) {
+		if (descriptor.ids().size() > 0) {
 			builder.append("\n   ");
-			PrimaryKey anno = id.getter().getAnnotation(PrimaryKey.class);
-			builder.append(fd.wrap(anno.value()));
-			builder.append("   ");
+			builder.append("-- PRIMARY KEY");
+			for (PojoPropertyDescriptor id : descriptor.ids()) {
+				
+				builder.append("\n   ");
+				PrimaryKey anno = id.getter().getAnnotation(PrimaryKey.class);
+				String columnName = anno.value();
+				builder.append(fd.wrap(columnName));
+				for (int i = columnName.length() ; i < 24 ; i++) {
+					builder.append(' ');
+				}
 
-			AutoIncrement autoIncrement = id.getter().getAnnotation(AutoIncrement.class);
-			if (autoIncrement != null) {
-				builder.append(fd.autoIncrementType(id.getter().getReturnType().toString()));
-			} else {
-				builder.append(fd.toSqlType(id.getter().getReturnType().toString(), anno));
+				AutoIncrement autoIncrement = id.getter().getAnnotation(AutoIncrement.class);
+				if (autoIncrement != null) {
+					builder.append(fd.autoIncrementType(id.getter().getReturnType().toString()));
+				} else {
+					builder.append(fd.toSqlType(id.getter().getReturnType().toString(), anno));
+				}
+				builder.append(",");
+
+				primaryKey.append(fd.wrap(anno.value())).append(',');
+
+				if (id.getter().getAnnotation(Sequence.class) != null) {
+					sequence = generateSequence(id.getter().getAnnotation(Sequence.class), fd);
+					logger.info("generate sequence " + id.getter().getAnnotation(Sequence.class));
+				}
+
 			}
-			builder.append(",");
-
-			primaryKey.append(fd.wrap(anno.value())).append(',');
-
-			if (id.getter().getAnnotation(Sequence.class) != null) {
-				sequence = generateSequence(id.getter().getAnnotation(Sequence.class), fd);
-				logger.info("generate sequence " + id.getter().getAnnotation(Sequence.class));
-			}
-
-		}
-		primaryKey.deleteCharAt(primaryKey.length()-1).append(')');
-
-		for (PojoPropertyDescriptor col : descriptor.properties()) {
-			builder.append("\n   ");
-			String columnName = Helper.getSqlColumnName(col);
-			builder.append(fd.wrap(columnName));
-			for (int i = columnName.length() ; i < 24 ; i++) {
-				builder.append(' ');
-			}
-			
-			Column anno = col.getter().getAnnotation(Column.class);
-			String type = fd.toSqlType(col.getter().getReturnType().toString(), anno);
-			builder.append(type);
-			for (int i = type.length() ; i < 16 ; i++) {
-				builder.append(' ');
-			}
-			if (!anno.nullable() || col.getter().getAnnotation(UpdateTimestamp.class) != null) {
-				builder.append(" NOT NULL");
-			}
-
-			builder.append(",");
-
-			BusinessKey bk = col.getter().getAnnotation(BusinessKey.class);
-			if (bk != null) {
-				businessKeys.add(columnName);
-			}
+			primaryKey.deleteCharAt(primaryKey.length()-1).append(')');	
 		}
 
+		if (descriptor.properties().size() > 0) {
+			builder.append("\n   ");
+			builder.append("-- COLUMNS");
+			for (PojoPropertyDescriptor col : descriptor.properties()) {
+				builder.append("\n   ");
+				String columnName = Helper.getSqlColumnName(col);
+				builder.append(fd.wrap(columnName));
+				for (int i = columnName.length() ; i < 24 ; i++) {
+					builder.append(' ');
+				}
+				
+				Column anno = col.getter().getAnnotation(Column.class);
+				String type = fd.toSqlType(col.getter().getReturnType().toString(), anno);
+				builder.append(type);
+				for (int i = type.length() ; i < 16 ; i++) {
+					builder.append(' ');
+				}
+				
+				if (!anno.nullable() && col.getter().getAnnotation(UpdateTimestamp.class) == null) {
+					builder.append(" NOT NULL");
+				}
+
+				builder.append(",");
+
+				BusinessKey bk = col.getter().getAnnotation(BusinessKey.class);
+				if (bk != null) {
+					businessKeys.add(columnName);
+				}
+			}
+		}
+		
 		builder.append("\n   ");
 		builder.append(primaryKey);
 		builder.deleteCharAt(builder.length()-1);
