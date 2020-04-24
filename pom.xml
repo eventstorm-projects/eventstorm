@@ -248,9 +248,9 @@
 		<module>eventstorm-eventbus</module>
 		<module>eventstorm-cqrs</module>
 		<module>eventstorm-core-apt</module>
-		<module>eventstorm-starter</module>
+		<module>eventstorm-starter-web</module>
+		<module>eventstorm-starter-webflux</module>
 		<module>eventstorm-bom</module>
-
 	</modules>
 
 	<profiles>

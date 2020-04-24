@@ -7,9 +7,9 @@ import javax.lang.model.element.Element;
 public class EventDescriptor implements Descriptor {
 
     private final Element element;
-    private final List<EventPropertyDescriptor> properties;
+    private final List<PropertyDescriptor> properties;
 
-    public EventDescriptor(Element element, List<EventPropertyDescriptor> properties) {
+    public EventDescriptor(Element element, List<PropertyDescriptor> properties) {
         this.element = element;
         this.properties = properties;
     }
@@ -22,7 +22,7 @@ public class EventDescriptor implements Descriptor {
         return element;
     }
 
-    public List<EventPropertyDescriptor> properties() {
+    public List<PropertyDescriptor> properties() {
         return properties;
     }
 
@@ -35,7 +35,7 @@ public class EventDescriptor implements Descriptor {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("EventDescriptor : ").append(element);
-        for (EventPropertyDescriptor property : properties) {
+        for (PropertyDescriptor property : properties) {
             builder.append("\n\t").append(property);
         }
         return builder.toString();

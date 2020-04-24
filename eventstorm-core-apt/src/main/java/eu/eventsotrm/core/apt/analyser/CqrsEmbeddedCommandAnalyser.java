@@ -8,7 +8,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 
-import eu.eventsotrm.core.apt.model.CommandDescriptor;
+import eu.eventsotrm.core.apt.model.EmbeddedCommandDescriptor;
 import eu.eventsotrm.core.apt.model.PropertyDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
@@ -16,16 +16,16 @@ import eu.eventsotrm.sql.apt.log.LoggerFactory;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-public final class CqrsCommandAnalyser implements Function<Element, CommandDescriptor> {
+public final class CqrsEmbeddedCommandAnalyser implements Function<Element, EmbeddedCommandDescriptor> {
 
 	private final Logger logger;
 
-	public CqrsCommandAnalyser() {
-		this.logger = LoggerFactory.getInstance().getLogger(CqrsCommandAnalyser.class);
+	public CqrsEmbeddedCommandAnalyser() {
+		this.logger = LoggerFactory.getInstance().getLogger(CqrsEmbeddedCommandAnalyser.class);
 	}
 
 	@Override
-	public CommandDescriptor apply(Element element) {
+	public EmbeddedCommandDescriptor apply(Element element) {
 
 		try {
 			return doApply(element);
@@ -37,7 +37,7 @@ public final class CqrsCommandAnalyser implements Function<Element, CommandDescr
 
 	}
 
-	public CommandDescriptor doApply(Element element) {
+	public EmbeddedCommandDescriptor doApply(Element element) {
 
 		if (ElementKind.INTERFACE != element.getKind()) {
 			logger.error("element [" + element + "] should be an interface");
@@ -66,7 +66,7 @@ public final class CqrsCommandAnalyser implements Function<Element, CommandDescr
 
 		}
 
-		return new CommandDescriptor(element, properties);
+		return new EmbeddedCommandDescriptor(element, properties);
 	}
 
 }

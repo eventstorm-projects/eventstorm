@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.eventsotrm.core.apt.model.CommandDescriptor;
 import eu.eventsotrm.core.apt.model.Descriptor;
+import eu.eventsotrm.core.apt.model.EmbeddedCommandDescriptor;
 import eu.eventsotrm.core.apt.model.EventDescriptor;
 import eu.eventsotrm.core.apt.model.QueryDescriptor;
 import eu.eventsotrm.core.apt.model.RestControllerDescriptor;
@@ -34,6 +35,7 @@ public final class SourceCode {
 	private final CqrsConfiguration cqrsConfiguration;
 	
 	private final ImmutableMap<String, CommandDescriptor> commands;
+	private final ImmutableMap<String, EmbeddedCommandDescriptor> embeddedCommands;
 
 	private final ImmutableMap<String, ImmutableList<CommandDescriptor>> packages;
 
@@ -47,10 +49,14 @@ public final class SourceCode {
 	
 	private final ImmutableMap<String, ImmutableList<QueryDescriptor>> queryPackages;
 
-	SourceCode(ProcessingEnvironment env, CqrsConfiguration cqrsConfiguration,List<CommandDescriptor> commands, List<EventDescriptor> events,
+	SourceCode(ProcessingEnvironment env, CqrsConfiguration cqrsConfiguration,
+			List<CommandDescriptor> commands,
+			List<EmbeddedCommandDescriptor> embeddedCommands,
+			List<EventDescriptor> events,
 	        List<RestControllerDescriptor> restControllerDescriptors, List<QueryDescriptor> queries) {
 		this.cqrsConfiguration = cqrsConfiguration;
 		this.commands = commands.stream().collect(toImmutableMap(CommandDescriptor::fullyQualidiedClassName, identity()));
+		this.embeddedCommands = embeddedCommands.stream().collect(toImmutableMap(EmbeddedCommandDescriptor::fullyQualidiedClassName, identity()));
 		this.events = events.stream().collect(toImmutableMap(EventDescriptor::fullyQualidiedClassName, identity()));
 		this.packages = mapByPackage(env, this.commands);
 		this.eventpackages = mapByPackage(env, this.events);
@@ -65,7 +71,16 @@ public final class SourceCode {
 		this.commands.values().forEach(consumer);
 	}
 	
-   public void forEachQuery(Consumer<QueryDescriptor> consumer) {
+	public void forEachEmbeddedCommand(Consumer<EmbeddedCommandDescriptor> consumer) {
+		this.embeddedCommands.values().forEach(consumer);
+	}
+	
+	public EmbeddedCommandDescriptor getEmbeddedCommandDescriptor(String fqcn) {
+		return this.embeddedCommands.get(fqcn);
+	}
+	
+	
+    public void forEachQuery(Consumer<QueryDescriptor> consumer) {
         this.queries.values().forEach(consumer);
     }
 
@@ -98,6 +113,10 @@ public final class SourceCode {
 		logger.info("---------------------------------------------------------------------------------------------------------");
 		logger.info("Number of command(s) found : " + commands.size());
 		commands.values().forEach(desc -> {
+			logger.info("\t-> " + desc);
+		});
+		logger.info("Number of embedded command(s) found : " + embeddedCommands.size());
+		embeddedCommands.values().forEach(desc -> {
 			logger.info("\t-> " + desc);
 		});
 		logger.info("---------------------------------------------------------------------------------------------------------");

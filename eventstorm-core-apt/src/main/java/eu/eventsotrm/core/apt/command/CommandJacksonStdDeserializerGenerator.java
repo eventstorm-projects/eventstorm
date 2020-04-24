@@ -1,4 +1,4 @@
-package eu.eventsotrm.core.apt;
+package eu.eventsotrm.core.apt.command;
 
 import static eu.eventsotrm.sql.apt.Helper.getReturnType;
 import static eu.eventsotrm.sql.apt.Helper.writeGenerated;
@@ -22,8 +22,9 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
+import eu.eventsotrm.core.apt.SourceCode;
 import eu.eventsotrm.core.apt.model.CommandDescriptor;
-import eu.eventsotrm.core.apt.model.CommandPropertyDescriptor;
+import eu.eventsotrm.core.apt.model.PropertyDescriptor;
 import eu.eventsotrm.sql.apt.Helper;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
@@ -33,11 +34,11 @@ import eu.eventstorm.util.Dates;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-final class CommandJacksonStdDeserializerGenerator {
+public final class CommandJacksonStdDeserializerGenerator {
 
 	private final Logger logger;
 
-	CommandJacksonStdDeserializerGenerator() {
+	public CommandJacksonStdDeserializerGenerator() {
 		logger = LoggerFactory.getInstance().getLogger(CommandJacksonStdDeserializerGenerator.class);
 	}
 
@@ -116,7 +117,7 @@ final class CommandJacksonStdDeserializerGenerator {
 	}
 
 	private static void writeImport(Writer writer, CommandDescriptor cd, String fcqn, String staticMethod) throws IOException {
-	    for (CommandPropertyDescriptor cpd : cd.properties()) {
+	    for (PropertyDescriptor cpd : cd.properties()) {
             if (fcqn.equals(cpd.getter().getReturnType().toString())) {
                 writer.write("import static " + staticMethod + ";");
                 writeNewLine(writer);
@@ -133,7 +134,7 @@ final class CommandJacksonStdDeserializerGenerator {
 		writer.write("    static {");
 		writeNewLine(writer);
 		writer.write("        FIELDS = ImmutableMap.<String, BiConsumer<JsonParser,"+ cd.simpleName() + "Builder>>builder()");
-		for (CommandPropertyDescriptor cpd : cd.properties()) {
+		for (PropertyDescriptor cpd : cd.properties()) {
 		    writer.write(".put(\"" + cpd.name() + "\", (parser, builder) -> {");
 			writeNewLine(writer);
 		    writer.write("			try {");

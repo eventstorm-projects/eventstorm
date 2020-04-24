@@ -14,7 +14,7 @@ import javax.tools.JavaFileObject;
 import com.google.common.collect.ImmutableList;
 
 import eu.eventsotrm.core.apt.model.EventDescriptor;
-import eu.eventsotrm.core.apt.model.EventPropertyDescriptor;
+import eu.eventsotrm.core.apt.model.PropertyDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 
@@ -94,7 +94,7 @@ final class EventPayloadFactoryGenerator {
             
             StringBuilder builder = new StringBuilder();
             StringBuilder builder2 = new StringBuilder();
-            for (EventPropertyDescriptor prop : descriptor.properties()) {
+            for (PropertyDescriptor prop : descriptor.properties()) {
             	builder.append(prop.getter().getReturnType());
             	builder.append(' ');
             	builder.append(prop.name());

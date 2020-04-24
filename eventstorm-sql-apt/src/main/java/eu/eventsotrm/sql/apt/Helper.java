@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.Writer;
 
 import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Types;
 
 import eu.eventsotrm.sql.apt.model.PojoDescriptor;
@@ -26,14 +25,15 @@ public final class Helper {
 	}
 
 	public static String getReturnType(ExecutableElement element) {
-		TypeElement te = (TypeElement) types.asElement(element.getReturnType());
-
-		if (te != null) {
-			return te.getQualifiedName().toString();
-		} else {
-			// it's primitive
-			return element.getReturnType().toString();
-		}
+		return element.getReturnType().toString();
+//		TypeElement te = (TypeElement) types.asElement(element.getReturnType());
+//
+//		if (te != null) {
+//			return element.getReturnType().toString();
+//		} else {
+//			// it's primitive
+//			return element.getReturnType().toString();
+//		}
 	}
 		
 	public static void writeNewLine(Writer writer) throws IOException {

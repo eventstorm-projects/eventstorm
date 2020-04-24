@@ -91,7 +91,13 @@
 
 			<dependency>
 				<groupId>eu.eventstorm</groupId>
-				<artifactId>eventstorm-starter</artifactId>
+				<artifactId>eventstorm-starter-web</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>eu.eventstorm</groupId>
+				<artifactId>eventstorm-starter-webflux</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 

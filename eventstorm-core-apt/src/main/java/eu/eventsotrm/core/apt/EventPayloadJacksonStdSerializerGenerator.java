@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.google.common.collect.ImmutableList;
 
 import eu.eventsotrm.core.apt.model.EventDescriptor;
-import eu.eventsotrm.core.apt.model.EventPropertyDescriptor;
+import eu.eventsotrm.core.apt.model.PropertyDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 
@@ -105,7 +105,7 @@ final class EventPayloadJacksonStdSerializerGenerator {
 		writer.write("    public void serialize(" + ed.simpleName() + " payload, JsonGenerator gen, SerializerProvider provider) throws IOException {");
 		writeNewLine(writer);
 		
-		for (EventPropertyDescriptor epd : ed.properties()) {
+		for (PropertyDescriptor epd : ed.properties()) {
 
 			if ("java.lang.String".equals(epd.getter().getReturnType().toString())) {
 				writer.write("        gen.writeStringField(\"" + epd.name() + "\", payload."+ epd.getter().getSimpleName() +"());");

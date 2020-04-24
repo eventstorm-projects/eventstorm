@@ -12,7 +12,7 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.JavaFileObject;
 
 import eu.eventsotrm.core.apt.model.EventDescriptor;
-import eu.eventsotrm.core.apt.model.EventPropertyDescriptor;
+import eu.eventsotrm.core.apt.model.PropertyDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.util.ToStringBuilder;
@@ -82,7 +82,7 @@ final class EventPayloadImplementationGenerator {
         writer.write("(");
         
         StringBuilder builder = new StringBuilder();
-    	for (EventPropertyDescriptor ppd : descriptor.properties()) {
+    	for (PropertyDescriptor ppd : descriptor.properties()) {
     		builder.append(ppd.getter().getReturnType().toString());
     		builder.append(" ");
     		builder.append(ppd.variable());
@@ -94,7 +94,7 @@ final class EventPayloadImplementationGenerator {
     	writer.write(") {");
     	writeNewLine(writer);
         
-    	for (EventPropertyDescriptor ppd : descriptor.properties()) {
+    	for (PropertyDescriptor ppd : descriptor.properties()) {
     		 writer.write("        this.");
             writer.write(ppd.variable());
             writer.write(" = ");
@@ -112,8 +112,8 @@ final class EventPayloadImplementationGenerator {
         writeVariables(writer, descriptor.properties());
     }
 
-    private static void writeVariables(Writer writer, List<EventPropertyDescriptor> descriptors) throws IOException {
-    	for (EventPropertyDescriptor ppd : descriptors) {
+    private static void writeVariables(Writer writer, List<PropertyDescriptor> descriptors) throws IOException {
+    	for (PropertyDescriptor ppd : descriptors) {
             writer.write("    private final ");
             writer.write(ppd.getter().getReturnType().toString());
             writer.write(" ");
@@ -128,13 +128,13 @@ final class EventPayloadImplementationGenerator {
         writeMethods(writer, descriptor.properties());
     }
 
-	private static void writeMethods(Writer writer, List<EventPropertyDescriptor> descriptors) throws IOException {
-        for (EventPropertyDescriptor ppd : descriptors) {
+	private static void writeMethods(Writer writer, List<PropertyDescriptor> descriptors) throws IOException {
+        for (PropertyDescriptor ppd : descriptors) {
             writeGetter(writer, ppd);
         }
     }
 
-    private static void writeGetter(Writer writer, EventPropertyDescriptor ppd) throws IOException {
+    private static void writeGetter(Writer writer, PropertyDescriptor ppd) throws IOException {
         writeNewLine(writer);
         writer.write("    /** {@inheritDoc} */");
         writeNewLine(writer);
@@ -165,7 +165,7 @@ final class EventPayloadImplementationGenerator {
         writer.write("        " + TO_STRING_BUILDER + " builder = new " + TO_STRING_BUILDER + "(this);");
         writeNewLine(writer);
        
-        for (EventPropertyDescriptor ppd : descriptor.properties()) {
+        for (PropertyDescriptor ppd : descriptor.properties()) {
             writer.write("        builder.append(\"");
             writer.write(ppd.name());
             writer.write("\", this.");

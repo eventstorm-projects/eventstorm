@@ -10,7 +10,7 @@ import eu.eventstorm.util.ToStringBuilder;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-public final class EventPropertyDescriptor {
+public final class PropertyDescriptor {
 
     private static int COUNTER = 0;
 
@@ -18,7 +18,7 @@ public final class EventPropertyDescriptor {
     private final String variable;
     private final ExecutableElement getter;
 
-    public EventPropertyDescriptor(ExecutableElement getter) {
+    public PropertyDescriptor(ExecutableElement getter) {
         this.name = propertyName(getter.getSimpleName().subSequence(3, getter.getSimpleName().length()).toString());
         this.getter = getter;
         if (isPrimitiveType(this.name)) {

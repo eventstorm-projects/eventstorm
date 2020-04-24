@@ -15,10 +15,21 @@ import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
 
 import eu.eventsotrm.core.apt.analyser.CqrsCommandAnalyser;
+import eu.eventsotrm.core.apt.analyser.CqrsEmbeddedCommandAnalyser;
 import eu.eventsotrm.core.apt.analyser.CqrsEventAnalyser;
 import eu.eventsotrm.core.apt.analyser.CqrsQueryAnalyser;
 import eu.eventsotrm.core.apt.analyser.CqrsRestControllerAnalyser;
+import eu.eventsotrm.core.apt.command.CommandBuilderGenerator;
+import eu.eventsotrm.core.apt.command.CommandExceptionGenerator;
+import eu.eventsotrm.core.apt.command.CommandFactoryGenerator;
+import eu.eventsotrm.core.apt.command.CommandImplementationGenerator;
+import eu.eventsotrm.core.apt.command.CommandJacksonModuleGenerator;
+import eu.eventsotrm.core.apt.command.CommandJacksonStdDeserializerGenerator;
+import eu.eventsotrm.core.apt.command.CommandOpenApiGenerator;
+import eu.eventsotrm.core.apt.command.CommandRestControllerAdviceImplementationGenerator;
+import eu.eventsotrm.core.apt.command.CommandValidatorGenerator;
 import eu.eventsotrm.core.apt.model.CommandDescriptor;
+import eu.eventsotrm.core.apt.model.EmbeddedCommandDescriptor;
 import eu.eventsotrm.core.apt.model.EventDescriptor;
 import eu.eventsotrm.core.apt.model.QueryDescriptor;
 import eu.eventsotrm.core.apt.model.RestControllerDescriptor;
@@ -28,6 +39,7 @@ import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.annotation.CqrsCommand;
 import eu.eventstorm.annotation.CqrsCommandRestController;
 import eu.eventstorm.annotation.CqrsConfiguration;
+import eu.eventstorm.annotation.CqrsEmbeddedCommand;
 import eu.eventstorm.annotation.CqrsEventPayload;
 import eu.eventstorm.annotation.CqrsQuery;
 import eu.eventstorm.annotation.CqrsQueryDatabaseView;
@@ -85,7 +97,10 @@ public class EventProcessor extends AbstractProcessor {
 			cqrsConfiguration = configs.iterator().next().getAnnotation(CqrsConfiguration.class);
 		}
 
-		List<CommandDescriptor> descriptors = roundEnvironment.getElementsAnnotatedWith(CqrsCommand.class).stream().map(new CqrsCommandAnalyser())
+		List<CommandDescriptor> commandDescriptors= roundEnvironment.getElementsAnnotatedWith(CqrsCommand.class).stream().map(new CqrsCommandAnalyser())
+		        .collect(Collectors.toList());
+		
+		List<EmbeddedCommandDescriptor> embeddedCommandDescriptors = roundEnvironment.getElementsAnnotatedWith(CqrsEmbeddedCommand.class).stream().map(new CqrsEmbeddedCommandAnalyser())
 		        .collect(Collectors.toList());
 		
 		List<RestControllerDescriptor> restControllerDescriptors = roundEnvironment.getElementsAnnotatedWith(CqrsCommandRestController.class).stream().map(new CqrsRestControllerAnalyser())
@@ -115,48 +130,56 @@ public class EventProcessor extends AbstractProcessor {
 		    
         }
 
-		SourceCode sourceCode = new SourceCode(this.processingEnv, cqrsConfiguration, descriptors, eventDescriptors, restControllerDescriptors, queries);
+		SourceCode sourceCode = new SourceCode(this.processingEnv, 
+				cqrsConfiguration, 
+				commandDescriptors, 
+				embeddedCommandDescriptors,
+				eventDescriptors,
+				restControllerDescriptors,
+				queries);
 
 		sourceCode.dump();
 
-		new CommandImplementationGenerator().generate(this.processingEnv, sourceCode);
+		new CommandImplementationGenerator().generateCommand(this.processingEnv, sourceCode);
+		new CommandImplementationGenerator().generateEmbeddedCommand(this.processingEnv, sourceCode);
+		new CommandBuilderGenerator().generateCommand(this.processingEnv, sourceCode);
+		
 		new CommandFactoryGenerator().generate(this.processingEnv, sourceCode);
-		new CommandBuilderGenerator().generate(this.processingEnv, sourceCode);
-		new CommandJacksonStdDeserializerGenerator().generate(processingEnv, sourceCode);
-		new CommandJacksonModuleGenerator().generate(processingEnv, sourceCode);
-		new CommandExceptionGenerator().generate(processingEnv, sourceCode);
-		new CommandRestControllerAdviceImplementationGenerator().generate(processingEnv, sourceCode);
-		new CommandValidatorGenerator().generate(processingEnv, sourceCode);
-		
-		new CommandOpenApiGenerator().generate(processingEnv, sourceCode);
-		
-		new EventPayloadImplementationGenerator().generate(this.processingEnv, sourceCode);
-		new EventPayloadBuilderGenerator().generate(this.processingEnv, sourceCode);
-		new EventPayloadFactoryGenerator().generate(this.processingEnv, sourceCode);
-		
-		new EventPayloadJacksonStdDeserializerGenerator().generate(this.processingEnv, sourceCode);
-		new EventPayloadJacksonStdSerializerGenerator().generate(this.processingEnv, sourceCode);
-		new EventPayloadJacksonModuleGenerator().generate(this.processingEnv, sourceCode);
-		new EventPayloadDeserializerGenerator().generate(this.processingEnv, sourceCode);
-		new EventPayloadSerializerGenerator().generate(this.processingEnv, sourceCode);
-		new EventPayloadDeserializersGenerator().generate(this.processingEnv, sourceCode);
-		new EventPayloadSerializersGenerator().generate(this.processingEnv, sourceCode);
-
-		new DomainModelHandlerImplementationGenerator().generate(this.processingEnv, sourceCode);
-		new RestControllerImplementationGenerator().generate(processingEnv, sourceCode);
-		
-		new QueryImplementationGenerator().generate(this.processingEnv, sourceCode);
-		new QueryBuilderGenerator().generate(processingEnv, sourceCode);
-		
-		sourceCode.forEachQuery(queryDescriptor -> {
-		    CqrsQueryDatabaseView query =  queryDescriptor.element().getAnnotation(CqrsQueryDatabaseView.class);
-		    if (query != null) {
-		    	new QueryDatabaseDescriptorGenerator().generate(processingEnv, queryDescriptor);
-		    	new QueryDatabaseMapperGenerator().generate(processingEnv, queryDescriptor);
-		    }
-		});
-		new QueryDatabaseMapperFactoryGenerator().generate(processingEnv, sourceCode);
-		new QueryDatabaseModuleGenerator().generate(processingEnv, sourceCode);
+//		
+//		new CommandJacksonStdDeserializerGenerator().generate(processingEnv, sourceCode);
+//		new CommandJacksonModuleGenerator().generate(processingEnv, sourceCode);
+//		new CommandExceptionGenerator().generate(processingEnv, sourceCode);
+//		new CommandRestControllerAdviceImplementationGenerator().generate(processingEnv, sourceCode);
+//		new CommandValidatorGenerator().generate(processingEnv, sourceCode);
+//		new CommandOpenApiGenerator().generate(processingEnv, sourceCode);
+//		
+//		new EventPayloadImplementationGenerator().generate(this.processingEnv, sourceCode);
+//		new EventPayloadBuilderGenerator().generate(this.processingEnv, sourceCode);
+//		new EventPayloadFactoryGenerator().generate(this.processingEnv, sourceCode);
+//		
+//		new EventPayloadJacksonStdDeserializerGenerator().generate(this.processingEnv, sourceCode);
+//		new EventPayloadJacksonStdSerializerGenerator().generate(this.processingEnv, sourceCode);
+//		new EventPayloadJacksonModuleGenerator().generate(this.processingEnv, sourceCode);
+//		new EventPayloadDeserializerGenerator().generate(this.processingEnv, sourceCode);
+//		new EventPayloadSerializerGenerator().generate(this.processingEnv, sourceCode);
+//		new EventPayloadDeserializersGenerator().generate(this.processingEnv, sourceCode);
+//		new EventPayloadSerializersGenerator().generate(this.processingEnv, sourceCode);
+//
+//		new DomainModelHandlerImplementationGenerator().generate(this.processingEnv, sourceCode);
+//		new RestControllerImplementationGenerator().generate(processingEnv, sourceCode);
+//		
+//		new QueryImplementationGenerator().generate(this.processingEnv, sourceCode);
+//		new QueryBuilderGenerator().generate(processingEnv, sourceCode);
+//		
+//		sourceCode.forEachQuery(queryDescriptor -> {
+//		    CqrsQueryDatabaseView query =  queryDescriptor.element().getAnnotation(CqrsQueryDatabaseView.class);
+//		    if (query != null) {
+//		    	new QueryDatabaseDescriptorGenerator().generate(processingEnv, queryDescriptor);
+//		    	new QueryDatabaseMapperGenerator().generate(processingEnv, queryDescriptor);
+//		    }
+//		});
+//		new QueryDatabaseMapperFactoryGenerator().generate(processingEnv, sourceCode);
+//		new QueryDatabaseModuleGenerator().generate(processingEnv, sourceCode);
 
 	}
 

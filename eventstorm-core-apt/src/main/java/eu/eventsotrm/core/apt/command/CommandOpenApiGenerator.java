@@ -1,4 +1,4 @@
-package eu.eventsotrm.core.apt;
+package eu.eventsotrm.core.apt.command;
 
 import static eu.eventsotrm.sql.apt.Helper.writeNewLine;
 
@@ -13,10 +13,10 @@ import javax.tools.StandardLocation;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
+import eu.eventsotrm.core.apt.SourceCode;
 import eu.eventsotrm.core.apt.model.CommandDescriptor;
-import eu.eventsotrm.core.apt.model.CommandPropertyDescriptor;
 import eu.eventsotrm.core.apt.model.EventDescriptor;
-import eu.eventsotrm.core.apt.model.EventPropertyDescriptor;
+import eu.eventsotrm.core.apt.model.PropertyDescriptor;
 import eu.eventsotrm.core.apt.model.RestControllerDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
@@ -25,11 +25,11 @@ import eu.eventstorm.annotation.CqrsConfiguration;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-final class CommandOpenApiGenerator {
+public final class CommandOpenApiGenerator {
 
 	private final Logger logger;
 
-	CommandOpenApiGenerator() {
+	public CommandOpenApiGenerator() {
 		logger = LoggerFactory.getInstance().getLogger(CommandOpenApiGenerator.class);
 	}
 
@@ -278,7 +278,7 @@ final class CommandOpenApiGenerator {
 		
 		
 		for (int i = 0; i < cd.properties().size() ; i++) {
-			CommandPropertyDescriptor cpd = cd.properties().get(i);
+			PropertyDescriptor cpd = cd.properties().get(i);
 			writer.write("          \""+ cpd.name() +"\": {");
 			writeNewLine(writer);
 			writer.write("            \"type\": ");
@@ -316,7 +316,7 @@ final class CommandOpenApiGenerator {
 		
 		
 		for (int i = 0; i < ed.properties().size() ; i++) {
-			EventPropertyDescriptor epd = ed.properties().get(i);
+			PropertyDescriptor epd = ed.properties().get(i);
 			writer.write("          \""+ epd.name() +"\": {");
 			writeNewLine(writer);
 			writer.write("            \"type\": ");

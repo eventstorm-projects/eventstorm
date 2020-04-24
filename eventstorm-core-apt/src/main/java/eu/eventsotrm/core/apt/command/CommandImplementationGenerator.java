@@ -1,4 +1,4 @@
-package eu.eventsotrm.core.apt;
+package eu.eventsotrm.core.apt.command;
 
 import static eu.eventsotrm.sql.apt.Helper.getReturnType;
 import static eu.eventsotrm.sql.apt.Helper.writeGenerated;
@@ -12,8 +12,9 @@ import java.util.List;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.JavaFileObject;
 
-import eu.eventsotrm.core.apt.model.CommandDescriptor;
-import eu.eventsotrm.core.apt.model.CommandPropertyDescriptor;
+import eu.eventsotrm.core.apt.SourceCode;
+import eu.eventsotrm.core.apt.model.AbstractCommandDescriptor;
+import eu.eventsotrm.core.apt.model.PropertyDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.util.ToStringBuilder;
@@ -21,17 +22,17 @@ import eu.eventstorm.util.ToStringBuilder;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-final class CommandImplementationGenerator {
+public final class CommandImplementationGenerator {
 
 	private static final String TO_STRING_BUILDER = ToStringBuilder.class.getName();
 
 	private final Logger logger;
 	
-	CommandImplementationGenerator() {
+	public CommandImplementationGenerator() {
 		logger = LoggerFactory.getInstance().getLogger(CommandImplementationGenerator.class);
 	}
 
-    public void generate(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
+    public void generateCommand(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
     	// generate Implementation class;
         sourceCode.forEachCommand(t -> {
             try {
@@ -41,8 +42,19 @@ final class CommandImplementationGenerator {
             }
         });
     }
+    
+    public void generateEmbeddedCommand(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
+    	// generate Implementation class;
+        sourceCode.forEachEmbeddedCommand(t -> {
+            try {
+                generate(processingEnvironment, t);
+            } catch (Exception cause) {
+            	logger.error("Exception for [" + t + "] -> [" + cause.getMessage() + "]", cause);
+            }
+        });
+    }
 
-    private void generate(ProcessingEnvironment env, CommandDescriptor descriptor) throws IOException {
+    private void generate(ProcessingEnvironment env, AbstractCommandDescriptor descriptor) throws IOException {
 
         // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
         if (env.getElementUtils().getTypeElement(descriptor.fullyQualidiedClassName() + "Impl") != null) {
@@ -64,7 +76,7 @@ final class CommandImplementationGenerator {
     }
 
 
-    private static void writeHeader(Writer writer, ProcessingEnvironment env, CommandDescriptor descriptor) throws IOException {
+    private static void writeHeader(Writer writer, ProcessingEnvironment env, AbstractCommandDescriptor descriptor) throws IOException {
 
         writePackage(writer, env.getElementUtils().getPackageOf(descriptor.element()).toString());
         writeGenerated(writer,CommandImplementationGenerator.class.getName());
@@ -77,14 +89,14 @@ final class CommandImplementationGenerator {
         writeNewLine(writer);
     }
 
-    private static void writeConstructor(Writer writer, CommandDescriptor descriptor) throws IOException {
+    private static void writeConstructor(Writer writer, AbstractCommandDescriptor descriptor) throws IOException {
     	writeNewLine(writer);
         writer.write("    ");
         writer.write(descriptor.simpleName() + "Impl");
         writer.write("(");
         
         StringBuilder builder = new StringBuilder();
-    	for (CommandPropertyDescriptor ppd : descriptor.properties()) {
+    	for (PropertyDescriptor ppd : descriptor.properties()) {
     		builder.append(getReturnType(ppd.getter()));
     		builder.append(" ");
     		builder.append(ppd.variable());
@@ -96,7 +108,7 @@ final class CommandImplementationGenerator {
     	writer.write(") {");
     	writeNewLine(writer);
         
-    	for (CommandPropertyDescriptor ppd : descriptor.properties()) {
+    	for (PropertyDescriptor ppd : descriptor.properties()) {
     		 writer.write("        this.");
             writer.write(ppd.variable());
             writer.write(" = ");
@@ -109,13 +121,13 @@ final class CommandImplementationGenerator {
         writeNewLine(writer);
     }
 
-    private static void writeVariables(Writer writer, CommandDescriptor descriptor) throws IOException {
+    private static void writeVariables(Writer writer, AbstractCommandDescriptor descriptor) throws IOException {
         writeNewLine(writer);
         writeVariables(writer, descriptor.properties());
     }
 
-    private static void writeVariables(Writer writer, List<CommandPropertyDescriptor> descriptors) throws IOException {
-        for (CommandPropertyDescriptor ppd : descriptors) {
+    private static void writeVariables(Writer writer, List<PropertyDescriptor> descriptors) throws IOException {
+        for (PropertyDescriptor ppd : descriptors) {
             writer.write("    private ");
             writer.write(getReturnType(ppd.getter()));
             writer.write(" ");
@@ -125,24 +137,24 @@ final class CommandImplementationGenerator {
         }
     }
 
-    private static void writeMethods(Writer writer, CommandDescriptor descriptor) throws IOException {
+    private static void writeMethods(Writer writer, AbstractCommandDescriptor descriptor) throws IOException {
         writeNewLine(writer);
         writeMethods(writer, descriptor.properties());
         writerKeyMethod(writer, descriptor);
     }
 
     
-    private static void writerKeyMethod(Writer writer, CommandDescriptor descriptor) {
+    private static void writerKeyMethod(Writer writer, AbstractCommandDescriptor descriptor) {
 		
 	}
 
-	private static void writeMethods(Writer writer, List<CommandPropertyDescriptor> descriptors) throws IOException {
-        for (CommandPropertyDescriptor ppd : descriptors) {
+	private static void writeMethods(Writer writer, List<PropertyDescriptor> descriptors) throws IOException {
+        for (PropertyDescriptor ppd : descriptors) {
             writeGetter(writer, ppd);
         }
     }
 
-    private static void writeGetter(Writer writer, CommandPropertyDescriptor ppd) throws IOException {
+    private static void writeGetter(Writer writer, PropertyDescriptor ppd) throws IOException {
         writeNewLine(writer);
         writer.write("    /** {@inheritDoc} */");
         writeNewLine(writer);
@@ -162,7 +174,7 @@ final class CommandImplementationGenerator {
         writeNewLine(writer);
     }
 
-    private static void writeToStringBuilder(Writer writer, CommandDescriptor descriptor) throws IOException {
+    private static void writeToStringBuilder(Writer writer, AbstractCommandDescriptor descriptor) throws IOException {
         writeNewLine(writer);
         writer.write("    /** {@inheritDoc} */");
         writeNewLine(writer);
@@ -173,7 +185,7 @@ final class CommandImplementationGenerator {
         writer.write("        " + TO_STRING_BUILDER + " builder = new " + TO_STRING_BUILDER + "(this);");
         writeNewLine(writer);
        
-        for (CommandPropertyDescriptor ppd : descriptor.properties()) {
+        for (PropertyDescriptor ppd : descriptor.properties()) {
             writer.write("        builder.append(\"");
             writer.write(ppd.name());
             writer.write("\", this.");

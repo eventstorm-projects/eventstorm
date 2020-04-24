@@ -1,4 +1,4 @@
-package eu.eventsotrm.core.apt;
+package eu.eventsotrm.core.apt.command;
 
 import static eu.eventsotrm.sql.apt.Helper.writeGenerated;
 import static eu.eventsotrm.sql.apt.Helper.writeNewLine;
@@ -12,6 +12,7 @@ import java.util.List;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.JavaFileObject;
 
+import eu.eventsotrm.core.apt.SourceCode;
 import eu.eventsotrm.core.apt.model.CommandDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
@@ -19,11 +20,11 @@ import eu.eventsotrm.sql.apt.log.LoggerFactory;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-final class CommandRestControllerAdviceImplementationGenerator {
+public final class CommandRestControllerAdviceImplementationGenerator {
 
 	private final Logger logger;
 
-	CommandRestControllerAdviceImplementationGenerator() {
+	public CommandRestControllerAdviceImplementationGenerator() {
 		logger = LoggerFactory.getInstance().getLogger(CommandRestControllerAdviceImplementationGenerator.class);
 	}
 

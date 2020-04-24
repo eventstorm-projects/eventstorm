@@ -9,7 +9,7 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 
 import eu.eventsotrm.core.apt.model.EventDescriptor;
-import eu.eventsotrm.core.apt.model.EventPropertyDescriptor;
+import eu.eventsotrm.core.apt.model.PropertyDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 
@@ -47,7 +47,7 @@ public final class CqrsEventAnalyser implements Function<Element, EventDescripto
 
         logger.info("Analyse " + element);
         
-        List<EventPropertyDescriptor> properties = new ArrayList<>();
+        List<PropertyDescriptor> properties = new ArrayList<>();
         
         for (Element method : element.getEnclosedElements()) {
         	
@@ -59,7 +59,7 @@ public final class CqrsEventAnalyser implements Function<Element, EventDescripto
              ExecutableElement executableElement = (ExecutableElement) method;
              
              if (executableElement.getSimpleName().toString().startsWith("get")) {
-            	 properties.add(new EventPropertyDescriptor(executableElement));
+            	 properties.add(new PropertyDescriptor(executableElement));
             	 continue;
              }
              
