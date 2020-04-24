@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "eu.eventstorm.eventstore.ex";
+
+message UserCreatedEventPayload {
+	string name = 1;
+	int32 age = 2;
+	string email = 3;
+}

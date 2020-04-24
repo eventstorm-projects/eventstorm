@@ -1,17 +1,18 @@
 package eu.eventstorm.eventstore.rest;
 
+import java.io.IOException;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.web.reactive.function.BodyInserters;
+
+import com.google.protobuf.util.JsonFormat;
 
 import eu.eventstorm.eventstore.StreamManager;
-import eu.eventstorm.eventstore.ex.UserCreatedEventPayload;
-import eu.eventstorm.eventstore.ex.UserCreatedEventPayloadImpl;
+import eu.eventstorm.eventstore.ex.UserCreatedEventPayloadOuterClass;
 
 @SpringBootTest(classes = ApiRestControllerConfigurationTest.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
@@ -24,9 +25,20 @@ class ApiRestControllerTest {
 	private StreamManager am;
 	
 	@Test
-	void testAppend() {
+	void testAppend() throws IOException {
 		
-		byte[] payload = am.getDefinition("user")
+		UserCreatedEventPayloadOuterClass.UserCreatedEventPayload payload = UserCreatedEventPayloadOuterClass.UserCreatedEventPayload.newBuilder()
+				.setName("ja")
+				.setEmail("jm@gmail.com")
+				.setAge(40)
+				.build();
+		
+		payload.writeDelimitedTo(System.out);
+		
+		System.out.println();
+		System.out.println(JsonFormat.printer().print(payload));
+		
+	/*	byte[] payload2 = am.getDefinition("user")
 				.getStreamEvantPayloadDefinition(UserCreatedEventPayload.class.getSimpleName())
 				.getPayloadSerializer()
 				.serialize(new UserCreatedEventPayloadImpl("ja","gmail",39));
@@ -52,6 +64,8 @@ class ApiRestControllerTest {
 			.exchange()
 			.expectStatus().isOk()
 			.expectBody().consumeWith(b -> System.out.println(new String(b.getResponseBodyContent())));
+			
+			*/
 	}
 	
 
