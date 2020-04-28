@@ -10,7 +10,7 @@ import java.io.Writer;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
-import java.util.function.BiConsumer;
+import java.util.List;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.JavaFileObject;
@@ -23,13 +23,14 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import eu.eventsotrm.core.apt.SourceCode;
-import eu.eventsotrm.core.apt.model.CommandDescriptor;
+import eu.eventsotrm.core.apt.model.AbstractCommandDescriptor;
 import eu.eventsotrm.core.apt.model.PropertyDescriptor;
 import eu.eventsotrm.sql.apt.Helper;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.core.json.DeserializerException;
 import eu.eventstorm.util.Dates;
+import eu.eventstorm.util.TriConsumer;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -51,12 +52,24 @@ public final class CommandJacksonStdDeserializerGenerator {
 				logger.error("Exception for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
 			}
 		});
-
 	}
+	
+	public void generateEmbedded(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
+		// generate Implementation class;
+		sourceCode.forEachEmbeddedCommandPackage((pack, list) -> {
+			try {
+				generate(processingEnvironment, pack, list);
+			} catch (Exception cause) {
+				logger.error("Exception for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
+			}
+		});
+	}
+	
+	
 
-	private void generate(ProcessingEnvironment env, String pack, ImmutableList<CommandDescriptor> descriptors) throws IOException {
+	private void generate(ProcessingEnvironment env, String pack, ImmutableList<? extends AbstractCommandDescriptor> descriptors) throws IOException {
 
-		for (CommandDescriptor cd : descriptors) {
+		for (AbstractCommandDescriptor cd : descriptors) {
 		    
 		    // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
 	        if (env.getElementUtils().getTypeElement(pack + ".json." + cd.simpleName() + "StdDeserializer") != null) {
@@ -78,13 +91,13 @@ public final class CommandJacksonStdDeserializerGenerator {
 
 	}
 
-	private static void writeHeader(Writer writer, String pack, CommandDescriptor cd) throws IOException {
+	private static void writeHeader(Writer writer, String pack, AbstractCommandDescriptor cd) throws IOException {
 		writePackage(writer, pack);
 
 		writeNewLine(writer);
 		writer.write("import " + ImmutableMap.class.getName() + ";");
 		writeNewLine(writer);
-		writer.write("import " + BiConsumer.class.getName() + ";");
+		writer.write("import " + TriConsumer.class.getName() + ";");
 		writeNewLine(writer);
 		writer.write("import " + DeserializerException.class.getName() + ";");
 		writeNewLine(writer);
@@ -116,7 +129,7 @@ public final class CommandJacksonStdDeserializerGenerator {
 		writeNewLine(writer);
 	}
 
-	private static void writeImport(Writer writer, CommandDescriptor cd, String fcqn, String staticMethod) throws IOException {
+	private static void writeImport(Writer writer, AbstractCommandDescriptor cd, String fcqn, String staticMethod) throws IOException {
 	    for (PropertyDescriptor cpd : cd.properties()) {
             if (fcqn.equals(cpd.getter().getReturnType().toString())) {
                 writer.write("import static " + staticMethod + ";");
@@ -126,40 +139,69 @@ public final class CommandJacksonStdDeserializerGenerator {
         }
 	}
 	
-	private void writeStatic(Writer writer, CommandDescriptor cd) throws IOException {
+	private void writeStatic(Writer writer, AbstractCommandDescriptor cd) throws IOException {
 
 		writeNewLine(writer);
-		writer.write("    private static final ImmutableMap<String, BiConsumer<JsonParser," + cd.simpleName() + "Builder>> FIELDS;");
+		writer.write("    private static final ImmutableMap<String, TriConsumer<JsonParser,DeserializationContext," + cd.simpleName() + "Builder>> FIELDS;");
 		writeNewLine(writer);
 		writer.write("    static {");
 		writeNewLine(writer);
-		writer.write("        FIELDS = ImmutableMap.<String, BiConsumer<JsonParser,"+ cd.simpleName() + "Builder>>builder()");
+		writer.write("        FIELDS = ImmutableMap.<String, TriConsumer<JsonParser,DeserializationContext,"+ cd.simpleName() + "Builder>>builder()");
 		for (PropertyDescriptor cpd : cd.properties()) {
-		    writer.write(".put(\"" + cpd.name() + "\", (parser, builder) -> {");
+		    writer.write(".put(\"" + cpd.name() + "\", (parser, ctxt, builder) -> {");
 			writeNewLine(writer);
 		    writer.write("			try {");
 		    writeNewLine(writer);
-		    writer.write("				builder.with" + Helper.firstToUpperCase(cpd.name()) + "(");
 		    
 		    String returnType = getReturnType(cpd.getter());
 		    
-		    if ("java.lang.String".equals(returnType)) {
-				writer.write("parser.nextTextValue()");
-			} else if ("int".equals(returnType)) {
-				writer.write("parser.nextIntValue(0)");
-			} else if ("int".equals(returnType)) {
-				writer.write("parser.nextLongValue(0l)");
-			} else if (OffsetDateTime.class.getName().equals(returnType)) {
-				writer.write("parseOffsetDateTime(parser.nextTextValue())");
-			} else if (LocalDate.class.getName().equals(returnType)) {
-                writer.write("parseLocalDate(parser.nextTextValue())");
-            } else if (LocalTime.class.getName().equals(returnType)) {
-                writer.write("parseLocalTime(parser.nextTextValue())");
-            } else {
-			    throw new UnsupportedOperationException("Type not supported [" + returnType + "]");
-			}
-			writer.write(");");
-			writeNewLine(writer);
+		    if (returnType.startsWith(List.class.getName())) {
+		    	writer.write("				");
+		    	String fcqnTarget = returnType.substring(15, returnType.length()-1);
+		    	String fcqnTargetSimpleName = fcqnTarget.substring(fcqnTarget.lastIndexOf('.') + 1);
+		    	writer.write(cd.fullyQualidiedClassName() + fcqnTargetSimpleName + "Builder childBuilder = builder.with" + Helper.firstToUpperCase(cpd.name()) + "();");
+		    	writeNewLine(writer);
+		    	writer.write("				ctxt.setAttribute(\""+ fcqnTarget +"\", childBuilder);");
+		    	writeNewLine(writer);
+		    	writer.write("				parser.nextToken();");
+		    	writeNewLine(writer);
+		    	writer.write("                while (parser.currentToken() != JsonToken.END_ARRAY) {");
+		    	writeNewLine(writer);
+		    	writer.write("                    if (parser.nextToken() == JsonToken.START_OBJECT) {");
+		    	writeNewLine(writer);
+		    	writer.write("                        childBuilder.and(ctxt.readValue(parser, " + fcqnTarget + ".class));");
+		    	writeNewLine(writer);
+		    	writer.write("                    }");
+		    	writeNewLine(writer);
+		    	writer.write("                }");
+		    	writeNewLine(writer);
+		    	
+		    } else {
+		   
+		    	writer.write("				builder.with" + Helper.firstToUpperCase(cpd.name()) + "(");
+		    
+			    if ("java.lang.String".equals(returnType)) {
+					writer.write("parser.nextTextValue()");
+				} else if ("int".equals(returnType)) {
+					writer.write("parser.nextIntValue(0)");
+				} else if ("long".equals(returnType)) {
+					writer.write("parser.nextLongValue(0l)");
+				} else if ("boolean".equals(returnType)) {
+					writer.write("parser.nextBooleanValue()");
+				} else if (OffsetDateTime.class.getName().equals(returnType)) {
+					writer.write("parseOffsetDateTime(parser.nextTextValue())");
+				} else if (LocalDate.class.getName().equals(returnType)) {
+	                writer.write("parseLocalDate(parser.nextTextValue())");
+	            } else if (LocalTime.class.getName().equals(returnType)) {
+	                writer.write("parseLocalTime(parser.nextTextValue())");
+	            }
+	            else {
+				    throw new UnsupportedOperationException("Type not supported [" + returnType + "]");
+				}
+			    writer.write(");");
+				writeNewLine(writer);
+		    }
+			
 			writer.write("			} catch (IOException cause) {");
 		    writeNewLine(writer);
 		    writer.write("			    throw new DeserializerException(DeserializerException.Type.PARSE_ERROR, ImmutableMap.of(\"field\",\""+ cpd.name() +"\"), cause);");
@@ -179,7 +221,7 @@ public final class CommandJacksonStdDeserializerGenerator {
 	}
 
 	
-	private static void writeConstructor(Writer writer, CommandDescriptor descriptor) throws IOException {
+	private static void writeConstructor(Writer writer, AbstractCommandDescriptor descriptor) throws IOException {
 		writeNewLine(writer);
 		writer.write("    " + descriptor.simpleName() +"StdDeserializer");
 		writer.write("() {");
@@ -191,7 +233,7 @@ public final class CommandJacksonStdDeserializerGenerator {
 	}
 
 	
-	private void writeMethod(Writer writer, CommandDescriptor cd) throws IOException {
+	private void writeMethod(Writer writer, AbstractCommandDescriptor cd) throws IOException {
 		writeNewLine(writer);
 		writer.write("    @Override");
 		writeNewLine(writer);
@@ -221,7 +263,7 @@ public final class CommandJacksonStdDeserializerGenerator {
 		writeNewLine(writer);
 		writer.write("            }");
 		writeNewLine(writer);
-		writer.write("            BiConsumer<JsonParser," + cd.simpleName() + "Builder> consumer = FIELDS.get(p.currentName());");
+		writer.write("            TriConsumer<JsonParser,DeserializationContext," + cd.simpleName() + "Builder> consumer = FIELDS.get(p.currentName());");
 		writeNewLine(writer);
 		writer.write("            if (consumer == null) {");
 		writeNewLine(writer);
@@ -229,7 +271,7 @@ public final class CommandJacksonStdDeserializerGenerator {
 		writeNewLine(writer);
 		writer.write("            }");
 		writeNewLine(writer);
-		writer.write("            consumer.accept(p, builder);");
+		writer.write("            consumer.accept(p, ctxt, builder);");
 		writeNewLine(writer);
 		writer.write("            p.nextToken();");
 		writeNewLine(writer);

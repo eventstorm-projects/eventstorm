@@ -18,6 +18,7 @@ import javax.annotation.processing.ProcessingEnvironment;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
+import eu.eventsotrm.core.apt.model.AbstractCommandDescriptor;
 import eu.eventsotrm.core.apt.model.CommandDescriptor;
 import eu.eventsotrm.core.apt.model.Descriptor;
 import eu.eventsotrm.core.apt.model.EmbeddedCommandDescriptor;
@@ -38,7 +39,10 @@ public final class SourceCode {
 	private final ImmutableMap<String, EmbeddedCommandDescriptor> embeddedCommands;
 
 	private final ImmutableMap<String, ImmutableList<CommandDescriptor>> packages;
+	private final ImmutableMap<String, ImmutableList<EmbeddedCommandDescriptor>> embeddedCommandsPackages;
 
+	private final ImmutableMap<String, ImmutableList<AbstractCommandDescriptor>> allCommandsPackages;
+	
 	private final ImmutableMap<String, EventDescriptor> events;
 	
 	private final ImmutableMap<String, ImmutableList<EventDescriptor>> eventpackages;
@@ -57,8 +61,13 @@ public final class SourceCode {
 		this.cqrsConfiguration = cqrsConfiguration;
 		this.commands = commands.stream().collect(toImmutableMap(CommandDescriptor::fullyQualidiedClassName, identity()));
 		this.embeddedCommands = embeddedCommands.stream().collect(toImmutableMap(EmbeddedCommandDescriptor::fullyQualidiedClassName, identity()));
-		this.events = events.stream().collect(toImmutableMap(EventDescriptor::fullyQualidiedClassName, identity()));
 		this.packages = mapByPackage(env, this.commands);
+		this.embeddedCommandsPackages = mapByPackage(env, this.embeddedCommands);
+		
+		this.allCommandsPackages = mapByPackage(env, ImmutableMap.<String,AbstractCommandDescriptor>builder().putAll(this.commands).putAll(this.embeddedCommands).build());
+		
+		
+		this.events = events.stream().collect(toImmutableMap(EventDescriptor::fullyQualidiedClassName, identity()));
 		this.eventpackages = mapByPackage(env, this.events);
 		this.restControllers = restControllerDescriptors.stream()
 		        .collect(groupingBy( t -> t.getFCQN(env), mapping(identity(), toImmutableList())));
@@ -79,6 +88,18 @@ public final class SourceCode {
 		return this.embeddedCommands.get(fqcn);
 	}
 	
+	public void forEachCommandPackage(BiConsumer<String, ImmutableList<CommandDescriptor>> consumer) {
+		this.packages.forEach(consumer);
+	}
+	
+	public void forEachEmbeddedCommandPackage(BiConsumer<String, ImmutableList<EmbeddedCommandDescriptor>> consumer) {
+		this.embeddedCommandsPackages.forEach(consumer);
+	}
+	
+	public void forEachAllCommandPackage(BiConsumer<String, ImmutableList<AbstractCommandDescriptor>> consumer) {
+		this.allCommandsPackages.forEach(consumer);
+	}
+	
 	
     public void forEachQuery(Consumer<QueryDescriptor> consumer) {
         this.queries.values().forEach(consumer);
@@ -88,9 +109,7 @@ public final class SourceCode {
 		this.events.values().forEach(consumer);
 	}
 
-	public void forEachCommandPackage(BiConsumer<String, ImmutableList<CommandDescriptor>> consumer) {
-		this.packages.forEach(consumer);
-	}
+	
 
 	public void forEachEventPackage(BiConsumer<String, ImmutableList<EventDescriptor>> consumer) {
 		this.eventpackages.forEach(consumer);

@@ -1,5 +1,6 @@
 package eu.eventsotrm.core.apt.command;
 
+import static eu.eventsotrm.sql.apt.Helper.getReturnType;
 import static eu.eventsotrm.sql.apt.Helper.writeGenerated;
 import static eu.eventsotrm.sql.apt.Helper.writeNewLine;
 import static eu.eventsotrm.sql.apt.Helper.writePackage;
@@ -19,7 +20,7 @@ import javax.tools.JavaFileObject;
 import com.google.common.collect.ImmutableList;
 
 import eu.eventsotrm.core.apt.SourceCode;
-import eu.eventsotrm.core.apt.model.CommandDescriptor;
+import eu.eventsotrm.core.apt.model.AbstractCommandDescriptor;
 import eu.eventsotrm.core.apt.model.PropertyDescriptor;
 import eu.eventsotrm.sql.apt.Helper;
 import eu.eventsotrm.sql.apt.log.Logger;
@@ -53,6 +54,19 @@ public final class CommandValidatorGenerator {
     	// generate Implementation class;
         sourceCode.forEachCommand(t -> {
             try {
+            	this.variables.clear();
+                generate(processingEnvironment, t);
+            } catch (Exception cause) {
+            	logger.error("Exception for [" + t + "] -> [" + cause.getMessage() + "]", cause);
+            }
+        });
+    }
+    
+    public void generateEmbedded(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
+    	// generate Implementation class;
+        sourceCode.forEachEmbeddedCommand(t -> {
+            try {
+            	this.variables.clear();
                 generate(processingEnvironment, t);
             } catch (Exception cause) {
             	logger.error("Exception for [" + t + "] -> [" + cause.getMessage() + "]", cause);
@@ -60,7 +74,7 @@ public final class CommandValidatorGenerator {
         });
     }
 
-    private void generate(ProcessingEnvironment env, CommandDescriptor descriptor) throws IOException {
+    private void generate(ProcessingEnvironment env, AbstractCommandDescriptor descriptor) throws IOException {
 
     	String fcqn = env.getElementUtils().getPackageOf(descriptor.element()).toString() + ".validator." + descriptor.simpleName() + "Validator" ;
 		
@@ -81,7 +95,7 @@ public final class CommandValidatorGenerator {
        
     }
 	
-    private static void writeHeader(Writer writer, ProcessingEnvironment env, CommandDescriptor descriptor) throws IOException {
+    private static void writeHeader(Writer writer, ProcessingEnvironment env, AbstractCommandDescriptor descriptor) throws IOException {
 
         writePackage(writer, env.getElementUtils().getPackageOf(descriptor.element()).toString()+ ".validator");
        
@@ -98,7 +112,6 @@ public final class CommandValidatorGenerator {
         writeNewLine(writer);
         
         writeGenerated(writer,CommandValidatorGenerator.class.getName());
-        writeNewLine(writer);
         writer.write("@Component");
         writeNewLine(writer);
         writer.write("public final class ");
@@ -110,7 +123,7 @@ public final class CommandValidatorGenerator {
         writeNewLine(writer);
     }
 
-    private void writeMethodValidate(Writer writer, CommandDescriptor descriptor) throws IOException {
+    private void writeMethodValidate(Writer writer, AbstractCommandDescriptor descriptor) throws IOException {
     	writeNewLine(writer);
         writer.write("    /** {@inheritDoc} */");
         writeNewLine(writer);
@@ -140,6 +153,13 @@ public final class CommandValidatorGenerator {
         	}
         }
         
+        for (PropertyDescriptor ppd : descriptor.properties()) {
+            String returnType = Helper.getReturnType(ppd.getter());
+            if (returnType.startsWith(List.class.getName())) {
+            	writeListImtepValidator(writer, descriptor, ppd);
+            }
+        }
+        
         writer.write("        return builder.build();");
         writeNewLine(writer);
         writer.write("    }");
@@ -148,7 +168,7 @@ public final class CommandValidatorGenerator {
 	}
 
     
-    private void writeMethodPartCustomPropertiesValidator(Writer writer, CommandDescriptor descriptor, CustomPropertiesValidator cpv) throws IOException {
+	private void writeMethodPartCustomPropertiesValidator(Writer writer, AbstractCommandDescriptor descriptor, CustomPropertiesValidator cpv) throws IOException {
     	writeNewLine(writer);
         writer.write("        // validate properties " + Arrays.toString(cpv.properties()) + " from " + cpv.toString());
     	writeNewLine(writer);
@@ -166,7 +186,7 @@ public final class CommandValidatorGenerator {
     	writeNewLine(writer);
 	}
 
-	private void writeMethodPart(Writer writer, CommandDescriptor descriptor, PropertyDescriptor ppd, AnnotationMirror am) throws IOException {
+	private void writeMethodPart(Writer writer, AbstractCommandDescriptor descriptor, PropertyDescriptor ppd, AnnotationMirror am) throws IOException {
        
         if (NotEmpty.class.getName().equals(am.getAnnotationType().asElement().toString())) {
             writeMethodPartNotEmpty(writer, descriptor, ppd, am);
@@ -180,18 +200,27 @@ public final class CommandValidatorGenerator {
         
     }
 
-    private void writeMethodPartNotEmpty(Writer writer, CommandDescriptor descriptor, PropertyDescriptor ppd, AnnotationMirror am) throws IOException {
+    private void writeMethodPartNotEmpty(Writer writer, AbstractCommandDescriptor descriptor, PropertyDescriptor ppd, AnnotationMirror am) throws IOException {
         writeNewLine(writer);
         writer.write("        // validate property " + ppd.name() + " from " + am.toString());
     	writeNewLine(writer);
-    	writer.write("        PropertyValidators.notEmpty().validate(PROPERTIES_");
-        writer.write(Helper.toUpperCase(ppd.name())+", ");
+    	
+    	String type = getReturnType(ppd.getter());
+    	if (String.class.getName().equals(type)) {
+    		writer.write("        PropertyValidators.notEmpty().validate(PROPERTIES_");
+    	} else if (type.startsWith(List.class.getName())) {
+    		writer.write("        PropertyValidators.listNotEmpty().validate(PROPERTIES_");
+    	} else {
+    		logger.error("@notEmptyNot supported for type [" + type + "]");
+    	}
+    	
+    	writer.write(Helper.toUpperCase(ppd.name())+", ");
         writer.write("command." + ppd.getter().getSimpleName().toString() + "(), builder);");
     	writeNewLine(writer);
     }
 
     
-    private void writeMethodPartCustomPropertyValidator(Writer writer, CommandDescriptor descriptor, PropertyDescriptor ppd, AnnotationMirror am) throws IOException {
+    private void writeMethodPartCustomPropertyValidator(Writer writer, AbstractCommandDescriptor descriptor, PropertyDescriptor ppd, AnnotationMirror am) throws IOException {
         writeNewLine(writer);
         writer.write("        // validate property " + ppd.name() + " from " + am.toString());
     	writeNewLine(writer);
@@ -207,7 +236,7 @@ public final class CommandValidatorGenerator {
     	writeNewLine(writer);
     }
     
-    private void writeConstructor(Writer writer, CommandDescriptor descriptor) throws IOException {
+    private void writeConstructor(Writer writer, AbstractCommandDescriptor descriptor) throws IOException {
     	writeNewLine(writer);
         writer.write("    public ");
         writer.write(descriptor.simpleName() + "Validator");
@@ -215,12 +244,18 @@ public final class CommandValidatorGenerator {
         
         for (int i = 0 ; i < variables.size(); i++) {
         	Tuple2<String, PropertyDescriptor> var = variables.get(i);
-        	writer.write(var.getT1());
-        	writer.write(" validatorCustom" + Helper.firstToUpperCase(var.getT2().name()));
-        	if (i + 1 < variables.size()) {
-        		writer.write(",");
-                writeNewLine(writer);
-                writer.write("                 ");
+        	
+        	if (Helper.getReturnType(var.getT2().getter()).startsWith(List.class.getName())) {
+        		writer.write(var.getT1());
+            	writer.write(" $$listValidator" + Helper.firstToUpperCase(var.getT2().name()));
+        	} else {
+        		writer.write(var.getT1());
+            	writer.write(" validatorCustom" + Helper.firstToUpperCase(var.getT2().name()));
+            	if (i + 1 < variables.size()) {
+            		writer.write(",");
+                    writeNewLine(writer);
+                    writer.write("                 ");
+            	}	
         	}
         }
         
@@ -261,8 +296,13 @@ public final class CommandValidatorGenerator {
     	
         for (int i = 0 ; i < variables.size(); i++) {
         	Tuple2<String, PropertyDescriptor> var = variables.get(i);
-        	writer.write("        this.validatorCustom" + Helper.firstToUpperCase(var.getT2().name()));
-        	writer.write(" = validatorCustom" + Helper.firstToUpperCase(var.getT2().name()) + ";");
+        	if (Helper.getReturnType(var.getT2().getter()).startsWith(List.class.getName())) {
+            	writer.write("        this.$$listValidator" + Helper.firstToUpperCase(var.getT2().name()));
+            	writer.write(" = $$listValidator" + Helper.firstToUpperCase(var.getT2().name()) + ";");
+        	} else {
+        		writer.write("        this.validatorCustom" + Helper.firstToUpperCase(var.getT2().name()));
+            	writer.write(" = validatorCustom" + Helper.firstToUpperCase(var.getT2().name()) + ";");
+        	}
             writeNewLine(writer);
         }
         
@@ -287,7 +327,7 @@ public final class CommandValidatorGenerator {
         writeNewLine(writer);
     }
 
-    private void writeVariables(Writer writer, CommandDescriptor descriptor) throws IOException {
+    private void writeVariables(Writer writer, AbstractCommandDescriptor descriptor) throws IOException {
     	
     	// for @CustomPropertyValidator
     	for (PropertyDescriptor ppd : descriptor.properties()) {
@@ -347,6 +387,19 @@ public final class CommandValidatorGenerator {
     			throw new IllegalStateException("Invalid cpv instantiator [" + cpv.instantiator() +"]");
     		}
         }
+    	
+    	//String fcqn = env.getElementUtils().getPackageOf(descriptor.element()).toString() + ".validator." + descriptor.simpleName() + "Validator" ;
+		
+    	
+    	for (PropertyDescriptor ppd : descriptor.properties()) {
+    		String returnType = Helper.getReturnType(ppd.getter());
+    		if (returnType.startsWith(List.class.getName())) {
+    			String validatorClassName = returnType.substring(15, returnType.lastIndexOf(".")) + ".validator." + 
+    					returnType.substring(returnType.lastIndexOf(".")+1, returnType.length()-1) + "Validator";
+    			variables.add(Tuples.of(validatorClassName, ppd));
+    			writer.write("    private final " + validatorClassName +" $$listValidator" + Helper.firstToUpperCase(ppd.name()) + ";");
+    		}
+    	}
     }
     
 	private void writeVariablesCustomPropertiesValidator(Writer writer, CustomPropertiesValidator cpvc) throws IOException {
@@ -394,5 +447,26 @@ public final class CommandValidatorGenerator {
 		return false;
     }
 	
+    
+    private void writeListImtepValidator(Writer writer, AbstractCommandDescriptor descriptor, PropertyDescriptor ppd) throws IOException {
+    	writer.write("        if (command." + ppd.getter().getSimpleName().toString() + "() != null) {");
+    	writeNewLine(writer);
+    	
+    	String returnType = Helper.getReturnType(ppd.getter());
+    	String targetType = returnType.substring(15, returnType.length() -1); 
+    	
+    	writer.write("            for (" + targetType + " item : command." + ppd.getter().getSimpleName().toString()+"()) {" );
+    	writeNewLine(writer);
+    	
+    	writer.write("                builder.addAll(this.$$listValidator" + Helper.firstToUpperCase(ppd.name()) +".validate(item));");
+    	writeNewLine(writer);
+    	
+    	
+    	writer.write("            }");
+    	writeNewLine(writer);
+    	writer.write("        }");
+    	writeNewLine(writer);
+	}
+    
 
 }

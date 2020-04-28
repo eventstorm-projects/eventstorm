@@ -28,6 +28,7 @@ import eu.eventsotrm.core.apt.command.CommandJacksonStdDeserializerGenerator;
 import eu.eventsotrm.core.apt.command.CommandOpenApiGenerator;
 import eu.eventsotrm.core.apt.command.CommandRestControllerAdviceImplementationGenerator;
 import eu.eventsotrm.core.apt.command.CommandValidatorGenerator;
+import eu.eventsotrm.core.apt.command.RestControllerImplementationGenerator;
 import eu.eventsotrm.core.apt.model.CommandDescriptor;
 import eu.eventsotrm.core.apt.model.EmbeddedCommandDescriptor;
 import eu.eventsotrm.core.apt.model.EventDescriptor;
@@ -143,16 +144,24 @@ public class EventProcessor extends AbstractProcessor {
 		new CommandImplementationGenerator().generateCommand(this.processingEnv, sourceCode);
 		new CommandImplementationGenerator().generateEmbeddedCommand(this.processingEnv, sourceCode);
 		new CommandBuilderGenerator().generateCommand(this.processingEnv, sourceCode);
+		new CommandBuilderGenerator().generateEmbeddedCommand(this.processingEnv, sourceCode);
 		
 		new CommandFactoryGenerator().generate(this.processingEnv, sourceCode);
-//		
-//		new CommandJacksonStdDeserializerGenerator().generate(processingEnv, sourceCode);
-//		new CommandJacksonModuleGenerator().generate(processingEnv, sourceCode);
-//		new CommandExceptionGenerator().generate(processingEnv, sourceCode);
-//		new CommandRestControllerAdviceImplementationGenerator().generate(processingEnv, sourceCode);
-//		new CommandValidatorGenerator().generate(processingEnv, sourceCode);
-//		new CommandOpenApiGenerator().generate(processingEnv, sourceCode);
-//		
+		
+		new CommandJacksonStdDeserializerGenerator().generate(processingEnv, sourceCode);
+		new CommandJacksonStdDeserializerGenerator().generateEmbedded(processingEnv, sourceCode);
+
+		new CommandJacksonModuleGenerator().generate(processingEnv, sourceCode);
+		new CommandExceptionGenerator().generate(processingEnv, sourceCode);
+		
+		new CommandValidatorGenerator().generateEmbedded(processingEnv, sourceCode);
+		new CommandValidatorGenerator().generate(processingEnv, sourceCode);
+
+		// TODO => move to webflux
+		//new CommandRestControllerAdviceImplementationGenerator().generate(processingEnv, sourceCode);
+		
+		new CommandOpenApiGenerator().generate(processingEnv, sourceCode);
+
 //		new EventPayloadImplementationGenerator().generate(this.processingEnv, sourceCode);
 //		new EventPayloadBuilderGenerator().generate(this.processingEnv, sourceCode);
 //		new EventPayloadFactoryGenerator().generate(this.processingEnv, sourceCode);
@@ -166,7 +175,7 @@ public class EventProcessor extends AbstractProcessor {
 //		new EventPayloadSerializersGenerator().generate(this.processingEnv, sourceCode);
 //
 //		new DomainModelHandlerImplementationGenerator().generate(this.processingEnv, sourceCode);
-//		new RestControllerImplementationGenerator().generate(processingEnv, sourceCode);
+		new RestControllerImplementationGenerator().generate(processingEnv, sourceCode);
 //		
 //		new QueryImplementationGenerator().generate(this.processingEnv, sourceCode);
 //		new QueryBuilderGenerator().generate(processingEnv, sourceCode);

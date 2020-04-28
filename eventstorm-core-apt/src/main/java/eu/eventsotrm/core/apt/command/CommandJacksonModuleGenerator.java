@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.collect.ImmutableList;
 
 import eu.eventsotrm.core.apt.SourceCode;
+import eu.eventsotrm.core.apt.model.AbstractCommandDescriptor;
 import eu.eventsotrm.core.apt.model.CommandDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
@@ -31,7 +32,7 @@ public final class CommandJacksonModuleGenerator {
 
 	public void generate(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
 		// generate Implementation class;
-		sourceCode.forEachCommandPackage((pack, list) -> {
+		sourceCode.forEachAllCommandPackage((pack, list) -> {
 			try {
 				generate(processingEnvironment, pack, list);
 			} catch (Exception cause) {
@@ -41,7 +42,7 @@ public final class CommandJacksonModuleGenerator {
 
 	}
 
-	private void generate(ProcessingEnvironment env, String pack, ImmutableList<CommandDescriptor> descriptors) throws IOException {
+	private void generate(ProcessingEnvironment env, String pack, ImmutableList<AbstractCommandDescriptor> descriptors) throws IOException {
         // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
         if (env.getElementUtils().getTypeElement(pack + ".json.CommandModule") != null) {
             logger.info("Java SourceCode already exist [" +pack + ".json.CommandModule" + "]");
@@ -77,13 +78,13 @@ public final class CommandJacksonModuleGenerator {
 
 	
 	
-	private static void writeConstructor(Writer writer, ImmutableList<CommandDescriptor> descriptors) throws IOException {
+	private static void writeConstructor(Writer writer, ImmutableList<AbstractCommandDescriptor> descriptors) throws IOException {
 		writeNewLine(writer);
 		writer.write("    public CommandModule() {");
 		writeNewLine(writer);
 		writer.write("        super();");
 		writeNewLine(writer);
-		for (CommandDescriptor cd : descriptors) {
+		for (AbstractCommandDescriptor cd : descriptors) {
 			// addDeserializer(CreateUserCommand.class, new CreateUserCommandStdDeserializer());
 			writer.write("        addDeserializer(" + cd.fullyQualidiedClassName() + ".class, new " + cd.simpleName() + "StdDeserializer());");
 			writeNewLine(writer);
