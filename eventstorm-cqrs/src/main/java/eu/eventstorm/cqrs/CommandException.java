@@ -9,19 +9,26 @@ import com.google.common.collect.ImmutableMap;
 public abstract class CommandException extends RuntimeException {
 
     private final transient ImmutableMap<String, Object> parameters;
+    private final transient Command command;
     
-    protected CommandException(String message, ImmutableMap<String, Object> parameters) {
+    protected CommandException(Command command, String message, ImmutableMap<String, Object> parameters) {
         super(message);
         this.parameters = parameters;
+        this.command = command;
     }
 
-    protected CommandException(String message, Throwable cause, ImmutableMap<String, Object> parameters) {
+    protected CommandException(Command command, String message, Throwable cause, ImmutableMap<String, Object> parameters) {
         super(message, cause);
         this.parameters = parameters;
+        this.command = command;
     }
 
-    public ImmutableMap<String, Object> getParameters() {
+    public final ImmutableMap<String, Object> getParameters() {
         return parameters;
     }
+
+	public final Command getCommand() {
+		return command;
+	}
 
 }

@@ -1,4 +1,4 @@
-package eu.eventsotrm.core.apt;
+package eu.eventsotrm.core.apt.command;
 
 import static eu.eventsotrm.sql.apt.Helper.writeGenerated;
 import static eu.eventsotrm.sql.apt.Helper.writeNewLine;
@@ -14,6 +14,7 @@ import javax.tools.JavaFileObject;
 
 import com.google.common.collect.ImmutableList;
 
+import eu.eventsotrm.core.apt.SourceCode;
 import eu.eventsotrm.core.apt.model.RestControllerDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
@@ -25,11 +26,11 @@ import eu.eventstorm.cqrs.CommandGateway;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-final class RestControllerImplementationGenerator {
+public final class RestControllerImplementationGenerator {
 
 	private final Logger logger;
 
-	RestControllerImplementationGenerator() {
+	public RestControllerImplementationGenerator() {
 		logger = LoggerFactory.getInstance().getLogger(RestControllerImplementationGenerator.class);
 	}
 

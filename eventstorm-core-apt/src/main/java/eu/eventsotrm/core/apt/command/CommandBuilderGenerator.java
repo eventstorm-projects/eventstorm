@@ -7,15 +7,12 @@ import static eu.eventsotrm.sql.apt.Helper.writePackage;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.JavaFileObject;
 
 import eu.eventsotrm.core.apt.SourceCode;
 import eu.eventsotrm.core.apt.model.AbstractCommandDescriptor;
-import eu.eventsotrm.core.apt.model.CommandDescriptor;
 import eu.eventsotrm.core.apt.model.EmbeddedCommandDescriptor;
 import eu.eventsotrm.core.apt.model.PropertyDescriptor;
 import eu.eventsotrm.sql.apt.Helper;
@@ -48,17 +45,18 @@ public final class CommandBuilderGenerator {
         });
     }
     
-//    public void generateEmbeddedCommand(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
-//    	this.env = processingEnvironment;
-//        sourceCode.forEachEmbeddedCommand(t -> {
-//            try {
-//                generate(processingEnvironment, t);
-//            } catch (Exception cause) {
-//            	logger.error("Exception for [" + t + "] -> [" + cause.getMessage() + "]", cause);
-//            }
-//        });
-//    }
-
+    public void generateEmbeddedCommand(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
+    	this.env = processingEnvironment;
+    	this.code = sourceCode;
+        sourceCode.forEachEmbeddedCommand(t -> {
+            try {
+                generate(processingEnvironment, t);
+            } catch (Exception cause) {
+            	logger.error("Exception for [" + t + "] -> [" + cause.getMessage() + "]", cause);
+            }
+        });
+    }
+    
     private void generate(ProcessingEnvironment env, AbstractCommandDescriptor cd) throws IOException {
 
         // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
@@ -266,6 +264,8 @@ public final class CommandBuilderGenerator {
 		writeNewLine(writer);
         writer.write("    public " + cd.simpleName()  +"Builder parent() { ");
         writeNewLine(writer);
+        writer.write("        and();");
+        writeNewLine(writer);
         writer.write("        return parent;");
         writeNewLine(writer);
         writer.write("    }");
@@ -292,6 +292,17 @@ public final class CommandBuilderGenerator {
         writeNewLine(writer);
         writer.write("    }");
         writeNewLine(writer);
+        
+        writeNewLine(writer);
+        writer.write("    public " + classname  +" and(" + ecd.fullyQualidiedClassName() + " item) { ");
+        writeNewLine(writer);
+        writer.write("        this.$$list$$.add(item);");
+        writeNewLine(writer);
+        writer.write("        return this;");
+        writeNewLine(writer);
+        writer.write("    }");
+        writeNewLine(writer);
+        
 	}
     
 }
