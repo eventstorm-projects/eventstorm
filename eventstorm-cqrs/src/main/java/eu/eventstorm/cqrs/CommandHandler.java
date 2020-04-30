@@ -1,7 +1,6 @@
 package eu.eventstorm.cqrs;
 
 import eu.eventstorm.core.Event;
-import eu.eventstorm.core.EventPayload;
 import reactor.core.publisher.Flux;
 
 /**
@@ -11,6 +10,6 @@ public interface CommandHandler<C extends Command> {
 	
 	Class<C> getType();
 	
-	Flux<Event<EventPayload>> handle(C command);
+	Flux<Event> handle(C command);
 
 }

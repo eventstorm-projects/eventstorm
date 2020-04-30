@@ -14,7 +14,7 @@ import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.util.JsonFormat;
 
-import eu.eventstorm.eventstore.Event;
+import eu.eventstorm.core.Event;
 import eu.eventstorm.eventstore.EventStore;
 import eu.eventstorm.eventstore.Statistics;
 import eu.eventstorm.eventstore.StreamDefinition;

@@ -3,6 +3,8 @@ package eu.eventstorm.eventstore.memory;
 import static com.google.common.collect.ImmutableMap.of;
 import static eu.eventstorm.eventstore.EventStoreException.PARAM_STREAM;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
@@ -10,8 +12,9 @@ import org.slf4j.LoggerFactory;
 
 import com.google.protobuf.AbstractMessage;
 
+import eu.eventstorm.core.Event;
 import eu.eventstorm.core.StreamId;
-import eu.eventstorm.eventstore.Event;
+import eu.eventstorm.eventstore.EventCandidate;
 import eu.eventstorm.eventstore.EventStoreClient;
 import eu.eventstorm.eventstore.EventStoreException;
 import eu.eventstorm.eventstore.StreamDefinition;
@@ -35,10 +38,10 @@ public final class InMemoryEventStoreClient implements EventStoreClient {
 
 
 	@Override
-	public <T  extends AbstractMessage> Event appendToStream(String stream, StreamId streamId, T event) {
+	public Event appendToStream(String stream, StreamId streamId, AbstractMessage message) {
 		
 		if (LOGGER.isTraceEnabled()) {
-			LOGGER.trace("appendToStream({},{},{})", stream, streamId, event);
+			LOGGER.trace("appendToStream({},{},{})", stream, streamId, message);
 		}
 		
 		StreamDefinition sd = this.streamManager.getDefinition(stream);
@@ -48,9 +51,18 @@ public final class InMemoryEventStoreClient implements EventStoreClient {
 		}
 		
 		// if sepd not found => exception.
-		StreamEventDefinition sepd = sd.getStreamEventDefinition(event.getDescriptorForType().getName());
+		StreamEventDefinition sepd = sd.getStreamEventDefinition(message.getDescriptorForType().getName());
 		
-		return this.inMemoryEventStore.appendToStream(sepd, streamId.toStringValue(), event);
+		return this.inMemoryEventStore.appendToStream(sepd, streamId.toStringValue(), message);
+	}
+	
+	@Override
+	public Stream<Event> appendToStream(EventCandidate... candidates) {
+		List<Event> events = new ArrayList<>(candidates.length);
+		for (EventCandidate candidate : candidates) {
+			events.add(appendToStream(candidate.getStream(), candidate.getStreamId(), candidate.getMessage()));
+		}
+		return events.stream();
 	}
 
 
@@ -58,5 +70,9 @@ public final class InMemoryEventStoreClient implements EventStoreClient {
 	public Stream<Event> readStream(String stream, StreamId streamId) {
 		return inMemoryEventStore.readStream(streamManager.getDefinition(stream), streamId.toStringValue());
 	}
+
+
+
+	
 
 }

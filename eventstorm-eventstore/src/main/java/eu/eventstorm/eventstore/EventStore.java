@@ -4,6 +4,8 @@ import java.util.stream.Stream;
 
 import com.google.protobuf.AbstractMessage;
 
+import eu.eventstorm.core.Event;
+
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */

@@ -36,7 +36,8 @@ public abstract class EventstormException extends RuntimeException {
 		builder.append("type=[").append(type).append("]");
 		if (params != null && params.size() > 0) {
 			builder.append(", params:{");
-			params.forEach((key, value) -> builder.append("[").append(key).append("]=[").append(value).append("] "));
+			params.forEach((key, value) -> builder.append("[").append(key).append("]=[")
+					.append(String.valueOf(value)).append("] "));
 			builder.deleteCharAt(builder.length() -1);
 			builder.append("}");
 		}

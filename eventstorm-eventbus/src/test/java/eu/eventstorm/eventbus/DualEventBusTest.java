@@ -5,24 +5,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
-import org.mockito.Mockito;
 import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 
 import eu.eventstorm.core.Event;
-import eu.eventstorm.core.EventPayload;
-import eu.eventstorm.eventbus.DualEventBus;
-import eu.eventstorm.eventbus.InMemoryEventBus;
 
 class DualEventBusTest {
 
 	@Test
-	@SuppressWarnings("unchecked")
 	void testDualInMemory() {
 
 		AtomicInteger integer = new AtomicInteger(0);
-		Consumer<Event<? extends EventPayload>> consumer = event -> {
+		Consumer<Event> consumer = event -> {
 			integer.incrementAndGet();
 		};
 
@@ -32,7 +27,7 @@ class DualEventBusTest {
 
 		assertEquals(0, integer.get());
 
-		dualEventBus.publish(Mockito.mock(Event.class));
+		dualEventBus.publish(Event.newBuilder().build());
 
 		assertEquals(2, integer.get());
 

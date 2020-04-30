@@ -22,6 +22,7 @@ import com.google.protobuf.util.JsonFormat;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
+import eu.eventstorm.core.Event;
 import eu.eventstorm.eventstore.db.DatabaseEventStore;
 import eu.eventstorm.eventstore.db.Module;
 import eu.eventstorm.eventstore.ex.UserCreatedEventPayload;

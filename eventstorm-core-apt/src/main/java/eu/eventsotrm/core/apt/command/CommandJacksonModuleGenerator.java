@@ -15,7 +15,6 @@ import com.google.common.collect.ImmutableList;
 
 import eu.eventsotrm.core.apt.SourceCode;
 import eu.eventsotrm.core.apt.model.AbstractCommandDescriptor;
-import eu.eventsotrm.core.apt.model.CommandDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 

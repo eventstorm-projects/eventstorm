@@ -4,6 +4,7 @@ import java.util.stream.Stream;
 
 import com.google.protobuf.AbstractMessage;
 
+import eu.eventstorm.core.Event;
 import eu.eventstorm.core.StreamId;
 
 /**
@@ -11,8 +12,10 @@ import eu.eventstorm.core.StreamId;
  */
 public interface EventStoreClient {
 
-	<T extends AbstractMessage> Event appendToStream(String stream, StreamId streamId, T evantPayload);
-
+	Event appendToStream(String stream, StreamId streamId, AbstractMessage evantPayload);
+	
+	Stream<Event> appendToStream(EventCandidate ...candidates);
+	
 	Stream<Event> readStream(String stream, StreamId streamId);
 
 }

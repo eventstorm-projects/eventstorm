@@ -26,7 +26,6 @@ import eu.eventsotrm.core.apt.command.CommandImplementationGenerator;
 import eu.eventsotrm.core.apt.command.CommandJacksonModuleGenerator;
 import eu.eventsotrm.core.apt.command.CommandJacksonStdDeserializerGenerator;
 import eu.eventsotrm.core.apt.command.CommandOpenApiGenerator;
-import eu.eventsotrm.core.apt.command.CommandRestControllerAdviceImplementationGenerator;
 import eu.eventsotrm.core.apt.command.CommandValidatorGenerator;
 import eu.eventsotrm.core.apt.command.RestControllerImplementationGenerator;
 import eu.eventsotrm.core.apt.model.CommandDescriptor;

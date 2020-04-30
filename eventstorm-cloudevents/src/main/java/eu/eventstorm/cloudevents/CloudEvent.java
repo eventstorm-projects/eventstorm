@@ -2,8 +2,6 @@ package eu.eventstorm.cloudevents;
 
 import java.time.OffsetDateTime;
 
-import eu.eventstorm.core.EventPayload;
-
 /**
  * @see https://github.com/cloudevents/spec/blob/v1.0/spec.md
  * 
@@ -123,7 +121,7 @@ public interface CloudEvent {
 	 * adheres to the dataschema format when those respective attributes are
 	 * present.
 	 */
-	EventPayload data();
+	Object data();
 	
 	
 }

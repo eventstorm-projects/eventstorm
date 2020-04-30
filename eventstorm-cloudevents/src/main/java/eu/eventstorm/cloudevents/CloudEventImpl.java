@@ -2,8 +2,6 @@ package eu.eventstorm.cloudevents;
 
 import java.time.OffsetDateTime;
 
-import eu.eventstorm.core.StreamId;
-import eu.eventstorm.core.EventPayload;
 import eu.eventstorm.util.ToStringBuilder;
 
 /**
@@ -13,7 +11,7 @@ final class CloudEventImpl implements CloudEvent {
 
 	private final String specVersion;
 
-	private final StreamId aggregateId;
+	private final String aggregateId;
 
 	private final String aggreateType;
 
@@ -23,10 +21,10 @@ final class CloudEventImpl implements CloudEvent {
 
 	private final int version;
 
-	private final EventPayload payload;
+	private final Object payload;
 
-	public CloudEventImpl(String specVersion, StreamId aggregateId, String aggreateType, OffsetDateTime timestamp, int version, String subject,
-	        EventPayload payload) {
+	public CloudEventImpl(String specVersion, String aggregateId, String aggreateType, OffsetDateTime timestamp, int version, String subject,
+			Object payload) {
 		this.specVersion = specVersion;
 		this.aggregateId = aggregateId;
 		this.aggreateType = aggreateType;
@@ -38,7 +36,7 @@ final class CloudEventImpl implements CloudEvent {
 
 	@Override
 	public String id() {
-		return this.aggregateId.toStringValue();
+		return this.aggregateId;
 	}
 
 	@Override
@@ -77,7 +75,7 @@ final class CloudEventImpl implements CloudEvent {
 	}
 
 	@Override
-	public EventPayload data() {
+	public Object data() {
 		return this.payload;
 	}
 

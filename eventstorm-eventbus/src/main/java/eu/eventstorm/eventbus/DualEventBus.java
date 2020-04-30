@@ -1,7 +1,6 @@
 package eu.eventstorm.eventbus;
 
 import eu.eventstorm.core.Event;
-import eu.eventstorm.core.EventPayload;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -19,7 +18,7 @@ public final class DualEventBus implements EventBus {
 
 
 	@Override
-	public void publish(Event<EventPayload> event) {
+	public void publish(Event event) {
 		try {
 			one.publish(event);
 		} finally {

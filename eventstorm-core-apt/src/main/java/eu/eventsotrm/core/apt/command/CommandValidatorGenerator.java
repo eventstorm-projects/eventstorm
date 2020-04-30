@@ -31,6 +31,7 @@ import eu.eventstorm.annotation.constraint.CustomPropertiesValidators;
 import eu.eventstorm.annotation.constraint.CustomPropertyValidator;
 import eu.eventstorm.annotation.constraint.InstantiatorType;
 import eu.eventstorm.annotation.constraint.NotEmpty;
+import eu.eventstorm.annotation.constraint.NotNull;
 import eu.eventstorm.core.validation.ConstraintViolation;
 import eu.eventstorm.cqrs.validation.PropertyValidators;
 import eu.eventstorm.cqrs.validation.Validator;
@@ -192,6 +193,11 @@ public final class CommandValidatorGenerator {
             writeMethodPartNotEmpty(writer, descriptor, ppd, am);
             return;
         }
+        
+        if (NotNull.class.getName().equals(am.getAnnotationType().asElement().toString())) {
+            writeMethodPartNotNull(writer, descriptor, ppd, am);
+            return;
+        }
 
         if (CustomPropertyValidator.class.getName().equals(am.getAnnotationType().asElement().toString())) {
             writeMethodPartCustomPropertyValidator(writer, descriptor, ppd, am);
@@ -214,6 +220,16 @@ public final class CommandValidatorGenerator {
     		logger.error("@notEmptyNot supported for type [" + type + "]");
     	}
     	
+    	writer.write(Helper.toUpperCase(ppd.name())+", ");
+        writer.write("command." + ppd.getter().getSimpleName().toString() + "(), builder);");
+    	writeNewLine(writer);
+    }
+    
+    private void writeMethodPartNotNull(Writer writer, AbstractCommandDescriptor descriptor, PropertyDescriptor ppd, AnnotationMirror am) throws IOException {
+        writeNewLine(writer);
+        writer.write("        // validate property " + ppd.name() + " from " + am.toString());
+    	writeNewLine(writer);
+    	writer.write("        PropertyValidators.notNull().validate(PROPERTIES_");
     	writer.write(Helper.toUpperCase(ppd.name())+", ");
         writer.write("command." + ppd.getter().getSimpleName().toString() + "(), builder);");
     	writeNewLine(writer);

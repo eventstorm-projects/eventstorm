@@ -3,7 +3,6 @@ package eu.eventstorm.cqrs;
 import static com.google.common.collect.ImmutableMap.of;
 
 import eu.eventstorm.core.Event;
-import eu.eventstorm.core.EventPayload;
 import eu.eventstorm.eventbus.EventBus;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -27,7 +26,7 @@ public final class CommandGateway {
         this.scheduler = scheduler;
     }
 
-	public <T extends Command> Flux<Event<EventPayload>> dispatch(T command) {
+	public <T extends Command> Flux<Event> dispatch(T command) {
 
 		return Mono.just(command)
 				// async

@@ -20,7 +20,6 @@ import eu.eventsotrm.core.apt.model.EventDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.annotation.CqrsEventPayload;
-import eu.eventstorm.core.EventPayload;
 import eu.eventstorm.eventbus.EventListener;
 
 /**
@@ -86,10 +85,10 @@ final class DomainModelHandlerImplementationGenerator {
 
 		writer.write("import ");
 		//writer.write(Event.class.getName());
-		writer.write(";");
-		writeNewLine(writer);
-		writer.write("import ");
-		writer.write(EventPayload.class.getName());
+//		writer.write(";");
+//		writeNewLine(writer);
+//		writer.write("import ");
+//		writer.write(EventPayload.class.getName());
 		writer.write(";");
 		writeNewLine(writer);
 		writer.write("import ");

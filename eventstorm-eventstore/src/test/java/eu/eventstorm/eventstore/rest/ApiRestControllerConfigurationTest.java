@@ -14,13 +14,10 @@ import org.springframework.web.reactive.config.WebFluxConfigurer;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import eu.eventstorm.core.json.Serializer;
 import eu.eventstorm.core.json.jackson.CoreApiModule;
 import eu.eventstorm.eventstore.EventStore;
 import eu.eventstorm.eventstore.StreamManager;
 import eu.eventstorm.eventstore.ex.UserCreatedEventPayload;
-import eu.eventstorm.eventstore.ex.UserCreatedEventPayloadDeserializer;
-import eu.eventstorm.eventstore.ex.UserCreatedEventPayloadSerializer;
 import eu.eventstorm.eventstore.memory.InMemoryEventStore;
 import eu.eventstorm.eventstore.memory.InMemoryStreamManagerBuilder;
 import reactor.core.scheduler.Scheduler;

@@ -11,6 +11,7 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.protobuf.AbstractMessage;
 import com.google.protobuf.ByteString;
@@ -18,7 +19,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.util.JsonFormat;
 import com.google.protobuf.util.JsonFormat.Printer;
 
-import eu.eventstorm.eventstore.Event;
+import eu.eventstorm.core.Event;
 import eu.eventstorm.eventstore.EventStore;
 import eu.eventstorm.eventstore.EventStoreException;
 import eu.eventstorm.eventstore.Statistics;
@@ -79,24 +80,24 @@ public final class InMemoryEventStore implements EventStore {
 			revision = events.get(events.size() - 1).getRevision() + 1;
 		}
 		
-		// @formatter:off
-		Event event;
+		String json;
 		try {
-			event = Event.newBuilder()
-					.setStreamId(streamId)
-					.setStream(sepd.getStream())
-					.setTimestamp(OffsetDateTime.now().toString())
-					.setRevision(revision)
-					.setData(ByteString.copyFromUtf8(JSON_PRINTER.print(message)))
-					.build();
-		} catch (InvalidProtocolBufferException e) {
-			e.printStackTrace();
-			throw new RuntimeException(e);
+			json = JSON_PRINTER.print(message);
+		} catch (Exception cause) {
+			throw new EventStoreException(EventStoreException.Type.FAILED_TO_SERILIAZE_PAYLOAD, ImmutableMap.of("message",message), cause);
 		}
+		// @formatter:off
+		Event event = Event.newBuilder()
+				.setStreamId(streamId)
+				.setStream(sepd.getStream())
+				.setTimestamp(OffsetDateTime.now().toString())
+				.setRevision(revision)
+				.setData(ByteString.copyFromUtf8(json))
+				.build();
 		// @formatter:on
 
 		this.allEvents.add(event);
-		events.add( event);
+		events.add(event);
 		return event;
 	}
 

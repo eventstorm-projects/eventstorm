@@ -3,6 +3,9 @@
 import static com.google.common.collect.ImmutableList.of;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+
 import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
@@ -25,5 +28,30 @@ class PropertyValidatorsTest {
 		builder = ImmutableList.<ConstraintViolation>builder();
 		PropertyValidators.notEmpty().validate(of("fake"), "VAL", builder);
 		assertTrue(builder.build().size() == 0);
+		
+		builder = ImmutableList.<ConstraintViolation>builder();
+		PropertyValidators.listNotEmpty().validate(of("fake"), null, builder);
+		assertTrue(builder.build().size() == 1);
+		
+		builder = ImmutableList.<ConstraintViolation>builder();
+		PropertyValidators.listNotEmpty().validate(of("fake"), new ArrayList<>(), builder);
+		assertTrue(builder.build().size() == 1);
+		
+		builder = ImmutableList.<ConstraintViolation>builder();
+		PropertyValidators.listNotEmpty().validate(of("fake"), ImmutableList.of("test"), builder);
+		assertTrue(builder.build().size() == 0);
+	}
+	
+	@Test
+	void testIsNull() {
+		
+		Builder<ConstraintViolation> builder = ImmutableList.<ConstraintViolation>builder();
+		PropertyValidators.notNull().validate(of("fake"), null, builder);
+		assertTrue(builder.build().size() == 1);
+		
+		builder = ImmutableList.<ConstraintViolation>builder();
+		PropertyValidators.notNull().validate(of("fake"), LocalDate.now(), builder);
+		assertTrue(builder.build().size() == 0);
+		
 	}
 }

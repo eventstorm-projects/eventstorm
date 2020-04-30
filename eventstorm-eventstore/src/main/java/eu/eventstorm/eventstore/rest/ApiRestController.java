@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.ImmutableMap;
 
-import eu.eventstorm.eventstore.Event;
+import eu.eventstorm.core.Event;
 import eu.eventstorm.eventstore.EventStore;
 import eu.eventstorm.eventstore.StreamDefinition;
 import eu.eventstorm.eventstore.StreamDefinitionException;

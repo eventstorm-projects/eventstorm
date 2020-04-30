@@ -55,8 +55,6 @@ public final class CommandExceptionGenerator {
 
         writeHeader(writer, env, descriptor);
         writeConstructor(writer, descriptor);
-        writeVariables(writer, descriptor);
-        writeMethods(writer, descriptor);
 
         writer.write("}");
         writer.close();
@@ -85,11 +83,9 @@ public final class CommandExceptionGenerator {
         writeNewLine(writer);
         writer.write("    public ");
         writer.write(descriptor.simpleName() + "Exception");
-        writer.write("(String message, " + descriptor.simpleName() + " command) {");
+        writer.write("(" + descriptor.simpleName() + " command, String message) {");
         writeNewLine(writer);
-        writer.write("        super(message, ImmutableMap.of());");
-        writeNewLine(writer);
-        writer.write("        this.command = command;");
+        writer.write("        super(command, message, ImmutableMap.of());");
         writeNewLine(writer);
         writer.write("    }");
         writeNewLine(writer);
@@ -97,11 +93,9 @@ public final class CommandExceptionGenerator {
         writeNewLine(writer);
         writer.write("    public ");
         writer.write(descriptor.simpleName() + "Exception");
-        writer.write("(String message, Throwable cause," + descriptor.simpleName() + " command) {");
+        writer.write("(" + descriptor.simpleName() + " command, String message, Throwable cause) {");
         writeNewLine(writer);
-        writer.write("        super(message, cause, ImmutableMap.of());");
-        writeNewLine(writer);
-        writer.write("        this.command = command;");
+        writer.write("        super(command, message, cause, ImmutableMap.of());");
         writeNewLine(writer);
         writer.write("    }");
         writeNewLine(writer);
@@ -109,36 +103,9 @@ public final class CommandExceptionGenerator {
         writeNewLine(writer);
         writer.write("    public ");
         writer.write(descriptor.simpleName() + "Exception");
-        writer.write("(String message, Throwable cause," + descriptor.simpleName() + " command, ImmutableMap<String, Object> parameters) {");
+        writer.write("("+ descriptor.simpleName() + " command, String message, Throwable cause, ImmutableMap<String, Object> parameters) {");
         writeNewLine(writer);
-        writer.write("        super(message, cause, parameters);");
-        writeNewLine(writer);
-        writer.write("        this.command = command;");
-        writeNewLine(writer);
-        writer.write("    }");
-        writeNewLine(writer);
-    }
-
-    private static void writeVariables(Writer writer, CommandDescriptor descriptor) throws IOException {
-        writeNewLine(writer);
-        writer.write("    private ");
-        writer.write(descriptor.simpleName());
-        writer.write(" command;");
-    }
-
-    private static void writeMethods(Writer writer, CommandDescriptor descriptor) throws IOException {
-        writeNewLine(writer);
-        writeGetter(writer, descriptor);
-     
-    }
-
-    private static void writeGetter(Writer writer, CommandDescriptor descriptor) throws IOException {
-        writeNewLine(writer);
-        writer.write("    public ");
-        writer.write(descriptor.simpleName());
-        writer.write(" getCommand() {");
-        writeNewLine(writer);
-        writer.write("        return this.command;");
+        writer.write("        super(command, message, cause, parameters);");
         writeNewLine(writer);
         writer.write("    }");
         writeNewLine(writer);

@@ -41,19 +41,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.google.protobuf</groupId>
-			<artifactId>protobuf-java</artifactId>
-			<version>3.11.4</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.google.protobuf</groupId>
-			<artifactId>protobuf-java-util</artifactId>
-			<version>3.11.4</version>
-		</dependency>
-
-
-		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
 			<optional>true</optional>
@@ -127,25 +114,7 @@
 				<artifactId>protoc-jar-maven-plugin</artifactId>
 				<version>3.11.4</version>
 				<executions>
-				    <execution>
-				    	<id>is1</id>
-						<phase>generate-sources</phase>
-						<goals>
-							<goal>run</goal>
-						</goals>
-						<configuration>
-							<protocVersion>3.11.4</protocVersion>
-							<includeImports>true</includeImports>
-							<includeStdTypes>true</includeStdTypes>
-							<inputDirectories>
-								<include>src/main/resources</include>
-							</inputDirectories>
-							<outputDirectory>target/generated-sources</outputDirectory>
-							<outputDirectorySuffix>protobuf</outputDirectorySuffix>
-						</configuration>
-					</execution>
 					<execution>
-						<id>is2</id>
 						<phase>generate-test-sources</phase>
 						<goals>
 							<goal>run</goal>

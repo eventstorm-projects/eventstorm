@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableList;
 
 import eu.eventstorm.core.Event;
-import eu.eventstorm.core.EventPayload;
 import eu.eventstorm.core.validation.ConstraintViolation;
 import eu.eventstorm.cqrs.validation.CommandValidationException;
 import eu.eventstorm.cqrs.validation.Validator;
@@ -20,20 +19,20 @@ public abstract class AbstractCommandHandler<T extends Command> implements Comma
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractCommandHandler.class);
 
-	private final EventStoreClient eventStore;
+	private final EventStoreClient eventStoreClient;
 	
 	private final Validator<T> validator;
 	
 	private final Class<T> type;
 
-	public AbstractCommandHandler(Class<T> type, Validator<T> validator, EventStoreClient eventStore) {
+	public AbstractCommandHandler(Class<T> type, Validator<T> validator, EventStoreClient eventStoreClient) {
 		this.type = type;
 		this.validator = validator;
-		this.eventStore = eventStore;
+		this.eventStoreClient = eventStoreClient;
 	}
 
-	protected EventStoreClient getEventStore() {
-		return eventStore;
+	protected EventStoreClient getEventStoreClient() {
+		return eventStoreClient;
 	}
 
 	@Override
@@ -41,7 +40,7 @@ public abstract class AbstractCommandHandler<T extends Command> implements Comma
 		return this.type;
 	}
 	
-	public final Flux<Event<EventPayload>> handle(T command) {
+	public final Flux<Event> handle(T command) {
 		
 		ImmutableList<ConstraintViolation> constraintViolations = this.validator.validate(command);
 		
@@ -56,7 +55,7 @@ public abstract class AbstractCommandHandler<T extends Command> implements Comma
 		return doHandleAfterValidation(command);
 	}
 	
-	protected abstract Flux<Event<EventPayload>> doHandleAfterValidation(T command);
+	protected abstract Flux<Event> doHandleAfterValidation(T command);
 
 
 }

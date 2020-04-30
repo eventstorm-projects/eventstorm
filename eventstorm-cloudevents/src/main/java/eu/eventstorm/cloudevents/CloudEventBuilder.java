@@ -2,9 +2,7 @@ package eu.eventstorm.cloudevents;
 
 import java.time.OffsetDateTime;
 
-
 import eu.eventstorm.core.StreamId;
-import eu.eventstorm.core.EventPayload;
 import eu.eventstorm.util.Strings;
 
 /**
@@ -13,11 +11,11 @@ import eu.eventstorm.util.Strings;
 public final class CloudEventBuilder {
 
     private String specVersion;
-    private StreamId aggregateId;
+    private String aggregateId;
     private String aggreateType;
     private String subject;
     private int version;
-    private EventPayload payload;
+    private Object payload;
     private OffsetDateTime timestamp;
 
     public CloudEvent build() {
@@ -32,7 +30,7 @@ public final class CloudEventBuilder {
         return this;
     }
     
-    public CloudEventBuilder withAggregateId(StreamId aggregateId) {
+    public CloudEventBuilder withAggregateId(String aggregateId) {
         this.aggregateId = aggregateId;
         return this;
     }
@@ -52,7 +50,7 @@ public final class CloudEventBuilder {
         return this;
     }
     
-    public CloudEventBuilder withPayload(EventPayload payload) {
+    public CloudEventBuilder withPayload(Object payload) {
         this.payload = payload;
         return this;
     }
