@@ -2,8 +2,8 @@ package eu.eventstorm.eventstore;
 
 import java.util.stream.Stream;
 
-import eu.eventstorm.core.Event;
-import eu.eventstorm.core.EventPayload;
+import com.google.protobuf.AbstractMessage;
+
 import eu.eventstorm.core.StreamId;
 
 /**
@@ -11,8 +11,8 @@ import eu.eventstorm.core.StreamId;
  */
 public interface EventStoreClient {
 
-	<T extends EventPayload> Event<T> appendToStream(String stream, StreamId streamId, T evantPayload);
+	<T extends AbstractMessage> Event appendToStream(String stream, StreamId streamId, T evantPayload);
 
-	Stream<Event<EventPayload>> readStream(String stream, StreamId streamId);
+	Stream<Event> readStream(String stream, StreamId streamId);
 
 }

@@ -1,7 +1,7 @@
 package eu.eventstorm.eventstore.ex;
 
 // Created + UserCommand + Event
-public final class UserCreatedEventPayloadImpl implements UserCreatedEventPayload {
+public final class UserCreatedEventPayloadImpl { // implements UserCreatedEventPayload {
 
 	private final String name;
 	private final String email;
@@ -13,17 +13,17 @@ public final class UserCreatedEventPayloadImpl implements UserCreatedEventPayloa
 		this.age = age;
 	}
 
-	@Override
+	//@Override
 	public String getName() {
 		return this.name;
 	}
 
-	@Override
+	//@Override
 	public int getAge() {
 		return this.age;
 	}
 
-	@Override
+	//@Override
 	public String getEmail() {
 		return this.email;
 	}

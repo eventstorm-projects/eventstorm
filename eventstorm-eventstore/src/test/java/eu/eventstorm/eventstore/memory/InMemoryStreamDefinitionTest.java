@@ -17,19 +17,19 @@ class InMemoryStreamDefinitionTest {
 	void testGetStreamEvantPayloadDefinition() {
 		
 		InMemoryStreamDefinition def = new InMemoryStreamDefinition("test", ImmutableList.of(
-				new InMemoryStreamEvantPayloadDefinition<>("user", "userCreated", SimpleInterface.class,  null, null)
+				new InMemoryStreamEventDefinition<>("user", "userCreated", SimpleInterface.class,  null, null)
 				));
 		
-		assertNotNull(def.getStreamEvantPayloadDefinition(new SimpleInterface() {}));
-		assertNotNull(def.getStreamEvantPayloadDefinition(new SimpleInterface2() {}));
-		assertNotNull(def.getStreamEvantPayloadDefinition(new SimpleClass()));
-		assertNotNull(def.getStreamEvantPayloadDefinition(new SimpleClass2()));
+		assertNotNull(def.getStreamEventDefinition(new SimpleInterface() {}));
+		assertNotNull(def.getStreamEventDefinition(new SimpleInterface2() {}));
+		assertNotNull(def.getStreamEventDefinition(new SimpleClass()));
+		assertNotNull(def.getStreamEventDefinition(new SimpleClass2()));
 		
 		//valid cache
-		assertNotNull(def.getStreamEvantPayloadDefinition(new SimpleClass()));
-		assertNotNull(def.getStreamEvantPayloadDefinition(new SimpleClass2()));
+		assertNotNull(def.getStreamEventDefinition(new SimpleClass()));
+		assertNotNull(def.getStreamEventDefinition(new SimpleClass2()));
 		
-		StreamDefinitionException ex = assertThrows(StreamDefinitionException.class, () -> def.getStreamEvantPayloadDefinition(new EventPayload() {}));		
+		StreamDefinitionException ex = assertThrows(StreamDefinitionException.class, () -> def.getStreamEventDefinition(new EventPayload() {}));		
 		assertEquals(StreamDefinitionException.Type.INVALID_STREAM_PAYLOAD_CLASS, ex.getType());
 	}
 	

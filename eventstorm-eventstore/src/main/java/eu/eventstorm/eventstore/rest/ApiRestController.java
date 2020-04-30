@@ -1,7 +1,6 @@
 package eu.eventstorm.eventstore.rest;
 
 import org.springframework.core.io.buffer.DataBufferUtils;
-import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,12 +9,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.ImmutableMap;
 
-import eu.eventstorm.core.Event;
-import eu.eventstorm.core.EventPayload;
+import eu.eventstorm.eventstore.Event;
 import eu.eventstorm.eventstore.EventStore;
 import eu.eventstorm.eventstore.StreamDefinition;
 import eu.eventstorm.eventstore.StreamDefinitionException;
-import eu.eventstorm.eventstore.StreamEvantPayloadDefinition;
+import eu.eventstorm.eventstore.StreamEventDefinition;
 import eu.eventstorm.eventstore.StreamManager;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -37,8 +35,8 @@ public final class ApiRestController {
 		this.scheduler = scheduler;
 	}
 
-	@PostMapping(path = "append/{stream}/{streamId}/{eventPayloadType}", consumes = MediaType.APPLICATION_JSON_VALUE)
-	public Mono<Event<EventPayload>> append(@PathVariable("stream") String stream, @PathVariable("streamId") String streamId,
+	@PostMapping(path = "append/{stream}/{streamId}/{eventPayloadType}", consumes = {"application/x-protobuf"})
+	public Mono<Event> append(@PathVariable("stream") String stream, @PathVariable("streamId") String streamId,
 	        @PathVariable("eventPayloadType") String payloadType, ServerHttpRequest request) {
 
 		StreamDefinition definition = streamManager.getDefinition(stream);
@@ -47,8 +45,7 @@ public final class ApiRestController {
 			throw new StreamDefinitionException(StreamDefinitionException.Type.UNKNOW_STREAM, ImmutableMap.of("stream", stream));
 		}
 		
-		
-		StreamEvantPayloadDefinition<?> sepd = definition.getStreamEvantPayloadDefinition(payloadType);
+		StreamEventDefinition sepd = definition.getStreamEventDefinition(payloadType);
 		
 		if (sepd == null) {
 			throw new StreamDefinitionException(StreamDefinitionException.Type.UNKNOW_STREAM, ImmutableMap.of("stream", stream, "payloadType", payloadType));
@@ -56,24 +53,15 @@ public final class ApiRestController {
 
 		// @formatter:off
 		return Mono.just(Tuples.of(sepd, streamId))
-				.zipWith(DataBufferUtils.join(request.getBody()).map(buffer -> {
-					byte[] result = new byte[buffer.readableByteCount()];
-					buffer.read(result);
-					DataBufferUtils.release(buffer);
-					return result;
-				}))
+				.zipWith(DataBufferUtils.join(request.getBody()).map(buffer -> sepd.parse(buffer)))
 				.publishOn(scheduler)
-		        .map(tuple -> {
-		        	@SuppressWarnings("unchecked")
-		        	Event<EventPayload> event = (Event<EventPayload>) eventStore.appendToStream(tuple.getT1().getT1(), tuple.getT1().getT2(), tuple.getT2());
-					return event;
-		        });
+				.map(tuple -> eventStore.appendToStream(tuple.getT1().getT1(), tuple.getT1().getT2(), tuple.getT2()));
 		// @formatter:on
 
 	}
 
 	@GetMapping(path = "read/{stream}/{streamId}")
-	public Flux<Event<EventPayload>> read(@PathVariable("stream") String stream, @PathVariable("streamId") String streamId) {
+	public Flux<Event> read(@PathVariable("stream") String stream, @PathVariable("streamId") String streamId) {
 
 		StreamDefinition definition = streamManager.getDefinition(stream);
 
@@ -83,7 +71,7 @@ public final class ApiRestController {
 
 		// @formatter:off
 		return Mono.just(Tuples.of(definition, streamId))
-				.publishOn(scheduler)
+				//.publishOn(scheduler)
 		        .flatMapMany(tuple -> Flux.fromStream(eventStore.readStream(tuple.getT1(), tuple.getT2())));
 		// @formatter:on
 	}

@@ -8,13 +8,14 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.eventstorm.core.Event;
-import eu.eventstorm.core.EventPayload;
+import com.google.protobuf.AbstractMessage;
+
 import eu.eventstorm.core.StreamId;
+import eu.eventstorm.eventstore.Event;
 import eu.eventstorm.eventstore.EventStoreClient;
 import eu.eventstorm.eventstore.EventStoreException;
 import eu.eventstorm.eventstore.StreamDefinition;
-import eu.eventstorm.eventstore.StreamEvantPayloadDefinition;
+import eu.eventstorm.eventstore.StreamEventDefinition;
 import eu.eventstorm.eventstore.StreamManager;
 
 /**
@@ -34,10 +35,10 @@ public final class InMemoryEventStoreClient implements EventStoreClient {
 
 
 	@Override
-	public <T extends EventPayload> Event<T> appendToStream(String stream, StreamId streamId, T evantPayload) {
+	public <T  extends AbstractMessage> Event appendToStream(String stream, StreamId streamId, T event) {
 		
 		if (LOGGER.isTraceEnabled()) {
-			LOGGER.trace("appendToStream({},{},{})", stream, streamId, evantPayload);
+			LOGGER.trace("appendToStream({},{},{})", stream, streamId, event);
 		}
 		
 		StreamDefinition sd = this.streamManager.getDefinition(stream);
@@ -47,14 +48,14 @@ public final class InMemoryEventStoreClient implements EventStoreClient {
 		}
 		
 		// if sepd not found => exception.
-		StreamEvantPayloadDefinition<T> sepd = sd.getStreamEvantPayloadDefinition(evantPayload);
+		StreamEventDefinition sepd = sd.getStreamEventDefinition(event.getDescriptorForType().getName());
 		
-		return this.inMemoryEventStore.appendToStream(sepd, streamId.toStringValue(), evantPayload);
+		return this.inMemoryEventStore.appendToStream(sepd, streamId.toStringValue(), event);
 	}
 
 
 	@Override
-	public Stream<Event<EventPayload>> readStream(String stream, StreamId streamId) {
+	public Stream<Event> readStream(String stream, StreamId streamId) {
 		return inMemoryEventStore.readStream(streamManager.getDefinition(stream), streamId.toStringValue());
 	}
 

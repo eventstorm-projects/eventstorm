@@ -1,5 +1,6 @@
 package eu.eventstorm.eventstore.db;
 
+import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -8,14 +9,16 @@ import java.time.ZoneId;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import eu.eventstorm.core.Event;
-import eu.eventstorm.core.EventBuilder;
-import eu.eventstorm.core.EventPayload;
-import eu.eventstorm.core.id.StreamIds;
+import com.google.protobuf.AbstractMessage;
+import com.google.protobuf.ByteString;
+import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.protobuf.util.JsonFormat;
+
+import eu.eventstorm.eventstore.Event;
 import eu.eventstorm.eventstore.EventStore;
 import eu.eventstorm.eventstore.Statistics;
 import eu.eventstorm.eventstore.StreamDefinition;
-import eu.eventstorm.eventstore.StreamEvantPayloadDefinition;
+import eu.eventstorm.eventstore.StreamEventDefinition;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Dialect;
 import eu.eventstorm.sql.Transaction;
@@ -28,6 +31,8 @@ import eu.eventstorm.sql.util.TransactionStreamTemplate;
  */
 public final class DatabaseEventStore implements EventStore {
 
+	private static final JsonFormat.Printer PRINTER = JsonFormat.printer().omittingInsignificantWhitespace();
+	
 	private final Database database;
 	
 	private final DatabaseRepository databaseRepository;
@@ -41,20 +46,18 @@ public final class DatabaseEventStore implements EventStore {
 	}
 
 	@Override
-	public Stream<Event<EventPayload>> readStream(StreamDefinition definition, String streamId) {
-		return streamTemplate.decorate(() -> 
-			this.databaseRepository.findAllByStreamAndStreamId(definition.getName(), streamId,  new EventResultSetMapper(definition)));
-	}
-
-	@Override
-	public <T extends EventPayload> Event<T> appendToStream(StreamEvantPayloadDefinition<T> sepd, String streamId, T eventPayload) {
-		return appendToStream(sepd, streamId, sepd.getPayloadSerializer().serialize(eventPayload));
-	}
-
-	@Override
-	public <T extends EventPayload> Event<T> appendToStream(StreamEvantPayloadDefinition<T> sepd, String streamId, byte[] eventPayload) {
-	
+	public Event appendToStream(StreamEventDefinition sepd, String streamId, AbstractMessage message) {
+		
 		OffsetDateTime time = OffsetDateTime.now();
+
+		byte[] json;
+		try {
+			json = PRINTER.print(message).getBytes(StandardCharsets.UTF_8);
+		} catch (InvalidProtocolBufferException e1) {
+			e1.printStackTrace();
+			return null;
+		}
+		
 		DatabaseEvent de;
 		
 		try (Transaction transaction = database.transactionManager().newTransactionIsolatedReadWrite()) {
@@ -62,12 +65,11 @@ public final class DatabaseEventStore implements EventStore {
 				Optional<DatabaseEvent> optional = events.findFirst();
 
 				DatabaseEventBuilder builder = new DatabaseEventBuilder()
-						.withStreamId(streamId)
-						.withStream(sepd.getStream())
-				        .withTime(Timestamp.from(time.toInstant()))
-				        .withPayload(Blobs.newBlob(eventPayload))
-				        .withEventType(sepd.getPayloadType())
-				        ;
+							.withStreamId(streamId)
+							.withStream(sepd.getStream())
+					        .withTime(Timestamp.from(time.toInstant()))
+					        .withPayload(Blobs.newBlob(json))
+					        .withEventType(sepd.getEventType());
 
 				if (optional.isPresent()) {
 					// "update"
@@ -85,61 +87,140 @@ public final class DatabaseEventStore implements EventStore {
 		}
 		
 		// @formatter:off
-		return  new EventBuilder<T>()
-					.withStreamId(StreamIds.from(streamId))
-					.withStream(sepd.getStream())
-					.withTimestamp(time)
-					.withRevision(de.getRevision())
-					.withPayload(null)
+		return Event.newBuilder()
+					.setStreamId(streamId)
+					.setStream(sepd.getStream())
+					.setTimestamp(time.toString())
+					.setRevision(de.getRevision())
+					.setData(ByteString.copyFrom(json))
 					.build();
-		// @formatter:on
+		// @formatter:off
 	}
-	
-//	@Override
-//	public <T extends EventPayload> Event<T> appendToStream(String aggregateType, AggregateId id, T payload) {
-//		byte[] content;
-//
-//		try {
-//			content = this.mapper.writeValueAsBytes(payload);
-//		} catch (JsonProcessingException cause) {
-//			throw new EventStoreException(EventStoreException.Type.FAILED_TO_SERILIAZE_PAYLOAD, of("aggregateType", aggregateType, "aggregateId", id, "payload", payload), cause);
-//		}
-//		
-//		return appendToStream(aggregateType, id, payload, content);
-//		
-//		
-//	}
 
-	private static final ZoneId ZONE_ID = ZoneId.of("UTC");
+	@Override
+	public Stream<Event> readStream(StreamDefinition definition, String streamId) {
+		return streamTemplate.decorate(() -> 
+		this.databaseRepository.findAllByStreamAndStreamId(definition.getName(), streamId,  new EventResultSetMapper(streamId, definition)));
 
-	private final class EventResultSetMapper implements ResultSetMapper<Event<EventPayload>> {
-		
-		private final StreamDefinition definition;
-
-		private EventResultSetMapper(StreamDefinition definition) {
-			this.definition = definition;
-		}
-
-		@Override
-		public Event<EventPayload> map(Dialect dialect, ResultSet rs) throws SQLException {
-			byte[] payload = rs.getBytes(3);
-			String payloadType = rs.getString(4);
-			EventPayload eventPayload = definition.getStreamEvantPayloadDefinition(payloadType).getPayloadDeserializer().deserialize(payload);
-			// @formatter:off
-			return new EventBuilder<EventPayload>()
-						.withStreamId(StreamIds.from(""))
-						.withStream(definition.getName())
-						.withTimestamp(OffsetDateTime.ofInstant(rs.getTimestamp(1).toInstant(), ZONE_ID))
-						.withRevision(rs.getInt(2))
-						.withPayload(eventPayload)
-						.build();
-			// @formatter:on
-		}
 	}
 
 	@Override
 	public Statistics stat(String stream) {
+		// TODO Auto-generated method stub
 		return null;
 	}
+
+//	@Override
+//	public Stream<Event<EventPayload>> readStream(StreamDefinition definition, String streamId) {
+//	}
+//
+//	//@Override
+//	public <T extends AbstractMessage> Event<T> appendToStream(StreamEvantPayloadDefinition<T> sepd, String streamId, T eventPayload) {
+//		//return appendToStream(sepd, streamId, sepd.getPayloadSerializer().serialize(eventPayload));
+//		return null;
+//	}
+//
+//	@Override
+//	public <T extends AbstractMessage> Event<T> appendToStream(StreamEvantPayloadDefinition<T> sepd, String streamId, byte[] eventPayload) {
+//	
+//		OffsetDateTime time = OffsetDateTime.now();
+//		DatabaseEvent de;
+//		
+//		try (Transaction transaction = database.transactionManager().newTransactionIsolatedReadWrite()) {
+//			try (Stream<DatabaseEvent> events = this.databaseRepository.lock(sepd.getStream(), streamId)) {
+//				Optional<DatabaseEvent> optional = events.findFirst();
+//
+//				DatabaseEventBuilder builder = new DatabaseEventBuilder()
+//						.withStreamId(streamId)
+//						.withStream(sepd.getStream())
+//				        .withTime(Timestamp.from(time.toInstant()))
+//				        .withPayload(Blobs.newBlob(eventPayload))
+//				        //.withEventType(sepd.getPayloadType())
+//				        ;
+//
+//				if (optional.isPresent()) {
+//					// "update"
+//					builder.withRevision(optional.get().getRevision() + 1);
+//				} else {
+//					// "insert"
+//					builder.withRevision(1);
+//				}
+//
+//				de = builder.build();
+//				
+//				this.databaseRepository.insert(de);
+//			}
+//			transaction.commit();
+//		}
+//		
+//		// @formatter:off
+////		return  new EventBuilder<T>()
+////					.withStreamId(StreamIds.from(streamId))
+////					.withStream(sepd.getStream())
+////					.withTimestamp(time)
+////					.withRevision(de.getRevision())
+////					.withPayload(null)
+////					.build();
+//		// @formatter:on
+//	}
+//	
+////	@Override
+////	public <T extends EventPayload> Event<T> appendToStream(String aggregateType, AggregateId id, T payload) {
+////		byte[] content;
+////
+////		try {
+////			content = this.mapper.writeValueAsBytes(payload);
+////		} catch (JsonProcessingException cause) {
+////			throw new EventStoreException(EventStoreException.Type.FAILED_TO_SERILIAZE_PAYLOAD, of("aggregateType", aggregateType, "aggregateId", id, "payload", payload), cause);
+////		}
+////		
+////		return appendToStream(aggregateType, id, payload, content);
+////		
+////		
+////	}
+//
+	private static final ZoneId ZONE_ID = ZoneId.of("UTC");
+
+	private final class EventResultSetMapper implements ResultSetMapper<Event> {
+		
+		private final StreamDefinition definition;
+		private final String streamId;
+
+		private EventResultSetMapper(String streamId, StreamDefinition definition) {
+			this.streamId = streamId;
+			this.definition = definition;
+		}
+
+		@Override
+		public Event map(Dialect dialect, ResultSet rs) throws SQLException {
+			// @formatter:off
+			return Event.newBuilder()
+					.setStreamId(streamId)
+					.setStream(definition.getName())
+					//.setTimestamp(OffsetDateTime.ofInstant(rs.getTimestamp(DatabaseEventDescriptor.INDEX__TIME).toInstant(), ZONE_ID).toString())
+					.setRevision(rs.getInt(2))
+					.setData(ByteString.copyFrom(rs.getBytes(3)))
+					.build();
+			// @formatter:on
+			
+//			byte[] payload = rs.getBytes(3);
+//			String payloadType = rs.getString(4);
+//			//EventPayload eventPayload = definition.getStreamEvantPayloadDefinition(payloadType).getPayloadDeserializer().deserialize(payload);
+//			// @formatter:off
+//			return new EventBuilder<EventPayload>()
+//						.withStreamId(StreamIds.from(""))
+//						.withStream(definition.getName())
+//						.withTimestamp(OffsetDateTime.ofInstant(rs.getTimestamp(1).toInstant(), ZONE_ID))
+//						.withRevision(rs.getInt(2))
+//				//		.withPayload(eventPayload)
+//						.build();
+//			// @formatter:on
+		}
+	}
+//
+//	@Override
+//	public Statistics stat(String stream) {
+//		return null;
+//	}
 
 }

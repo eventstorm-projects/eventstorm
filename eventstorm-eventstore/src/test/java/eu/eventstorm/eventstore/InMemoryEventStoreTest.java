@@ -25,7 +25,7 @@ class InMemoryEventStoreTest {
 		
 		Deserializer deserializer = mock(Deserializer.class);
 		
-		StreamEvantPayloadDefinition<?> sepd = mock(StreamEvantPayloadDefinition.class);
+		StreamEventDefinition sepd = mock(StreamEventDefinition.class);
 		when(sepd.getPayloadDeserializer()).thenReturn(deserializer);
 		when(sepd.getStream()).thenReturn("toto");
 

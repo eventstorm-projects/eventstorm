@@ -20,7 +20,6 @@ import eu.eventsotrm.core.apt.model.EventDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.annotation.CqrsEventPayload;
-import eu.eventstorm.core.Event;
 import eu.eventstorm.core.EventPayload;
 import eu.eventstorm.eventbus.EventListener;
 
@@ -86,7 +85,7 @@ final class DomainModelHandlerImplementationGenerator {
 		writePackage(writer, env.getElementUtils().getPackageOf(domainModel.asElement()).toString());
 
 		writer.write("import ");
-		writer.write(Event.class.getName());
+		//writer.write(Event.class.getName());
 		writer.write(";");
 		writeNewLine(writer);
 		writer.write("import ");

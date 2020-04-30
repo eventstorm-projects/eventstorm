@@ -22,7 +22,8 @@ public final class UserCreatedEventPayloadBuilder {
 	}
 
 	UserCreatedEventPayload build() {
-		return new UserCreatedEventPayloadImpl(name, email, age);
+		//return new UserCreatedEventPayloadImpl(name, email, age);
+		return null;
 	}
 
 }

@@ -12,7 +12,7 @@ public final class UserCreatedEventPayloadDeserializer implements Deserializer<U
 	public UserCreatedEventPayload deserialize(byte[] bytes) {
 		ObjectMapper mapper = new ObjectMapper();
 		SimpleModule module = new SimpleModule();
-		module.addDeserializer(UserCreatedEventPayload.class, new UserCreatedEventPayloadStdDeserializer());
+	//	module.addDeserializer(UserCreatedEventPayload.class, new UserCreatedEventPayloadStdDeserializer());
 		mapper.registerModule(module);
 		try {
 			return mapper.readValue(bytes, UserCreatedEventPayload.class);
