@@ -29,7 +29,7 @@ abstract class EventStoreTest {
 		
 		StreamManager manager = new InMemoryStreamManagerBuilder()
 				.withDefinition("user")
-				.withPayload(UserCreatedEventPayload.class, UserCreatedEventPayload.parser())
+				.withPayload(UserCreatedEventPayload.class, UserCreatedEventPayload.getDescriptor(), UserCreatedEventPayload.parser(), () -> UserCreatedEventPayload.newBuilder())
 			.and()
 			.build();
 		
@@ -44,11 +44,7 @@ abstract class EventStoreTest {
 			Optional<Event> op = stream.findFirst();
 			assertTrue(op.isPresent());
 			
-			UserCreatedEventPayload.Builder builder = UserCreatedEventPayload.newBuilder();
-			
-			JsonFormat.parser().merge(op.get().getData().toStringUtf8(), builder);
-			
-			UserCreatedEventPayload payload = builder.build();
+			UserCreatedEventPayload payload = op.get().getData().unpack(UserCreatedEventPayload.class);
 			assertEquals("ja", payload.getName());
 			assertEquals("gmail", payload.getEmail());
 			assertEquals(39, payload.getAge());	

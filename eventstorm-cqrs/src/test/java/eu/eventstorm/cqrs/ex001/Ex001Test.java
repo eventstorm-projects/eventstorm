@@ -9,9 +9,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import com.google.common.collect.ImmutableList;
+import com.google.protobuf.InvalidProtocolBufferException;
 
 import eu.eventstorm.core.Event;
-import eu.eventstorm.core.EventPayload;
 import eu.eventstorm.core.id.StreamIdGenerator;
 import eu.eventstorm.core.id.StreamIdGeneratorFactory;
 import eu.eventstorm.cqrs.CommandGateway;
@@ -44,7 +44,7 @@ class Ex001Test {
 		
 		StreamManager manager = new InMemoryStreamManagerBuilder()
 				.withDefinition("user")
-					.withPayload(UserCreatedEventPayload.class, null, null)
+					.withPayload(UserCreatedEventPayload.class, UserCreatedEventPayload.getDescriptor(), UserCreatedEventPayload.parser(), () -> UserCreatedEventPayload.newBuilder())
 				.and()
 				.build();
 		
@@ -69,16 +69,23 @@ class Ex001Test {
 		command.setName("Jacques");
 		command.setEmail("jm@mail.org");
 
-		ImmutableList.Builder<Event<EventPayload>> builder = ImmutableList.builder();
+		ImmutableList.Builder<Event> builder = ImmutableList.builder();
 		gateway.dispatch(command).doOnNext(event -> builder.add(event)).blockLast();
 ;		
 		assertEquals(1, eventStoreClient.readStream("user", from(1)).count());
 		Event event = eventStoreClient.readStream("user", from(1)).findFirst().get();
 
 		assertEquals("user", event.getStream());
-		assertEquals(from("1"), event.getStreamId());
+		assertEquals("1", event.getStreamId());
 
-		UserCreatedEventPayload userCreatedEvent = UserCreatedEventPayload.class.cast(event.getPayload());
+		UserCreatedEventPayload userCreatedEvent;
+		try {
+			userCreatedEvent = event.getData().unpack(UserCreatedEventPayload.class);
+		} catch (InvalidProtocolBufferException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return;
+		}
 
 		assertEquals("Jacques", userCreatedEvent.getName());
 		assertEquals("jm@mail.org", userCreatedEvent.getEmail());
@@ -93,7 +100,7 @@ class Ex001Test {
 		command.setName("Jacques");
 		command.setEmail("jm@FAKE.org");
 
-		ImmutableList.Builder<Event<EventPayload>> builder = ImmutableList.builder();
+		ImmutableList.Builder<Event> builder = ImmutableList.builder();
 		
 		CommandValidationException cve = assertThrows(CommandValidationException.class, () -> gateway.dispatch(command).doOnNext(event -> builder.add(event)).blockLast());
 		assertEquals(command, cve.getCommand());

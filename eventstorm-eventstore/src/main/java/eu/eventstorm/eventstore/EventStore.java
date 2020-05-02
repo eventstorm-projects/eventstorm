@@ -2,7 +2,7 @@ package eu.eventstorm.eventstore;
 
 import java.util.stream.Stream;
 
-import com.google.protobuf.AbstractMessage;
+import com.google.protobuf.Message;
 
 import eu.eventstorm.core.Event;
 
@@ -11,9 +11,7 @@ import eu.eventstorm.core.Event;
  */
 public interface EventStore {
 
-	//Event appendToStream(StreamEvantPayloadDefinition<AbstractMessage> sepd, String streamId, byte[] data);
-
-	Event appendToStream(StreamEventDefinition sepd, String streamId, AbstractMessage message);
+	Event appendToStream(StreamEventDefinition sepd, String streamId, Message message);
 	
 	Stream<Event> readStream(StreamDefinition definition, String streamId);
 

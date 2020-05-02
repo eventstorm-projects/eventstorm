@@ -1,11 +1,17 @@
 package eu.eventstorm.eventstore.memory;
 
 import java.io.IOException;
+import java.util.function.Supplier;
 
 import org.springframework.core.io.buffer.DataBuffer;
 
 import com.google.protobuf.AbstractMessage;
+import com.google.protobuf.Descriptors.Descriptor;
+import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.protobuf.Message.Builder;
+import com.google.protobuf.Message;
 import com.google.protobuf.Parser;
+import com.google.protobuf.util.JsonFormat;
 
 import eu.eventstorm.eventstore.StreamEventDefinition;
 
@@ -13,14 +19,18 @@ final class InMemoryStreamEventDefinition<T extends AbstractMessage> implements 
 
 	private final String stream;
 	private final Class<T> eventClass;
+	
 	private final Parser<T> parser;
-//	
-	InMemoryStreamEventDefinition(String stream, 
-			Class<T> eventClass, Parser<T> parser
-			) {
+	private final Supplier<Message.Builder> supplier;
+	
+	private final JsonFormat.Parser jsonParser;
+	
+	InMemoryStreamEventDefinition(String stream, Class<T> eventClass, Descriptor descriptor, Parser<T> parser, Supplier<Message.Builder> supplier) {
 		this.stream = stream;
 		this.eventClass = eventClass;
 		this.parser = parser;
+		this.supplier = supplier;
+		this.jsonParser = JsonFormat.parser().usingTypeRegistry(JsonFormat.TypeRegistry.newBuilder().add(descriptor).build());
 	}
 
 
@@ -30,7 +40,7 @@ final class InMemoryStreamEventDefinition<T extends AbstractMessage> implements 
 	}
 
 	@Override
-	public AbstractMessage parse(DataBuffer buffer) {
+	public Message parse(DataBuffer buffer) {
 		try {
 			return  this.parser.parseFrom(buffer.asByteBuffer());
 		} catch (IOException e) {
@@ -38,25 +48,24 @@ final class InMemoryStreamEventDefinition<T extends AbstractMessage> implements 
 			return null;
 		}
 	}
+	
 
-//	@Override
-//	public Class<T> getEventPayloadClass() {
-//		return eventPayloadClass;
-//	}
-//
-//	@Override
-//	public Deserializer<T> getPayloadDeserializer() {
-//		return deserializer;
-//	}
-//
-//	@Override
-//	public Serializer<T> getPayloadSerializer() {
-//		return serializer;
-//	}
-//
 	@Override
 	public String getEventType() {
 		return this.eventClass.getSimpleName();
+	}
+
+
+	@Override
+	public Message jsonParse(byte[] json) {
+		Message.Builder builder = supplier.get();
+		try {
+			this.jsonParser.merge(new String(json), builder);
+		} catch (InvalidProtocolBufferException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return builder.build();
 	}
 
 }

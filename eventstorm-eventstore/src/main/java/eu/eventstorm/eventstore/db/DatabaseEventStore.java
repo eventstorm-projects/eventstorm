@@ -9,9 +9,9 @@ import java.time.ZoneId;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import com.google.protobuf.AbstractMessage;
-import com.google.protobuf.ByteString;
+import com.google.protobuf.Any;
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.protobuf.Message;
 import com.google.protobuf.util.JsonFormat;
 
 import eu.eventstorm.core.Event;
@@ -46,7 +46,7 @@ public final class DatabaseEventStore implements EventStore {
 	}
 
 	@Override
-	public Event appendToStream(StreamEventDefinition sepd, String streamId, AbstractMessage message) {
+	public Event appendToStream(StreamEventDefinition sepd, String streamId, Message message) {
 		
 		OffsetDateTime time = OffsetDateTime.now();
 
@@ -63,7 +63,6 @@ public final class DatabaseEventStore implements EventStore {
 		try (Transaction transaction = database.transactionManager().newTransactionIsolatedReadWrite()) {
 			try (Stream<DatabaseEvent> events = this.databaseRepository.lock(sepd.getStream(), streamId)) {
 				Optional<DatabaseEvent> optional = events.findFirst();
-
 				DatabaseEventBuilder builder = new DatabaseEventBuilder()
 							.withStreamId(streamId)
 							.withStream(sepd.getStream())
@@ -85,14 +84,14 @@ public final class DatabaseEventStore implements EventStore {
 			}
 			transaction.commit();
 		}
-		
+
 		// @formatter:off
 		return Event.newBuilder()
 					.setStreamId(streamId)
 					.setStream(sepd.getStream())
 					.setTimestamp(time.toString())
 					.setRevision(de.getRevision())
-					.setData(ByteString.copyFrom(json))
+					.setData(Any.pack(message,"eventstorm"))
 					.build();
 		// @formatter:off
 	}
@@ -193,28 +192,20 @@ public final class DatabaseEventStore implements EventStore {
 
 		@Override
 		public Event map(Dialect dialect, ResultSet rs) throws SQLException {
+			System.out.println("===============================================================");
+			Message message = definition.getStreamEventDefinition(rs.getString(4)).jsonParse(rs.getBytes(3));
 			// @formatter:off
-			return Event.newBuilder()
+			Event event = Event.newBuilder()
 					.setStreamId(streamId)
 					.setStream(definition.getName())
 					//.setTimestamp(OffsetDateTime.ofInstant(rs.getTimestamp(DatabaseEventDescriptor.INDEX__TIME).toInstant(), ZONE_ID).toString())
 					.setRevision(rs.getInt(2))
-					.setData(ByteString.copyFrom(rs.getBytes(3)))
+					.setData(Any.pack(message,"event"))
 					.build();
 			// @formatter:on
-			
-//			byte[] payload = rs.getBytes(3);
-//			String payloadType = rs.getString(4);
-//			//EventPayload eventPayload = definition.getStreamEvantPayloadDefinition(payloadType).getPayloadDeserializer().deserialize(payload);
-//			// @formatter:off
-//			return new EventBuilder<EventPayload>()
-//						.withStreamId(StreamIds.from(""))
-//						.withStream(definition.getName())
-//						.withTimestamp(OffsetDateTime.ofInstant(rs.getTimestamp(1).toInstant(), ZONE_ID))
-//						.withRevision(rs.getInt(2))
-//				//		.withPayload(eventPayload)
-//						.build();
-//			// @formatter:on
+			System.out.println(event);
+			System.out.println("===============================================================");
+			return event;
 		}
 	}
 //

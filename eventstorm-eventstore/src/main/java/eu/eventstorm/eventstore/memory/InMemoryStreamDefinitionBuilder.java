@@ -2,8 +2,12 @@ package eu.eventstorm.eventstore.memory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 import com.google.protobuf.AbstractMessage;
+import com.google.protobuf.Descriptors.Descriptor;
+import com.google.protobuf.GeneratedMessageV3;
+import com.google.protobuf.Message;
 import com.google.protobuf.Parser;
 
 public final class InMemoryStreamDefinitionBuilder {
@@ -11,7 +15,7 @@ public final class InMemoryStreamDefinitionBuilder {
 	private final String stream;
 	private final InMemoryStreamManagerBuilder builder;
 	
-	private final List<InMemoryStreamEventDefinition> lists = new ArrayList<>();
+	private final List<InMemoryStreamEventDefinition<?>> lists = new ArrayList<>();
 	
 	InMemoryStreamDefinitionBuilder(InMemoryStreamManagerBuilder builder, String stream) {
 		this.stream = stream;
@@ -30,8 +34,8 @@ public final class InMemoryStreamDefinitionBuilder {
 		return new InMemoryStreamDefinition(this.stream, this.lists);
 	}
 
-	public <T extends AbstractMessage> InMemoryStreamDefinitionBuilder withPayload(Class<T> eventPayloadClass, Parser<T> parser) {
-		this.lists.add(new InMemoryStreamEventDefinition(stream, eventPayloadClass, parser));
+	public <T extends AbstractMessage> InMemoryStreamDefinitionBuilder withPayload(Class<T> eventPayloadClass, Descriptor descriptor, Parser<T> parser, Supplier<Message.Builder> builder) {
+		this.lists.add(new InMemoryStreamEventDefinition<T>(stream, eventPayloadClass, descriptor, parser, builder));
 		return this;
 	}
 	

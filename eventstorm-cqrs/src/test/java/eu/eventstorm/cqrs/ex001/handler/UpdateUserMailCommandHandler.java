@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.eventstorm.core.Event;
-import eu.eventstorm.core.EventPayload;
 import eu.eventstorm.cqrs.AbstractCommandHandler;
 import eu.eventstorm.cqrs.ex001.command.UpdateUserMailCommand;
 import eu.eventstorm.cqrs.validation.Validators;
@@ -20,7 +19,7 @@ public class UpdateUserMailCommandHandler extends AbstractCommandHandler<UpdateU
 	}
 
 	@Override
-	protected Flux<Event<EventPayload>> doHandleAfterValidation(UpdateUserMailCommand command) {
+	protected Flux<Event> doHandleAfterValidation(UpdateUserMailCommand command) {
 		return Flux.empty();
 	}
 

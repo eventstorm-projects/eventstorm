@@ -11,13 +11,9 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
-import com.google.protobuf.AbstractMessage;
-import com.google.protobuf.ByteString;
-import com.google.protobuf.InvalidProtocolBufferException;
-import com.google.protobuf.util.JsonFormat;
-import com.google.protobuf.util.JsonFormat.Printer;
+import com.google.protobuf.Any;
+import com.google.protobuf.Message;
 
 import eu.eventstorm.core.Event;
 import eu.eventstorm.eventstore.EventStore;
@@ -33,8 +29,6 @@ public final class InMemoryEventStore implements EventStore {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(InMemoryEventStore.class);
 
-	private static final Printer JSON_PRINTER = JsonFormat.printer().omittingInsignificantWhitespace();
-	
 	private final Map<String, Map<String, List<Event>>> map = new HashMap<>();
 
 	private final List<Event> allEvents = new LinkedList<>();
@@ -58,7 +52,7 @@ public final class InMemoryEventStore implements EventStore {
 	}
 	 
 	@Override
-	public Event appendToStream(StreamEventDefinition sepd, String streamId, AbstractMessage message) {
+	public Event appendToStream(StreamEventDefinition sepd, String streamId, Message message) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("store to [{}] with Id [{}]", sepd, streamId);
 		}
@@ -80,19 +74,13 @@ public final class InMemoryEventStore implements EventStore {
 			revision = events.get(events.size() - 1).getRevision() + 1;
 		}
 		
-		String json;
-		try {
-			json = JSON_PRINTER.print(message);
-		} catch (Exception cause) {
-			throw new EventStoreException(EventStoreException.Type.FAILED_TO_SERILIAZE_PAYLOAD, ImmutableMap.of("message",message), cause);
-		}
 		// @formatter:off
 		Event event = Event.newBuilder()
 				.setStreamId(streamId)
 				.setStream(sepd.getStream())
 				.setTimestamp(OffsetDateTime.now().toString())
 				.setRevision(revision)
-				.setData(ByteString.copyFromUtf8(json))
+				.setData(Any.pack(message,"eventstorm"))
 				.build();
 		// @formatter:on
 

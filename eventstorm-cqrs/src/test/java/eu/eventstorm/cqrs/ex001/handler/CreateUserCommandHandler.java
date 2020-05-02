@@ -3,14 +3,12 @@ package eu.eventstorm.cqrs.ex001.handler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.eventstorm.core.StreamId;
 import eu.eventstorm.core.Event;
-import eu.eventstorm.core.EventPayload;
+import eu.eventstorm.core.StreamId;
 import eu.eventstorm.core.id.StreamIdGenerator;
 import eu.eventstorm.cqrs.AbstractCommandHandler;
 import eu.eventstorm.cqrs.ex001.command.CreateUserCommand;
 import eu.eventstorm.cqrs.ex001.event.UserCreatedEventPayload;
-import eu.eventstorm.cqrs.ex001.gen.event.UserCreatedEventPayloadImpl;
 import eu.eventstorm.cqrs.ex001.validator.CreateUserCommandValidator;
 import eu.eventstorm.eventstore.EventStoreClient;
 import reactor.core.publisher.Flux;
@@ -27,7 +25,7 @@ public final class CreateUserCommandHandler extends AbstractCommandHandler<Creat
 	}
 
 	@Override
-	protected Flux<Event<EventPayload>> doHandleAfterValidation(CreateUserCommand command) {
+	protected Flux<Event> doHandleAfterValidation(CreateUserCommand command) {
 			
 		StreamId id = this.aig.generate();
 		
@@ -35,13 +33,13 @@ public final class CreateUserCommandHandler extends AbstractCommandHandler<Creat
 			LOGGER.debug("generate ({})", id);
 		}
 		
-		UserCreatedEventPayload eventData = new UserCreatedEventPayloadImpl(
-				command.getName(),
-				command.getEmail(),
-				command.getAge()
-				);
+		UserCreatedEventPayload payload = UserCreatedEventPayload.newBuilder()
+			.setName(command.getName())
+			.setEmail(command.getEmail())
+			.setAge(command.getAge())
+			.build();
 
-		Event<EventPayload> event = getEventStore().appendToStream("user", id, eventData);
+		Event event = getEventStoreClient().appendToStream("user", id, payload);
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("event ({})", event);

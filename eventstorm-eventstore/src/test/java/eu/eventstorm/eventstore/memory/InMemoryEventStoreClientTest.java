@@ -19,21 +19,21 @@ import eu.eventstorm.test.LoggerInstancePostProcessor;
 @ExtendWith(LoggerInstancePostProcessor.class)
 class InMemoryEventStoreClientTest {
 
-	private StreamManager streamManager;
+	private StreamManager manager;
 	
 	@BeforeEach
 	void beforeEach() {
-		streamManager = new InMemoryStreamManagerBuilder()
+		manager = new InMemoryStreamManagerBuilder()
 				.withDefinition("test")
-					.withPayload(UserCreatedEventPayload.class, UserCreatedEventPayload.parser())
-				.and()
-				.build();
+				.withPayload(UserCreatedEventPayload.class, UserCreatedEventPayload.getDescriptor(), UserCreatedEventPayload.parser(), () -> UserCreatedEventPayload.newBuilder())
+			.and()
+			.build();
 	}
 	
 	@Test
 	void test() {
 		
-		InMemoryEventStoreClient client = new InMemoryEventStoreClient(streamManager, new InMemoryEventStore());
+		InMemoryEventStoreClient client = new InMemoryEventStoreClient(manager, new InMemoryEventStore());
 
 		client.appendToStream("test", StreamIds.from(1), UserCreatedEventPayload.newBuilder().build());
 		client.appendToStream("test", StreamIds.from(2), UserCreatedEventPayload.newBuilder().build());

@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.eventstorm.core.Event;
-import eu.eventstorm.core.EventPayload;
 import eu.eventstorm.cqrs.CommandGateway;
 import eu.eventstorm.cqrs.ex001.command.CreateUserCommand;
 import reactor.core.publisher.Flux;
@@ -24,7 +23,7 @@ public final class ReactiveUserCommandRestController {
 	}
 
 	@PostMapping(name = "reactive/user/create")
-	public Flux<Event<EventPayload>> createUserCommand(CreateUserCommand command) {
+	public Flux<Event> createUserCommand(CreateUserCommand command) {
 
 		if (LOGGER.isTraceEnabled()) {
 			LOGGER.trace("createUserCommand (reactive/user/create) : [{}]", command);

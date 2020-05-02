@@ -59,9 +59,9 @@ class ApiRestControllerConfigurationTest implements WebFluxConfigurer {
 	StreamManager streamManager() {
 		return new InMemoryStreamManagerBuilder()
 				.withDefinition("user")
-					.withPayload(UserCreatedEventPayload.class, UserCreatedEventPayload.parser())
-				.and()
-				.build();
+				.withPayload(UserCreatedEventPayload.class, UserCreatedEventPayload.getDescriptor(), UserCreatedEventPayload.parser(), () -> UserCreatedEventPayload.newBuilder())
+			.and()
+			.build();
 	}
 	
 	@Bean

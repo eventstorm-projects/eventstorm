@@ -25,7 +25,7 @@ final class InMemoryStreamDefinition implements StreamDefinition {
 //	private final ImmutableMap<String, InMemoryStreamEvantPayloadDefinition<?>> mapByEventPayloadClass;
 //	private final ConcurrentHashMap<String, InMemoryStreamEvantPayloadDefinition<?>> cache;
 //	
-	public InMemoryStreamDefinition(String name, List<InMemoryStreamEventDefinition> defs) {
+	public InMemoryStreamDefinition(String name, List<InMemoryStreamEventDefinition<?>> defs) {
 		this.name = name;
 		this.mapByEventPayloadType = defs.stream().collect(toImmutableMap(InMemoryStreamEventDefinition::getEventType, identity()));
 //		this.mapByEventPayloadClass = defs.stream().collect(toImmutableMap( d -> d.getEventPayloadClass().getName(), identity()));
