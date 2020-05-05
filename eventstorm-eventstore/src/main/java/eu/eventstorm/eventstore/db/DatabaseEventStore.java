@@ -192,7 +192,6 @@ public final class DatabaseEventStore implements EventStore {
 
 		@Override
 		public Event map(Dialect dialect, ResultSet rs) throws SQLException {
-			System.out.println("===============================================================");
 			Message message = definition.getStreamEventDefinition(rs.getString(4)).jsonParse(rs.getBytes(3));
 			// @formatter:off
 			Event event = Event.newBuilder()
@@ -203,8 +202,6 @@ public final class DatabaseEventStore implements EventStore {
 					.setData(Any.pack(message,"event"))
 					.build();
 			// @formatter:on
-			System.out.println(event);
-			System.out.println("===============================================================");
 			return event;
 		}
 	}

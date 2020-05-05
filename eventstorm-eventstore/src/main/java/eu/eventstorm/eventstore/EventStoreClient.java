@@ -2,6 +2,7 @@ package eu.eventstorm.eventstore;
 
 import java.util.stream.Stream;
 
+import com.google.common.collect.ImmutableList;
 import com.google.protobuf.AbstractMessage;
 
 import eu.eventstorm.core.Event;
@@ -14,7 +15,7 @@ public interface EventStoreClient {
 
 	Event appendToStream(String stream, StreamId streamId, AbstractMessage evantPayload);
 	
-	Stream<Event> appendToStream(EventCandidate ...candidates);
+	Stream<Event> appendToStream(ImmutableList<EventCandidate>candidates);
 	
 	Stream<Event> readStream(String stream, StreamId streamId);
 

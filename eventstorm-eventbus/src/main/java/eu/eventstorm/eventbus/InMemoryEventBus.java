@@ -52,4 +52,10 @@ public final class InMemoryEventBus implements EventBus {
 		}
 	}
 
+	@Override
+	public void publish(ImmutableList<Event> events) {
+		
+		
+	}
+
 }

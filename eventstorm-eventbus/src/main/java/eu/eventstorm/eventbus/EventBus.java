@@ -1,5 +1,7 @@
 package eu.eventstorm.eventbus;
 
+import com.google.common.collect.ImmutableList;
+
 import eu.eventstorm.core.Event;
 
 /**
@@ -8,5 +10,7 @@ import eu.eventstorm.core.Event;
 public interface EventBus {
 
 	void publish(Event event);
+
+	void publish(ImmutableList<Event> events);
 	
 }

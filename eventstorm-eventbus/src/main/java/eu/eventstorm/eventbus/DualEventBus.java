@@ -1,5 +1,7 @@
 package eu.eventstorm.eventbus;
 
+import com.google.common.collect.ImmutableList;
+
 import eu.eventstorm.core.Event;
 
 /**
@@ -24,6 +26,13 @@ public final class DualEventBus implements EventBus {
 		} finally {
 			two.publish(event);
 		}
+	}
+
+
+	@Override
+	public void publish(ImmutableList<Event> events) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

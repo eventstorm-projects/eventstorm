@@ -10,6 +10,7 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableList;
 import com.google.protobuf.AbstractMessage;
 
 import eu.eventstorm.core.Event;
@@ -56,19 +57,20 @@ public final class InMemoryEventStoreClient implements EventStoreClient {
 		return this.inMemoryEventStore.appendToStream(sepd, streamId.toStringValue(), message);
 	}
 	
-	@Override
-	public Stream<Event> appendToStream(EventCandidate... candidates) {
-		List<Event> events = new ArrayList<>(candidates.length);
-		for (EventCandidate candidate : candidates) {
-			events.add(appendToStream(candidate.getStream(), candidate.getStreamId(), candidate.getMessage()));
-		}
-		return events.stream();
-	}
-
 
 	@Override
 	public Stream<Event> readStream(String stream, StreamId streamId) {
 		return inMemoryEventStore.readStream(streamManager.getDefinition(stream), streamId.toStringValue());
+	}
+
+
+	@Override
+	public Stream<Event> appendToStream(ImmutableList<EventCandidate> candidates) {
+		List<Event> events = new ArrayList<>(candidates.size());
+		for (EventCandidate candidate : candidates) {
+			events.add(appendToStream(candidate.getStream(), candidate.getStreamId(), candidate.getMessage()));
+		}
+		return events.stream();
 	}
 
 
