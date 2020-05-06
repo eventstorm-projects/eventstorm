@@ -39,6 +39,11 @@
 			<artifactId>jackson-databind</artifactId>
 			<optional>true</optional>
 		</dependency>
+		
+		<dependency>
+  			<groupId>io.protostuff</groupId>
+  			<artifactId>protostuff-parser</artifactId>
+		</dependency>
 
 	</dependencies>
 

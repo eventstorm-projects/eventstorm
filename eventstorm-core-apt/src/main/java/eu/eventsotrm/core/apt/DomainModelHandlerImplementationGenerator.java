@@ -6,7 +6,6 @@ import static eu.eventsotrm.sql.apt.Helper.writePackage;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +18,6 @@ import javax.tools.JavaFileObject;
 import eu.eventsotrm.core.apt.model.EventDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
-import eu.eventstorm.annotation.CqrsEventPayload;
 import eu.eventstorm.eventbus.EventListener;
 
 /**
@@ -37,17 +35,17 @@ final class DomainModelHandlerImplementationGenerator {
 
 		Map<DeclaredType, List<EventDescriptor>> map = new HashMap<>();
 
-		sourceCode.forEachEvent(event -> {
-			CqrsEventPayload eventData = event.element().getAnnotation(CqrsEventPayload.class);
-
-			DeclaredType domainModel = getDomain(eventData);
-			List<EventDescriptor> descs = map.get(domainModel);
-			if (descs == null) {
-				descs = new ArrayList<>();
-				map.put(domainModel, descs);
-			}
-			descs.add(event);
-		});
+//		sourceCode.forEachEvent(event -> {
+//			CqrsEventPayload eventData = event.element().getAnnotation(CqrsEventPayload.class);
+//
+//			DeclaredType domainModel = getDomain(eventData);
+//			List<EventDescriptor> descs = map.get(domainModel);
+//			if (descs == null) {
+//				descs = new ArrayList<>();
+//				map.put(domainModel, descs);
+//			}
+//			descs.add(event);
+//		});
 
 		map.forEach((domain, events) -> {
 			try {
@@ -168,13 +166,13 @@ final class DomainModelHandlerImplementationGenerator {
 		return value + "DomainModelHandler";
 	}
 
-	private static DeclaredType getDomain(CqrsEventPayload eventData) {
-		try {
-			eventData.domain(); // this should throw
-		} catch (MirroredTypeException mte) {
-			return (DeclaredType) mte.getTypeMirror();
-		}
-		return null; // can this ever happen ??
-	}
+//	private static DeclaredType getDomain(CqrsEventPayload eventData) {
+//		try {
+//			eventData.domain(); // this should throw
+//		} catch (MirroredTypeException mte) {
+//			return (DeclaredType) mte.getTypeMirror();
+//		}
+//		return null; // can this ever happen ??
+//	}
 
 }

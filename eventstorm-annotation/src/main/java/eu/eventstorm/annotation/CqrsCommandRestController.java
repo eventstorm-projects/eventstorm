@@ -27,6 +27,4 @@ public @interface CqrsCommandRestController {
 	
 	HttpMethod method();
 	
-	//Class<? extends EventPayload>[] events() default {};
-	
 }

@@ -33,13 +33,13 @@ final class EventPayloadDeserializerGenerator {
 
 	public void generate(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
 		// generate Implementation class;
-		sourceCode.forEachEventPackage((pack, list) -> {
-			try {
-				generate(processingEnvironment, pack, list);
-			} catch (Exception cause) {
-				logger.error("Exception for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
-			}
-		});
+//		sourceCode.forEachEventPackage((pack, list) -> {
+//			try {
+//				generate(processingEnvironment, pack, list);
+//			} catch (Exception cause) {
+//				logger.error("Exception for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
+//			}
+//		});
 
 	}
 

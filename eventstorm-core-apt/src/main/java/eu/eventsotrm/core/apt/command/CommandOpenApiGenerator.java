@@ -185,13 +185,13 @@ public final class CommandOpenApiGenerator {
 				logger.error("Exception for [" + t + "] -> [" + cause.getMessage() + "]", cause);
 			}
 		});
-		sourceCode.forEachEvent(e -> {
-			try {
-				addSchema(env, writer, e);
-			} catch (Exception cause) {
-				logger.error("Exception for [" + e + "] -> [" + cause.getMessage() + "]", cause);
-			}
-		});
+//		sourceCode.forEachEvent(e -> {
+//			try {
+//				addSchema(env, writer, e);
+//			} catch (Exception cause) {
+//				logger.error("Exception for [" + e + "] -> [" + cause.getMessage() + "]", cause);
+//			}
+//		});
 		addSchemaCloudEvents(env, writer);
 		
 		writer.write("    }");

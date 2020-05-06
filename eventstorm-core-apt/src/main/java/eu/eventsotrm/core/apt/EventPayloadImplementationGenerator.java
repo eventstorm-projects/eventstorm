@@ -31,13 +31,13 @@ final class EventPayloadImplementationGenerator {
 	}
 
     public void generate(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
-        sourceCode.forEachEvent(t -> {
-            try {
-                generate(processingEnvironment, t);
-            } catch (Exception cause) {
-            	logger.error("Exception for [" + t + "] -> [" + cause.getMessage() + "]", cause);
-            }
-        });
+//        sourceCode.forEachEvent(t -> {
+//            try {
+//                generate(processingEnvironment, t);
+//            } catch (Exception cause) {
+//            	logger.error("Exception for [" + t + "] -> [" + cause.getMessage() + "]", cause);
+//            }
+//        });
     }
 
     private void generate(ProcessingEnvironment env, EventDescriptor descriptor) throws IOException {

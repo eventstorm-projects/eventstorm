@@ -72,7 +72,7 @@ class TransactionStreamTemplateTest {
 	void simpleTest() {
 
 		assertEquals(0, ds.getHikariPoolMXBean().getActiveConnections());
-        template.withReadWriteTransaction().supply(() -> {
+		template.executeWithReadWrite(() -> {
         	assertEquals(1, ds.getHikariPoolMXBean().getActiveConnections());
         	Student student = new StudentImpl();
             student.setId(1);
@@ -80,7 +80,7 @@ class TransactionStreamTemplateTest {
             student.setCode("Code1");
             repository.insert(student);
         	return student;
-        }).execute();
+        });
         
         assertEquals(0, ds.getHikariPoolMXBean().getActiveConnections());
         try (Stream<Student> stream = streamTemplate.decorate(() -> repository.findAll())) {
@@ -101,11 +101,11 @@ class TransactionStreamTemplateTest {
 	void testInvalid() {
 
 		assertEquals(0, ds.getHikariPoolMXBean().getActiveConnections());
-        template.withReadWriteTransaction().supply(() -> {
+        template.executeWithReadWrite(() -> {
         	assertEquals(1, ds.getHikariPoolMXBean().getActiveConnections());
         	assertThrows(TransactionException.class, () -> streamTemplate.decorate(() -> repository.findAll()));
         	return null;
-        }).execute();
+        });
         
         assertEquals(0, ds.getHikariPoolMXBean().getActiveConnections());
 	}

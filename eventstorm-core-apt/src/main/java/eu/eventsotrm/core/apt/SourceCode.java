@@ -43,9 +43,9 @@ public final class SourceCode {
 
 	private final ImmutableMap<String, ImmutableList<AbstractCommandDescriptor>> allCommandsPackages;
 	
-	private final ImmutableMap<String, EventDescriptor> events;
-	
-	private final ImmutableMap<String, ImmutableList<EventDescriptor>> eventpackages;
+//	private final ImmutableMap<String, EventDescriptor> events;
+//	
+//	private final ImmutableMap<String, ImmutableList<EventDescriptor>> eventpackages;
 
 	private final Map<String, ImmutableList<RestControllerDescriptor>> restControllers;
 	
@@ -56,7 +56,7 @@ public final class SourceCode {
 	SourceCode(ProcessingEnvironment env, CqrsConfiguration cqrsConfiguration,
 			List<CommandDescriptor> commands,
 			List<EmbeddedCommandDescriptor> embeddedCommands,
-			List<EventDescriptor> events,
+	//		List<EventDescriptor> events,
 	        List<RestControllerDescriptor> restControllerDescriptors, List<QueryDescriptor> queries) {
 		this.cqrsConfiguration = cqrsConfiguration;
 		this.commands = commands.stream().collect(toImmutableMap(CommandDescriptor::fullyQualidiedClassName, identity()));
@@ -67,8 +67,8 @@ public final class SourceCode {
 		this.allCommandsPackages = mapByPackage(env, ImmutableMap.<String,AbstractCommandDescriptor>builder().putAll(this.commands).putAll(this.embeddedCommands).build());
 		
 		
-		this.events = events.stream().collect(toImmutableMap(EventDescriptor::fullyQualidiedClassName, identity()));
-		this.eventpackages = mapByPackage(env, this.events);
+	//	this.events = events.stream().collect(toImmutableMap(EventDescriptor::fullyQualidiedClassName, identity()));
+//		this.eventpackages = mapByPackage(env, this.events);
 		this.restControllers = restControllerDescriptors.stream()
 		        .collect(groupingBy( t -> t.getFCQN(env), mapping(identity(), toImmutableList())));
 		this.queries = queries.stream().collect(toImmutableMap(QueryDescriptor::fullyQualidiedClassName, identity()));
@@ -105,15 +105,13 @@ public final class SourceCode {
         this.queries.values().forEach(consumer);
     }
 
-	public void forEachEvent(Consumer<EventDescriptor> consumer) {
-		this.events.values().forEach(consumer);
-	}
-
-	
-
-	public void forEachEventPackage(BiConsumer<String, ImmutableList<EventDescriptor>> consumer) {
-		this.eventpackages.forEach(consumer);
-	}
+//	public void forEachEvent(Consumer<EventDescriptor> consumer) {
+//		this.events.values().forEach(consumer);
+//	}
+//
+//	public void forEachEventPackage(BiConsumer<String, ImmutableList<EventDescriptor>> consumer) {
+//		this.eventpackages.forEach(consumer);
+//	}
 	
 	public void forEachQueryPackage(BiConsumer<String, ImmutableList<QueryDescriptor>> consumer) {
 		this.queryPackages.forEach(consumer);
@@ -139,11 +137,11 @@ public final class SourceCode {
 			logger.info("\t-> " + desc);
 		});
 		logger.info("---------------------------------------------------------------------------------------------------------");
-		logger.info("Number of event(s) found : " + events.size());
-		events.values().forEach(desc -> {
-			logger.info("\t-> " + desc);
-		});
-		logger.info("---------------------------------------------------------------------------------------------------------");
+//		logger.info("Number of event(s) found : " + events.size());
+//		events.values().forEach(desc -> {
+//			logger.info("\t-> " + desc);
+//		});
+//		logger.info("---------------------------------------------------------------------------------------------------------");
 		logger.info("---------------------------------------------------------------------------------------------------------");
         logger.info("Number of query(ies) found : " + queries.size());
         queries.values().forEach(desc -> {

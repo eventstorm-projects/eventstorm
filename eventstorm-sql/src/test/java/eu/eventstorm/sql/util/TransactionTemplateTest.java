@@ -18,9 +18,6 @@ import org.junit.jupiter.api.Test;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
-import brave.Tracer;
-import brave.Tracing;
-import brave.sampler.Sampler;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Dialect;
 import eu.eventstorm.sql.impl.DatabaseBuilder;
@@ -28,7 +25,6 @@ import eu.eventstorm.sql.impl.TransactionManagerImpl;
 import eu.eventstorm.sql.model.ex001.AbstractStudentRepository;
 import eu.eventstorm.sql.model.ex001.Student;
 import eu.eventstorm.sql.model.ex001.StudentImpl;
-import eu.eventstorm.sql.tracer.LoggingBraveReporter;
 
 class TransactionTemplateTest {
 	
@@ -51,17 +47,15 @@ class TransactionTemplateTest {
 			}
 		}
 
-		Tracer tracer = Tracing.newBuilder().sampler(Sampler.ALWAYS_SAMPLE).spanReporter(new LoggingBraveReporter()).build().tracer();
 		Database db = DatabaseBuilder.from(Dialect.Name.H2)
 				.withTransactionManager(new TransactionManagerImpl(ds))
 				.withModule(new eu.eventstorm.sql.model.ex001.Module("test", null))
 				.build();
 		
-		template = new TransactionTemplate(db.transactionManager());
-		
 		repository = new AbstractStudentRepository(db) {
         };
 
+        template = new TransactionTemplate(db.transactionManager());
 				
 	}
 
@@ -74,44 +68,42 @@ class TransactionTemplateTest {
 	@Test
 	void simpleTest() {
 
-        template.withReadWriteTransaction().supply(() -> {
-        	Student student = new StudentImpl();
-            student.setId(1);
-            student.setAge(37);
-            student.setCode("Code1");
-            repository.insert(student);
-        	return student;
-        }).execute();
-        
-        template.withReadOnlyTransaction().supply(() -> {
-        	assertNotNull(repository.findById(1));
+		Student student = new StudentImpl();
+        student.setId(1);
+        student.setAge(37);
+        student.setCode("Code1");
+      
+       
+        template.executeWithReadWrite(() -> {
+        	this.repository.insert(student);
         	return null;
-        }).execute();
+        });
+        
+        
+        Student fresh = template.executeWithReadOnly(() -> repository.findById(1));
+        assertNotNull(fresh);
 
 	}
 	
 	@Test
 	void testRollback() {
 
-		Assertions.assertThrows(RuntimeException.class, () ->
-		    template.withReadWriteTransaction().supply(() -> {
-		    	Student student = new StudentImpl();
-		        student.setId(1);
-		        student.setAge(37);
-		        student.setCode("Code1");
-		        repository.insert(student);
-		        throw new RuntimeException();
-		    }).execute());
-        
-        template.withReadOnlyTransaction().supply(() -> {
-        	assertNull(repository.findById(1));
-        	return null;
-        }).execute();
-        
-        Assertions.assertThrows(RuntimeException.class, () ->
-        	template.withReadOnlyTransaction().supply(() -> {
-        		throw new RuntimeException();
-        	}).execute());
+		Student student = new StudentImpl();
+		student.setId(1);
+		student.setAge(37);
+		student.setCode("Code1");
+
+		Assertions.assertThrows(RuntimeException.class,
+				() -> template.executeWithReadWrite(() -> {
+					repository.insert(student);
+					throw new RuntimeException();
+				}));
+
+		assertNull(template.executeWithReadOnly(() -> repository.findById(1))); 
+
+		Assertions.assertThrows(RuntimeException.class, () -> template.executeWithReadOnly(() -> {
+			throw new RuntimeException();
+		}));
 
 	}
 	

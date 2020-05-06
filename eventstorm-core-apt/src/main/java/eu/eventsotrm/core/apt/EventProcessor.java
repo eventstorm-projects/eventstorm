@@ -40,7 +40,6 @@ import eu.eventstorm.annotation.CqrsCommand;
 import eu.eventstorm.annotation.CqrsCommandRestController;
 import eu.eventstorm.annotation.CqrsConfiguration;
 import eu.eventstorm.annotation.CqrsEmbeddedCommand;
-import eu.eventstorm.annotation.CqrsEventPayload;
 import eu.eventstorm.annotation.CqrsQuery;
 import eu.eventstorm.annotation.CqrsQueryDatabaseView;
 
@@ -106,8 +105,8 @@ public class EventProcessor extends AbstractProcessor {
 		List<RestControllerDescriptor> restControllerDescriptors = roundEnvironment.getElementsAnnotatedWith(CqrsCommandRestController.class).stream().map(new CqrsRestControllerAnalyser())
 		        .collect(Collectors.toList());
 
-		List<EventDescriptor> eventDescriptors = roundEnvironment.getElementsAnnotatedWith(CqrsEventPayload.class).stream().map(new CqrsEventAnalyser())
-		        .collect(Collectors.toList());
+//		List<EventDescriptor> eventDescriptors = roundEnvironment.getElementsAnnotatedWith(CqrsEventPayload.class).stream().map(new CqrsEventAnalyser())
+//		        .collect(Collectors.toList());
 		
 		List<QueryDescriptor> queries = roundEnvironment.getElementsAnnotatedWith(CqrsQuery.class).stream().map(new CqrsQueryAnalyser())
                 .collect(Collectors.toList());
@@ -134,7 +133,7 @@ public class EventProcessor extends AbstractProcessor {
 				cqrsConfiguration, 
 				commandDescriptors, 
 				embeddedCommandDescriptors,
-				eventDescriptors,
+			//	eventDescriptors,
 				restControllerDescriptors,
 				queries);
 
