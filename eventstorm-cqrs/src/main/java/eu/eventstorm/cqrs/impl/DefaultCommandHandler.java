@@ -40,6 +40,12 @@ public abstract class DefaultCommandHandler<T extends Command> extends AbstractC
 		return Flux.fromIterable(events);
 	}
 
+	@Override
+	protected void evolution(ImmutableList<Event> events) {
+		
+		
+	}
+
 	
 	
 

@@ -19,6 +19,7 @@ import eu.eventsotrm.core.apt.analyser.CqrsEmbeddedCommandAnalyser;
 import eu.eventsotrm.core.apt.analyser.CqrsEventAnalyser;
 import eu.eventsotrm.core.apt.analyser.CqrsQueryAnalyser;
 import eu.eventsotrm.core.apt.analyser.CqrsRestControllerAnalyser;
+import eu.eventsotrm.core.apt.analyser.EventEvolutionAnalyser;
 import eu.eventsotrm.core.apt.command.CommandBuilderGenerator;
 import eu.eventsotrm.core.apt.command.CommandExceptionGenerator;
 import eu.eventsotrm.core.apt.command.CommandFactoryGenerator;
@@ -31,6 +32,7 @@ import eu.eventsotrm.core.apt.command.RestControllerImplementationGenerator;
 import eu.eventsotrm.core.apt.model.CommandDescriptor;
 import eu.eventsotrm.core.apt.model.EmbeddedCommandDescriptor;
 import eu.eventsotrm.core.apt.model.EventDescriptor;
+import eu.eventsotrm.core.apt.model.EventEvolutionDescriptor;
 import eu.eventsotrm.core.apt.model.QueryDescriptor;
 import eu.eventsotrm.core.apt.model.RestControllerDescriptor;
 import eu.eventsotrm.sql.apt.Helper;
@@ -42,6 +44,7 @@ import eu.eventstorm.annotation.CqrsConfiguration;
 import eu.eventstorm.annotation.CqrsEmbeddedCommand;
 import eu.eventstorm.annotation.CqrsQuery;
 import eu.eventstorm.annotation.CqrsQueryDatabaseView;
+import eu.eventstorm.annotation.EventEvolution;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -104,6 +107,9 @@ public class EventProcessor extends AbstractProcessor {
 		
 		List<RestControllerDescriptor> restControllerDescriptors = roundEnvironment.getElementsAnnotatedWith(CqrsCommandRestController.class).stream().map(new CqrsRestControllerAnalyser())
 		        .collect(Collectors.toList());
+		
+		List<EventEvolutionDescriptor> eventEvolutionDescriptors = roundEnvironment.getElementsAnnotatedWith(EventEvolution.class).stream().map(new EventEvolutionAnalyser())
+		        .collect(Collectors.toList());
 
 //		List<EventDescriptor> eventDescriptors = roundEnvironment.getElementsAnnotatedWith(CqrsEventPayload.class).stream().map(new CqrsEventAnalyser())
 //		        .collect(Collectors.toList());
@@ -133,6 +139,7 @@ public class EventProcessor extends AbstractProcessor {
 				cqrsConfiguration, 
 				commandDescriptors, 
 				embeddedCommandDescriptors,
+				eventEvolutionDescriptors,
 			//	eventDescriptors,
 				restControllerDescriptors,
 				queries);

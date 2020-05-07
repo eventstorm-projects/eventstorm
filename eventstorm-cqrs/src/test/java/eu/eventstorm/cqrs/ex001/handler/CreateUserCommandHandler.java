@@ -51,6 +51,8 @@ public final class CreateUserCommandHandler extends DefaultCommandHandler<Create
 		
 		LOGGER.info("{}", events);
 		
+		
+		
 	}
 
 	

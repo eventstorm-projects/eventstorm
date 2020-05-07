@@ -15,6 +15,7 @@ import com.google.common.collect.ImmutableSet;
 
 import eu.eventsotrm.core.apt.SourceCode;
 import eu.eventsotrm.core.apt.model.EventDescriptor;
+import eu.eventsotrm.core.apt.model.EventEvolutionDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import io.protostuff.compiler.model.Message;
@@ -36,49 +37,57 @@ public final class EventProtoGenerator {
 	}
 
     public void generate(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
+    	
+	      sourceCode.forEventEvolution(t -> {
+		      try {
+		          generate(processingEnvironment, t);
+		      } catch (Exception cause) {
+		      	logger.error("Exception for [" + t + "] -> [" + cause.getMessage() + "]", cause);
+		      }
+	      });
+    	
+    }
+    
+    
+	private void generate(ProcessingEnvironment processingEnvironment, EventEvolutionDescriptor descriptor) {
 
-    	FileDescriptorLoader fdl = new FileDescriptorLoaderImpl(new ParseErrorLogger(), ImmutableSet.of());
-	     Importer importer = new ImporterImpl(fdl);
-	     ProtoContext ctx  =     importer.importFile(new FileReader() {			
+		FileDescriptorLoader fdl = new FileDescriptorLoaderImpl(new ParseErrorLogger(), ImmutableSet.of());
+		Importer importer = new ImporterImpl(fdl);
+		ProtoContext ctx = importer.importFile(new FileReader() {
 			@Override
 			public CharStream read(String name) {
 				try {
-					return  CharStreams.fromStream(EventProtoGenerator.class.getResourceAsStream(name));
+					return CharStreams.fromStream(EventProtoGenerator.class.getResourceAsStream(name));
 				} catch (IOException e) {
 					e.printStackTrace();
 					return null;
 				}
 			}
 		}, "/proto/TransportMode.proto");
-    	
-	     
-	     for (Message message : ctx.getProto().getMessages()) {
-	    	 
-	    	 
-	    	 
-	     }
-    	
-    	
-    }
-    
-    
-    private void generate(ProcessingEnvironment env, DeclaredType domainModel, List<Message> messages) throws IOException {
 
-	    // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
-       // if (env.getElementUtils().getTypeElement(getName(domainModel.asElement().toString())) != null) {
-      //      logger.info("Java SourceCode already exist [" + getName(domainModel.asElement().toString()) + "]");
-       //     return;
-     //   }
-//        
-//		JavaFileObject object = env.getFiler().createSourceFile(getName(domainModel.asElement().toString()));
-//		try (Writer writer = object.openWriter()) {
-//
-//			writeHeader(writer, env, domainModel, events);
-//			// writeConstructor(writer, descriptor);
-//			// writeVariables(writer, descriptor);
-//			writeMethods(writer, events);
-//			writer.write("}");
-//		}
+		for (Message message : ctx.getProto().getMessages()) {
+
+		}
+
+	}
+
+	private void generate(ProcessingEnvironment env, EventEvolutionDescriptor descriptor, List<Message> messages) throws IOException {
+
+		// check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
+        // if (env.getElementUtils().getTypeElement(getName(domainModel.asElement().toString())) != null) {
+        //    logger.info("Java SourceCode already exist [" + getName(domainModel.asElement().toString()) + "]");
+        //    return;
+        //}
+        
+		JavaFileObject object = env.getFiler().createSourceFile(getName(domainModel.asElement().toString()));
+		try (Writer writer = object.openWriter()) {
+
+			writeHeader(writer, env, domainModel, events);
+			// writeConstructor(writer, descriptor);
+			// writeVariables(writer, descriptor);
+			writeMethods(writer, events);
+			writer.write("}");
+		}
 
 	}
     

@@ -22,7 +22,7 @@ import eu.eventsotrm.core.apt.model.AbstractCommandDescriptor;
 import eu.eventsotrm.core.apt.model.CommandDescriptor;
 import eu.eventsotrm.core.apt.model.Descriptor;
 import eu.eventsotrm.core.apt.model.EmbeddedCommandDescriptor;
-import eu.eventsotrm.core.apt.model.EventDescriptor;
+import eu.eventsotrm.core.apt.model.EventEvolutionDescriptor;
 import eu.eventsotrm.core.apt.model.QueryDescriptor;
 import eu.eventsotrm.core.apt.model.RestControllerDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
@@ -43,6 +43,8 @@ public final class SourceCode {
 
 	private final ImmutableMap<String, ImmutableList<AbstractCommandDescriptor>> allCommandsPackages;
 	
+	private final ImmutableList<EventEvolutionDescriptor> eventEvolutionDescriptors;
+	
 //	private final ImmutableMap<String, EventDescriptor> events;
 //	
 //	private final ImmutableMap<String, ImmutableList<EventDescriptor>> eventpackages;
@@ -56,6 +58,7 @@ public final class SourceCode {
 	SourceCode(ProcessingEnvironment env, CqrsConfiguration cqrsConfiguration,
 			List<CommandDescriptor> commands,
 			List<EmbeddedCommandDescriptor> embeddedCommands,
+			List<EventEvolutionDescriptor> eventEvolutionDescriptors,
 	//		List<EventDescriptor> events,
 	        List<RestControllerDescriptor> restControllerDescriptors, List<QueryDescriptor> queries) {
 		this.cqrsConfiguration = cqrsConfiguration;
@@ -66,6 +69,8 @@ public final class SourceCode {
 		
 		this.allCommandsPackages = mapByPackage(env, ImmutableMap.<String,AbstractCommandDescriptor>builder().putAll(this.commands).putAll(this.embeddedCommands).build());
 		
+		
+		this.eventEvolutionDescriptors = ImmutableList.copyOf(eventEvolutionDescriptors);
 		
 	//	this.events = events.stream().collect(toImmutableMap(EventDescriptor::fullyQualidiedClassName, identity()));
 //		this.eventpackages = mapByPackage(env, this.events);
@@ -100,9 +105,12 @@ public final class SourceCode {
 		this.allCommandsPackages.forEach(consumer);
 	}
 	
-	
     public void forEachQuery(Consumer<QueryDescriptor> consumer) {
         this.queries.values().forEach(consumer);
+    }
+    
+    public void forEventEvolution(Consumer<EventEvolutionDescriptor> consumer) {
+    	this.eventEvolutionDescriptors.forEach(consumer);
     }
 
 //	public void forEachEvent(Consumer<EventDescriptor> consumer) {
@@ -137,6 +145,12 @@ public final class SourceCode {
 			logger.info("\t-> " + desc);
 		});
 		logger.info("---------------------------------------------------------------------------------------------------------");
+		logger.info("Number of event(s) evolution found : " + eventEvolutionDescriptors.size());
+		eventEvolutionDescriptors.forEach(desc -> {
+			logger.info("\t-> " + desc);
+		});
+		logger.info("---------------------------------------------------------------------------------------------------------");
+		
 //		logger.info("Number of event(s) found : " + events.size());
 //		events.values().forEach(desc -> {
 //			logger.info("\t-> " + desc);
