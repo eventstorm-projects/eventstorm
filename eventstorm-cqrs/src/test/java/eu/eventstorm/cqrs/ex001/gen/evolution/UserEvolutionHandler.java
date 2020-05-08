@@ -8,7 +8,7 @@ public class UserEvolutionHandler implements EvolutionHandler {
 	@Override
 	public void on(Event event) {
 		
-		if (event.getStream())
+	//	if (event.getStream())
 		
 	}
 

@@ -63,16 +63,15 @@ public final class CommandImplementationGenerator {
         }
         
         JavaFileObject object = env.getFiler().createSourceFile(descriptor.fullyQualidiedClassName() + "Impl");
-        Writer writer = object.openWriter();
-
-        writeHeader(writer, env, descriptor);
-        writeConstructor(writer, descriptor);
-        writeVariables(writer, descriptor);
-        writeMethods(writer, descriptor);
-        writeToStringBuilder(writer, descriptor);
-
-        writer.write("}");
-        writer.close();
+        
+        try (Writer writer = object.openWriter()) {
+        	writeHeader(writer, env, descriptor);
+            writeConstructor(writer, descriptor);
+            writeVariables(writer, descriptor);
+            writeMethods(writer, descriptor);
+            writeToStringBuilder(writer, descriptor);
+            writer.write("}");	
+        }
     }
 
 

@@ -29,6 +29,7 @@ import eu.eventsotrm.core.apt.command.CommandJacksonStdDeserializerGenerator;
 import eu.eventsotrm.core.apt.command.CommandOpenApiGenerator;
 import eu.eventsotrm.core.apt.command.CommandValidatorGenerator;
 import eu.eventsotrm.core.apt.command.RestControllerImplementationGenerator;
+import eu.eventsotrm.core.apt.event.EventProtoGenerator;
 import eu.eventsotrm.core.apt.model.CommandDescriptor;
 import eu.eventsotrm.core.apt.model.EmbeddedCommandDescriptor;
 import eu.eventsotrm.core.apt.model.EventDescriptor;
@@ -166,6 +167,9 @@ public class EventProcessor extends AbstractProcessor {
 		//new CommandRestControllerAdviceImplementationGenerator().generate(processingEnv, sourceCode);
 		
 		new CommandOpenApiGenerator().generate(processingEnv, sourceCode);
+		
+		// EVENTS .....
+		new EventProtoGenerator().generate(processingEnv, sourceCode);
 
 //		new EventPayloadImplementationGenerator().generate(this.processingEnv, sourceCode);
 //		new EventPayloadBuilderGenerator().generate(this.processingEnv, sourceCode);

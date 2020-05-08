@@ -37,7 +37,7 @@ public final class Logger {
 		}
 	}
 
-	public void error(String msg, Exception cause) {
+	public void error(String msg, Throwable cause) {
 		StringBuilder builder = new StringBuilder();
 		builder.append(LocalDateTime.now().toString()).append(" [").append(this.name).append("] ").append(msg).append('\n');
 		cause.printStackTrace(new PrintWriter(writer));

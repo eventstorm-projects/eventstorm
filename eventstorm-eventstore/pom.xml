@@ -28,12 +28,13 @@
 			<version>${project.version}</version>
 		</dependency>
 
-		<dependency>
-			<groupId>eu.eventstorm</groupId>
+<dependency>
+<groupId>eu.eventstorm</groupId>
 			<artifactId>eventstorm-sql-apt</artifactId>
 			<version>${project.version}</version>
 			<optional>true</optional>
-		</dependency>
+</dependency>
+
 
 		<dependency>
 			<groupId>org.slf4j</groupId>

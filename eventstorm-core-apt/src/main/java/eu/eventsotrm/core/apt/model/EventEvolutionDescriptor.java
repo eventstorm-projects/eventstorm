@@ -21,6 +21,10 @@ public class EventEvolutionDescriptor implements Descriptor {
     public Element element() {
         return element;
     }
+    
+    public EventEvolution eventEvolution() {
+    	return this.eventEvolution;
+    }
 
     public String simpleName() {
         String fqcn = this.element.asType().toString();
@@ -30,7 +34,8 @@ public class EventEvolutionDescriptor implements Descriptor {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("EventDescriptor : ").append(element);
+        builder.append("EventEvolutionDescriptor : ").append(element);
+        builder.append(" eventEvolution=[").append(eventEvolution).append("]");
 //        for (PropertyDescriptor property : properties) {
 //            builder.append("\n\t").append(property);
 //        }
