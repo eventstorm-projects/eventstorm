@@ -16,9 +16,11 @@ import eu.eventstorm.core.id.StreamIdGenerator;
 import eu.eventstorm.core.id.StreamIdGeneratorFactory;
 import eu.eventstorm.cqrs.CommandGateway;
 import eu.eventstorm.cqrs.CommandHandlerRegistry;
+import eu.eventstorm.cqrs.event.EvolutionHandlers;
 import eu.eventstorm.cqrs.ex001.command.CreateUserCommand;
 import eu.eventstorm.cqrs.ex001.event.UserCreatedEventPayload;
 import eu.eventstorm.cqrs.ex001.gen.domain.UserDomainHandlerImpl;
+import eu.eventstorm.cqrs.ex001.gen.evolution.UserEvolutionHandler;
 import eu.eventstorm.cqrs.ex001.gen.impl.CreateUserCommandImpl;
 import eu.eventstorm.cqrs.ex001.handler.CreateUserCommandHandler;
 import eu.eventstorm.cqrs.validation.CommandValidationException;
@@ -49,11 +51,15 @@ class Ex001Test {
 				.build();
 		
 		eventStoreClient = new InMemoryEventStoreClient(manager, new InMemoryEventStore());
-
+		
+		EvolutionHandlers evolutionHandlers = EvolutionHandlers.newBuilder()
+				.add(new UserEvolutionHandler())
+				.build();
+		
 		StreamIdGenerator userGenerator = StreamIdGeneratorFactory.inMemoryInteger();
 
 		CommandHandlerRegistry registry = CommandHandlerRegistry.newBuilder()
-		        .add(new CreateUserCommandHandler(eventStoreClient, eventBus, userGenerator))
+		        .add(new CreateUserCommandHandler(eventStoreClient, evolutionHandlers, eventBus,  userGenerator))
 		        // .add(CreateUserCommandImpl.class, new CreateUserCommandHandler(eventStore,
 		        // eventBus))
 		        .build();

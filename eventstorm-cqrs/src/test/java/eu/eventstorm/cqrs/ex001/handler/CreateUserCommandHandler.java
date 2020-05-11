@@ -5,9 +5,9 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
 
-import eu.eventstorm.core.Event;
 import eu.eventstorm.core.StreamId;
 import eu.eventstorm.core.id.StreamIdGenerator;
+import eu.eventstorm.cqrs.event.EvolutionHandlers;
 import eu.eventstorm.cqrs.ex001.command.CreateUserCommand;
 import eu.eventstorm.cqrs.ex001.event.UserCreatedEventPayload;
 import eu.eventstorm.cqrs.ex001.validator.CreateUserCommandValidator;
@@ -22,8 +22,8 @@ public final class CreateUserCommandHandler extends DefaultCommandHandler<Create
 
 	private final StreamIdGenerator aig;
 	
-	public CreateUserCommandHandler(EventStoreClient eventStore, EventBus eventBus, StreamIdGenerator aig) {
-		super(CreateUserCommand.class, new CreateUserCommandValidator(), eventStore, eventBus);
+	public CreateUserCommandHandler(EventStoreClient eventStore, EvolutionHandlers evolutionHandlers, EventBus eventBus, StreamIdGenerator aig) {
+		super(CreateUserCommand.class, new CreateUserCommandValidator(), eventStore, evolutionHandlers, eventBus);
 		this.aig = aig;
 	}
 
@@ -46,15 +46,5 @@ public final class CreateUserCommandHandler extends DefaultCommandHandler<Create
 		
 	}
 
-	@Override
-	protected void evolution(ImmutableList<Event> events) {
-		
-		LOGGER.info("{}", events);
-		
-		
-		
-	}
-
-	
 
 }

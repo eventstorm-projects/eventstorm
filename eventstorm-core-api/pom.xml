@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
@@ -46,7 +45,7 @@
 			<groupId>com.google.protobuf</groupId>
 			<artifactId>protobuf-java</artifactId>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.google.protobuf</groupId>
 			<artifactId>protobuf-java-util</artifactId>
@@ -71,15 +70,16 @@
 		</dependency>
 
 	</dependencies>
-	
-		<build>
+
+	<build>
 		<plugins>
 			<plugin>
 				<groupId>com.github.os72</groupId>
 				<artifactId>protoc-jar-maven-plugin</artifactId>
 				<version>${com.google.protobuf.version}</version>
 				<executions>
-				    <execution>
+					<execution>
+						<id>source</id>
 						<phase>generate-sources</phase>
 						<goals>
 							<goal>run</goal>
@@ -94,7 +94,22 @@
 							<outputDirectory>target/generated-sources</outputDirectory>
 							<outputDirectorySuffix>protobuf</outputDirectorySuffix>
 						</configuration>
-					</execution>					
+					</execution>
+					<execution>
+						<id>test</id>
+						<phase>generate-test-sources</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<protocVersion>${com.google.protobuf.version}</protocVersion>
+							<inputDirectories>
+								<include>src/test/resources</include>
+							</inputDirectories>
+							<outputDirectory>target/generated-test-sources</outputDirectory>
+							<outputDirectorySuffix>protobuf</outputDirectorySuffix>
+						</configuration>
+					</execution>
 				</executions>
 			</plugin>
 			<plugin>
@@ -112,7 +127,19 @@
 								<source>target/generated-sources/protobuf</source>
 							</sources>
 						</configuration>
-					</execution>				
+					</execution>
+					<execution>
+						<id>add-test-source</id>
+						<phase>generate-test-sources</phase>
+						<goals>
+							<goal>add-test-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>target/generated-test-sources/protobuf</source>
+							</sources>
+						</configuration>
+					</execution>
 				</executions>
 			</plugin>
 		</plugins>

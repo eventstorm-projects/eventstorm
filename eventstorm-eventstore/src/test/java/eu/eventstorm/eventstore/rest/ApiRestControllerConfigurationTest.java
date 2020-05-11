@@ -14,7 +14,6 @@ import org.springframework.web.reactive.config.WebFluxConfigurer;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import eu.eventstorm.core.json.jackson.CoreApiModule;
 import eu.eventstorm.eventstore.EventStore;
 import eu.eventstorm.eventstore.StreamManager;
 import eu.eventstorm.eventstore.ex.UserCreatedEventPayload;
@@ -68,6 +67,7 @@ class ApiRestControllerConfigurationTest implements WebFluxConfigurer {
 	Scheduler scheduler() {
 		return Schedulers.newSingle("event-loop");
 	}
+	
 	
 	@Bean
 	Module coreApiModule() {
