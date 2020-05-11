@@ -163,6 +163,8 @@ public final class EventProtoGenerator {
         		writer.write("        if (event.getData().getTypeUrl().equals(\"");
         		writer.write(ctx.getProto().getName());
         		writer.write("/");
+        		writer.write(ctx.getProto().getPackage().toString());
+        		writer.write(".");
         		writer.write(message.getName());
         		writer.write("\")) {");
         		writeNewLine(writer);

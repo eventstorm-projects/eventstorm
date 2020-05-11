@@ -59,12 +59,14 @@ public final class FlywayGenerator {
 
 		logger.info("Generate GlobalConfiguration for gcd");
 
-		gcd.getDescriptors().forEach(pojo -> {
+		for (Database db : gcd.getGlobalConfiguration().flywayConfiguration().database()) {
+			
+			logger.info("Generate for DB [" + db + "]");
+			
+			gcd.getDescriptors().forEach(pojo -> {
 
-			for (Database db : gcd.getGlobalConfiguration().flywayConfiguration().database()) {
-
-				logger.info("Generate for DB [" + db + "]");
-
+				logger.info("Generate for pojo [" + pojo.getTable().value() + "]");
+				
 				Flyway flyway;
 				if (pojo.getTable() != null) {
 					flyway = pojo.getTable().flyway();
@@ -81,19 +83,21 @@ public final class FlywayGenerator {
 					}
 				}
 				
-				holders.forEach((filename, tuple) -> {
-					try {
-						tuple.getY().close();
-					} catch (IOException cause) {
-						LoggerFactory.getInstance().getLogger(FlywayGenerator.class).error("Failed to close [" + tuple + "]", cause);
-					}
-				});
 				
-				holders.clear();
 
-			}
-		});
-
+			});
+			
+			holders.forEach((filename, tuple) -> {
+				try {
+					tuple.getY().close();
+				} catch (IOException cause) {
+					LoggerFactory.getInstance().getLogger(FlywayGenerator.class).error("Failed to close [" + tuple + "]", cause);
+				}
+			});
+			
+			holders.clear();
+		}
+			
 		
 	}
 

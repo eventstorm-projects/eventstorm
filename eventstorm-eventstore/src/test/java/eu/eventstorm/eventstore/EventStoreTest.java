@@ -9,8 +9,6 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.google.protobuf.util.JsonFormat;
-
 import eu.eventstorm.core.Event;
 import eu.eventstorm.eventstore.ex.UserCreatedEventPayload;
 import eu.eventstorm.eventstore.memory.InMemoryStreamManagerBuilder;

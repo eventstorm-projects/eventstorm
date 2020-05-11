@@ -80,7 +80,7 @@ public final class InMemoryEventStore implements EventStore {
 				.setStream(sepd.getStream())
 				.setTimestamp(OffsetDateTime.now().toString())
 				.setRevision(revision)
-				.setData(Any.pack(message,"eventstorm"))
+				.setData(Any.pack(message,sepd.getStream()))
 				.build();
 		// @formatter:on
 

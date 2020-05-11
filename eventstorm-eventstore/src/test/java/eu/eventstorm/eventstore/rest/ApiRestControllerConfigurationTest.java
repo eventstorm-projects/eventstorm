@@ -13,7 +13,9 @@ import org.springframework.web.reactive.config.WebFluxConfigurer;
 
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.protobuf.TypeRegistry;
 
+import eu.eventstorm.core.json.CoreApiModule;
 import eu.eventstorm.eventstore.EventStore;
 import eu.eventstorm.eventstore.StreamManager;
 import eu.eventstorm.eventstore.ex.UserCreatedEventPayload;
@@ -68,10 +70,16 @@ class ApiRestControllerConfigurationTest implements WebFluxConfigurer {
 		return Schedulers.newSingle("event-loop");
 	}
 	
+	@Bean
+	TypeRegistry typeRegistry() {
+		return TypeRegistry.newBuilder()
+			.add(UserCreatedEventPayload.getDescriptor())
+			.build();
+	}
 	
 	@Bean
-	Module coreApiModule() {
-		return new CoreApiModule();
+	Module coreApiModule(TypeRegistry typeRegistry) {
+		return new CoreApiModule(typeRegistry);
 	}
 	
 }
