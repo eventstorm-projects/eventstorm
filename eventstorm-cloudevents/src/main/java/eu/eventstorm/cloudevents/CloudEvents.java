@@ -24,15 +24,14 @@ public final class CloudEvents {
 	}
 	
 	public static CloudEvent to(Event event) {
-//		return new CloudEventBuilder()
-//					.withAggregateType(event.getStream())
-//					.withAggregateId(event.getStreamId())
-//					.withPayload(event.getData())
-//					.withTimestamp(event.getTimestamp())
-//					.withSubject(event.getPayload().getClass().getName())
-//					.withVersion(event.getRevision())
-//					.build();
-		return null;
+		return new CloudEventBuilder()
+					.withAggregateType(event.getStream())
+					.withAggregateId(event.getStreamId())
+					.withPayload(event.getData())
+					.withTimestamp(event.getTimestamp())
+					.withSubject(event.getData().getTypeUrl())
+					.withVersion(event.getRevision())
+					.build();
 	}
 	
 }

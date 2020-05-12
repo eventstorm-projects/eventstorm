@@ -1,7 +1,5 @@
 package eu.eventstorm.cloudevents;
 
-import java.time.OffsetDateTime;
-
 import eu.eventstorm.util.ToStringBuilder;
 
 /**
@@ -15,7 +13,7 @@ final class CloudEventImpl implements CloudEvent {
 
 	private final String aggreateType;
 
-	private final OffsetDateTime timestamp;
+	private final String timestamp;
 
 	private final String subject;
 
@@ -23,7 +21,7 @@ final class CloudEventImpl implements CloudEvent {
 
 	private final Object payload;
 
-	public CloudEventImpl(String specVersion, String aggregateId, String aggreateType, OffsetDateTime timestamp, int version, String subject,
+	public CloudEventImpl(String specVersion, String aggregateId, String aggreateType, String timestamp, int version, String subject,
 			Object payload) {
 		this.specVersion = specVersion;
 		this.aggregateId = aggregateId;
@@ -70,7 +68,7 @@ final class CloudEventImpl implements CloudEvent {
 	}
 
 	@Override
-	public OffsetDateTime time() {
+	public String time() {
 		return this.timestamp;
 	}
 

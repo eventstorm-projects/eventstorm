@@ -12,7 +12,6 @@ import eu.eventstorm.cqrs.ex001.command.CreateUserCommand;
 import eu.eventstorm.cqrs.ex001.event.UserCreatedEventPayload;
 import eu.eventstorm.cqrs.ex001.validator.CreateUserCommandValidator;
 import eu.eventstorm.cqrs.impl.DefaultCommandHandler;
-import eu.eventstorm.eventbus.EventBus;
 import eu.eventstorm.eventstore.EventCandidate;
 import eu.eventstorm.eventstore.EventStoreClient;
 
@@ -22,8 +21,8 @@ public final class CreateUserCommandHandler extends DefaultCommandHandler<Create
 
 	private final StreamIdGenerator aig;
 	
-	public CreateUserCommandHandler(EventStoreClient eventStore, EvolutionHandlers evolutionHandlers, EventBus eventBus, StreamIdGenerator aig) {
-		super(CreateUserCommand.class, new CreateUserCommandValidator(), eventStore, evolutionHandlers, eventBus);
+	public CreateUserCommandHandler(EventStoreClient eventStore, EvolutionHandlers evolutionHandlers, StreamIdGenerator aig) {
+		super(CreateUserCommand.class, new CreateUserCommandValidator(), eventStore, evolutionHandlers);
 		this.aig = aig;
 	}
 

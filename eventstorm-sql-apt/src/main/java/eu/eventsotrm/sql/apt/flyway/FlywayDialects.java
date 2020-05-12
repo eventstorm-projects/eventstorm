@@ -1,6 +1,6 @@
 package eu.eventsotrm.sql.apt.flyway;
 
-import eu.eventstorm.sql.annotation.Database;
+import eu.eventstorm.sql.annotation.Db;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -10,7 +10,7 @@ final class FlywayDialects {
 	private FlywayDialects() {
 	}
 	
-	static FlywayDialect get(Database database) {
+	static FlywayDialect get(Db database) {
 		
 		switch (database) {
 		case H2:

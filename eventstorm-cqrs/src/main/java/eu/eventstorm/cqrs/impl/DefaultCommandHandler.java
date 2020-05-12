@@ -13,7 +13,6 @@ import eu.eventstorm.cqrs.Command;
 import eu.eventstorm.cqrs.event.EvolutionHandlers;
 import eu.eventstorm.cqrs.validation.CommandValidationException;
 import eu.eventstorm.cqrs.validation.Validator;
-import eu.eventstorm.eventbus.EventBus;
 import eu.eventstorm.eventstore.EventCandidate;
 import eu.eventstorm.eventstore.EventStoreClient;
 
@@ -24,8 +23,6 @@ public abstract class DefaultCommandHandler<T extends Command> extends AbstractC
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultCommandHandler.class);
 
-	private final EventBus eventBus;
-	
 	private final EvolutionHandlers evolutionHandlers;
 	
 	private final EventStoreClient eventStoreClient;
@@ -37,15 +34,12 @@ public abstract class DefaultCommandHandler<T extends Command> extends AbstractC
 	public DefaultCommandHandler(Class<T> type, 
 			Validator<T> validator, 
 			EventStoreClient eventStoreClient, 
-			EvolutionHandlers evolutionHandlers, 
-			EventBus eventBus) {
+			EvolutionHandlers evolutionHandlers) {
 		
 		this.type = type;
 		this.validator = validator;
 		this.eventStoreClient = eventStoreClient;
 		this.evolutionHandlers = evolutionHandlers;
-		this.eventBus = eventBus;
-		
 	}
 	
 
@@ -86,16 +80,6 @@ public abstract class DefaultCommandHandler<T extends Command> extends AbstractC
 		events.forEach(evolutionHandlers::on);
 	}
 
-	@Override
-	protected void publish(ImmutableList<Event> events) {
-		
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("publish() {}", events);
-		}
-		
-		this.eventBus.publish(events);
-	}
-	
 	protected ImmutableList<ConstraintViolation> consistencyValidation(T command) {
 		return ImmutableList.of();
 	}

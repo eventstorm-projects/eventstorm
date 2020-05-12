@@ -59,7 +59,7 @@ class Ex001Test {
 		StreamIdGenerator userGenerator = StreamIdGeneratorFactory.inMemoryInteger();
 
 		CommandHandlerRegistry registry = CommandHandlerRegistry.newBuilder()
-		        .add(new CreateUserCommandHandler(eventStoreClient, evolutionHandlers, eventBus,  userGenerator))
+		        .add(new CreateUserCommandHandler(eventStoreClient, evolutionHandlers, userGenerator))
 		        // .add(CreateUserCommandImpl.class, new CreateUserCommandHandler(eventStore,
 		        // eventBus))
 		        .build();

@@ -19,7 +19,9 @@ public @interface JoinTable {
      */
     String value();    
     
-    Flyway flyway() default @Flyway(version = "", description = "");
-    
+    /**
+     * Reference to flyway
+     */
+    FlywayRef flywayRef();
 
 }

@@ -6,7 +6,6 @@ import eu.eventstorm.core.Event;
 import eu.eventstorm.cqrs.Command;
 import eu.eventstorm.cqrs.CommandHandler;
 import eu.eventstorm.eventstore.EventCandidate;
-import reactor.core.publisher.Flux;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -14,7 +13,7 @@ import reactor.core.publisher.Flux;
 abstract class AbstractCommandHandler<T extends Command> implements CommandHandler<T> {
 	
 	
-	public final Flux<Event> handle(T command) {
+	public final ImmutableList<Event> handle(T command) {
 		
 		// validate the command
 		validate(command);
@@ -28,10 +27,7 @@ abstract class AbstractCommandHandler<T extends Command> implements CommandHandl
 		// apply the evolution function (state,Event) => State
 		evolution(events);
 		
-		// publish
-		publish(events);
-		
-		return Flux.fromIterable(events);
+		return events;
 	}
 
 	
@@ -49,8 +45,5 @@ abstract class AbstractCommandHandler<T extends Command> implements CommandHandl
 	 *  (state,Event) => State
 	 */
 	protected abstract void evolution(ImmutableList<Event> events);
-
-	
-	protected abstract void publish(ImmutableList<Event> events);
 
 }

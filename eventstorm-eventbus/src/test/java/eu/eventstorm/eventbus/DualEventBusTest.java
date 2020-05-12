@@ -27,7 +27,7 @@ class DualEventBusTest {
 
 		assertEquals(0, integer.get());
 
-		dualEventBus.publish(Event.newBuilder().build());
+		dualEventBus.publish(ImmutableList.of(Event.newBuilder().build()));
 
 		assertEquals(2, integer.get());
 

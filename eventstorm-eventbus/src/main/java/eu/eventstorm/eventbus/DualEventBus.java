@@ -18,20 +18,13 @@ public final class DualEventBus implements EventBus {
 		this.two = two;
 	}
 
-
-	@Override
-	public void publish(Event event) {
-		try {
-			one.publish(event);
-		} finally {
-			two.publish(event);
-		}
-	}
-
-
 	@Override
 	public void publish(ImmutableList<Event> events) {
-		// TODO Auto-generated method stub
+		try {
+			one.publish(events);
+		} finally {
+			two.publish(events);
+		}
 		
 	}
 

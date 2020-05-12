@@ -32,9 +32,9 @@ class CloudEventsModuleTest {
 		CloudEvent event = new CloudEventBuilder()
 				.withAggregateId("1")
 				.withAggregateType("test")
-				.withTimestamp(OffsetDateTime.now())
+				.withTimestamp("2011-03-09T18:36:30+02:00")
 				.withVersion(1)
-			//	.withPayload(temp)
+			//	.withPayload()
 				.build();
 		
 //		StringWriter writer = new StringWriter();

@@ -12,8 +12,8 @@ import eu.eventstorm.eventstore.EventStoreClient;
 
 public class UpdateUserMailCommandHandler extends DefaultCommandHandler<UpdateUserMailCommand> {
 
-	public UpdateUserMailCommandHandler(EventStoreClient eventStore, EvolutionHandlers evolutionHandlers, EventBus eventBus) {
-		super(UpdateUserMailCommand.class, Validators.empty(), eventStore, evolutionHandlers,  eventBus);
+	public UpdateUserMailCommandHandler(EventStoreClient eventStore, EvolutionHandlers evolutionHandlers) {
+		super(UpdateUserMailCommand.class, Validators.empty(), eventStore, evolutionHandlers);
 	}
 
 	@Override

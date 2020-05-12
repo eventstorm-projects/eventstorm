@@ -43,13 +43,6 @@ class ApiRestControllerConfigurationTest implements WebFluxConfigurer {
             new Jackson2JsonDecoder(objectMapper)
         );
     }
-    
-//	@Bean
-//	EventPayloadRegistry registry() {
-//		EventPayloadRegistryBuilder builder = new EventPayloadRegistryBuilder();
-//		builder.add(UserCreatedEventPayload.class, new UserCreatedEventPayloadSerializer(new ObjectMapper()), new UserCreatedEventPayloadDeserializer());
-//		return builder.build();
-//	}
 	
 	@Bean
 	EventStore eventStore() {

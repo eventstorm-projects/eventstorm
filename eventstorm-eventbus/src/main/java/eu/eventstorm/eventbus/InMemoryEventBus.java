@@ -22,14 +22,6 @@ public final class InMemoryEventBus implements EventBus {
 		this.consumers = consumers;
 	}
 
-	@Override
-	public void publish(Event event) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("InMemoryEventBus.publish({})", event);
-		}
-		this.consumers.forEach(consumer -> consumer.accept(event));
-	}
-
 	public static Builder builder() {
 		return new Builder();
 	}
@@ -54,8 +46,11 @@ public final class InMemoryEventBus implements EventBus {
 
 	@Override
 	public void publish(ImmutableList<Event> events) {
-		
-		
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("InMemoryEventBus.publish({})", events);
+		}
+		//TODO correlation ...
+		events.forEach(e -> consumers.forEach(c -> c.accept(e)));
 	}
 
 }

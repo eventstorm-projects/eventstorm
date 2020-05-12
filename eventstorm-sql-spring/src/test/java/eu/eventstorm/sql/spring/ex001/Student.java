@@ -5,11 +5,11 @@ import java.sql.Timestamp;
 import eu.eventstorm.sql.annotation.BusinessKey;
 import eu.eventstorm.sql.annotation.Column;
 import eu.eventstorm.sql.annotation.CreateTimestamp;
-import eu.eventstorm.sql.annotation.Flyway;
+import eu.eventstorm.sql.annotation.FlywayRef;
 import eu.eventstorm.sql.annotation.PrimaryKey;
 import eu.eventstorm.sql.annotation.Table;
 
-@Table( value = "student", flyway = @Flyway(version = "1.0.0.001" , description = "init_schema"))
+@Table( value = "student", flywayRef =  @FlywayRef(version = "1.0.0.001"))
 public interface Student {
 
     @PrimaryKey("id")

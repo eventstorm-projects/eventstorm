@@ -11,6 +11,8 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;
 
+import com.google.common.collect.ImmutableMap;
+
 import eu.eventsotrm.sql.apt.Helper;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
@@ -21,7 +23,7 @@ import eu.eventsotrm.sql.apt.util.Tuple;
 import eu.eventstorm.sql.annotation.AutoIncrement;
 import eu.eventstorm.sql.annotation.BusinessKey;
 import eu.eventstorm.sql.annotation.Column;
-import eu.eventstorm.sql.annotation.Database;
+import eu.eventstorm.sql.annotation.Db;
 import eu.eventstorm.sql.annotation.Flyway;
 import eu.eventstorm.sql.annotation.Index;
 import eu.eventstorm.sql.annotation.JoinColumn;
@@ -58,8 +60,14 @@ public final class FlywayGenerator {
 	private void generate(ProcessingEnvironment env, GlobalConfigurationDescriptor gcd) {
 
 		logger.info("Generate GlobalConfiguration for gcd");
+		
+		ImmutableMap.Builder<String,Flyway> builder = ImmutableMap.builder();
+		for (Flyway flyway : gcd.getGlobalConfiguration().flywayConfiguration().flyways()) {
+			builder.put(flyway.version(), flyway);
+		}
+		ImmutableMap<String,Flyway> map = builder.build();
 
-		for (Database db : gcd.getGlobalConfiguration().flywayConfiguration().database()) {
+		for (Db db : gcd.getGlobalConfiguration().flywayConfiguration().database()) {
 			
 			logger.info("Generate for DB [" + db + "]");
 			
@@ -69,9 +77,9 @@ public final class FlywayGenerator {
 				
 				Flyway flyway;
 				if (pojo.getTable() != null) {
-					flyway = pojo.getTable().flyway();
+					flyway = map.get(pojo.getTable().flywayRef().version());
 				} else {
-					flyway = pojo.getJoinTable().flyway();
+					flyway = map.get(pojo.getJoinTable().flywayRef().version());
 				}
 
 				if (flyway.version().trim().length() > 0) {
@@ -102,7 +110,7 @@ public final class FlywayGenerator {
 	}
 
 
-	private void generate(ProcessingEnvironment env, PojoDescriptor descriptor, Flyway flyway, FlywayDialect fd, Database db) throws IOException {
+	private void generate(ProcessingEnvironment env, PojoDescriptor descriptor, Flyway flyway, FlywayDialect fd, Db db) throws IOException {
 
 		List<String> businessKeys = new ArrayList<>();
 

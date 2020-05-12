@@ -1,7 +1,5 @@
 package eu.eventstorm.cloudevents;
 
-import java.time.OffsetDateTime;
-
 /**
  * @see https://github.com/cloudevents/spec/blob/v1.0/spec.md
  * 
@@ -112,7 +110,7 @@ public interface CloudEvent {
 	 * they all use the actual time of the occurrence or they all use the same
 	 * algorithm to determine the value used.
 	 */
-	OffsetDateTime time();
+	String time();
 
 	/**
 	 * The event payload. This specification does not place any restriction on the

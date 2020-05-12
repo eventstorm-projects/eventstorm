@@ -1,8 +1,5 @@
 package eu.eventstorm.cloudevents;
 
-import java.time.OffsetDateTime;
-
-import eu.eventstorm.core.StreamId;
 import eu.eventstorm.util.Strings;
 
 /**
@@ -16,7 +13,7 @@ public final class CloudEventBuilder {
     private String subject;
     private int version;
     private Object payload;
-    private OffsetDateTime timestamp;
+    private String timestamp;
 
     public CloudEvent build() {
     	if (Strings.isEmpty(specVersion)) {
@@ -55,7 +52,7 @@ public final class CloudEventBuilder {
         return this;
     }
     
-    public CloudEventBuilder withTimestamp(OffsetDateTime timestamp) {
+    public CloudEventBuilder withTimestamp(String timestamp) {
         this.timestamp = timestamp;
         return this;
     }

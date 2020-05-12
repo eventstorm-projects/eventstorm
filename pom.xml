@@ -32,13 +32,13 @@
 		<com.google.guava.version>29.0-jre</com.google.guava.version>
 		<com.google.protobuf.version>3.11.4</com.google.protobuf.version>
 
-		<com.fasterxml.jackson.core.version>2.10.3</com.fasterxml.jackson.core.version>
+		<com.fasterxml.jackson.core.version>2.10.4</com.fasterxml.jackson.core.version>
 		<io.zipkin.brave.version>5.10.1</io.zipkin.brave.version>
 		<javax.servlet.version>4.0.1</javax.servlet.version>
 		<org.owasp.encoder.version>1.2.2</org.owasp.encoder.version>
 		<io.swagger.core.v3.version>2.1.2</io.swagger.core.v3.version>
 
-		<org.springframework.boot.version>2.2.6.RELEASE</org.springframework.boot.version>
+		<org.springframework.boot.version>2.2.7.RELEASE</org.springframework.boot.version>
 		<org.springframework.version>5.2.6.RELEASE</org.springframework.version>
 
 		<org.junit.jupiter.version>5.6.2</org.junit.jupiter.version>

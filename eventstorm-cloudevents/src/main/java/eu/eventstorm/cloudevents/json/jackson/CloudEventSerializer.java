@@ -16,8 +16,6 @@ import eu.eventstorm.cloudevents.CloudEvent;
 @SuppressWarnings({ "serial" })
 final class CloudEventSerializer extends StdSerializer<CloudEvent> {
 
-	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").withZone(ZoneId.of("UTC"));
-
 	CloudEventSerializer() {
 		super(CloudEvent.class, false);
 	}
@@ -34,7 +32,7 @@ final class CloudEventSerializer extends StdSerializer<CloudEvent> {
 		gen.writeString(value.type());
 
 		gen.writeFieldName("time");
-		gen.writeString(FORMATTER.format(value.time()));
+		gen.writeString(value.time());
 
 		gen.writeFieldName("subject");
 		gen.writeString(value.subject());
