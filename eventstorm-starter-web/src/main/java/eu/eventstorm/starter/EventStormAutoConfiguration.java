@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.fasterxml.jackson.databind.Module;
+import com.google.protobuf.TypeRegistry;
 
 import eu.eventstorm.cloudevents.json.jackson.CloudEventsModule;
 import eu.eventstorm.problem.ProblemModule;
@@ -17,8 +18,8 @@ public class EventStormAutoConfiguration {
 	}
 	
 	@Bean
-	Module cloudEventsModule() {
-		return new CloudEventsModule();
+	Module cloudEventsModule(TypeRegistry registry) {
+		return new CloudEventsModule(registry);
 	}
 	
 	@Bean

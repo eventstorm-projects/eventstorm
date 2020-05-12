@@ -19,13 +19,10 @@ import eu.eventstorm.cqrs.CommandHandlerRegistry;
 import eu.eventstorm.cqrs.event.EvolutionHandlers;
 import eu.eventstorm.cqrs.ex001.command.CreateUserCommand;
 import eu.eventstorm.cqrs.ex001.event.UserCreatedEventPayload;
-import eu.eventstorm.cqrs.ex001.gen.domain.UserDomainHandlerImpl;
 import eu.eventstorm.cqrs.ex001.gen.evolution.UserEvolutionHandler;
 import eu.eventstorm.cqrs.ex001.gen.impl.CreateUserCommandImpl;
 import eu.eventstorm.cqrs.ex001.handler.CreateUserCommandHandler;
 import eu.eventstorm.cqrs.validation.CommandValidationException;
-import eu.eventstorm.eventbus.EventBus;
-import eu.eventstorm.eventbus.InMemoryEventBus;
 import eu.eventstorm.eventstore.EventStoreClient;
 import eu.eventstorm.eventstore.StreamManager;
 import eu.eventstorm.eventstore.memory.InMemoryEventStore;
@@ -42,8 +39,6 @@ class Ex001Test {
 
 	@BeforeEach
 	void before() {
-		EventBus eventBus = InMemoryEventBus.builder().add(new UserDomainHandlerImpl()).build();
-		
 		StreamManager manager = new InMemoryStreamManagerBuilder()
 				.withDefinition("user")
 					.withPayload(UserCreatedEventPayload.class, UserCreatedEventPayload.getDescriptor(), UserCreatedEventPayload.parser(), () -> UserCreatedEventPayload.newBuilder())
@@ -64,7 +59,7 @@ class Ex001Test {
 		        // eventBus))
 		        .build();
 
-		gateway = new CommandGateway(Schedulers.elastic(), registry, eventBus);
+		gateway = new CommandGateway(Schedulers.elastic(), registry);
 	}
 	
 	@Test

@@ -83,6 +83,14 @@ public abstract class DefaultCommandHandler<T extends Command> extends AbstractC
 	protected ImmutableList<ConstraintViolation> consistencyValidation(T command) {
 		return ImmutableList.of();
 	}
+
+
+	@Override
+	protected void publish(ImmutableList<Event> events) {
+		// nothing to do.
+	}
+	
+	
 	
 
 }

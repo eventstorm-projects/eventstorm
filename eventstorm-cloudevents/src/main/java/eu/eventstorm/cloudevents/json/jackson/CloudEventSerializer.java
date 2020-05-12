@@ -1,12 +1,13 @@
 package eu.eventstorm.cloudevents.json.jackson;
 
 import java.io.IOException;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.google.protobuf.MessageOrBuilder;
+import com.google.protobuf.TypeRegistry;
+import com.google.protobuf.util.JsonFormat;
 
 import eu.eventstorm.cloudevents.CloudEvent;
 
@@ -16,8 +17,11 @@ import eu.eventstorm.cloudevents.CloudEvent;
 @SuppressWarnings({ "serial" })
 final class CloudEventSerializer extends StdSerializer<CloudEvent> {
 
-	CloudEventSerializer() {
+	private final TypeRegistry registry;
+	
+	CloudEventSerializer(TypeRegistry registry) {
 		super(CloudEvent.class, false);
+		this.registry = registry;
 	}
 
 	@Override
@@ -41,10 +45,10 @@ final class CloudEventSerializer extends StdSerializer<CloudEvent> {
 		gen.writeString(value.id());
 
 		gen.writeFieldName("datacontenttype");
-		gen.writeObject("application/json");
+		gen.writeString("application/json");
 
 		gen.writeFieldName("data");
-		gen.writeObject(value.data());
+		gen.writeRaw(JsonFormat.printer().usingTypeRegistry(registry).print((MessageOrBuilder) value.data()));
 
 		gen.writeEndObject();
 	}

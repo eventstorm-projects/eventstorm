@@ -27,6 +27,9 @@ abstract class AbstractCommandHandler<T extends Command> implements CommandHandl
 		// apply the evolution function (state,Event) => State
 		evolution(events);
 		
+		// publish events
+		publish(events);
+		
 		return events;
 	}
 
@@ -45,5 +48,10 @@ abstract class AbstractCommandHandler<T extends Command> implements CommandHandl
 	 *  (state,Event) => State
 	 */
 	protected abstract void evolution(ImmutableList<Event> events);
+	
+	/**
+	 * publish events
+	 */
+	protected abstract void publish(ImmutableList<Event> events);
 
 }

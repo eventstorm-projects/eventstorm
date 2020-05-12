@@ -1,6 +1,5 @@
 package eu.eventsotrm.core.apt.event;
 
-import static eu.eventsotrm.sql.apt.Helper.getReturnType;
 import static eu.eventsotrm.sql.apt.Helper.writeGenerated;
 import static eu.eventsotrm.sql.apt.Helper.writeNewLine;
 import static eu.eventsotrm.sql.apt.Helper.writePackage;
@@ -23,6 +22,7 @@ import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.core.Event;
 import eu.eventstorm.cqrs.event.EvolutionHandler;
+import eu.eventstorm.util.Strings;
 import io.protostuff.compiler.model.Message;
 import io.protostuff.compiler.parser.FileDescriptorLoader;
 import io.protostuff.compiler.parser.FileDescriptorLoaderImpl;
@@ -105,7 +105,7 @@ public final class EventProtoGenerator {
 		JavaFileObject object = env.getFiler().createSourceFile(fcqn);
 		try (Writer writer = object.openWriter()) {
 
-			writeHeader(writer, env, descriptor);
+			writeHeader(writer, env, descriptor, ctxs);
 //			// writeConstructor(writer, descriptor);
 //			// writeVariables(writer, descriptor);
 			writeMethods(writer, descriptor, ctxs);
@@ -114,7 +114,7 @@ public final class EventProtoGenerator {
 
 	}
 	
-	private static void writeHeader(Writer writer, ProcessingEnvironment env, EventEvolutionDescriptor descriptor) throws IOException {
+	private void writeHeader(Writer writer, ProcessingEnvironment env, EventEvolutionDescriptor descriptor, ProtoContext[] ctxs) throws IOException {
 
 		writePackage(writer, env.getElementUtils().getPackageOf(descriptor.element()).toString() + ".evolution");
 		writeNewLine(writer);
@@ -130,6 +130,20 @@ public final class EventProtoGenerator {
 		writer.write(InvalidProtocolBufferException.class.getName());
 		writer.write(";");
 		writeNewLine(writer);
+		
+		
+		
+		for (ProtoContext ctx : ctxs) {
+        	for (Message message : ctx.getProto().getMessages()) {
+        		writer.write("import ");
+        		writer.write(String.valueOf(ctx.getProto().getOptions().get("java_package")));
+        		writer.write(".");
+        		writer.write(message.getName());
+        		writer.write(";");
+        	}
+		}
+		
+		
 
 		writeGenerated(writer, EventProtoGenerator.class.getName());
 
@@ -163,15 +177,18 @@ public final class EventProtoGenerator {
         		writer.write("        if (event.getData().getTypeUrl().equals(\"");
         		writer.write(ctx.getProto().getName());
         		writer.write("/");
-        		writer.write(ctx.getProto().getPackage().toString());
-        		writer.write(".");
+        		if (!Strings.isEmpty(ctx.getProto().getPackage().toString())) {
+        			writer.write(ctx.getProto().getPackage().toString() + ".");	
+        		}
         		writer.write(message.getName());
         		writer.write("\")) {");
         		writeNewLine(writer);
         		writer.write("            try {");
         		writeNewLine(writer);
-        		writer.write("                on(event, event.getData().unpack(" + ctx.getProto().getPackage().toString());
-        		writer.write(".");
+        		writer.write("                on(event, event.getData().unpack(");
+        		if (!Strings.isEmpty(ctx.getProto().getPackage().toString())) {
+        			writer.write(ctx.getProto().getPackage().toString() + ".");	
+        		}
         		writer.write(message.getName());
         		writer.write(".class));");
         		writeNewLine(writer);
@@ -193,8 +210,10 @@ public final class EventProtoGenerator {
 	private void writeMethods(Writer writer, EventEvolutionDescriptor descriptor, ProtoContext ctx) throws IOException {
 		for (Message message : ctx.getProto().getMessages()) {
 			writeNewLine(writer);
-	        writer.write("    protected abstract void on(Event event, " + ctx.getProto().getPackage().toString());
-	        writer.write(".");
+	        writer.write("    protected abstract void on(Event event, ");
+	        if (!Strings.isEmpty(ctx.getProto().getPackage().toString())) {
+    			writer.write(ctx.getProto().getPackage().toString() + ".");	
+    		}
 	        writer.write(message.getName());
 	        writer.write(" payload);");
 	        writeNewLine(writer);

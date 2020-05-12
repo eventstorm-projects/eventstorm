@@ -19,7 +19,7 @@ class CloudEventsModuleTest {
 	@BeforeEach
 	void beforeEach() {
 		objectMapper = new ObjectMapper();
-		objectMapper.registerModule(new CloudEventsModule());
+		objectMapper.registerModule(new CloudEventsModule(null));
 	}
 	
 	@Test

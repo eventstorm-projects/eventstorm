@@ -42,4 +42,18 @@ public final class TransactionTemplate {
          return returnValue;
     }
     
+    public <T> T executeWithIsolatedReadWrite(TransactionCallback<T> callback) {
+  	  T returnValue;
+        try (Transaction tx = transactionManager.newTransactionIsolatedReadWrite()) {
+            try {
+                returnValue = callback.doInTransaction();                    
+                tx.commit();
+            } catch (Exception cause) {
+                tx.rollback();
+                throw cause;
+            }
+        } 
+        return returnValue;
+  }
+    
 }
