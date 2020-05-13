@@ -2,9 +2,6 @@ package eu.eventstorm.eventbus;
 
 import java.util.function.Consumer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.ImmutableList;
 
 import eu.eventstorm.core.Event;
@@ -13,8 +10,6 @@ import eu.eventstorm.core.Event;
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 public final class InMemoryEventBus implements EventBus {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(InMemoryEventBus.class);
 
 	private final ImmutableList<Consumer<Event>> consumers;
 
@@ -46,9 +41,6 @@ public final class InMemoryEventBus implements EventBus {
 
 	@Override
 	public void publish(ImmutableList<Event> events) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("InMemoryEventBus.publish({})", events);
-		}
 		//TODO correlation ...
 		events.forEach(e -> consumers.forEach(c -> c.accept(e)));
 	}

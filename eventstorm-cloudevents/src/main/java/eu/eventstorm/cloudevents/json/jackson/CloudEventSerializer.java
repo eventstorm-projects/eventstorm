@@ -5,6 +5,10 @@ import java.io.IOException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.google.protobuf.Any;
+import com.google.protobuf.Descriptors.Descriptor;
+import com.google.protobuf.DynamicMessage;
+import com.google.protobuf.Message;
 import com.google.protobuf.MessageOrBuilder;
 import com.google.protobuf.TypeRegistry;
 import com.google.protobuf.util.JsonFormat;
@@ -19,9 +23,12 @@ final class CloudEventSerializer extends StdSerializer<CloudEvent> {
 
 	private final TypeRegistry registry;
 	
+	private final JsonFormat.Printer printer;
+	
 	CloudEventSerializer(TypeRegistry registry) {
 		super(CloudEvent.class, false);
 		this.registry = registry;
+		this.printer = JsonFormat.printer().usingTypeRegistry(registry).omittingInsignificantWhitespace();
 	}
 
 	@Override
@@ -48,8 +55,16 @@ final class CloudEventSerializer extends StdSerializer<CloudEvent> {
 		gen.writeString("application/json");
 
 		gen.writeFieldName("data");
-		gen.writeRaw(JsonFormat.printer().usingTypeRegistry(registry).print((MessageOrBuilder) value.data()));
-
+		gen.writeRaw(":");
+		
+		if (value.data() instanceof Any) {
+			Any any = (Any) value.data();
+			Descriptor descriptor = registry.getDescriptorForTypeUrl(any.getTypeUrl());
+			Message message = DynamicMessage.getDefaultInstance(descriptor).getParserForType().parseFrom(any.getValue());
+			gen.writeRaw(printer.print(message));
+		} else {
+			gen.writeRaw(printer.print((MessageOrBuilder) value.data()));
+		}
 		gen.writeEndObject();
 	}
 

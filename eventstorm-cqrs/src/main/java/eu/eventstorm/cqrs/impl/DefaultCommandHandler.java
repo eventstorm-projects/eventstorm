@@ -72,11 +72,6 @@ public abstract class DefaultCommandHandler<T extends Command> extends AbstractC
 
 	@Override
 	protected void evolution(ImmutableList<Event> events) {
-		
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("evolution() {} - {}", events, evolutionHandlers);
-		}
-		
 		events.forEach(evolutionHandlers::on);
 	}
 
