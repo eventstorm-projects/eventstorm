@@ -16,6 +16,7 @@ import com.google.protobuf.Any;
 import com.google.protobuf.Message;
 
 import eu.eventstorm.core.Event;
+import eu.eventstorm.core.UUID;
 import eu.eventstorm.eventstore.EventStore;
 import eu.eventstorm.eventstore.EventStoreException;
 import eu.eventstorm.eventstore.Statistics;
@@ -52,7 +53,7 @@ public final class InMemoryEventStore implements EventStore {
 	}
 	 
 	@Override
-	public Event appendToStream(StreamEventDefinition sepd, String streamId, Message message) {
+	public Event appendToStream(StreamEventDefinition sepd, String streamId, java.util.UUID correlation, Message message) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("store to [{}] with Id [{}]", sepd, streamId);
 		}
@@ -80,6 +81,7 @@ public final class InMemoryEventStore implements EventStore {
 				.setStream(sepd.getStream())
 				.setTimestamp(OffsetDateTime.now().toString())
 				.setRevision(revision)
+				.setCorrelation(UUID.newBuilder().setMostSigBits(correlation.getMostSignificantBits()).setLeastSigBits(correlation.getLeastSignificantBits()).build())
 				.setData(Any.pack(message,sepd.getStream()))
 				.build();
 		// @formatter:on

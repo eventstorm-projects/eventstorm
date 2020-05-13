@@ -20,15 +20,20 @@ interface DatabaseEvent {
 
 	void setId(long id);
 
-	@Column(value = "stream", length = 128)
+	@Column(value = "stream", length = 64)
 	String getStream();
 
 	void setStream(String stream);
 	
-	@Column(value = "stream_id", length = 128)
+	@Column(value = "stream_id", length = 64)
 	String getStreamId();
 
 	void setStreamId(String streamId);
+	
+	@Column(value = "correlation", length = 36)
+	String getCorrelation();
+
+	void setCorrelation(String correlation);
 	
 	@Column(value = "time")
 	Timestamp getTime();

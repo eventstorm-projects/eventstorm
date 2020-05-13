@@ -11,7 +11,7 @@ import eu.eventstorm.core.Event;
  */
 public interface EventStore {
 
-	Event appendToStream(StreamEventDefinition sepd, String streamId, Message message);
+	Event appendToStream(StreamEventDefinition sepd, String streamId, java.util.UUID correlation, Message message);
 	
 	Stream<Event> readStream(StreamDefinition definition, String streamId);
 

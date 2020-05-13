@@ -1,5 +1,7 @@
 package eu.eventstorm.eventstore.rest;
 
+import java.util.UUID;
+
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -55,7 +57,7 @@ public final class ApiRestController {
 		return Mono.just(Tuples.of(sepd, streamId))
 				.zipWith(DataBufferUtils.join(request.getBody()).map(buffer -> sepd.parse(buffer)))
 				.publishOn(scheduler)
-				.map(tuple -> eventStore.appendToStream(tuple.getT1().getT1(), tuple.getT1().getT2(), tuple.getT2()));
+				.map(tuple -> eventStore.appendToStream(tuple.getT1().getT1(), tuple.getT1().getT2(), UUID.randomUUID(), tuple.getT2()));
 		// @formatter:on
 
 	}

@@ -46,7 +46,7 @@ public final class DatabaseEventStore implements EventStore {
 	}
 
 	@Override
-	public Event appendToStream(StreamEventDefinition sepd, String streamId, Message message) {
+	public Event appendToStream(StreamEventDefinition sepd, String streamId, java.util.UUID correlation, Message message) {
 		
 		OffsetDateTime time = OffsetDateTime.now();
 
@@ -68,6 +68,7 @@ public final class DatabaseEventStore implements EventStore {
 							.withStream(sepd.getStream())
 					        .withTime(Timestamp.from(time.toInstant()))
 					        .withPayload(Blobs.newBlob(json))
+					        .withCorrelation(correlation.toString())
 					        .withEventType(sepd.getEventType());
 
 				if (optional.isPresent()) {

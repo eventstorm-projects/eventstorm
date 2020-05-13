@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -32,7 +33,7 @@ abstract class EventStoreTest {
 			.build();
 		
 		eventStore.appendToStream(manager.getDefinition("user").getStreamEventDefinition(UserCreatedEventPayload.class.getSimpleName()), 
-				"1", UserCreatedEventPayload.newBuilder()
+				"1", UUID.randomUUID(),  UserCreatedEventPayload.newBuilder()
 					.setAge(39)
 					.setName("ja")
 					.setEmail("gmail")

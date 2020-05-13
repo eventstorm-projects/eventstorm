@@ -5,6 +5,7 @@ import static eu.eventstorm.eventstore.EventStoreException.PARAM_STREAM;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
@@ -45,16 +46,7 @@ public final class InMemoryEventStoreClient implements EventStoreClient {
 			LOGGER.trace("appendToStream({},{},{})", stream, streamId, message);
 		}
 		
-		StreamDefinition sd = this.streamManager.getDefinition(stream);
-		
-		if (sd == null) {
-			throw new EventStoreException(EventStoreException.Type.STREAM_NOT_FOUND, of(PARAM_STREAM, stream));
-		}
-		
-		// if sepd not found => exception.
-		StreamEventDefinition sepd = sd.getStreamEventDefinition(message.getDescriptorForType().getName());
-		
-		return this.inMemoryEventStore.appendToStream(sepd, streamId.toStringValue(), message);
+		return appendToStream(stream, streamId, UUID.randomUUID(), message);
 	}
 	
 
@@ -67,14 +59,29 @@ public final class InMemoryEventStoreClient implements EventStoreClient {
 	@Override
 	public Stream<Event> appendToStream(ImmutableList<EventCandidate> candidates) {
 		List<Event> events = new ArrayList<>(candidates.size());
+		UUID correlation = UUID.randomUUID();
+		
 		for (EventCandidate candidate : candidates) {
-			events.add(appendToStream(candidate.getStream(), candidate.getStreamId(), candidate.getMessage()));
+			events.add(appendToStream(candidate.getStream(), candidate.getStreamId(), correlation, candidate.getMessage()));
 		}
+		
 		return events.stream();
 	}
 
 
-
+	private Event appendToStream(String stream, StreamId streamId, UUID uuid, AbstractMessage message) {
+		
+		StreamDefinition sd = this.streamManager.getDefinition(stream);
+		
+		if (sd == null) {
+			throw new EventStoreException(EventStoreException.Type.STREAM_NOT_FOUND, of(PARAM_STREAM, stream));
+		}
+		
+		// if sepd not found => exception.
+		StreamEventDefinition sepd = sd.getStreamEventDefinition(message.getDescriptorForType().getName());
+		
+		return this.inMemoryEventStore.appendToStream(sepd, streamId.toStringValue(), UUID.randomUUID(), message);
+	}
 	
 
 }
