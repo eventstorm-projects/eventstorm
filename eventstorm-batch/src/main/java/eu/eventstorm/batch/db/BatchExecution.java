@@ -1,4 +1,4 @@
-package eu.eventstorm.cqrs.batch;
+package eu.eventstorm.batch.db;
 
 import java.sql.Timestamp;
 

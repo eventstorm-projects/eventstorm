@@ -8,12 +8,12 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableList;
 
 import eu.eventstorm.core.Event;
+import eu.eventstorm.core.EventCandidate;
 import eu.eventstorm.core.validation.ConstraintViolation;
 import eu.eventstorm.cqrs.Command;
 import eu.eventstorm.cqrs.event.EvolutionHandlers;
 import eu.eventstorm.cqrs.validation.CommandValidationException;
 import eu.eventstorm.cqrs.validation.Validator;
-import eu.eventstorm.eventstore.EventCandidate;
 import eu.eventstorm.eventstore.EventStoreClient;
 
 /**

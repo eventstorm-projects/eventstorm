@@ -15,8 +15,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.protobuf.AbstractMessage;
 
 import eu.eventstorm.core.Event;
+import eu.eventstorm.core.EventCandidate;
 import eu.eventstorm.core.StreamId;
-import eu.eventstorm.eventstore.EventCandidate;
 import eu.eventstorm.eventstore.EventStoreClient;
 import eu.eventstorm.eventstore.EventStoreException;
 import eu.eventstorm.eventstore.StreamDefinition;
