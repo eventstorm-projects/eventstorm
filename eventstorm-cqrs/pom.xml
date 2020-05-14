@@ -15,13 +15,13 @@
 			<artifactId>eventstorm-core-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>eu.eventstorm</groupId>
 			<artifactId>eventstorm-eventbus</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>eu.eventstorm</groupId>
 			<artifactId>eventstorm-eventstore</artifactId>
@@ -32,26 +32,33 @@
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>io.projectreactor</groupId>
 			<artifactId>reactor-core</artifactId>
 		</dependency>
-		
+
+		<dependency>
+			<groupId>eu.eventstorm</groupId>
+			<artifactId>eventstorm-sql-apt</artifactId>
+			<version>${project.version}</version>
+			<optional>true</optional>
+		</dependency>
+
 		<dependency>
 			<groupId>eu.eventstorm</groupId>
 			<artifactId>eventstorm-test</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-webflux</artifactId>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-	
+
 	<build>
 		<plugins>
 			<plugin>
@@ -60,6 +67,22 @@
 				<version>3.11.4</version>
 				<executions>
 					<execution>
+						<id>protobuf-generate-sources</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<protocVersion>3.11.4</protocVersion>
+							<inputDirectories>
+								<include>src/main/resources</include>
+							</inputDirectories>
+							<outputDirectory>target/generated-sources</outputDirectory>
+							<outputDirectorySuffix>protobuf</outputDirectorySuffix>
+						</configuration>
+					</execution>
+					<execution>
+						<id>protobuf-generate-test-sources</id>
 						<phase>generate-test-sources</phase>
 						<goals>
 							<goal>run</goal>
@@ -107,5 +130,5 @@
 			</plugin>
 		</plugins>
 	</build>
-	
+
 </project>
