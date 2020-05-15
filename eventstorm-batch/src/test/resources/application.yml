@@ -1,0 +1,5 @@
+eu:
+  eventstorm:
+    batch:
+      temporary:
+        context-path: toto
