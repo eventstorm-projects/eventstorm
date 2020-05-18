@@ -2,8 +2,12 @@ package eu.eventstorm.batch.memory;
 
 import static java.util.UUID.randomUUID;
 
+import java.sql.Timestamp;
 import java.time.OffsetDateTime;
 import java.util.concurrent.ConcurrentSkipListSet;
+
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 import com.google.common.collect.ImmutableList;
 import com.google.protobuf.Any;
@@ -18,10 +22,17 @@ import eu.eventstorm.core.UUID;
 
 public final class InMemoryBatch implements Batch {
 
-	private final ConcurrentSkipListSet<BatchExecution> items = new ConcurrentSkipListSet<>();
+	private final ConcurrentSkipListSet<BatchExecution> history = new ConcurrentSkipListSet<>();
 	
-	private final ConcurrentSkipListSet<BatchExecution> olds = new ConcurrentSkipListSet<>();
+	private final ThreadPoolTaskScheduler threadPoolTaskScheduler;
 	
+	public InMemoryBatch() {
+		this.threadPoolTaskScheduler = new ThreadPoolTaskScheduler();
+		this.threadPoolTaskScheduler.setThreadNamePrefix("batch-");
+		this.threadPoolTaskScheduler.setPoolSize(1);
+		this.threadPoolTaskScheduler.initialize();
+	}
+
 	@Override
 	public ImmutableList<Event> push(ImmutableList<EventCandidate> candidates) {
 		
@@ -47,11 +58,32 @@ public final class InMemoryBatch implements Batch {
 					.withUuid(correlation.toString())
 					.build();
 			
-			items.add(batchExecution);
+			this.threadPoolTaskScheduler.submit(new Runnable() {
+				
+				@Override
+				public void run() {
+					batchExecution.setStartedAt(new Timestamp(System.currentTimeMillis()));
+					try {
+						//	doJob();
+					} finally {
+						batchExecution.setEndedAt(new Timestamp(System.currentTimeMillis()));
+					}
+
+					LoggerFactory.getLogger(InMemoryBatch.class).info("---------------------------" + candidate.getStream());
+
+					LoggerFactory.getLogger(InMemoryBatch.class).info("---------------------------" + candidate.getMessage());
+					LoggerFactory.getLogger(InMemoryBatch.class).info("---------------------------" + batchExecution);
+					
+					
+				}
+				
+			});
+			
 		}
 		
 		return builder.build();
 	}
 
+	
 
 }

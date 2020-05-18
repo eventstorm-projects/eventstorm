@@ -11,5 +11,7 @@ import eu.eventstorm.core.EventCandidate;
 public interface Batch {
 
 	ImmutableList<Event> push(ImmutableList<EventCandidate> candidates);
+	
+	
 
 }

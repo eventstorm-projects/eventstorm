@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,8 +41,6 @@ class TemporaryResourceReactiveControllerTest {
 		@SuppressWarnings("unchecked")
 		Map<String,String> response = mapper.readValue(result.getResponseBody(), Map.class);
 		
-		
-		
 		result = webClient.get()
 			.uri("/toto/download/{uuid}", response.get("uuid"))
 				.exchange()
@@ -51,6 +50,7 @@ class TemporaryResourceReactiveControllerTest {
 		assertEquals("hello", new String(result.getResponseBody()));
 		
 		temporaryResource.delete(response.get("uuid"));
+		
 	}
 	
 }
