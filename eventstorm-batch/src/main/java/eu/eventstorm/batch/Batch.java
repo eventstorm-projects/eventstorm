@@ -1,17 +1,13 @@
 package eu.eventstorm.batch;
 
-import com.google.common.collect.ImmutableList;
-
 import eu.eventstorm.core.Event;
-import eu.eventstorm.core.EventCandidate;
+import eu.eventstorm.cqrs.batch.BatchJobCreated;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 public interface Batch {
 
-	ImmutableList<Event> push(ImmutableList<EventCandidate> candidates);
+	Event push(String stream, String streamId, BatchJobCreated batchJobCreated);
 	
-	
-
 }
