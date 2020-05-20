@@ -1,6 +1,7 @@
 package eu.eventstorm.batch;
 
 import eu.eventstorm.core.Event;
+import eu.eventstorm.core.EventCandidate;
 import eu.eventstorm.cqrs.batch.BatchJobCreated;
 
 /**
@@ -8,6 +9,6 @@ import eu.eventstorm.cqrs.batch.BatchJobCreated;
  */
 public interface Batch {
 
-	Event push(String stream, String streamId, BatchJobCreated batchJobCreated);
+	Event push(EventCandidate<BatchJobCreated> candidate);
 	
 }

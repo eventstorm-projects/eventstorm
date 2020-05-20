@@ -9,6 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+/**
+ * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
+ */
 @Component
 public final class TemporaryResource {
 
@@ -29,6 +32,10 @@ public final class TemporaryResource {
 		}
 		
 		return file;
+	}
+	
+	public Path get(String uuid) {
+		return Paths.get(properties.getBaseDirectory(), uuid);
 	}
 
 	public void delete(String uuid) throws IOException {

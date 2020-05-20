@@ -1,6 +1,7 @@
 package eu.eventstorm.batch.tmp;
 
 import java.io.IOException;
+
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,6 +19,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import reactor.core.publisher.Mono;
 
+/**
+ * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
+ */
 @RestController
 public final class TemporaryResourceReactiveController {
 

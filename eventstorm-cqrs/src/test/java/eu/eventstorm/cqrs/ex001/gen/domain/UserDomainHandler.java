@@ -15,7 +15,6 @@ public abstract class UserDomainHandler implements EventListener {
 
 	abstract void onUserMailModifiedEvent(Event userMailModifiedEvent);
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void accept(Event event) {
 

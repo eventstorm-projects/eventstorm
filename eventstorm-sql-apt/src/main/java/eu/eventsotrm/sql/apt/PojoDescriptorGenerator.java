@@ -332,7 +332,10 @@ final class PojoDescriptorGenerator implements Generator {
 
 		}
 
-		builder.deleteCharAt(builder.length() - 1);
+		if (descriptor.ids().size() > 0) {
+			builder.deleteCharAt(builder.length() - 1);
+		}
+		
 
 		writer.write(builder.toString());
 		writer.write(");");

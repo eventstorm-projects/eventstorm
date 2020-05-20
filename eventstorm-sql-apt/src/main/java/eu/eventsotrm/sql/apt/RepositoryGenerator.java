@@ -219,6 +219,7 @@ final class RepositoryGenerator implements Generator {
         writer.write("        super(database);");
         writeNewLine(writer);
 
+        
         generateFindById(writer, descriptor);
         generateFindByIdForUpdate(writer, descriptor);
         generateFindByBusinessKey(writer, descriptor);
@@ -233,6 +234,11 @@ final class RepositoryGenerator implements Generator {
 
 
     private static void generateFindById(Writer writer, PojoDescriptor descriptor) throws IOException {
+    	
+    	if (descriptor.ids().size() == 0) {
+    		return;
+    	}
+    	
         writer.write("        this.findById = select(ALL).from(TABLE).where(");
 
         if (descriptor.ids().size() == 1) {
@@ -266,6 +272,10 @@ final class RepositoryGenerator implements Generator {
     		return;
     	}
 
+    	if (descriptor.ids().size() == 0) {
+    		return;
+    	}
+    	
         writer.write("        this.findByIdForUpdate = select(ALL).from(TABLE).where(");
 		if (descriptor.ids().size() == 1) {
 			writer.write("eq(");

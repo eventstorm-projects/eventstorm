@@ -2,6 +2,9 @@ package eu.eventstorm.batch.tmp;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+/**
+ * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
+ */
 @ConfigurationProperties(prefix = "eu.eventstorm.batch.temporary")
 public class TemporaryResourceProperties {
 

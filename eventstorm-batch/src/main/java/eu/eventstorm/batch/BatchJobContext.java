@@ -8,5 +8,5 @@ import eu.eventstorm.batch.db.BatchExecution;
 public interface BatchJobContext {
 
 	BatchExecution getBatchExecution();
-
+	
 }

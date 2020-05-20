@@ -16,7 +16,7 @@ public interface EventStoreClient {
 
 	Event appendToStream(String stream, StreamId streamId, AbstractMessage evantPayload);
 	
-	Stream<Event> appendToStream(ImmutableList<EventCandidate>candidates);
+	Stream<Event> appendToStream(ImmutableList<EventCandidate<?>>candidates);
 	
 	Stream<Event> readStream(String stream, StreamId streamId);
 

@@ -2,14 +2,16 @@ package eu.eventstorm.batch.memory;
 
 import static java.util.UUID.randomUUID;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+import org.springframework.util.concurrent.ListenableFutureCallback;
 
-import com.google.common.collect.ImmutableList;
 import com.google.protobuf.Any;
 
 import eu.eventstorm.batch.Batch;
@@ -41,25 +43,27 @@ public final class InMemoryBatch implements Batch {
 
 
 	@Override
-	public Event push(String stream, String streamId, BatchJobCreated candidate) {
+	public Event push(EventCandidate<BatchJobCreated> candidate) {
 		
 		java.util.UUID correlation = randomUUID();
 		
-		BatchJob batchJob = this.applicationContext.getBean(candidate.getName(), BatchJob.class);
+		BatchJob batchJob = this.applicationContext.getBean(candidate.getMessage().getName(), BatchJob.class);
 			
 		Event event = Event.newBuilder()
-				.setStreamId(streamId)
-				.setStream(stream)
+				.setStreamId(candidate.getStreamId().toStringValue())
+				.setStream(candidate.getStream())
 				.setCorrelation(UUID.newBuilder().setLeastSigBits(correlation.getLeastSignificantBits()).setMostSigBits(correlation.getMostSignificantBits()))
 				.setRevision(1)
 				.setTimestamp(OffsetDateTime.now().toString())
-				.setData(Any.pack(candidate,stream))
+				.setData(Any.pack(candidate.getMessage(),candidate.getStream()))
 			.build();	
 			
 		BatchExecution batchExecution = new BatchExecutionBuilder()
-				.withName(stream)
+				.withName(candidate.getStream())
 				.withStatus((byte)BatchStatus.STARTING.ordinal())
+				.withResource(candidate.getMessage().getUuid())
 				.withUuid(correlation.toString())
+				.withStartedAt(Timestamp.from(Instant.now()))
 				.build();
 			
 		BatchJobContext context = new BatchJobContext() {
@@ -69,7 +73,7 @@ public final class InMemoryBatch implements Batch {
 			}
 		};
 		
-		batchExecutor.submit(batchJob, context);					
+		batchExecutor.submit(batchJob, context).addCallback(new InMemoryListenableFutureCallback<>(context));				
 						
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("submitted");
@@ -78,5 +82,33 @@ public final class InMemoryBatch implements Batch {
 		return event;
 	}
 
+	private class InMemoryListenableFutureCallback<V> implements ListenableFutureCallback<V> {
+		
+		private final BatchJobContext context;
+		
+		private InMemoryListenableFutureCallback(BatchJobContext context) {
+			this.context = context;
+		}
+
+		@Override
+		public void onSuccess(V result) {
+			
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("onSuccess()");
+			}
+			
+			InMemoryBatch.this.history.add(context.getBatchExecution());
+		}
+		
+		@Override
+		public void onFailure(Throwable ex) {
+			
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("onFailure()");
+			}
+			
+			InMemoryBatch.this.history.add(context.getBatchExecution());
+		}
+	}
 
 }

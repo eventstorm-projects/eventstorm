@@ -1,5 +1,8 @@
 package eu.eventstorm.batch.tmp;
 
+/**
+ * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
+ */
 final class UploadResponse {
 
 	private final String uuid;

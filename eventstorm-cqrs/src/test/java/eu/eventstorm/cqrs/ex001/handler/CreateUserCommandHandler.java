@@ -27,7 +27,7 @@ public final class CreateUserCommandHandler extends DefaultCommandHandler<Create
 	}
 
 	@Override
-	protected ImmutableList<EventCandidate> decision(CreateUserCommand command) {
+	protected ImmutableList<EventCandidate<?>> decision(CreateUserCommand command) {
 		
 		StreamId id = this.aig.generate();
 		
@@ -41,7 +41,7 @@ public final class CreateUserCommandHandler extends DefaultCommandHandler<Create
 			.setAge(command.getAge())
 			.build();
 		
-		return ImmutableList.of(new EventCandidate("user", id, payload));
+		return ImmutableList.of(new EventCandidate<>("user", id, payload));
 		
 	}
 

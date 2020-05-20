@@ -23,6 +23,11 @@ public interface BatchExecution {
 	String getUuid();
 
 	void setUuid(String uuid);
+	
+	@Column(value = "uuid", length = 36)
+	String getResource();
+
+	void setResource(String uuid);
 
 	@Column(value = "name", length = 255)
 	String getName();

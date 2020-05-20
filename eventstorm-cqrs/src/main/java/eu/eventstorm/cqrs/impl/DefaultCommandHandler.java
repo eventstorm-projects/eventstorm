@@ -66,7 +66,7 @@ public abstract class DefaultCommandHandler<T extends Command> extends AbstractC
 	}
 
 	@Override
-	protected ImmutableList<Event> store(ImmutableList<EventCandidate> candidates) {
+	protected ImmutableList<Event> store(ImmutableList<EventCandidate<?>> candidates) {
 		return this.eventStoreClient.appendToStream(candidates).collect(toImmutableList());
 	}
 

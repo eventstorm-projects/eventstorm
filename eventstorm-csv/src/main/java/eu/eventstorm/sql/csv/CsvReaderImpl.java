@@ -50,7 +50,7 @@ final class CsvReaderImpl implements CsvReader {
         }
         fileEndOfLine = findEndOfLine();
 
-        LOGGER.info("find file eol [{}]", fileEndOfLine);
+        LOGGER.debug("find file eol [{}]", fileEndOfLine);
     }
 
     private FileEndOfLine findEndOfLine() {

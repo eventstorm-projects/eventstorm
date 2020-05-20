@@ -57,11 +57,11 @@ public final class InMemoryEventStoreClient implements EventStoreClient {
 
 
 	@Override
-	public Stream<Event> appendToStream(ImmutableList<EventCandidate> candidates) {
+	public Stream<Event> appendToStream(ImmutableList<EventCandidate<?>> candidates) {
 		List<Event> events = new ArrayList<>(candidates.size());
 		UUID correlation = UUID.randomUUID();
 		
-		for (EventCandidate candidate : candidates) {
+		for (EventCandidate<?> candidate : candidates) {
 			events.add(appendToStream(candidate.getStream(), candidate.getStreamId(), correlation, candidate.getMessage()));
 		}
 		

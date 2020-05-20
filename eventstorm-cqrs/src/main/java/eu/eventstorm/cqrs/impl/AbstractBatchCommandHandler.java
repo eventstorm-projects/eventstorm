@@ -9,13 +9,15 @@ import eu.eventstorm.batch.Batch;
 import eu.eventstorm.core.Event;
 import eu.eventstorm.core.EventCandidate;
 import eu.eventstorm.cqrs.BatchCommand;
+import eu.eventstorm.cqrs.CommandHandler;
+import eu.eventstorm.cqrs.batch.BatchJobCreated;
 
-public abstract class AbstractBatchCommandHandler<C extends BatchCommand> extends AbstractCommandHandler<C> {
+public abstract class AbstractBatchCommandHandler<C extends BatchCommand> implements CommandHandler<C> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractBatchCommandHandler.class);
 
 	private final Class<C> type;
-	
+
 	private final Batch batch;
 
 	public AbstractBatchCommandHandler(Class<C> type, Batch batch) {
@@ -29,55 +31,22 @@ public abstract class AbstractBatchCommandHandler<C extends BatchCommand> extend
 	}
 
 	@Override
-	protected final ImmutableList<Event> store(ImmutableList<EventCandidate> candidates) {
-		return batch.push(candidates);
-	}
-
-	@Override
-	protected final void evolution(ImmutableList<Event> events) {
-		// nothing to do ...
+	public ImmutableList<Event> handle(C command) {
 		
+		// validate the command
+		validate(command);
+
+		// apply the decision function (state,command) => events
+		EventCandidate<BatchJobCreated> data = decision(command);
+
+		// push the candidate to the batch
+		Event event = this.batch.push(data);
+		
+		return ImmutableList.of(event);
 	}
 
-	@Override
-	protected void publish(ImmutableList<Event> events) {
-		// nothing to do ...
-	}
-	
-	
+	protected abstract EventCandidate<BatchJobCreated> decision(C command);
 
-//	@Override
-//	public ImmutableList<Event> handle(C command) {
-//		
-//		// validate the command
-//		validate(command);
-//		
-//		
-//		
-//		
-////		BatchExecution batchExecution = registerBatch(command);
-////		
-////		Event event = Event.newBuilder()
-////				.setStreamId(String.valueOf(batchExecution.getId()))
-////				.setStream("batch")
-////				//.setCorrelation(UUID.newBuilder().batchExecution.getUuid())
-////				.setRevision(1)
-////				.setTimestamp(batchExecution.getCreatedAt().toString())
-////				.build();
-////		
-//		
-//		
-////		return ImmutableList.of(event);
-//		
-//		return null;
-//	}
-
-//	private BatchExecution registerBatch(C command) {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
-//
-//	protected abstract void validate(C command);
+	protected abstract void validate(C command);
 
 }
-	

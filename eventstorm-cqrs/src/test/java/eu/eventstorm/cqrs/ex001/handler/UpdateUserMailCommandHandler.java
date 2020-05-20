@@ -7,7 +7,6 @@ import eu.eventstorm.cqrs.event.EvolutionHandlers;
 import eu.eventstorm.cqrs.ex001.command.UpdateUserMailCommand;
 import eu.eventstorm.cqrs.impl.DefaultCommandHandler;
 import eu.eventstorm.cqrs.validation.Validators;
-import eu.eventstorm.eventbus.EventBus;
 import eu.eventstorm.eventstore.EventStoreClient;
 
 public class UpdateUserMailCommandHandler extends DefaultCommandHandler<UpdateUserMailCommand> {
@@ -17,7 +16,7 @@ public class UpdateUserMailCommandHandler extends DefaultCommandHandler<UpdateUs
 	}
 
 	@Override
-	protected ImmutableList<EventCandidate> decision(UpdateUserMailCommand command) {
+	protected ImmutableList<EventCandidate<?>> decision(UpdateUserMailCommand command) {
 		return ImmutableList.of();
 	}
 

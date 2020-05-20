@@ -2,7 +2,6 @@ package eu.eventstorm.batch;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.concurrent.Callable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +23,7 @@ public final class BatchExecutor {
 		this.threadPoolTaskScheduler.initialize();
 	}
 
-	public <V> void submit(BatchJob batchJob, BatchJobContext context) {
+	public ListenableFuture<?> submit(BatchJob batchJob, BatchJobContext context) {
 
 		ListenableFuture<?> future = this.threadPoolTaskScheduler.submitListenable(() -> batchJob.execute(context));
 		
@@ -45,7 +44,8 @@ public final class BatchExecutor {
 			context.getBatchExecution().setEndedAt(Timestamp.from(Instant.now()));
 			context.getBatchExecution().setStatus((byte) BatchStatus.FAILED.ordinal());
 		});
-		
+	
+		return future;
 	}
 
 }

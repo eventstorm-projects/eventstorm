@@ -5,13 +5,13 @@ import com.google.protobuf.AbstractMessage;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-public final class EventCandidate {
+public final class EventCandidate<T extends AbstractMessage> {
 
 	private final String stream;
 	private final StreamId streamId;
-	private final AbstractMessage message;
+	private final T message;
 
-	public EventCandidate(String stream, StreamId streamId, AbstractMessage message) {
+	public EventCandidate(String stream, StreamId streamId, T message) {
 		this.stream = stream;
 		this.streamId = streamId;
 		this.message = message;
@@ -25,7 +25,7 @@ public final class EventCandidate {
 		return streamId;
 	}
 
-	public AbstractMessage getMessage() {
+	public T getMessage() {
 		return message;
 	}
 

@@ -19,7 +19,7 @@ abstract class AbstractCommandHandler<T extends Command> implements CommandHandl
 		validate(command);
 		
 		// apply the decision function (state,command) => events
-		ImmutableList<EventCandidate> candidates = decision(command);
+		ImmutableList<EventCandidate<?>> candidates = decision(command);
 		
 		// save the to the eventStore
 		ImmutableList<Event> events = store(candidates);
@@ -39,10 +39,10 @@ abstract class AbstractCommandHandler<T extends Command> implements CommandHandl
 	/**
 	 * (state,command) => events
 	 */
-	protected abstract ImmutableList<EventCandidate> decision(T command);
+	protected abstract ImmutableList<EventCandidate<?>> decision(T command);
 
 	
-	protected abstract ImmutableList<Event> store(ImmutableList<EventCandidate> candidates);
+	protected abstract ImmutableList<Event> store(ImmutableList<EventCandidate<?>> candidates);
 
 	/**
 	 *  (state,Event) => State
