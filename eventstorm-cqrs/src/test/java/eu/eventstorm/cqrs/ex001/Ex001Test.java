@@ -29,7 +29,6 @@ import eu.eventstorm.eventstore.memory.InMemoryEventStore;
 import eu.eventstorm.eventstore.memory.InMemoryEventStoreClient;
 import eu.eventstorm.eventstore.memory.InMemoryStreamManagerBuilder;
 import eu.eventstorm.test.LoggerInstancePostProcessor;
-import reactor.core.scheduler.Schedulers;
 
 @ExtendWith(LoggerInstancePostProcessor.class)
 class Ex001Test {
@@ -59,7 +58,7 @@ class Ex001Test {
 		        // eventBus))
 		        .build();
 
-		gateway = new CommandGateway(Schedulers.elastic(), registry);
+		gateway = new CommandGateway(registry);
 	}
 	
 	@Test

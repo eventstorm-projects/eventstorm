@@ -26,12 +26,12 @@ import eu.eventstorm.cqrs.CommandGateway;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-public final class RestControllerImplementationGenerator {
+public final class CommandRestControllerImplementationGenerator {
 
 	private final Logger logger;
 
-	public RestControllerImplementationGenerator() {
-		logger = LoggerFactory.getInstance().getLogger(RestControllerImplementationGenerator.class);
+	public CommandRestControllerImplementationGenerator() {
+		logger = LoggerFactory.getInstance().getLogger(CommandRestControllerImplementationGenerator.class);
 	}
 
 	public void generate(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
@@ -103,7 +103,7 @@ public final class RestControllerImplementationGenerator {
 		writer.write("import " + CloudEvents.class.getName() + ";");
 		writeNewLine(writer);
 		
-		writeGenerated(writer, RestControllerImplementationGenerator.class.getName());
+		writeGenerated(writer, CommandRestControllerImplementationGenerator.class.getName());
 		writer.write("@RestController");
 		writeNewLine(writer);
 		writer.write("public final class ");

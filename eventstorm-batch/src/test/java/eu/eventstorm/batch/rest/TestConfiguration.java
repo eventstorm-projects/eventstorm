@@ -19,4 +19,11 @@ public class TestConfiguration {
 	InMemoryBatch batch(ApplicationContext applicationContext, BatchExecutor batchExecutor) {
 		return new InMemoryBatch(applicationContext, batchExecutor);
 	}
+	
+	@Bean
+	com.google.protobuf.TypeRegistry typeRegistry() {
+		return com.google.protobuf.TypeRegistry.newBuilder()
+				.build();
+	}
+
 }

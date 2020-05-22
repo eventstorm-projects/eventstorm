@@ -42,11 +42,8 @@ public final class EventProtoGenerator {
 	}
 
     public void generate(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
-    	
-    	logger.info("---------------------------> EventProtoGenerator");
-    	
 	      sourceCode.forEventEvolution(t -> {
-	    		logger.info("---------------------------> EventProtoGenerator -> " + t);
+	    		logger.info("EventProtoGenerator -> " + t);
 		      try {
 		          generate(processingEnvironment, t);
 		      } catch (Exception cause) {
@@ -104,10 +101,7 @@ public final class EventProtoGenerator {
 		
 		JavaFileObject object = env.getFiler().createSourceFile(fcqn);
 		try (Writer writer = object.openWriter()) {
-
 			writeHeader(writer, env, descriptor, ctxs);
-//			// writeConstructor(writer, descriptor);
-//			// writeVariables(writer, descriptor);
 			writeMethods(writer, descriptor, ctxs);
 			writer.write("}");
 		}
@@ -135,6 +129,9 @@ public final class EventProtoGenerator {
 		
 		for (ProtoContext ctx : ctxs) {
         	for (Message message : ctx.getProto().getMessages()) {
+        		message.setProto(ctx.getProto());
+        		descriptor.add(ctx.getProto().getName(), message);
+        		
         		writer.write("import ");
         		writer.write(String.valueOf(ctx.getProto().getOptions().get("java_package")));
         		writer.write(".");

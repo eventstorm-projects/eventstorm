@@ -139,8 +139,11 @@ final class RepositoryGenerator implements Generator {
 
     private static void writeVariables(Writer writer, PojoDescriptor descriptor) throws IOException {
         writeNewLine(writer);
-        writer.write("    private final String findById;");
-        writeNewLine(writer);
+        
+        if (descriptor.ids().size() > 0) {
+        	 writer.write("    private final String findById;");
+             writeNewLine(writer);
+        }
 
         if (descriptor.businessKeys().size() > 0) {
             writer.write("    private final String findByBusinessKey;");
@@ -148,13 +151,15 @@ final class RepositoryGenerator implements Generator {
         }
 
         if (descriptor.getTable() != null && !descriptor.getTable().immutable()) {
-            writer.write("    private final String findByIdForUpdate;");
-            writeNewLine(writer);
+        	if (descriptor.ids().size() > 0) {
+        		writer.write("    private final String findByIdForUpdate;");
+                writeNewLine(writer);
+                writer.write("    private final String delete;");
+                writeNewLine(writer);
+                writer.write("    private final String update;");
+                writeNewLine(writer);
+        	}
             writer.write("    private final String insert;");
-            writeNewLine(writer);
-            writer.write("    private final String update;");
-            writeNewLine(writer);
-            writer.write("    private final String delete;");
             writeNewLine(writer);
         }
 
@@ -349,11 +354,7 @@ final class RepositoryGenerator implements Generator {
 
     private static void generateUpdate(Writer writer, PojoDescriptor descriptor) throws IOException {
 
-    	if (descriptor.getTable() != null && descriptor.getTable().immutable()) {
-            return;
-        }
-
-    	if (descriptor.getJoinTable() != null) {
+    	if (!checkCUD(descriptor)) {
     		return;
     	}
 
@@ -364,10 +365,7 @@ final class RepositoryGenerator implements Generator {
 
     private static void generateDelete(Writer writer, PojoDescriptor descriptor) throws IOException {
 
-    	if (descriptor.getTable() != null && descriptor.getTable().immutable()) {
-            return;
-        }
-    	if (descriptor.getJoinTable() == null && descriptor.getTable() == null) {
+    	if (!checkCUD(descriptor)) {
     		return;
     	}
 
@@ -412,6 +410,10 @@ final class RepositoryGenerator implements Generator {
 
     private static void generateMethodFindById(Writer writer, PojoDescriptor descriptor) throws IOException {
 
+    	if (descriptor.ids().size() == 0) {
+    		return;
+    	}
+    	
         writeNewLine(writer);
         writer.write("    public final ");
         writer.write(descriptor.element().toString());
@@ -457,11 +459,7 @@ final class RepositoryGenerator implements Generator {
 
     private static void generateMethodFindByIdForUpdate(Writer writer, PojoDescriptor descriptor) throws IOException {
 
-    	if (descriptor.getTable() != null && descriptor.getTable().immutable()) {
-            return;
-        }
-
-    	if (descriptor.getJoinTable() != null) {
+    	if (!checkCUD(descriptor)) {
     		return;
     	}
 
@@ -526,6 +524,10 @@ final class RepositoryGenerator implements Generator {
         }
 
     	if (descriptor.getJoinTable() != null) {
+    		return false;
+    	}
+    	
+    	if (descriptor.ids().size() == 0) {
     		return false;
     	}
 

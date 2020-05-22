@@ -16,7 +16,6 @@ import javax.tools.Diagnostic;
 
 import eu.eventsotrm.core.apt.analyser.CqrsCommandAnalyser;
 import eu.eventsotrm.core.apt.analyser.CqrsEmbeddedCommandAnalyser;
-import eu.eventsotrm.core.apt.analyser.CqrsEventAnalyser;
 import eu.eventsotrm.core.apt.analyser.CqrsQueryAnalyser;
 import eu.eventsotrm.core.apt.analyser.CqrsRestControllerAnalyser;
 import eu.eventsotrm.core.apt.analyser.EventEvolutionAnalyser;
@@ -27,15 +26,16 @@ import eu.eventsotrm.core.apt.command.CommandImplementationGenerator;
 import eu.eventsotrm.core.apt.command.CommandJacksonModuleGenerator;
 import eu.eventsotrm.core.apt.command.CommandJacksonStdDeserializerGenerator;
 import eu.eventsotrm.core.apt.command.CommandOpenApiGenerator;
+import eu.eventsotrm.core.apt.command.CommandRestControllerImplementationGenerator;
 import eu.eventsotrm.core.apt.command.CommandValidatorGenerator;
-import eu.eventsotrm.core.apt.command.RestControllerImplementationGenerator;
 import eu.eventsotrm.core.apt.event.EventProtoGenerator;
+import eu.eventsotrm.core.apt.event.EventStreamGenerator;
 import eu.eventsotrm.core.apt.model.CommandDescriptor;
 import eu.eventsotrm.core.apt.model.EmbeddedCommandDescriptor;
-import eu.eventsotrm.core.apt.model.EventDescriptor;
 import eu.eventsotrm.core.apt.model.EventEvolutionDescriptor;
 import eu.eventsotrm.core.apt.model.QueryDescriptor;
 import eu.eventsotrm.core.apt.model.RestControllerDescriptor;
+import eu.eventsotrm.core.apt.spring.SpringConfigurationGenerator;
 import eu.eventsotrm.sql.apt.Helper;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
@@ -162,6 +162,7 @@ public class EventProcessor extends AbstractProcessor {
 		
 		new CommandValidatorGenerator().generateEmbedded(processingEnv, sourceCode);
 		new CommandValidatorGenerator().generate(processingEnv, sourceCode);
+		
 
 		// TODO => move to webflux
 		//new CommandRestControllerAdviceImplementationGenerator().generate(processingEnv, sourceCode);
@@ -170,6 +171,10 @@ public class EventProcessor extends AbstractProcessor {
 		
 		// EVENTS .....
 		new EventProtoGenerator().generate(processingEnv, sourceCode);
+		new EventStreamGenerator().generate(processingEnv, sourceCode);
+		
+		new SpringConfigurationGenerator().generateCommand(processingEnv, sourceCode);
+		
 
 //		new EventPayloadImplementationGenerator().generate(this.processingEnv, sourceCode);
 //		new EventPayloadBuilderGenerator().generate(this.processingEnv, sourceCode);
@@ -184,7 +189,7 @@ public class EventProcessor extends AbstractProcessor {
 //		new EventPayloadSerializersGenerator().generate(this.processingEnv, sourceCode);
 //
 //		new DomainModelHandlerImplementationGenerator().generate(this.processingEnv, sourceCode);
-		new RestControllerImplementationGenerator().generate(processingEnv, sourceCode);
+		new CommandRestControllerImplementationGenerator().generate(processingEnv, sourceCode);
 //		
 //		new QueryImplementationGenerator().generate(this.processingEnv, sourceCode);
 //		new QueryBuilderGenerator().generate(processingEnv, sourceCode);

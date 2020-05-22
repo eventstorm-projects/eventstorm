@@ -17,4 +17,9 @@ public @interface CqrsConfiguration {
 
 	OpenAPIDefinition openAPIDefinition();
 	
+	/**
+	 * to generate SpringConfiguration, Streams, ...
+	 */
+	String basePackage();
+	
 }

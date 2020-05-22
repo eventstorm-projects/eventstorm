@@ -54,7 +54,7 @@ public final class SourceCode {
 	private final ImmutableMap<String, QueryDescriptor> queries;
 	
 	private final ImmutableMap<String, ImmutableList<QueryDescriptor>> queryPackages;
-
+	
 	SourceCode(ProcessingEnvironment env, CqrsConfiguration cqrsConfiguration,
 			List<CommandDescriptor> commands,
 			List<EmbeddedCommandDescriptor> embeddedCommands,
@@ -78,7 +78,6 @@ public final class SourceCode {
 		        .collect(groupingBy( t -> t.getFCQN(env), mapping(identity(), toImmutableList())));
 		this.queries = queries.stream().collect(toImmutableMap(QueryDescriptor::fullyQualidiedClassName, identity()));
 		this.queryPackages = mapByPackage(env, this.queries);
-		
 	}
 
 	public void forEachCommand(Consumer<CommandDescriptor> consumer) {
@@ -132,7 +131,7 @@ public final class SourceCode {
 	public CqrsConfiguration getCqrsConfiguration() {
 		return cqrsConfiguration;
 	}
-
+	
 	void dump() {
 		logger.info("Result Analysis -----------------------------------------------------------------------------------------");
 		logger.info("---------------------------------------------------------------------------------------------------------");

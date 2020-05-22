@@ -152,7 +152,7 @@ public final class CommandBuilderGenerator {
             writeNewLine(writer);
         }
         for (int i = 0; i < ed.properties().size(); i++) {
-            writer.write("            " + ed.properties().get(i).name() + "$$");
+            writer.write("            " + ed.properties().get(i).variable() + "$$");
             if (getReturnType(ed.properties().get(i).getter()).startsWith("java.util.List")) {
             	writer.write(".build()");
             }
@@ -196,10 +196,10 @@ public final class CommandBuilderGenerator {
             writer.write("(");
         	writer.write(type);
 	    	writer.write(' ');
-	        writer.write(cpd.name());
+	        writer.write(cpd.variable());
 	        writer.write(") {");
 	        writeNewLine(writer);
-	        writer.write("        this." + cpd.name() + "$$ = " + cpd.name() + ";");
+	        writer.write("        this." + cpd.variable() + "$$ = " + cpd.variable() + ";");
 	        writeNewLine(writer);
 	        writer.write("        return this;");
         }
@@ -277,7 +277,7 @@ public final class CommandBuilderGenerator {
         writer.write("        this.$$list$$.add( new " + target + "Impl(");
         writeNewLine(writer);
         for (int i = 0; i < ecd.properties().size(); i++) {
-            writer.write("            " + ecd.properties().get(i).name() + "$$");
+            writer.write("            " + ecd.properties().get(i).variable() + "$$");
             if (getReturnType(ecd.properties().get(i).getter()).startsWith("java.util.List")) {
             	writer.write(".build()");
             }

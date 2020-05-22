@@ -40,7 +40,10 @@ public final class FlywayGenerator {
 
 	private final Logger logger;
 
-	private Map<String, Tuple<FileObject,Writer>> holders = new HashMap<>();
+	private final Map<String, Tuple<FileObject,Writer>> holders = new HashMap<>();
+	
+	private final List<DeferWriter> indexes = new ArrayList<>();
+	private final List<DeferWriter> sequences = new ArrayList<>();
 
 	public FlywayGenerator() {
 		logger = LoggerFactory.getInstance().getLogger(FlywayGenerator.class);
@@ -95,6 +98,10 @@ public final class FlywayGenerator {
 
 			});
 			
+			this.sequences.forEach(DeferWriter::write);
+			this.indexes.forEach(DeferWriter::write);
+			
+			
 			holders.forEach((filename, tuple) -> {
 				try {
 					tuple.getY().close();
@@ -104,6 +111,8 @@ public final class FlywayGenerator {
 			});
 			
 			holders.clear();
+			indexes.clear();
+			sequences.clear();
 		}
 			
 		
@@ -150,7 +159,6 @@ public final class FlywayGenerator {
 
 		StringBuilder primaryKey = new StringBuilder();
 		primaryKey.append("PRIMARY KEY (");
-		String sequence = null;
 
 		if (descriptor.ids().size() > 0) {
 			builder.append("\n   ");
@@ -176,8 +184,7 @@ public final class FlywayGenerator {
 				primaryKey.append(fd.wrap(anno.value())).append(',');
 
 				if (id.getter().getAnnotation(Sequence.class) != null) {
-					sequence = generateSequence(id.getter().getAnnotation(Sequence.class), fd);
-					logger.info("generate sequence " + id.getter().getAnnotation(Sequence.class));
+					generateSequence(writer, id.getter().getAnnotation(Sequence.class), fd);
 				}
 
 			}
@@ -213,22 +220,19 @@ public final class FlywayGenerator {
 					businessKeys.add(columnName);
 				}
 			}
+			builder.deleteCharAt(builder.length()-1);
 		}
 		
-		builder.append("\n   ");
-		builder.append(primaryKey);
-		builder.deleteCharAt(builder.length()-1);
-		builder.append(')');
-
+		if (descriptor.ids().size() > 0) {
+			builder.append(",\n   ");
+			builder.append(primaryKey);	
+			builder.deleteCharAt(builder.length()-1);
+			builder.append(')');
+		}
+		
 		builder.append("\n);\n");
 
 		writer.append(builder.toString());
-
-		if (sequence != null) {
-			writer.append("\n\n");
-			writer.append(sequence);
-			writer.append("\n\n");
-		}
 
 		if (businessKeys.size() > 0) {
 			generateUniqueIndex(table, businessKeys, writer);
@@ -300,9 +304,9 @@ public final class FlywayGenerator {
 		writer.append(builder.toString());
 	}
 
-	private String generateSequence(Sequence sequence, FlywayDialect fd) {
-		return "CREATE SEQUENCE " + fd.wrap(sequence.value())  + ";";
-
+	private void generateSequence(Writer writer, Sequence sequence, FlywayDialect fd) {
+		logger.info("generate sequence " + sequence);
+		this.sequences.add(new DeferWriter(writer,  "CREATE SEQUENCE " + fd.wrap(sequence.value())  + ";\n"));
 	}
 
 	private void generateIndex(Table table, Writer writer) throws IOException {
@@ -320,7 +324,7 @@ public final class FlywayGenerator {
 			builder.deleteCharAt(builder.length() - 1);
 			builder.append(");\n");
 
-			writer.append(builder.toString());
+			indexes.add(new DeferWriter(writer, builder.toString()));
 		}
 	}
 	private void generateUniqueIndex(Table table, List<String> businessKeys, Writer writer) throws IOException {
@@ -338,8 +342,27 @@ public final class FlywayGenerator {
 		builder.deleteCharAt(builder.length() - 1);
 		builder.append(");\n");
 
-		writer.append(builder.toString());
+		indexes.add(new DeferWriter(writer, builder.toString()));
 	}
 
+	
+	private class DeferWriter {
+
+		private final Writer writer;
+		private final String ddl;
+		DeferWriter(Writer writer, String ddl) {
+			this.writer = writer;
+			this.ddl = ddl;
+		}
+		void write() {
+			try {
+				this.writer.write(ddl);
+			} catch (IOException cause) {
+				logger.error("failed to writer defer ddl", cause);
+			}
+			
+		}
+		
+	}
 
 }

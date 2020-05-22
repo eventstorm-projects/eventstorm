@@ -40,11 +40,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>io.projectreactor</groupId>
-			<artifactId>reactor-core</artifactId>
-		</dependency>
-
-		<dependency>
 			<groupId>eu.eventstorm</groupId>
 			<artifactId>eventstorm-sql-apt</artifactId>
 			<version>${project.version}</version>
@@ -58,11 +53,6 @@
 			<scope>test</scope>
 		</dependency>
 
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-webflux</artifactId>
-		</dependency>
-		
 	</dependencies>
 
 	<build>

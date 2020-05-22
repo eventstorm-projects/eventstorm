@@ -1,8 +1,5 @@
 package eu.eventstorm.cqrs.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.ImmutableList;
 
 import eu.eventstorm.batch.Batch;
@@ -13,8 +10,6 @@ import eu.eventstorm.cqrs.CommandHandler;
 import eu.eventstorm.cqrs.batch.BatchJobCreated;
 
 public abstract class AbstractBatchCommandHandler<C extends BatchCommand> implements CommandHandler<C> {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractBatchCommandHandler.class);
 
 	private final Class<C> type;
 
