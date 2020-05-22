@@ -365,10 +365,10 @@ final class RepositoryGenerator implements Generator {
 
     private static void generateDelete(Writer writer, PojoDescriptor descriptor) throws IOException {
 
-    	if (!checkCUD(descriptor)) {
-    		return;
-    	}
-
+    	if (descriptor.getTable() != null && descriptor.getTable().immutable()) {
+            return;
+        }
+    	
     	 List<PojoPropertyDescriptor> ppds = descriptor.ids();
 
     	 writer.write("        this.delete = delete(TABLE).where(");

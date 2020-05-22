@@ -76,7 +76,7 @@ public final class FlywayGenerator {
 			
 			gcd.getDescriptors().forEach(pojo -> {
 
-				logger.info("Generate for pojo [" + pojo.getTable().value() + "]");
+				logger.info("Generate for pojo [" + pojo + "]");
 				
 				Flyway flyway;
 				if (pojo.getTable() != null) {
