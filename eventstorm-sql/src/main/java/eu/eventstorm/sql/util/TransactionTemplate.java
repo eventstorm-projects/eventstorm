@@ -33,8 +33,6 @@ public final class TransactionTemplate {
          try (Transaction tx = transactionManager.newTransactionReadOnly()) {
              try {
                  returnValue = callback.doInTransaction();                    
-             } catch (Exception cause) {
-                 throw cause;
              } finally {
            	  tx.rollback();
              }

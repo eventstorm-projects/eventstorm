@@ -21,9 +21,9 @@ import eu.eventstorm.cloudevents.CloudEvent;
 @SuppressWarnings({ "serial" })
 final class CloudEventSerializer extends StdSerializer<CloudEvent> {
 
-	private final TypeRegistry registry;
+	private transient final TypeRegistry registry;
 	
-	private final JsonFormat.Printer printer;
+	private transient final JsonFormat.Printer printer;
 	
 	CloudEventSerializer(TypeRegistry registry) {
 		super(CloudEvent.class, false);
