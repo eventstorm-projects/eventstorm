@@ -369,6 +369,10 @@ final class RepositoryGenerator implements Generator {
             return;
         }
     	
+    	if (descriptor.ids().size() == 0) {
+    		return;
+    	}
+    	
     	 List<PojoPropertyDescriptor> ppds = descriptor.ids();
 
     	 writer.write("        this.delete = delete(TABLE).where(");
