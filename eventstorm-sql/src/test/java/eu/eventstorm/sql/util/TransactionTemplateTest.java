@@ -1,5 +1,6 @@
 package eu.eventstorm.sql.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -107,5 +108,34 @@ class TransactionTemplateTest {
 
 	}
 	
-	
+
+	@Test
+	void simpleIsolated() {
+
+		Student student = new StudentImpl();
+        student.setId(1);
+        student.setAge(37);
+        student.setCode("Code1");
+
+        Student s2 = new StudentImpl();
+        s2.setId(2);
+        s2.setAge(38);
+        s2.setCode("Code2");
+       
+        Assertions.assertThrows(RuntimeException.class, () -> template.executeWithIsolatedReadWrite(() -> {
+        	this.repository.insert(student);
+        	template.executeWithIsolatedReadWrite(() -> {
+            	this.repository.insert(s2);
+            	return null;
+            });
+        	assertEquals(2, template.executeWithReadOnly(() -> this.repository.findAll().count()));
+        	throw new RuntimeException();
+        }));
+
+        assertEquals(1, template.executeWithReadOnly(() -> this.repository.findAll().count()));
+        
+        assertNull(template.executeWithReadOnly(() -> repository.findById(1)));
+        assertNotNull(template.executeWithReadOnly(() -> repository.findById(2)));
+
+	}
 }

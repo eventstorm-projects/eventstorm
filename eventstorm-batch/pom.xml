@@ -97,7 +97,6 @@
 							<goal>run</goal>
 						</goals>
 						<configuration>
-							<protocVersion>3.11.4</protocVersion>
 							<inputDirectories>
 								<include>src/main/resources</include>
 							</inputDirectories>
@@ -112,7 +111,6 @@
 							<goal>run</goal>
 						</goals>
 						<configuration>
-							<protocVersion>3.11.4</protocVersion>
 							<inputDirectories>
 								<include>src/test/resources</include>
 							</inputDirectories>
