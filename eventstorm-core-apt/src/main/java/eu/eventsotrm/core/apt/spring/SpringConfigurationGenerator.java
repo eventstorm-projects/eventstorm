@@ -57,6 +57,7 @@ public final class SpringConfigurationGenerator {
 				writeStreamManager(writer, env, code);
 				writeTypeRegistry(writer, env, code);
 				writeCommandModule(writer, env, code);
+				writeQueryModule(writer, env, code);
 		        writer.write("}");
 			}
 		} catch (IOException cause) {
@@ -65,6 +66,7 @@ public final class SpringConfigurationGenerator {
     	 
     }
 	
+
 	private void writeCommandModule(Writer writer, ProcessingEnvironment env, SourceCode sourceCode) {
 		AtomicInteger counter = new AtomicInteger();
 		sourceCode.forEachAllCommandPackage((pack, list) -> {
@@ -84,6 +86,26 @@ public final class SpringConfigurationGenerator {
 			}
 		});
 		
+	}
+	
+	private void writeQueryModule(Writer writer, ProcessingEnvironment env, SourceCode sourceCode) {
+		AtomicInteger counter = new AtomicInteger();
+		sourceCode.forEachDatabaseQueryPackage((pack, list) -> {
+			try {
+				writeNewLine(writer);
+				writer.write("    @Bean");
+				writeNewLine(writer);
+				writer.write("    com.fasterxml.jackson.databind.Module queryModule"+ counter.incrementAndGet() +"() {");
+				 writeNewLine(writer);
+				writer.write("       return new " + pack + ".json.QueryModule();");
+			    writeNewLine(writer);
+				writer.write("    }");
+			    writeNewLine(writer);
+				
+			} catch (Exception cause) {
+				logger.error("Exception for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
+			}
+		});
 	}
 
 	private void writeTypeRegistry(Writer writer, ProcessingEnvironment env, SourceCode sourceCode) throws IOException {

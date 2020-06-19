@@ -16,6 +16,7 @@ import static eu.eventstorm.sql.expression.Expressions.eq;
 import java.util.stream.Stream;
 
 import eu.eventstorm.sql.Database;
+import eu.eventstorm.sql.SqlQuery;
 import eu.eventstorm.sql.jdbc.ResultSetMapper;
 
 /**
@@ -23,8 +24,8 @@ import eu.eventstorm.sql.jdbc.ResultSetMapper;
  */
 final class DatabaseRepository extends AbstractDatabaseEventRepository {
 
-	private final String findByAggreateTypeAndAggregateIdLock;
-	private final String findByAggreateTypeAndAggregateId;
+	private final SqlQuery findByAggreateTypeAndAggregateIdLock;
+	private final SqlQuery findByAggreateTypeAndAggregateId;
 
 	DatabaseRepository(Database database) {
 		super(database);

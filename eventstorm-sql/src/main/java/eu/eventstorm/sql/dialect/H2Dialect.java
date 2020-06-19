@@ -35,6 +35,11 @@ final class H2Dialect extends AbstractDialect {
     public String range(int offset, int limit) {
         return "LIMIT " + limit + " OFFSET " + offset;
     }
+    
+	@Override
+	public String range() {
+		return "LIMIT ? OFFSET ?";
+	}
 
 	@Override
 	public Json createJson(Map<String, Object> value) {

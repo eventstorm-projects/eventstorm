@@ -14,8 +14,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
-import javax.sql.DataSource;
-
 import org.h2.jdbcx.JdbcConnectionPool;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,13 +23,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import eu.eventstorm.sql.builder.DeleteBuilder;
 import eu.eventstorm.sql.builder.InsertBuilder;
 import eu.eventstorm.sql.builder.SelectBuilder;
+import eu.eventstorm.sql.builder.SqlQueryImpl;
 import eu.eventstorm.sql.builder.UpdateBuilder;
 import eu.eventstorm.sql.expression.AggregateFunctions;
 import eu.eventstorm.sql.impl.DatabaseBuilder;
 import eu.eventstorm.sql.impl.TransactionManagerImpl;
 import eu.eventstorm.sql.jdbc.Batch;
-import eu.eventstorm.sql.jdbc.PreparedStatementSetter;
-import eu.eventstorm.sql.jdbc.PreparedStatementSetters;
 import eu.eventstorm.sql.jdbc.ResultSetMappers;
 import eu.eventstorm.sql.model.ex001.Student;
 import eu.eventstorm.sql.model.ex001.StudentDescriptor;
@@ -72,7 +69,7 @@ class RepositoryTest {
 	void testSelect() {
 
 		SelectBuilder builder = repo.select(StudentDescriptor.ALL).from(StudentDescriptor.TABLE);
-		assertEquals("SELECT id,code,age,overall_rating,created_at,readonly FROM student", builder.build());
+		assertEquals("SELECT id,code,age,overall_rating,created_at,readonly FROM student", builder.build().sql());
 		try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
 			Student s = repo.executeSelect(builder.build(), noParameter(), STUDENT);
 			assertNull(s);
@@ -156,7 +153,7 @@ class RepositoryTest {
 	void testSelectExceptionOnExecuteQuery() {
 		try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
 			EventstormRepositoryException ex = assertThrows(EventstormRepositoryException.class,
-			        () -> repo.executeSelect("select nextval('Hello world')", noParameter(), STUDENT));
+			        () -> repo.executeSelect(new SqlQueryImpl("select nextval('Hello world')"), noParameter(), STUDENT));
 			assertEquals(EventstormRepositoryException.Type.SELECT_EXECUTE_QUERY, ex.getType());
 			tx.rollback();
 		}
@@ -165,7 +162,7 @@ class RepositoryTest {
 	@Test
 	void testStream() throws SQLException {
 
-		String insert = repo.insert(StudentDescriptor.TABLE, StudentDescriptor.IDS, StudentDescriptor.COLUMNS).build();
+		SqlQuery insert = repo.insert(StudentDescriptor.TABLE, StudentDescriptor.IDS, StudentDescriptor.COLUMNS).build();
 		Student student = new StudentImpl();
 		student.setCreatedAt(new Timestamp(System.currentTimeMillis()));
 		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
@@ -196,7 +193,7 @@ class RepositoryTest {
 		    tx.rollback();
 		}
 
-		String delete = repo.delete(StudentDescriptor.TABLE).where(eq(StudentDescriptor.ID)).build();
+		SqlQuery delete = repo.delete(StudentDescriptor.TABLE).where(eq(StudentDescriptor.ID)).build();
 		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
 			for (int i = 1 ; i < 101 ; i ++) {
 				final int j = i;
@@ -228,7 +225,7 @@ class RepositoryTest {
 
 	@Test
 	void testDeleteException() {
-		String delete = repo.delete(StudentDescriptor.TABLE).where(eq(StudentDescriptor.ID)).build();
+		SqlQuery delete = repo.delete(StudentDescriptor.TABLE).where(eq(StudentDescriptor.ID)).build();
 		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
 			EventstormRepositoryException ex = assertThrows(EventstormRepositoryException.class, () -> repo.executeDelete(delete, (ps) -> {
 				ps.setString(100, "hello");
@@ -245,7 +242,7 @@ class RepositoryTest {
 	@Test
 	void testBatch() throws SQLException {
 
-		String insert = repo.insert(StudentDescriptor.TABLE, StudentDescriptor.IDS, StudentDescriptor.COLUMNS).build();
+		SqlQuery insert = repo.insert(StudentDescriptor.TABLE, StudentDescriptor.IDS, StudentDescriptor.COLUMNS).build();
 
 		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
             try (Batch<Student> batch = repo.batch(insert, STUDENT)) {
@@ -261,7 +258,7 @@ class RepositoryTest {
 			tx.commit();
         }
 
-         String select  = repo.select(AggregateFunctions.count(StudentDescriptor.ID))
+		SqlQuery select  = repo.select(AggregateFunctions.count(StudentDescriptor.ID))
                 .from(StudentDescriptor.TABLE)
                 .build();
 
@@ -271,7 +268,7 @@ class RepositoryTest {
 			tx.rollback();
         }
 
-		String delete = repo.delete(StudentDescriptor.TABLE).where(eq(StudentDescriptor.ID)).build();
+        SqlQuery delete = repo.delete(StudentDescriptor.TABLE).where(eq(StudentDescriptor.ID)).build();
 		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
 			for (int i = 1 ; i < 101 ; i ++) {
 				final int j = i;
@@ -291,7 +288,7 @@ class RepositoryTest {
 	@Test
 	void testBatchWithIdentifierGenerator() throws SQLException {
 
-		String insert = repo.insert(StudentDescriptor.TABLE, StudentDescriptor.IDS, StudentDescriptor.COLUMNS).build();
+		SqlQuery insert = repo.insert(StudentDescriptor.TABLE, StudentDescriptor.IDS, StudentDescriptor.COLUMNS).build();
 
 		AtomicInteger atomicInteger = new AtomicInteger(1);
 
@@ -309,7 +306,7 @@ class RepositoryTest {
         }
 
 		
-         String select  = repo.select(AggregateFunctions.count(StudentDescriptor.ID))
+		SqlQuery select  = repo.select(AggregateFunctions.count(StudentDescriptor.ID))
                 .from(StudentDescriptor.TABLE)
                 .build();
 
@@ -319,7 +316,7 @@ class RepositoryTest {
 			tx.rollback();
         }
 
-		String delete = repo.delete(StudentDescriptor.TABLE).where(eq(StudentDescriptor.ID)).build();
+        SqlQuery delete = repo.delete(StudentDescriptor.TABLE).where(eq(StudentDescriptor.ID)).build();
 		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
 			for (int i = 1 ; i < 101 ; i ++) {
 				final int j = i;

@@ -1,4 +1,4 @@
-package eu.eventsotrm.core.apt;
+package eu.eventsotrm.core.apt.query.db;
 
 import static eu.eventsotrm.sql.apt.Helper.preparedStatementGetter;
 import static eu.eventsotrm.sql.apt.Helper.writeGenerated;
@@ -14,6 +14,7 @@ import java.time.OffsetDateTime;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.JavaFileObject;
 
+import eu.eventsotrm.core.apt.SourceCode;
 import eu.eventsotrm.core.apt.model.QueryDescriptor;
 import eu.eventsotrm.core.apt.model.QueryPropertyDescriptor;
 import eu.eventsotrm.sql.apt.Helper;
@@ -27,21 +28,22 @@ import eu.eventstorm.sql.jdbc.ResultSetMapper;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-final class QueryDatabaseMapperGenerator {
+public final class QueryDatabaseMapperGenerator {
 
     private final Logger logger;
 
-	QueryDatabaseMapperGenerator() {
+    public QueryDatabaseMapperGenerator() {
 		logger = LoggerFactory.getInstance().getLogger(QueryDatabaseMapperGenerator.class);
 	}
 
-	public void generate(ProcessingEnvironment env, QueryDescriptor descriptor) {
-		try {
-			doGenerate(env, descriptor);
-		} catch (Exception cause) {
-			logger.error("QueryDatabaseDescriptorGenerator -> Exception for [" + descriptor + "] -> [" + cause.getMessage() + "]", cause);
-		}
-
+	public void generate(ProcessingEnvironment env, SourceCode sourceCode) {
+		sourceCode.forEachDatabaseQuery((descriptor) -> {
+			try {
+				doGenerate(env, descriptor);
+			} catch (Exception cause) {
+				logger.error("QueryDatabaseDescriptorGenerator -> Exception for [" + descriptor + "] -> [" + cause.getMessage() + "]", cause);
+			}
+		});
 	}
 
 	private void doGenerate(ProcessingEnvironment env, QueryDescriptor descriptor) throws IOException {

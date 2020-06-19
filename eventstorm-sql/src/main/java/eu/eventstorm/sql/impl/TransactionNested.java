@@ -2,6 +2,8 @@ package eu.eventstorm.sql.impl;
 
 import java.util.UUID;
 
+import eu.eventstorm.sql.SqlQuery;
+
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
@@ -44,18 +46,18 @@ final class TransactionNested implements TransactionSupport {
     }
 
     @Override
-    public TransactionQueryContext read(String sql) {
-        return this.parent.read(sql);
+    public TransactionQueryContext read(SqlQuery query) {
+        return this.parent.read(query);
     }
 
     @Override
-    public TransactionQueryContext write(String sql) {
-        return this.parent.write(sql);
+    public TransactionQueryContext write(SqlQuery query) {
+        return this.parent.write(query);
     }
     
     @Override
-	public TransactionQueryContext writeAutoIncrement(String sql) {
-    	 return this.parent.writeAutoIncrement(sql);
+	public TransactionQueryContext writeAutoIncrement(SqlQuery query) {
+    	 return this.parent.writeAutoIncrement(query);
 	}
 
 	@Override

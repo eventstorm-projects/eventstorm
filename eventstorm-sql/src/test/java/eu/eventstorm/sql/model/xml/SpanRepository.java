@@ -10,6 +10,7 @@ import static eu.eventstorm.sql.model.xml.SpanDescriptor.TABLE;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import eu.eventstorm.sql.SqlQuery;
 import eu.eventstorm.sql.jdbc.Batch;
 
 
@@ -17,9 +18,9 @@ public class SpanRepository extends eu.eventstorm.sql.Repository {
 
 	private static final SpanMapper SPAN = new SpanMapper();
 
-    private final String findById;
-    private final String findByIdForUpdate;
-    private final String insert;
+    private final SqlQuery findById;
+    private final SqlQuery findByIdForUpdate;
+    private final SqlQuery insert;
 
     protected SpanRepository(eu.eventstorm.sql.Database database){
         super(database);

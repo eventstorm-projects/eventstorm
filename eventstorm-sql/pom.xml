@@ -60,6 +60,12 @@
 			<scope>test</scope>
 		</dependency>
 		
+		<dependency>
+			<groupId>eu.eventstorm</groupId>
+			<artifactId>eventstorm-csv</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		
 	</dependencies>
 
 </project>

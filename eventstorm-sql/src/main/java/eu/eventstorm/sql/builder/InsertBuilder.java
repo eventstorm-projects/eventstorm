@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Dialect;
+import eu.eventstorm.sql.SqlQuery;
 import eu.eventstorm.sql.desc.SqlPrimaryKey;
 import eu.eventstorm.sql.desc.SqlSingleColumn;
 import eu.eventstorm.sql.desc.SqlTable;
@@ -35,7 +36,7 @@ public final class InsertBuilder extends AbstractBuilder {
         this.columns = columns;
     }
 
-    public String build() {
+    public SqlQuery build() {
         StringBuilder builder = new StringBuilder(2048);
         builder.append("INSERT INTO ");
         builder.append(table(this.table, false));
@@ -46,7 +47,7 @@ public final class InsertBuilder extends AbstractBuilder {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("SQL [{}]", sql);
         }
-        return sql;
+        return new SqlQueryImpl(sql);
     }
 
     private void builderValues(StringBuilder builder) {

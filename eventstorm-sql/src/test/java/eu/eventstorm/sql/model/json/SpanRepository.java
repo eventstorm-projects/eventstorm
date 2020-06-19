@@ -7,16 +7,17 @@ import static eu.eventstorm.sql.model.json.SpanDescriptor.ID;
 import static eu.eventstorm.sql.model.json.SpanDescriptor.IDS;
 import static eu.eventstorm.sql.model.json.SpanDescriptor.TABLE;
 
+import eu.eventstorm.sql.SqlQuery;
 import eu.eventstorm.sql.jdbc.Batch;
 
 public class SpanRepository extends eu.eventstorm.sql.Repository {
 
 	private static final SpanMapper SPAN = new SpanMapper();
 
-    private final String findById;
-    private final String findByIdForUpdate;
-    private final String insert;
-    private final String update;
+    private final SqlQuery findById;
+    private final SqlQuery findByIdForUpdate;
+    private final SqlQuery insert;
+    private final SqlQuery update;
 
     protected SpanRepository(eu.eventstorm.sql.Database database){
         super(database);

@@ -2,6 +2,8 @@ package eu.eventstorm.sql.impl;
 
 import java.sql.Connection;
 
+import eu.eventstorm.sql.SqlQuery;
+
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
@@ -22,7 +24,7 @@ final class TransactionReadOnly extends AbstractTransaction {
 	}
 
 	@Override
-	public TransactionQueryContext write(String sql) {
+	public TransactionQueryContext write(SqlQuery query) {
 		throw new TransactionException(TransactionException.Type.READ_ONLY);
 	}
 
@@ -35,7 +37,7 @@ final class TransactionReadOnly extends AbstractTransaction {
 	}
 
 	@Override
-	public TransactionQueryContext writeAutoIncrement(String sql) {
+	public TransactionQueryContext writeAutoIncrement(SqlQuery query) {
 		throw new TransactionException(TransactionException.Type.READ_ONLY);
 	}
 

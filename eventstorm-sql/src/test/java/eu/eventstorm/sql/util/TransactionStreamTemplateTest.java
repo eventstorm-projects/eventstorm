@@ -55,7 +55,7 @@ class TransactionStreamTemplateTest {
 				.build();
 		
 		template = new TransactionTemplate(db.transactionManager());
-		streamTemplate = new TransactionStreamTemplate(db);
+		streamTemplate = new TransactionStreamTemplate(db.transactionManager());
 		
 		repository = new AbstractStudentRepository(db) {
         };

@@ -1,4 +1,4 @@
-package eu.eventsotrm.core.apt;
+package eu.eventsotrm.core.apt.query;
 
 import static eu.eventsotrm.sql.apt.Helper.writeGenerated;
 import static eu.eventsotrm.sql.apt.Helper.writeNewLine;
@@ -11,6 +11,7 @@ import java.util.List;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.JavaFileObject;
 
+import eu.eventsotrm.core.apt.SourceCode;
 import eu.eventsotrm.core.apt.model.QueryDescriptor;
 import eu.eventsotrm.core.apt.model.QueryPropertyDescriptor;
 import eu.eventsotrm.sql.apt.Helper;
@@ -20,11 +21,11 @@ import eu.eventsotrm.sql.apt.log.LoggerFactory;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-final class QueryBuilderGenerator {
+public final class QueryBuilderGenerator {
 
 	private final Logger logger;
 
-	QueryBuilderGenerator() {
+	public QueryBuilderGenerator() {
 		logger = LoggerFactory.getInstance().getLogger(QueryBuilderGenerator.class);
 	}
 

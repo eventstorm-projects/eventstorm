@@ -9,6 +9,8 @@ public interface Json {
 
     JsonList asList();
 
+    byte[] asRaw();
+    
     void flush();
 
 }

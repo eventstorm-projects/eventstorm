@@ -1,4 +1,4 @@
-package eu.eventsotrm.core.apt;
+package eu.eventsotrm.core.apt.query.db;
 
 import static eu.eventsotrm.sql.apt.Helper.writeGenerated;
 import static eu.eventsotrm.sql.apt.Helper.writeNewLine;
@@ -12,6 +12,8 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.TypeElement;
 import javax.tools.JavaFileObject;
 
+import eu.eventsotrm.core.apt.SourceCode;
+import eu.eventsotrm.core.apt.model.DatabaseQueryDescriptor;
 import eu.eventsotrm.core.apt.model.QueryDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
@@ -21,17 +23,17 @@ import eu.eventstorm.sql.Module;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-final class QueryDatabaseModuleGenerator {
+public final class QueryDatabaseModuleGenerator {
 
     private final Logger logger;
 
-	QueryDatabaseModuleGenerator() {
+    public QueryDatabaseModuleGenerator() {
 		logger = LoggerFactory.getInstance().getLogger(QueryDatabaseModuleGenerator.class);
 	}
 
     public void generate(ProcessingEnvironment env, SourceCode sourceCode) {
 
-        sourceCode.forEachQueryPackage((pack, descriptors) -> {
+        sourceCode.forEachDatabaseQueryPackage((pack, descriptors) -> {
             try {
                 create(env, pack, descriptors);
             } catch (Exception cause) {
@@ -40,7 +42,7 @@ final class QueryDatabaseModuleGenerator {
         });
     }
 
-    private void create(ProcessingEnvironment env, String pack, List<QueryDescriptor> descriptors) throws IOException {
+    private void create(ProcessingEnvironment env, String pack, List<DatabaseQueryDescriptor> descriptors) throws IOException {
 
         // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
         if (env.getElementUtils().getTypeElement(pack + ".Module") != null) {
@@ -65,7 +67,7 @@ final class QueryDatabaseModuleGenerator {
         writer.close();
     }
 
-    private static void writeConstructor(Writer writer, ProcessingEnvironment env, String classname, List<QueryDescriptor> descriptors) throws IOException {
+    private static void writeConstructor(Writer writer, ProcessingEnvironment env, String classname, List<DatabaseQueryDescriptor> descriptors) throws IOException {
 
         writeNewLine(writer);
         writer.write("     public " + classname + "(String name, String catalog) {");

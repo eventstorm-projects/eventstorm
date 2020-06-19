@@ -1,4 +1,4 @@
-package eu.eventsotrm.core.apt;
+package eu.eventsotrm.core.apt.query.db;
 
 import static eu.eventsotrm.sql.apt.Helper.toUpperCase;
 import static eu.eventsotrm.sql.apt.Helper.writeGenerated;
@@ -13,6 +13,7 @@ import javax.tools.JavaFileObject;
 
 import com.google.common.collect.ImmutableList;
 
+import eu.eventsotrm.core.apt.SourceCode;
 import eu.eventsotrm.core.apt.model.QueryDescriptor;
 import eu.eventsotrm.core.apt.model.QueryPropertyDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
@@ -29,7 +30,7 @@ import eu.eventstorm.sql.desc.SqlTable;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-final class QueryDatabaseDescriptorGenerator {
+public final class QueryDatabaseDescriptorGenerator {
 
 	private final Logger logger;
 
@@ -37,15 +38,17 @@ final class QueryDatabaseDescriptorGenerator {
 		logger = LoggerFactory.getInstance().getLogger(QueryDatabaseDescriptorGenerator.class);
 	}
 
-	public void generate(ProcessingEnvironment env, QueryDescriptor descriptor) {
-		try {
-			doGenerate(env, descriptor);
-		} catch (Exception cause) {
-			logger.error("QueryDatabaseDescriptorGenerator -> Exception for [" + descriptor + "] -> [" + cause.getMessage() + "]", cause);
-		}
-
-	}
-
+	
+	public void generate(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
+        sourceCode.forEachDatabaseQuery(t -> {
+            try {
+            	doGenerate(processingEnvironment, t);
+            } catch (Exception cause) {
+            	logger.error("Exception for [" + t + "] -> [" + cause.getMessage() + "]", cause);
+            }
+        });
+    }
+	
 	private void doGenerate(ProcessingEnvironment env, QueryDescriptor descriptor)
 			throws IOException {
 

@@ -9,6 +9,7 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -166,5 +167,11 @@ class DatesTest {
 		assertThrows(DateTimeException.class, () -> Dates.parseLocalTime("1A:12:12"));
 		assertThrows(DateTimeException.class, () -> Dates.parseLocalTime("12:A1:12"));
 		
+	}
+	
+	@Test
+	void testFormatOffsetDateTime() {
+		OffsetDateTime odt = Dates.parseOffsetDateTime("2011-03-11T18:35:23.123Z");
+		Assertions.assertEquals("2011-03-11T18:35:23.123Z", Dates.format(odt));
 	}
 }

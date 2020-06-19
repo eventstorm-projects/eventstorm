@@ -79,4 +79,9 @@ public final class BlobJson extends DefaultBlob implements Json {
         	 setBuf(this.adaptee.write(this.mapper));
         }
 	}
+
+	@Override
+	public byte[] asRaw() {
+		return getBuf();
+	}
 }

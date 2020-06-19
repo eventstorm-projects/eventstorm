@@ -4,7 +4,7 @@ import java.util.List;
 
 import javax.lang.model.element.Element;
 
-public class QueryDescriptor implements Descriptor {
+public abstract class QueryDescriptor implements Descriptor {
 
 	private final Element element;
 	private final List<QueryPropertyDescriptor> properties;

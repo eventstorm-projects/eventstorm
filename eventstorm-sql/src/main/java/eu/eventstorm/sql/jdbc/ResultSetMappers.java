@@ -12,6 +12,9 @@ import eu.eventstorm.sql.EventstormSqlExceptionType;
  */
 public final class ResultSetMappers {
 
+	private ResultSetMappers() {
+	}
+	
 	public static final ResultSetMapper<Long> SINGLE_LONG = (dialect, rs) -> {
 		long value = rs.getLong(1);
 		if (rs.next()) {
@@ -21,10 +24,8 @@ public final class ResultSetMappers {
 	};
 
 	public static final ResultSetMapper<String> STRING = (dialect, rs) -> rs.getString(1);
-
-
-	private ResultSetMappers() {
-	}
+	
+	public static final ResultSetMapper<Boolean> IS_EXIST = (dialect, rs) -> rs.next();
 
 	@SuppressWarnings("serial")
 	public static class ResultSetMapperException extends EventstormSqlException {

@@ -3,6 +3,7 @@ package eu.eventstorm.sql.impl;
 import java.sql.PreparedStatement;
 
 import eu.eventstorm.sql.EventstormSqlException;
+import eu.eventstorm.sql.SqlQuery;
 import eu.eventstorm.sql.tracer.TransactionSpan;
 import eu.eventstorm.util.ToStringBuilder;
 
@@ -14,9 +15,9 @@ final class TransactionQueryContextImpl implements TransactionQueryContext {
 	private final TransactionSpan span;
 	private final PreparedStatement ps;
 
-	public TransactionQueryContextImpl(PreparedStatement ps, String sql, TransactionManagerConfiguration configuration) {
+	public TransactionQueryContextImpl(PreparedStatement ps, SqlQuery query, TransactionManagerConfiguration configuration) {
 		this.span = configuration.getTracer().span("query");
-		this.span.tag("sql", sql);
+		this.span.tag("sql", query.sql());
 		this.ps = ps;
 	}
 

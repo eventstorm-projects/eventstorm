@@ -41,5 +41,7 @@ public interface Dialect {
 	Xml createXml(FastByteArrayInputStream fbais);
 
 	String range(int offset, int limit);
+	
+	String range();
 
 }

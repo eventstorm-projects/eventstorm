@@ -8,6 +8,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.format.ResolverStyle;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -22,6 +24,9 @@ public final class Dates {
 	private static final char TIME_SEPARATOR = ':';
 	private static final char FRACTION_SEPARATOR = '.';
 	private static final char ZULU = 'Z';
+
+	public static final DateTimeFormatter RFC3339 = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss[.SSS]XXX")
+	            .withResolverStyle(ResolverStyle.LENIENT);
 
 	private Dates() {
 	}
@@ -142,6 +147,13 @@ public final class Dates {
 		}
 
 		return ZoneOffset.ofHoursMinutes(hours, minutes);
+	}
+	
+	public static String format(OffsetDateTime odt) {
+		if (odt == null) {
+			return null;
+		}
+		return RFC3339.format(odt);
 	}
 
 	private static OffsetDateTime seconds(int year, int month, int day, int hour, int minute, char[] chars) {

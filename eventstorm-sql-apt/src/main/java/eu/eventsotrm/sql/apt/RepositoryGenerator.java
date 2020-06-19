@@ -25,6 +25,7 @@ import eu.eventsotrm.sql.apt.model.PojoDescriptor;
 import eu.eventsotrm.sql.apt.model.PojoPropertyDescriptor;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Repository;
+import eu.eventstorm.sql.SqlQuery;
 import eu.eventstorm.sql.annotation.AutoIncrement;
 import eu.eventstorm.sql.annotation.CreateTimestamp;
 import eu.eventstorm.sql.annotation.JoinColumn;
@@ -103,6 +104,9 @@ final class RepositoryGenerator implements Generator {
         writer.write("import static ");
         writer.write(descriptor.fullyQualidiedClassName() + "Descriptor.TABLE;");
         writeNewLine(writer);
+        writer.write("import " + SqlQuery.class.getName() + ";");
+        writeNewLine(writer);
+        
         for (PojoPropertyDescriptor id : descriptor.ids()) {
             writer.write("import static ");
             writer.write(descriptor.fullyQualidiedClassName() + "Descriptor.");
@@ -141,33 +145,33 @@ final class RepositoryGenerator implements Generator {
         writeNewLine(writer);
         
         if (descriptor.ids().size() > 0) {
-        	 writer.write("    private final String findById;");
+        	 writer.write("    private final SqlQuery findById;");
              writeNewLine(writer);
         }
 
         if (descriptor.businessKeys().size() > 0) {
-            writer.write("    private final String findByBusinessKey;");
+            writer.write("    private final SqlQuery findByBusinessKey;");
             writeNewLine(writer);
         }
 
         if (descriptor.getTable() != null && !descriptor.getTable().immutable()) {
         	if (descriptor.ids().size() > 0) {
-        		writer.write("    private final String findByIdForUpdate;");
+        		writer.write("    private final SqlQuery findByIdForUpdate;");
                 writeNewLine(writer);
-                writer.write("    private final String delete;");
+                writer.write("    private final SqlQuery delete;");
                 writeNewLine(writer);
-                writer.write("    private final String update;");
+                writer.write("    private final SqlQuery update;");
                 writeNewLine(writer);
         	}
-            writer.write("    private final String insert;");
+            writer.write("    private final SqlQuery insert;");
             writeNewLine(writer);
         }
 
         JoinTable joinTable = descriptor.element().getAnnotation(JoinTable.class);
         if (joinTable != null) {
-            writer.write("    private final String insert;");
+            writer.write("    private final SqlQuery insert;");
             writeNewLine(writer);
-            writer.write("    private final String delete;");
+            writer.write("    private final SqlQuery delete;");
             writeNewLine(writer);
         }
 

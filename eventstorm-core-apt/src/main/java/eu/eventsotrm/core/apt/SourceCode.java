@@ -20,7 +20,9 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.eventsotrm.core.apt.model.AbstractCommandDescriptor;
 import eu.eventsotrm.core.apt.model.CommandDescriptor;
+import eu.eventsotrm.core.apt.model.DatabaseQueryDescriptor;
 import eu.eventsotrm.core.apt.model.Descriptor;
+import eu.eventsotrm.core.apt.model.ElsQueryDescriptor;
 import eu.eventsotrm.core.apt.model.EmbeddedCommandDescriptor;
 import eu.eventsotrm.core.apt.model.EventEvolutionDescriptor;
 import eu.eventsotrm.core.apt.model.QueryDescriptor;
@@ -45,22 +47,20 @@ public final class SourceCode {
 	
 	private final ImmutableList<EventEvolutionDescriptor> eventEvolutionDescriptors;
 	
-//	private final ImmutableMap<String, EventDescriptor> events;
-//	
-//	private final ImmutableMap<String, ImmutableList<EventDescriptor>> eventpackages;
-
 	private final Map<String, ImmutableList<RestControllerDescriptor>> restControllers;
 	
-	private final ImmutableMap<String, QueryDescriptor> queries;
-	
-	private final ImmutableMap<String, ImmutableList<QueryDescriptor>> queryPackages;
+	private final ImmutableMap<String, ElsQueryDescriptor> queriesElasticSearch;
+	private final ImmutableMap<String, DatabaseQueryDescriptor> queriesDatabase;
+	private final ImmutableMap<String, ImmutableList<DatabaseQueryDescriptor>> queriesDatabasePackages;
 	
 	SourceCode(ProcessingEnvironment env, CqrsConfiguration cqrsConfiguration,
 			List<CommandDescriptor> commands,
 			List<EmbeddedCommandDescriptor> embeddedCommands,
 			List<EventEvolutionDescriptor> eventEvolutionDescriptors,
 	//		List<EventDescriptor> events,
-	        List<RestControllerDescriptor> restControllerDescriptors, List<QueryDescriptor> queries) {
+	        List<RestControllerDescriptor> restControllerDescriptors, 
+	        List<ElsQueryDescriptor> queriesElasticSearch,
+	        List<DatabaseQueryDescriptor> queriesDatabase) {
 		this.cqrsConfiguration = cqrsConfiguration;
 		this.commands = commands.stream().collect(toImmutableMap(CommandDescriptor::fullyQualidiedClassName, identity()));
 		this.embeddedCommands = embeddedCommands.stream().collect(toImmutableMap(EmbeddedCommandDescriptor::fullyQualidiedClassName, identity()));
@@ -76,8 +76,11 @@ public final class SourceCode {
 //		this.eventpackages = mapByPackage(env, this.events);
 		this.restControllers = restControllerDescriptors.stream()
 		        .collect(groupingBy( t -> t.getFCQN(env), mapping(identity(), toImmutableList())));
-		this.queries = queries.stream().collect(toImmutableMap(QueryDescriptor::fullyQualidiedClassName, identity()));
-		this.queryPackages = mapByPackage(env, this.queries);
+		
+		this.queriesElasticSearch = queriesElasticSearch.stream().collect(toImmutableMap(ElsQueryDescriptor::fullyQualidiedClassName, identity()));
+		this.queriesDatabase = queriesDatabase.stream().collect(toImmutableMap(DatabaseQueryDescriptor::fullyQualidiedClassName, identity()));
+		this.queriesDatabasePackages = mapByPackage(env, this.queriesDatabase);
+		//this.queryPackages = mapByPackage(env, this.queries);
 	}
 
 	public void forEachCommand(Consumer<CommandDescriptor> consumer) {
@@ -104,12 +107,25 @@ public final class SourceCode {
 		this.allCommandsPackages.forEach(consumer);
 	}
 	
-    public void forEachQuery(Consumer<QueryDescriptor> consumer) {
-        this.queries.values().forEach(consumer);
+	public void forEventEvolution(Consumer<EventEvolutionDescriptor> consumer) {
+    	this.eventEvolutionDescriptors.forEach(consumer);
+    }
+	
+	public void forEachQuery(Consumer<QueryDescriptor> consumer) {
+        this.queriesElasticSearch.values().forEach(consumer);
+        this.queriesDatabase.values().forEach(consumer);
+    }
+	
+    public void forEachElasticSearchQuery(Consumer<ElsQueryDescriptor> consumer) {
+        this.queriesElasticSearch.values().forEach(consumer);
     }
     
-    public void forEventEvolution(Consumer<EventEvolutionDescriptor> consumer) {
-    	this.eventEvolutionDescriptors.forEach(consumer);
+    public void forEachDatabaseQuery(Consumer<DatabaseQueryDescriptor> consumer) {
+        this.queriesDatabase.values().forEach(consumer);
+    }
+    
+    public void forEachDatabaseQueryPackage(BiConsumer<String, ImmutableList<DatabaseQueryDescriptor>> consumer) {
+        this.queriesDatabasePackages.forEach(consumer);
     }
 
 //	public void forEachEvent(Consumer<EventDescriptor> consumer) {
@@ -119,10 +135,10 @@ public final class SourceCode {
 //	public void forEachEventPackage(BiConsumer<String, ImmutableList<EventDescriptor>> consumer) {
 //		this.eventpackages.forEach(consumer);
 //	}
-	
-	public void forEachQueryPackage(BiConsumer<String, ImmutableList<QueryDescriptor>> consumer) {
-		this.queryPackages.forEach(consumer);
-	}
+//	
+//	public void forEachQueryPackage(BiConsumer<String, ImmutableList<ElsQueryDescriptor>> consumer) {
+//		this.queryPackages.forEach(consumer);
+//	}
 
 	public void forEachRestController(BiConsumer<String, ImmutableList<RestControllerDescriptor>> consumer) {
 		this.restControllers.forEach(consumer);
@@ -156,8 +172,13 @@ public final class SourceCode {
 //		});
 //		logger.info("---------------------------------------------------------------------------------------------------------");
 		logger.info("---------------------------------------------------------------------------------------------------------");
-        logger.info("Number of query(ies) found : " + queries.size());
-        queries.values().forEach(desc -> {
+        logger.info("Number of Query ElasticSeach found : " + queriesElasticSearch.size());
+        queriesElasticSearch.values().forEach(desc -> {
+            logger.info("\t-> " + desc);
+        });
+        logger.info("---------------------------------------------------------------------------------------------------------");
+        logger.info("Number of Query Database found : " + queriesDatabase.size());
+        queriesDatabase.values().forEach(desc -> {
             logger.info("\t-> " + desc);
         });
         logger.info("---------------------------------------------------------------------------------------------------------");

@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.eventstorm.sql.Database;
+import eu.eventstorm.sql.SqlQuery;
 import eu.eventstorm.sql.desc.SqlTable;
 import eu.eventstorm.sql.expression.Expression;
 
@@ -32,7 +33,7 @@ public final class DeleteBuilder extends AbstractBuilder {
         return this;
     }
 
-    public String build() {
+    public SqlQuery build() {
         String sql = "DELETE FROM " +
                 table(this.table, false) +
                 " WHERE " +
@@ -42,7 +43,7 @@ public final class DeleteBuilder extends AbstractBuilder {
             LOGGER.debug("SQL [{}]", sql);
         }
 
-        return sql;
+        return new SqlQueryImpl(sql);
     }
 
 

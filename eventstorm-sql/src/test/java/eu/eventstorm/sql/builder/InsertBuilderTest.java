@@ -2,10 +2,10 @@ package eu.eventstorm.sql.builder;
 
 import static com.google.common.collect.ImmutableList.of;
 import static eu.eventstorm.sql.dialect.Dialects.h2;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -39,7 +39,7 @@ class InsertBuilderTest {
         when(database.getModule(TABLE_T1)).thenReturn(module);
 
         InsertBuilder builder = new InsertBuilder(database, TABLE_T1, COL_T1_01, of(COL_T1_02, COL_T1_03, COL_T1_04, COL_T1_05));
-        Assertions.assertEquals("INSERT INTO T1 (col_T1_01,col_T1_02,col_T1_03,col_T1_05) VALUES (?,?,?,?)", builder.build());
+        assertEquals("INSERT INTO T1 (col_T1_01,col_T1_02,col_T1_03,col_T1_05) VALUES (?,?,?,?)", builder.build().sql());
     }
 
     @Test
@@ -52,6 +52,6 @@ class InsertBuilderTest {
 
 
         InsertBuilder builder = new InsertBuilder(database, TABLE_T1, COL_T1_01, of(COL_T1_02, COL_T1_03, COL_T1_04, COL_T1_05));
-        Assertions.assertEquals("INSERT INTO to.T1 (col_T1_01,col_T1_02,col_T1_03,col_T1_05) VALUES (?,?,?,?)", builder.build());
+        assertEquals("INSERT INTO to.T1 (col_T1_01,col_T1_02,col_T1_03,col_T1_05) VALUES (?,?,?,?)", builder.build().sql());
     }
 }

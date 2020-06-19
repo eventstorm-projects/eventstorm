@@ -11,6 +11,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import eu.eventstorm.sql.Database;
+import eu.eventstorm.sql.SqlQuery;
+import eu.eventstorm.sql.builder.SqlQueryImpl;
 import eu.eventstorm.sql.desc.SqlSequence;
 import eu.eventstorm.sql.impl.TransactionQueryContext;
 
@@ -21,11 +23,12 @@ public abstract class SequenceGenerator<T> implements Identifier<T> {
 
 	private final Database database;
 
-	private final String sequence;
+	private final SqlQuery sequence;
 
 	public SequenceGenerator(Database database, SqlSequence sequence) {
 		this.database = database;
-		this.sequence = database.dialect().nextVal(sequence);
+		String sql = database.dialect().nextVal(sequence);
+		this.sequence = new SqlQueryImpl(sql);
 	}
 	
 	public final Database getDatabase() {

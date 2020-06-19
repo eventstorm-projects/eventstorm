@@ -10,6 +10,7 @@ import static eu.eventstorm.sql.model.ex001.StudentDescriptor.TABLE;
 
 import java.util.stream.Stream;
 
+import eu.eventstorm.sql.SqlQuery;
 import eu.eventstorm.sql.jdbc.PreparedStatementSetter;
 import eu.eventstorm.sql.jdbc.PreparedStatementSetters;
 
@@ -17,12 +18,12 @@ public abstract class AbstractStudentRepository extends eu.eventstorm.sql.Reposi
 
 	public static final eu.eventstorm.sql.jdbc.Mapper<Student> STUDENT = new StudentMapper();
 
-	private final String findById;
-	private final String findByBusinessKey;
-	private final String findByIdForUpdate;
-	private final String findAll;
-	private final String insert;
-	private final String update;
+	private final SqlQuery findById;
+	private final SqlQuery findByBusinessKey;
+	private final SqlQuery findByIdForUpdate;
+	private final SqlQuery findAll;
+	private final SqlQuery insert;
+	private final SqlQuery update;
 
 	protected AbstractStudentRepository(eu.eventstorm.sql.Database database) {
 		super(database);

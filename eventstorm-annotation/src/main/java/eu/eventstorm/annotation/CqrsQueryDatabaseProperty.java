@@ -13,6 +13,7 @@ import eu.eventstorm.sql.annotation.ViewColumn;
  */
 @Target({METHOD})
 @Retention(RUNTIME)
+@CqrsQueryProperty
 public @interface CqrsQueryDatabaseProperty {
 
 	ViewColumn column();

@@ -8,15 +8,17 @@ import static eu.eventstorm.sql.spring.ex001.StudentDescriptor.ID;
 import static eu.eventstorm.sql.spring.ex001.StudentDescriptor.IDS;
 import static eu.eventstorm.sql.spring.ex001.StudentDescriptor.TABLE;
 
+import eu.eventstorm.sql.SqlQuery;
+
 public abstract class AbstractStudentRepository extends eu.eventstorm.sql.Repository {
 
 	public static final eu.eventstorm.sql.jdbc.Mapper<Student> STUDENT = new StudentMapper();
 
-	private final String findById;
-	private final String findByBusinessKey;
-	private final String findByIdForUpdate;
-	private final String insert;
-	private final String update;
+	private final SqlQuery findById;
+	private final SqlQuery findByBusinessKey;
+	private final SqlQuery findByIdForUpdate;
+	private final SqlQuery insert;
+	private final SqlQuery update;
 
 	protected AbstractStudentRepository(eu.eventstorm.sql.Database database) {
 		super(database);

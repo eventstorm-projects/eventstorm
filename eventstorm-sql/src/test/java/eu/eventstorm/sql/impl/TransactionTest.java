@@ -30,6 +30,7 @@ import brave.sampler.Sampler;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Dialect;
 import eu.eventstorm.sql.Transaction;
+import eu.eventstorm.sql.builder.SqlQueryImpl;
 import eu.eventstorm.sql.model.ex001.AbstractStudentRepository;
 import eu.eventstorm.sql.model.ex001.Student;
 import eu.eventstorm.sql.model.ex001.StudentImpl;
@@ -136,8 +137,8 @@ class TransactionTest {
 
 			assertEquals(true, tx.isReadOnly());
 			assertThrows(TransactionException.class, () -> tx.commit());
-			assertThrows(TransactionException.class, () -> ((TransactionReadOnly) tx).write("XXX"));
-			assertThrows(TransactionException.class, () -> ((TransactionReadOnly) tx).writeAutoIncrement("XXX"));
+			assertThrows(TransactionException.class, () -> ((TransactionReadOnly) tx).write(new SqlQueryImpl("XXX")));
+			assertThrows(TransactionException.class, () -> ((TransactionReadOnly) tx).writeAutoIncrement(new SqlQueryImpl("XXX")));
 			// assertThrows(EventstormTransactionException.class, () ->
 			// ((TransactionReadOnly)tx).innerTransaction(new
 			// TransactionDefinitionReadWrite()));
@@ -254,8 +255,8 @@ class TransactionTest {
 				assertTrue(tx2.isReadOnly());
 				assertFalse(tx2.equals(null));
 
-				assertThrows(TransactionException.class, () -> ((TransactionContext)tx2).write("Fake"));
-				assertThrows(TransactionException.class, () -> ((TransactionContext)tx2).writeAutoIncrement("Fake"));
+				assertThrows(TransactionException.class, () -> ((TransactionContext)tx2).write(new SqlQueryImpl("Fake")));
+				assertThrows(TransactionException.class, () -> ((TransactionContext)tx2).writeAutoIncrement(new SqlQueryImpl("Fake")));
 
 				
 				tx2.rollback();

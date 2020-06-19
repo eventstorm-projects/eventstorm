@@ -42,7 +42,7 @@ public final class DatabaseEventStore implements EventStore {
 	public DatabaseEventStore(Database database) {
 		this.database = database;
 		this.databaseRepository = new DatabaseRepository(database);
-		this.streamTemplate = new TransactionStreamTemplate(database);
+		this.streamTemplate = new TransactionStreamTemplate(database.transactionManager());
 	}
 
 	@Override

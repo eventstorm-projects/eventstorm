@@ -15,33 +15,27 @@ public final class TransactionStreamTemplate {
 
     private final TransactionManager transactionManager;
     
-    public TransactionStreamTemplate(Database database) {
-        this.transactionManager = database.transactionManager();
+    public TransactionStreamTemplate(TransactionManager transactionManager) {
+        this.transactionManager = transactionManager;
     }
     
-    public <T> Stream<T> decorate(Supplier<Stream<T>> supplier) {
+    public <T> Stream<T> decorate(TransactionCallback<Stream<T>> callback) {
+    	
     	if (transactionManager.hasCurrent()) {
-    		return decorateOnCurrentTransaction(supplier);
+    		if (!this.transactionManager.current().isReadOnly()) {
+    			throw new TransactionException(TransactionException.Type.READ_ONLY, transactionManager.current());
+    		}
+    		return callback.doInTransaction();
     	}
     	
     	Transaction tx = transactionManager.newTransactionReadOnly();
-    	return supplier.get().onClose(() -> {
+    	return callback.doInTransaction().onClose(() -> {
     		try {
     			tx.rollback();	
     		} finally {
 				tx.close();
 			}
     	});
-    	
     }
-
-	private <T> Stream<T> decorateOnCurrentTransaction(Supplier<Stream<T>> supplier) {
-		if (!this.transactionManager.current().isReadOnly()) {
-			throw new TransactionException(TransactionException.Type.READ_ONLY, transactionManager.current());
-		}
-		
-		return supplier.get();
-		
-	}
     
 }

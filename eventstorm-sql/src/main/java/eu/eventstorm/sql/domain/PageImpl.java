@@ -2,6 +2,8 @@ package eu.eventstorm.sql.domain;
 
 import java.util.stream.Stream;
 
+import eu.eventstorm.util.ToStringBuilder;
+
 public final class PageImpl<T> implements Page<T> {
 
     private final Stream<T> content;
@@ -34,4 +36,13 @@ public final class PageImpl<T> implements Page<T> {
         return pageable.next();
     }
 
+	@Override
+	public String toString() {
+		return new ToStringBuilder(false)
+				.append("total", total)
+				.append("pageable", pageable)
+				.toString();
+	}
+
 }
+

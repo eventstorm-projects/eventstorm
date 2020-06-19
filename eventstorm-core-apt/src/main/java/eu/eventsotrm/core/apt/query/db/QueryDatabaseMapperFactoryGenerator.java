@@ -1,4 +1,4 @@
-package eu.eventsotrm.core.apt;
+package eu.eventsotrm.core.apt.query.db;
 
 import static eu.eventsotrm.sql.apt.Helper.toUpperCase;
 import static eu.eventsotrm.sql.apt.Helper.writeGenerated;
@@ -12,6 +12,8 @@ import java.util.List;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.JavaFileObject;
 
+import eu.eventsotrm.core.apt.SourceCode;
+import eu.eventsotrm.core.apt.model.DatabaseQueryDescriptor;
 import eu.eventsotrm.core.apt.model.QueryDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
@@ -21,17 +23,17 @@ import eu.eventstorm.sql.jdbc.ResultSetMapper;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-final class QueryDatabaseMapperFactoryGenerator {
+public final class QueryDatabaseMapperFactoryGenerator {
 
     private final Logger logger;
 
-	QueryDatabaseMapperFactoryGenerator() {
+	public QueryDatabaseMapperFactoryGenerator() {
 		logger = LoggerFactory.getInstance().getLogger(QueryDatabaseMapperFactoryGenerator.class);
 	}
 
     public void generate(ProcessingEnvironment env, SourceCode sourceCode) {
     	
-    	sourceCode.forEachQueryPackage((package_, list) -> {
+    	sourceCode.forEachDatabaseQueryPackage((package_, list) -> {
     	    
     	    logger.info(list.toString());
     	    logger.info(list.get(0).toString());
@@ -49,7 +51,7 @@ final class QueryDatabaseMapperFactoryGenerator {
 		});
     }
 
-    private void create(ProcessingEnvironment env, String pack, List<QueryDescriptor> descriptors) throws IOException {
+    private void create(ProcessingEnvironment env, String pack, List<DatabaseQueryDescriptor> descriptors) throws IOException {
 
         // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
         if (env.getElementUtils().getTypeElement(pack + ".Mappers") != null) {

@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import eu.eventstorm.sql.Database;
+import eu.eventstorm.sql.SqlQuery;
 import eu.eventstorm.sql.desc.SqlColumn;
 import eu.eventstorm.sql.desc.SqlTable;
 import eu.eventstorm.sql.expression.AggregateFunction;
@@ -49,6 +50,7 @@ public final class SelectBuilder extends AbstractBuilder {
     private boolean forUpdate;
     private int limit = -1;
     private int offset = -1;
+    private boolean pageable = false;
 
     public SelectBuilder(Database database, ImmutableList<SqlColumn> columns) {
         super(database);
@@ -65,7 +67,7 @@ public final class SelectBuilder extends AbstractBuilder {
         this.aggregateFunction = function;
     }
 
-    public String build() {
+    public SqlQuery build() {
 
         validate();
 
@@ -82,7 +84,9 @@ public final class SelectBuilder extends AbstractBuilder {
             builder.append(" FOR UPDATE");
         }
 
-        if (limit != -1 && offset != -1) {
+        if (pageable) {
+        	builder.append(' ').append(this.database().dialect().range());
+        } else if (limit != -1 && offset != -1) {
             builder.append(' ').append(this.database().dialect().range(offset, limit));
         } else if (limit != -1) {
             builder.append(" LIMIT ").append(this.limit);
@@ -92,7 +96,13 @@ public final class SelectBuilder extends AbstractBuilder {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("SQL [{}]", sql);
         }
-        return sql;
+        
+        if (pageable) {
+        	return new SqlQueryPageableImpl(sql, (int)sql.chars().filter(ch -> ch == '?').count());
+        } else {
+        	return new SqlQueryImpl(sql);	
+        }
+        
     }
 
     public SelectBuilder forUpdate() {
@@ -110,6 +120,11 @@ public final class SelectBuilder extends AbstractBuilder {
         return this;
     }
 
+    public SelectBuilder pageable() {
+    	this.pageable = true;
+    	return this;
+    }
+    
     public SelectBuilder orderBy(Order... orderings) {
         for (Order o : orderings) {
             this.orderBy.add(o);

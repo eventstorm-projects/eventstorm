@@ -1,5 +1,7 @@
 package eu.eventstorm.sql.domain;
 
+import eu.eventstorm.util.ToStringBuilder;
+
 final class PageableImpl implements Pageable {
 
     private final int page;
@@ -24,4 +26,13 @@ final class PageableImpl implements Pageable {
     public Pageable next() {
         return new PageableImpl(page+1, size);
     }
+
+	@Override
+	public String toString() {
+		return new ToStringBuilder(true)
+				.append("page", page)
+				.append("size", size)
+				.toString();
+	}
+    
 }
