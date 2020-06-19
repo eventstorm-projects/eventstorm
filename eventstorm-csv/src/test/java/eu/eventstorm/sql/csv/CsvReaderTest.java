@@ -1,6 +1,7 @@
 package eu.eventstorm.sql.csv;
 
 import static eu.eventstorm.sql.csv.CsvColumnConverters.RAW_STRING;
+import static eu.eventstorm.sql.csv.CsvColumnConverters.RAW_INTEGER;
 import static eu.eventstorm.sql.csv.CsvReaders.newReader;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -60,6 +61,7 @@ class CsvReaderTest {
                 assertEquals("Phila", line.get(3, RAW_STRING));
                 assertEquals(" PA", line.get(4, RAW_STRING));
                 assertEquals("09119", line.get(5, RAW_STRING));
+                assertEquals(9119, line.get(5, RAW_INTEGER));
 
                 // line 2
                 line = reader.line();
@@ -71,6 +73,7 @@ class CsvReaderTest {
                 assertEquals("Riverside", line.get(3, RAW_STRING));
                 assertEquals(" NJ", line.get(4, RAW_STRING));
                 assertEquals("08075", line.get(5, RAW_STRING));
+                assertEquals(8075, line.get(5, RAW_INTEGER));
 
                 // line 3
                 line = reader.line();
@@ -82,6 +85,7 @@ class CsvReaderTest {
                 assertEquals("SomeTown", line.get(3, RAW_STRING));
                 assertEquals("SD", line.get(4, RAW_STRING));
                 assertEquals(" 91234", line.get(5, RAW_STRING));
+                
 
                 // line 4
                 line = reader.line();

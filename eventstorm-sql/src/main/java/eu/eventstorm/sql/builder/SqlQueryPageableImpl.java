@@ -29,5 +29,12 @@ final class SqlQueryPageableImpl implements SqlQuery {
 		ps.setInt(lastIndex-1, pageable.getPageSize());
 		ps.setInt(lastIndex, pageable.getPageSize() * pageable.getPageNumber());
 	}
+
+	@Override
+	public String toString() {
+		return this.sql;
+	}
+	
+	
 	
 }

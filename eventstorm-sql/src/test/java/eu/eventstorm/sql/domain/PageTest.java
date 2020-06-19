@@ -99,20 +99,27 @@ class PageTest {
 		  try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
 			  
 			  Pageable pageable = Pageable.of(1, 10);
+			  System.out.println(pageable);
+			  
 			  Page<Airport> page = this.repo.findAll(pageable);
 			  List<Airport> content = page.getContent().collect(ImmutableList.toImmutableList());
+			  
+			  assertEquals(56495, page.getTotalElements());
+			  assertEquals(5650, page.getTotalPages());
 			  
 			  assertEquals("00CO", content.get(0).getId());
 			  assertEquals("small_airport", content.get(1).getType());
 			  assertEquals("00II", content.get(9).getId());
 			  
 			  
-			  page = this.repo.findAll(pageable.next());
+			  page = this.repo.findAll(page.next());
 			  content = page.getContent().collect(ImmutableList.toImmutableList());
 			  assertEquals("00IL", content.get(0).getId());
 			  assertEquals("00LS", content.get(7).getId());
 			  assertEquals("00MD", content.get(8).getId());
 			  assertEquals("00MI", content.get(9).getId());
+			  
+			  System.out.println(page);
 			  
 			  tx.rollback();
 		  }
@@ -123,6 +130,8 @@ class PageTest {
 			  Page<Airport> page = this.repo.findAllByType("small_airport", pageable);
 			  
 			  page.getContent().forEach(System.out::println);
+			  
+			  tx.rollback();
 		  }
 	}
 
