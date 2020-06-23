@@ -1,6 +1,9 @@
-package eu.eventstorm.sql.domain;
+package eu.eventstorm.sql.page;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
+import static eu.eventstorm.sql.expression.Expressions.eq;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.net.URI;
 import java.nio.channels.FileChannel;
@@ -13,6 +16,7 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.h2.jdbcx.JdbcConnectionPool;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,10 +34,13 @@ import eu.eventstorm.sql.csv.CsvLine;
 import eu.eventstorm.sql.csv.CsvReader;
 import eu.eventstorm.sql.csv.CsvReaders;
 import eu.eventstorm.sql.impl.DatabaseBuilder;
+import eu.eventstorm.sql.impl.TransactionException;
 import eu.eventstorm.sql.impl.TransactionManagerImpl;
 import eu.eventstorm.sql.model.airport.Airport;
+import eu.eventstorm.sql.model.airport.AirportDescriptor;
 import eu.eventstorm.sql.model.airport.AirportImpl;
 import eu.eventstorm.sql.model.airport.AirportRepository;
+import eu.eventstorm.sql.util.TransactionStreamTemplate;
 import eu.eventstorm.test.LoggerInstancePostProcessor;
 
 /**
@@ -45,6 +52,7 @@ class PageTest {
 	private JdbcConnectionPool ds;
 	private Database db;
 	private AirportRepository repo;
+	private TransactionStreamTemplate transactionStreamTemplate;
 	
 	@BeforeEach
 	void before() {
@@ -55,6 +63,7 @@ class PageTest {
 				.withModule(new eu.eventstorm.sql.model.airport.Module("test", null))
 				.build();  
 		repo = new AirportRepository(db);
+		transactionStreamTemplate = new TransactionStreamTemplate(transactionManager);
 	}
 	
 	@Test
@@ -98,39 +107,102 @@ class PageTest {
 		  
 		  try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
 			  
-			  Pageable pageable = Pageable.of(1, 10);
+			  Pageable pageable = Pageable.of(0, 10).build();
 			  System.out.println(pageable);
 			  
 			  Page<Airport> page = this.repo.findAll(pageable);
 			  List<Airport> content = page.getContent().collect(ImmutableList.toImmutableList());
 			  
 			  assertEquals(56495, page.getTotalElements());
-			  assertEquals(5650, page.getTotalPages());
+			  assertEquals(0, page.getRange().getStart());
+			  assertEquals(9, page.getRange().getEnd());
 			  
-			  assertEquals("00CO", content.get(0).getId());
+			  assertEquals("00A", content.get(0).getId());
 			  assertEquals("small_airport", content.get(1).getType());
+			  assertEquals("00CN", content.get(9).getId());
+			  			  
+			  page = this.repo.findAll(pageable.next());
+			  content = page.getContent().collect(ImmutableList.toImmutableList());
+			  assertEquals("00CO", content.get(0).getId());
+			  assertEquals("00ID", content.get(7).getId());
+			  assertEquals("00IG", content.get(8).getId());
 			  assertEquals("00II", content.get(9).getId());
 			  
-			  
-			  page = this.repo.findAll(page.next());
-			  content = page.getContent().collect(ImmutableList.toImmutableList());
-			  assertEquals("00IL", content.get(0).getId());
-			  assertEquals("00LS", content.get(7).getId());
-			  assertEquals("00MD", content.get(8).getId());
-			  assertEquals("00MI", content.get(9).getId());
-			  
 			  System.out.println(page);
-			  
+
 			  tx.rollback();
 		  }
 		  
 		  try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
 			  
-			  Pageable pageable = Pageable.of(1, 10);
-			  Page<Airport> page = this.repo.findAllByType("small_airport", pageable);
+			  Pageable pageable = Pageable.of(0, 10).withFilter(eq(AirportDescriptor.TYPE, "small_airport")).build();
+			  Page<Airport> page = this.repo.findAll(pageable);
+			  assertEquals(34475, page.getTotalElements());
 			  
-			  page.getContent().forEach(System.out::println);
+			  List<Airport> content = page.getContent().collect(ImmutableList.toImmutableList());
 			  
+			  assertEquals("00AA", content.get(0).getId());
+			  assertEquals("00AK", content.get(1).getId());
+			  assertEquals("00AL", content.get(2).getId());
+			  assertEquals("00AS", content.get(3).getId());
+			  assertEquals("00AZ", content.get(4).getId());
+			  assertEquals("00CA", content.get(5).getId());
+			  assertEquals("00CL", content.get(6).getId());
+			  assertEquals("00FA", content.get(7).getId());
+			  assertEquals("00FL", content.get(8).getId());
+			  assertEquals("00GA", content.get(9).getId());
+			  for (int i = 0 ; i < 10 ; i++) {
+				  assertEquals("small_airport", content.get(i).getType());
+			  }
+			  tx.rollback();
+		  }
+		  
+		  Page<Airport> page = transactionStreamTemplate.page(() -> this.repo.findAll( Pageable.of(0, 10).withFilter(eq(AirportDescriptor.TYPE, "small_airport")).build()));
+		  assertEquals(34475, page.getTotalElements());
+		  List<Airport> content;
+		  try (Stream<Airport> stream = page.getContent()) {
+			  content = stream.collect(toImmutableList());  
+		  }
+		  assertEquals("00AA", content.get(0).getId());
+		  assertEquals("00AK", content.get(1).getId());
+		  assertEquals("00AL", content.get(2).getId());
+		  assertEquals("00AS", content.get(3).getId());
+		  assertEquals("00AZ", content.get(4).getId());
+		  assertEquals("00CA", content.get(5).getId());
+		  assertEquals("00CL", content.get(6).getId());
+		  assertEquals("00FA", content.get(7).getId());
+		  assertEquals("00FL", content.get(8).getId());
+		  assertEquals("00GA", content.get(9).getId());
+		  for (int i = 0 ; i < 10 ; i++) {
+			  assertEquals("small_airport", content.get(i).getType());
+		  }
+		  
+		  try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
+			  page = transactionStreamTemplate.page(() -> this.repo.findAll( Pageable.of(0, 10).withFilter(eq(AirportDescriptor.TYPE, "small_airport")).build()));
+			  assertEquals(34475, page.getTotalElements());
+			  try (Stream<Airport> stream = page.getContent()) {
+				  content = stream.collect(toImmutableList());  
+		  }
+			  
+			  assertEquals("00AA", content.get(0).getId());
+			  assertEquals("00AK", content.get(1).getId());
+			  assertEquals("00AL", content.get(2).getId());
+			  assertEquals("00AS", content.get(3).getId());
+			  assertEquals("00AZ", content.get(4).getId());
+			  assertEquals("00CA", content.get(5).getId());
+			  assertEquals("00CL", content.get(6).getId());
+			  assertEquals("00FA", content.get(7).getId());
+			  assertEquals("00FL", content.get(8).getId());
+			  assertEquals("00GA", content.get(9).getId());
+			  for (int i = 0 ; i < 10 ; i++) {
+				  assertEquals("small_airport", content.get(i).getType());
+			  }
+			  tx.rollback();
+		  }
+
+		  
+		  try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
+			  assertThrows(TransactionException.class, () -> transactionStreamTemplate.page(() -> this.repo.findAll(Pageable.of(0, 10).withFilter(eq(AirportDescriptor.TYPE, "small_airport")).build())));
 			  tx.rollback();
 		  }
 	}

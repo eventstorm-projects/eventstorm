@@ -1,5 +1,9 @@
 package eu.eventstorm.sql.expression;
 
+import java.util.Arrays;
+
+import com.google.common.collect.ImmutableList;
+
 import eu.eventstorm.sql.desc.SqlColumn;
 
 /**
@@ -74,11 +78,25 @@ public final class Expressions {
 		return new SimpleNumericExpression(column, "<", value);
     }
     
+    public static Expression and(Expression left, Expression right) {
+        return new LogicalExpression("AND", ImmutableList.of(left, right));
+    }
+    
     public static Expression and(Expression left, Expression right, Expression... others) {
-        return new LogicalExpression("AND", left, right, others);
+        return new LogicalExpression("AND", ImmutableList.<Expression>builder().add(left).add(right).addAll(Arrays.asList(others)).build());
+    }
+    
+    public static Expression and(ImmutableList<Expression> expressions) {
+		return new LogicalExpression("AND", expressions);
+	}
+
+    public static Expression or(Expression left, Expression right) {
+        return new LogicalExpression("OR", ImmutableList.of(left, right));
+    }
+    
+    public static Expression or(Expression left, Expression right, Expression... others) {
+        return new LogicalExpression("OR", ImmutableList.<Expression>builder().add(left).add(right).addAll(Arrays.asList(others)).build());
     }
 
-    public static Expression or(Expression left, Expression right, Expression... others) {
-        return new LogicalExpression("OR", left, right, others);
-    }
+	
 }

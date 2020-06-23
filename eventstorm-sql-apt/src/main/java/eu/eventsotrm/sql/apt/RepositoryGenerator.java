@@ -33,13 +33,13 @@ import eu.eventstorm.sql.annotation.JoinTable;
 import eu.eventstorm.sql.annotation.Sequence;
 import eu.eventstorm.sql.annotation.Table;
 import eu.eventstorm.sql.annotation.UpdateTimestamp;
-import eu.eventstorm.sql.domain.Page;
-import eu.eventstorm.sql.domain.Pageable;
 import eu.eventstorm.sql.expression.AggregateFunctions;
 import eu.eventstorm.sql.expression.Expressions;
 import eu.eventstorm.sql.id.SequenceGenerator4Integer;
 import eu.eventstorm.sql.id.SequenceGenerator4Long;
 import eu.eventstorm.sql.jdbc.Batch;
+import eu.eventstorm.sql.page.Page;
+import eu.eventstorm.sql.page.Pageable;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>

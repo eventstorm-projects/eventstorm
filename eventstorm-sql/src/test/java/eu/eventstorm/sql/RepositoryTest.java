@@ -69,7 +69,7 @@ class RepositoryTest {
 	void testSelect() {
 
 		SelectBuilder builder = repo.select(StudentDescriptor.ALL).from(StudentDescriptor.TABLE);
-		assertEquals("SELECT id,code,age,overall_rating,created_at,readonly FROM student", builder.build().sql());
+		assertEquals("SELECT id,code,age,overall_rating,created_at,readonly FROM student", builder.<SqlQuery>build().sql());
 		try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
 			Student s = repo.executeSelect(builder.build(), noParameter(), STUDENT);
 			assertNull(s);

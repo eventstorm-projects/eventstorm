@@ -99,7 +99,7 @@ public final class DatabaseEventStore implements EventStore {
 
 	@Override
 	public Stream<Event> readStream(StreamDefinition definition, String streamId) {
-		return streamTemplate.decorate(() -> 
+		return streamTemplate.stream(() -> 
 		this.databaseRepository.findAllByStreamAndStreamId(definition.getName(), streamId,  new EventResultSetMapper(streamId, definition)));
 
 	}

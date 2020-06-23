@@ -3,6 +3,8 @@ package eu.eventstorm.sql.expression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableList;
+
 import eu.eventstorm.sql.Dialect;
 
 /**
@@ -16,35 +18,24 @@ final class LogicalExpression implements Expression{
     private static final Logger LOGGER = LoggerFactory.getLogger(LogicalExpression.class);
 
     private final String operation;
-    private final Expression left;
-    private final Expression right;
-    private final Expression[] others;
+    
+    private final ImmutableList<Expression> expressions;
 
-
-    LogicalExpression(String op, Expression left, Expression right, Expression... others) {
-        this.operation = op;
-        this.left = left;
-        this.right = right;
-        this.others = others.clone();
+    LogicalExpression(String operation, ImmutableList<Expression> expressions) {
+    	this.operation = operation;
+    	this.expressions = expressions;
     }
 
     @Override
     public String build(Dialect dialect, boolean alias) {
         StringBuilder builder = new StringBuilder(512);
         builder.append('(');
-        builder.append(this.left.build(dialect, alias));
-        builder.append(' ');
-        builder.append(this.operation);
-        builder.append(' ');
-        builder.append(this.right.build(dialect, alias));
-
-        if (this.others.length > 0) {
-            for (Expression other : others) {
-                builder.append(' ');
-                builder.append(this.operation);
-                builder.append(' ');
-                builder.append(other.build(dialect, alias));
-            }
+        builder.append(this.expressions.get(0).build(dialect, alias));
+        for (int i = 1, n = this.expressions.size(); i < n ; i++) {
+        	builder.append(' ');
+        	builder.append(this.operation);
+        	builder.append(' ');
+        	builder.append(this.expressions.get(i).build(dialect, alias));
         }
         builder.append(')');
 
@@ -59,18 +50,12 @@ final class LogicalExpression implements Expression{
     public String toString() {
         StringBuilder builder = new StringBuilder(512);
         builder.append('(');
-        builder.append(this.left.toString());
-        builder.append(' ');
-        builder.append(this.operation);
-        builder.append(' ');
-        builder.append(this.right.toString());
-        if (this.others.length > 0) {
-            for (Expression other : others) {
-                builder.append(' ');
-                builder.append(this.operation);
-                builder.append(' ');
-                builder.append(other.toString());
-            }
+        builder.append(this.expressions.get(0).toString());
+        for (int i = 1, n = this.expressions.size(); i < n ; i++) {
+        	builder.append(' ');
+        	builder.append(this.operation);
+        	builder.append(' ');
+        	builder.append(this.expressions.get(i).toString());
         }
         builder.append(')');
         return builder.toString();

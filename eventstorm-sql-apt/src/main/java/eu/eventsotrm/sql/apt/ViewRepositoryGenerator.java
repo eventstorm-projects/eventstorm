@@ -16,10 +16,10 @@ import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventsotrm.sql.apt.model.ViewDescriptor;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Repository;
-import eu.eventstorm.sql.domain.Page;
-import eu.eventstorm.sql.domain.Pageable;
 import eu.eventstorm.sql.expression.AggregateFunctions;
 import eu.eventstorm.sql.expression.Expressions;
+import eu.eventstorm.sql.page.Page;
+import eu.eventstorm.sql.page.Pageable;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>

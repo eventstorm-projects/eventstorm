@@ -15,10 +15,10 @@ import org.mockito.Mockito;
 
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Module;
+import eu.eventstorm.sql.SqlQuery;
 import eu.eventstorm.sql.desc.SqlColumn;
 import eu.eventstorm.sql.desc.SqlSingleColumn;
 import eu.eventstorm.sql.desc.SqlTable;
-import eu.eventstorm.sql.expression.Expressions;
 import eu.eventstorm.test.LoggerInstancePostProcessor;
 
 @ExtendWith(LoggerInstancePostProcessor.class)
@@ -59,7 +59,7 @@ class SelectBuilderTest {
     void testSelect() {
         SelectBuilder builder = new SelectBuilder(database, of(COL_T1_01, COL_T1_02, COL_T1_03));
         builder.from(TABLE_T1);
-        assertEquals("SELECT col_T1_01,col_T1_02,col_T1_03 FROM T1", builder.build().sql());
+        assertEquals("SELECT col_T1_01,col_T1_02,col_T1_03 FROM T1", builder.<SqlQuery>build().sql());
     }
 
     @Test
@@ -67,7 +67,7 @@ class SelectBuilderTest {
         SelectBuilder builder = new SelectBuilder(database, of(COL_T1_01, COL_T1_02, COL_T1_03));
         builder.from(TABLE_T1);
         builder.limit(5);
-        assertEquals("SELECT col_T1_01,col_T1_02,col_T1_03 FROM T1 LIMIT 5", builder.build().sql());
+        assertEquals("SELECT col_T1_01,col_T1_02,col_T1_03 FROM T1 LIMIT 5", builder.<SqlQuery>build().sql());
     }
 
     @Test
@@ -75,7 +75,7 @@ class SelectBuilderTest {
         SelectBuilder builder = new SelectBuilder(database, of(COL_T1_01, COL_T1_02, COL_T1_03));
         builder.from(TABLE_T1);
         builder.forUpdate();
-        assertEquals("SELECT col_T1_01,col_T1_02,col_T1_03 FROM T1 FOR UPDATE", builder.build().sql());
+        assertEquals("SELECT col_T1_01,col_T1_02,col_T1_03 FROM T1 FOR UPDATE", builder.<SqlQuery>build().sql());
     }
 
     @Test
@@ -83,10 +83,10 @@ class SelectBuilderTest {
         SelectBuilder builder = new SelectBuilder(database, of(COL_T1_01, COL_T1_02, COL_T1_03));
         builder.orderBy(Order.asc(COL_T1_01));
         builder.from(TABLE_T1);
-        assertEquals("SELECT col_T1_01,col_T1_02,col_T1_03 FROM T1 ORDER BY col_T1_01 ASC", builder.build().sql());
+        assertEquals("SELECT col_T1_01,col_T1_02,col_T1_03 FROM T1 ORDER BY col_T1_01 ASC", builder.<SqlQuery>build().sql());
 
         builder.orderBy(Order.desc(COL_T1_02));
-        assertEquals("SELECT col_T1_01,col_T1_02,col_T1_03 FROM T1 ORDER BY col_T1_01 ASC,col_T1_02 DESC", builder.build().sql());
+        assertEquals("SELECT col_T1_01,col_T1_02,col_T1_03 FROM T1 ORDER BY col_T1_01 ASC,col_T1_02 DESC", builder.<SqlQuery>build().sql());
     }
 
     @Test
@@ -94,12 +94,12 @@ class SelectBuilderTest {
         SelectBuilder builder = new SelectBuilder(database, of(COL_T1_01, COL_T1_02, COL_T1_03));
         builder.from(TABLE_T1);
         builder.where(eq(COL_T1_02));
-        assertEquals("SELECT col_T1_01,col_T1_02,col_T1_03 FROM T1 WHERE col_T1_02=?", builder.build().sql());
+        assertEquals("SELECT col_T1_01,col_T1_02,col_T1_03 FROM T1 WHERE col_T1_02=?", builder.<SqlQuery>build().sql());
 
         builder = new SelectBuilder(database, of(COL_T1_01, COL_T1_02, COL_T1_03));
         builder.from(TABLE_T1);
         builder.where(and(eq(COL_T1_02), eq(COL_T1_03)));
-        assertEquals("SELECT col_T1_01,col_T1_02,col_T1_03 FROM T1 WHERE (col_T1_02=? AND col_T1_03=?)", builder.build().sql());
+        assertEquals("SELECT col_T1_01,col_T1_02,col_T1_03 FROM T1 WHERE (col_T1_02=? AND col_T1_03=?)", builder.<SqlQuery>build().sql());
     }
 
     @Test
@@ -107,14 +107,14 @@ class SelectBuilderTest {
         SelectBuilder builder = new SelectBuilder(database, of(COL_T1_01, COL_T1_02, COL_T1_03));
         builder.from(TABLE_T1);
         builder.leftJoin(TABLE_T2, COL_T2_01, COL_T1_01);
-        assertEquals("SELECT a.col_T1_01,a.col_T1_02,a.col_T1_03 FROM T1 AS a LEFT JOIN T2 AS b ON b.col_T2_01=a.col_T1_01", builder.build().sql());
+        assertEquals("SELECT a.col_T1_01,a.col_T1_02,a.col_T1_03 FROM T1 AS a LEFT JOIN T2 AS b ON b.col_T2_01=a.col_T1_01", builder.<SqlQuery>build().sql());
         builder.leftJoin(TABLE_T3, COL_T3_01, COL_T1_01);
-        assertEquals("SELECT a.col_T1_01,a.col_T1_02,a.col_T1_03 FROM T1 AS a LEFT JOIN T2 AS b ON b.col_T2_01=a.col_T1_01 LEFT JOIN T3 AS c ON c.col_T3_01=a.col_T1_01", builder.build().sql());
+        assertEquals("SELECT a.col_T1_01,a.col_T1_02,a.col_T1_03 FROM T1 AS a LEFT JOIN T2 AS b ON b.col_T2_01=a.col_T1_01 LEFT JOIN T3 AS c ON c.col_T3_01=a.col_T1_01", builder.<SqlQuery>build().sql());
 
         builder = new SelectBuilder(database, of(COL_T1_01, COL_T1_02, COL_T1_03));
         builder.from(TABLE_T1);
         builder.leftJoin(TABLE_T2, COL_T2_01, COL_T1_01, eq(COL_T2_02));
-        assertEquals("SELECT a.col_T1_01,a.col_T1_02,a.col_T1_03 FROM T1 AS a LEFT JOIN T2 AS b ON b.col_T2_01=a.col_T1_01 AND b.col_T2_02=?", builder.build().sql());
+        assertEquals("SELECT a.col_T1_01,a.col_T1_02,a.col_T1_03 FROM T1 AS a LEFT JOIN T2 AS b ON b.col_T2_01=a.col_T1_01 AND b.col_T2_02=?", builder.<SqlQuery>build().sql());
 
         // test exceptions
         SelectBuilder builderEx = new SelectBuilder(database, of(COL_T1_01, COL_T1_02, COL_T1_03));
@@ -129,7 +129,7 @@ class SelectBuilderTest {
         SelectBuilder builder = new SelectBuilder(database, of(COL_T1_01, COL_T1_02, COL_T1_03));
         builder.from(TABLE_T1, TABLE_T2);
         builder.leftJoin(TABLE_T3, COL_T3_01, COL_T1_01);
-        assertEquals("SELECT a.col_T1_01,a.col_T1_02,a.col_T1_03 FROM T1 AS a, T2 AS b LEFT JOIN T3 AS c ON c.col_T3_01=a.col_T1_01", builder.build().sql());
+        assertEquals("SELECT a.col_T1_01,a.col_T1_02,a.col_T1_03 FROM T1 AS a, T2 AS b LEFT JOIN T3 AS c ON c.col_T3_01=a.col_T1_01", builder.<SqlQuery>build().sql());
     }
 
     @Test

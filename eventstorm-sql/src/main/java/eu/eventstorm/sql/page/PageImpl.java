@@ -1,24 +1,22 @@
-package eu.eventstorm.sql.domain;
+package eu.eventstorm.sql.page;
 
 import java.util.stream.Stream;
 
 import eu.eventstorm.util.ToStringBuilder;
 
+/**
+ * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
+ */
 public final class PageImpl<T> implements Page<T> {
 
     private final Stream<T> content;
     private final long total;
-    private final Pageable pageable;
+    private final Range range;
 
-    public PageImpl(Stream<T> content, long total, Pageable pageable) {
+    public PageImpl(Stream<T> content, long total, Range range) {
         this.content = content;
         this.total = total;
-        this.pageable = pageable;
-    }
-
-    @Override
-    public int getTotalPages() {
-        return (int) ((total/pageable.getPageSize()) + 1);
+        this.range = range;
     }
 
     @Override
@@ -31,17 +29,17 @@ public final class PageImpl<T> implements Page<T> {
         return this.content;
     }
 
-    @Override
-    public Pageable next() {
-        return pageable.next();
-    }
-
 	@Override
 	public String toString() {
 		return new ToStringBuilder(false)
 				.append("total", total)
-				.append("pageable", pageable)
+				.append("range", range)
 				.toString();
+	}
+
+	@Override
+	public Range getRange() {
+		return this.range;
 	}
 
 }

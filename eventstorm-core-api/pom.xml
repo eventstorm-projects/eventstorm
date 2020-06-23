@@ -27,6 +27,12 @@
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 		</dependency>
+		
+		<dependency>
+			<groupId>org.antlr</groupId>
+			<artifactId>antlr4-runtime</artifactId>
+			<optional>true</optional>
+		</dependency>
 
 		<dependency>
 			<groupId>eu.eventstorm</groupId>
@@ -111,6 +117,28 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>org.antlr</groupId>
+				<artifactId>antlr4-maven-plugin</artifactId>
+				<version>${org.antlr.version}</version>
+				<configuration>
+					<outputDirectory>target/generated-sources/antlr4/</outputDirectory>
+					<arguments>
+						<argument>-o</argument>
+						<argument>target/generated-sources/antlr4/eu/eventstorm/core/page</argument>
+					</arguments>
+				</configuration>
+				<executions>
+					<execution>
+						<id>antlr</id>
+						<goals>
+							<goal>antlr4</goal>
+						</goals>
+						<phase>generate-sources</phase>
+					</execution>
+				</executions>
+			</plugin>
+			
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>

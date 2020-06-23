@@ -1,5 +1,7 @@
 package eu.eventstorm.sql.builder;
 
+import static eu.eventstorm.sql.expression.Expressions.and;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,11 +12,16 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import eu.eventstorm.sql.Database;
-import eu.eventstorm.sql.SqlQuery;
+import eu.eventstorm.sql.Module;
+import eu.eventstorm.sql.Query;
 import eu.eventstorm.sql.desc.SqlColumn;
 import eu.eventstorm.sql.desc.SqlTable;
 import eu.eventstorm.sql.expression.AggregateFunction;
+import eu.eventstorm.sql.expression.AggregateFunctions;
 import eu.eventstorm.sql.expression.Expression;
+import eu.eventstorm.sql.expression.Expressions;
+import eu.eventstorm.sql.page.Pageable;
+import eu.eventstorm.util.Strings;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -67,16 +74,21 @@ public final class SelectBuilder extends AbstractBuilder {
         this.aggregateFunction = function;
     }
 
-    public SqlQuery build() {
+    @SuppressWarnings("unchecked")
+	public <T extends Query> T build() {
 
         validate();
-
+        
+        if (pageable) {
+        	return (T) new SqlQueryPageableImpl(this);	
+        } 
+        
+        // not pageable => build sql
         StringBuilder builder = new StringBuilder(2048);
-
         appendSelect(builder);
         appendFrom(builder);
         appendJoins(builder);
-        appendWhere(builder);
+        appendWhere(this.where, builder);
         appendGroupBy(builder);
         appendOrder(builder);
 
@@ -84,27 +96,74 @@ public final class SelectBuilder extends AbstractBuilder {
             builder.append(" FOR UPDATE");
         }
 
-        if (pageable) {
-        	builder.append(' ').append(this.database().dialect().range());
-        } else if (limit != -1 && offset != -1) {
+        if (limit != -1 && offset != -1) {
             builder.append(' ').append(this.database().dialect().range(offset, limit));
         } else if (limit != -1) {
             builder.append(" LIMIT ").append(this.limit);
         } 
         
         String sql = builder.toString();
+        
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("SQL [{}]", sql);
         }
         
-        if (pageable) {
-        	return new SqlQueryPageableImpl(sql, (int)sql.chars().filter(ch -> ch == '?').count());
-        } else {
-        	return new SqlQueryImpl(sql);	
-        }
+        return (T) new SqlQueryImpl(sql);
         
     }
 
+	SqlQueryImpl buildPageableCount(Pageable pageable) {
+		SqlTable table = this.from.get(0);
+		StringBuilder builder = new StringBuilder(1024);
+		builder.append("SELECT ");
+		boolean alias = hasAlias();
+
+		builder.append("count(");
+		if (alias) {
+			builder.append(table.alias()).append(".");
+		}
+		builder.append("*) ");
+		appendFrom(builder);
+		appendWherePageable(builder, pageable);
+
+		
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("SQL Pageable Count [{}]", builder.toString());
+		}
+
+		return new SqlQueryImpl(builder.toString());
+	}
+	
+	void appendWherePageable(StringBuilder builder, Pageable pageable) {
+		
+		if (where != null && pageable.getFilters().size() > 0) {
+			appendWhere(Expressions.and(this.where, and(pageable.getFilters())), builder);
+		} else if (where != null) {
+			appendWhere(this.where, builder);
+		} else if (pageable.getFilters().size() > 0) {
+			appendWhere(and(pageable.getFilters()), builder);
+		}	
+	}
+
+	SqlQueryImpl buildPageable(Pageable pageable) {
+
+//    	Module module = this.database().getModule(table);
+//    	module.getDescriptor(table).ids();
+		StringBuilder builder = new StringBuilder(1024);
+		appendSelect(builder);
+		appendFrom(builder);
+		appendWherePageable(builder, pageable);
+
+		builder.append(' ').append(this.database().dialect().range(pageable.getPageOffset(),
+				pageable.getPageOffset() + pageable.getPageSize()));
+		
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("SQL Pageable [{}]", builder.toString());
+		}
+
+		return new SqlQueryImpl(builder.toString());
+	}
+    
     public SelectBuilder forUpdate() {
         this.forUpdate = true;
         return this;
@@ -275,12 +334,12 @@ public final class SelectBuilder extends AbstractBuilder {
         }
     }
 
-    private void appendWhere(StringBuilder builder) {
-        if (this.where == null) {
-            return;
-        }
+    private void appendWhere(Expression where, StringBuilder builder) {
+    	 if (where == null) {
+             return;
+         }
         builder.append(" WHERE ");
-        builder.append(this.where.build(database().dialect(), hasAlias()));
+        builder.append(where.build(database().dialect(), hasAlias()));
     }
 
     private void appendOrder(StringBuilder builder) {

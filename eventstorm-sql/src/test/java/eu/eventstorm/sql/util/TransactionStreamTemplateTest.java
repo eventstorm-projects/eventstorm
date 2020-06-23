@@ -83,15 +83,15 @@ class TransactionStreamTemplateTest {
         });
         
         assertEquals(0, ds.getHikariPoolMXBean().getActiveConnections());
-        try (Stream<Student> stream = streamTemplate.decorate(() -> repository.findAll())) {
+        try (Stream<Student> stream = streamTemplate.stream(() -> repository.findAll())) {
         	assertEquals(1, ds.getHikariPoolMXBean().getActiveConnections());
         }
         assertEquals(0, ds.getHikariPoolMXBean().getActiveConnections());
 
         
-        try (Stream<Student> stream = streamTemplate.decorate(() -> repository.findAll())) {
+        try (Stream<Student> stream = streamTemplate.stream(() -> repository.findAll())) {
         	assertEquals(1, ds.getHikariPoolMXBean().getActiveConnections());
-        	try (Stream<Student> stream2 = streamTemplate.decorate(() -> repository.findAll())) {
+        	try (Stream<Student> stream2 = streamTemplate.stream(() -> repository.findAll())) {
             	assertEquals(1, ds.getHikariPoolMXBean().getActiveConnections());
             }
         }
@@ -103,7 +103,7 @@ class TransactionStreamTemplateTest {
 		assertEquals(0, ds.getHikariPoolMXBean().getActiveConnections());
         template.executeWithReadWrite(() -> {
         	assertEquals(1, ds.getHikariPoolMXBean().getActiveConnections());
-        	assertThrows(TransactionException.class, () -> streamTemplate.decorate(() -> repository.findAll()));
+        	assertThrows(TransactionException.class, () -> streamTemplate.stream(() -> repository.findAll()));
         	return null;
         });
         

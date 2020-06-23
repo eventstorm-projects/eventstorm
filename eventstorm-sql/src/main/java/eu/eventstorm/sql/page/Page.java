@@ -1,15 +1,13 @@
-package eu.eventstorm.sql.domain;
+package eu.eventstorm.sql.page;
 
 import java.util.stream.Stream;
 
+/**
+ * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
+ */
 public interface Page<T> {
 
-    /**
-     * Returns the number of total pages.
-     *
-     * @return the number of total pages
-     */
-    int getTotalPages();
+	Range getRange();
 
     /**
      * Returns the total amount of elements.
@@ -24,8 +22,7 @@ public interface Page<T> {
     Stream<T> getContent();
 
     public static <T> Page<T> empty() {
-        return new PageImpl<>(Stream.empty(), 0, Pageable.unpaged());
+        return new PageImpl<>(Stream.empty(), 0, new Range(0,0));
     }
 
-    Pageable next();
 }
