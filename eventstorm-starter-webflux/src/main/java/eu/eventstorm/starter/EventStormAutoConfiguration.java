@@ -15,6 +15,7 @@ import eu.eventstorm.cqrs.CommandHandler;
 import eu.eventstorm.cqrs.CommandHandlerRegistry;
 import eu.eventstorm.cqrs.event.EvolutionHandler;
 import eu.eventstorm.cqrs.event.EvolutionHandlers;
+import eu.eventstorm.cqrs.web.PageModule;
 import eu.eventstorm.problem.ProblemModule;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
@@ -25,6 +26,11 @@ public class EventStormAutoConfiguration {
 	@Bean
 	Module problemModule() {
 		return new ProblemModule();
+	}
+	
+	@Bean 
+	Module pageModule() {
+		return new PageModule();
 	}
 	
 	@Bean

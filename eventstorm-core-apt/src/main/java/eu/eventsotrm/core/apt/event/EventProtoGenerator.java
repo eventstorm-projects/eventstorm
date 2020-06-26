@@ -6,31 +6,31 @@ import static eu.eventsotrm.sql.apt.Helper.writePackage;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.LinkedList;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.JavaFileObject;
 
-import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
 
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableList;
 import com.google.protobuf.InvalidProtocolBufferException;
 
 import eu.eventsotrm.core.apt.SourceCode;
 import eu.eventsotrm.core.apt.model.EventEvolutionDescriptor;
+import eu.eventsotrm.core.apt.model.Protobuf;
+import eu.eventsotrm.core.apt.model.ProtobufMessage;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.core.Event;
+import eu.eventstorm.core.apt.protobuf.Protobuf3BaseListener;
+import eu.eventstorm.core.apt.protobuf.Protobuf3Lexer;
+import eu.eventstorm.core.apt.protobuf.Protobuf3Parser;
+import eu.eventstorm.core.apt.protobuf.Protobuf3Parser.MessageContext;
+import eu.eventstorm.core.apt.protobuf.Protobuf3Parser.OptionContext;
 import eu.eventstorm.cqrs.event.EvolutionHandler;
 import eu.eventstorm.util.Strings;
-import io.protostuff.compiler.model.Message;
-import io.protostuff.compiler.parser.FileDescriptorLoader;
-import io.protostuff.compiler.parser.FileDescriptorLoaderImpl;
-import io.protostuff.compiler.parser.FileReader;
-import io.protostuff.compiler.parser.Importer;
-import io.protostuff.compiler.parser.ImporterImpl;
-import io.protostuff.compiler.parser.ParseErrorLogger;
-import io.protostuff.compiler.parser.ProtoContext;
 
 public final class EventProtoGenerator {
 	
@@ -56,36 +56,55 @@ public final class EventProtoGenerator {
     
 	private void generate(ProcessingEnvironment processingEnvironment, EventEvolutionDescriptor descriptor) throws IOException {
 
-		FileDescriptorLoader fdl = new FileDescriptorLoaderImpl(new ParseErrorLogger(), ImmutableSet.of());
-		
 		String[] protos = descriptor.eventEvolution().proto();
-		ProtoContext[] ctxs = new ProtoContext[protos.length]; 
 		
-		Importer importer = new ImporterImpl(fdl);
+		ImmutableList.Builder<Protobuf> builder = ImmutableList.builder();
 		
-		for (int i = 0; i < protos.length; i++) {
-			try {
-				ctxs[i] = importer.importFile(new FileReader() {
-					@Override
-					public CharStream read(String name) {
-						try {
-							return CharStreams.fromStream(EventProtoGenerator.class.getResourceAsStream(name));
-						} catch (IOException cause) {
-							logger.error("failed to parse [" + name + "]", cause);
-							return null;
-						}
+		for (String proto : protos) {
+			
+			Protobuf protobuf = new Protobuf(proto);
+			ImmutableList.Builder<ProtobufMessage> messages = ImmutableList.builder();
+
+			LinkedList<MessageContext> queue = new  LinkedList<>();
+			
+			Protobuf3Lexer lexer = new Protobuf3Lexer(CharStreams.fromStream(EventProtoGenerator.class.getResourceAsStream(proto)));
+			CommonTokenStream tokens = new CommonTokenStream(lexer);
+			Protobuf3Parser parser = new Protobuf3Parser(tokens);
+			parser.addParseListener(new Protobuf3BaseListener() {
+
+				@Override
+				public void enterMessage(MessageContext ctx) {
+					queue.add(ctx);
+				}
+
+				@Override
+				public void exitOption(OptionContext ctx) {
+					if ("java_package".equals(ctx.optionName().getText())) {
+						String pack = ctx.constant().getText();
+						protobuf.setJavaPackage(pack.substring(pack.indexOf('"')+1,pack.lastIndexOf('"')));
 					}
-				}, protos[i]);	
-			} catch (Throwable ex) {
-				logger.error("EventProtoGenerator -> error",  ex);
-				
-			}
+				}
+				@Override
+				public void exitMessage(MessageContext ctx) {
+
+					if (queue.size() == 1) {
+						messages.add(new ProtobufMessage(protobuf, ctx.messageName().getText()));	
+					}
+					queue.removeLast();
+				}
+			});
+			
+			parser.proto();
+			
+			protobuf.setMessages(messages.build());
+			builder.add(protobuf);
 		}
-		generate(processingEnvironment, descriptor, ctxs);
+		
+		generate(processingEnvironment, descriptor, builder.build());
 		
 	}
 
-	private void generate(ProcessingEnvironment env, EventEvolutionDescriptor descriptor, ProtoContext[] ctxs) throws IOException {
+	private void generate(ProcessingEnvironment env, EventEvolutionDescriptor descriptor, ImmutableList<Protobuf> ctxs) throws IOException {
 
 		logger.info("---------------------------> EventProtoGenerator -> generate : " + ctxs);
 		
@@ -108,7 +127,7 @@ public final class EventProtoGenerator {
 
 	}
 	
-	private void writeHeader(Writer writer, ProcessingEnvironment env, EventEvolutionDescriptor descriptor, ProtoContext[] ctxs) throws IOException {
+	private void writeHeader(Writer writer, ProcessingEnvironment env, EventEvolutionDescriptor descriptor, ImmutableList<Protobuf> protobufs) throws IOException {
 
 		writePackage(writer, env.getElementUtils().getPackageOf(descriptor.element()).toString() + ".evolution");
 		writeNewLine(writer);
@@ -127,16 +146,17 @@ public final class EventProtoGenerator {
 		
 		
 		
-		for (ProtoContext ctx : ctxs) {
-        	for (Message message : ctx.getProto().getMessages()) {
-        		message.setProto(ctx.getProto());
-        		descriptor.add(ctx.getProto().getName(), message);
+		for (Protobuf protobuf : protobufs) {
+        	for (ProtobufMessage message : protobuf.getMessages()) {
+
+        		//descriptor.add(protobuf.getName(), message);
         		
         		writer.write("import ");
-        		writer.write(String.valueOf(ctx.getProto().getOptions().get("java_package")));
+        		writer.write(String.valueOf(protobuf.getJavaPackage()));
         		writer.write(".");
         		writer.write(message.getName());
         		writer.write(";");
+        		writeNewLine(writer);
         	}
 		}
 		
@@ -152,15 +172,15 @@ public final class EventProtoGenerator {
 		writeNewLine(writer);
 	}
 
-	private void writeMethods(Writer writer, EventEvolutionDescriptor descriptor, ProtoContext[] ctxs) throws IOException {
-		writeMethodOnEvent(writer, descriptor, ctxs);
+	private void writeMethods(Writer writer, EventEvolutionDescriptor descriptor, ImmutableList<Protobuf> protobufs) throws IOException {
+		writeMethodOnEvent(writer, descriptor, protobufs);
 		
-		for (ProtoContext ctx : ctxs) {
-			writeMethods(writer, descriptor, ctx);
+		for (Protobuf protobuf : protobufs) {
+			writeMethods(writer, descriptor, protobuf);
 		}
 	}
 
-	private void writeMethodOnEvent(Writer writer, EventEvolutionDescriptor descriptor, ProtoContext[] ctxs) throws IOException {
+	private void writeMethodOnEvent(Writer writer, EventEvolutionDescriptor descriptor, ImmutableList<Protobuf> protobufs) throws IOException {
 		writeNewLine(writer);
         writer.write("    /** {@inheritDoc} */");
         writeNewLine(writer);
@@ -168,14 +188,14 @@ public final class EventProtoGenerator {
         writeNewLine(writer);
         writer.write("    public final void on(Event event) {");
         
-        for (ProtoContext ctx : ctxs) {
-        	for (Message message : ctx.getProto().getMessages()) {
+        for (Protobuf protobuf : protobufs) {
+        	for (ProtobufMessage message : protobuf.getMessages()) {
         		writeNewLine(writer);
         		writer.write("        if (event.getData().getTypeUrl().equals(\"");
-        		writer.write(ctx.getProto().getName());
+        		writer.write(message.getName());
         		writer.write("/");
-        		if (!Strings.isEmpty(ctx.getProto().getPackage().toString())) {
-        			writer.write(ctx.getProto().getPackage().toString() + ".");	
+        		if (!Strings.isEmpty(protobuf.getJavaPackage())) {
+        			writer.write(protobuf.getJavaPackage() + ".");	
         		}
         		writer.write(message.getName());
         		writer.write("\")) {");
@@ -183,8 +203,8 @@ public final class EventProtoGenerator {
         		writer.write("            try {");
         		writeNewLine(writer);
         		writer.write("                on(event, event.getData().unpack(");
-        		if (!Strings.isEmpty(ctx.getProto().getPackage().toString())) {
-        			writer.write(ctx.getProto().getPackage().toString() + ".");	
+        		if (!Strings.isEmpty(protobuf.getJavaPackage())) {
+        			writer.write(protobuf.getJavaPackage() + ".");	
         		}
         		writer.write(message.getName());
         		writer.write(".class));");
@@ -204,12 +224,12 @@ public final class EventProtoGenerator {
         writeNewLine(writer);
 	}
 	
-	private void writeMethods(Writer writer, EventEvolutionDescriptor descriptor, ProtoContext ctx) throws IOException {
-		for (Message message : ctx.getProto().getMessages()) {
+	private void writeMethods(Writer writer, EventEvolutionDescriptor descriptor, Protobuf protobuf) throws IOException {
+		for (ProtobufMessage message : protobuf.getMessages()) {
 			writeNewLine(writer);
 	        writer.write("    protected abstract void on(Event event, ");
-	        if (!Strings.isEmpty(ctx.getProto().getPackage().toString())) {
-    			writer.write(ctx.getProto().getPackage().toString() + ".");	
+	        if (!Strings.isEmpty(protobuf.getJavaPackage())) {
+    			writer.write(protobuf.getJavaPackage() + ".");	
     		}
 	        writer.write(message.getName());
 	        writer.write(" payload);");

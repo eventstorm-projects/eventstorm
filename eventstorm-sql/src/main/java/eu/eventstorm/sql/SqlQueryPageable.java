@@ -1,16 +1,16 @@
 package eu.eventstorm.sql;
 
-import eu.eventstorm.sql.page.Pageable;
+import eu.eventstorm.sql.page.PageRequest;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 public interface SqlQueryPageable extends Query {
 
-	//void setPage(PreparedStatement ps, Pageable pageable) throws SQLException;
+	SqlQuery sqlCount(PageRequest pageRequest);
 
-	SqlQuery sqlCount(Pageable pageable);
+	SqlQuery sql(PageRequest pageRequest);
 
-	SqlQuery sql(Pageable pageable);
+	int getIndex();
 
 }

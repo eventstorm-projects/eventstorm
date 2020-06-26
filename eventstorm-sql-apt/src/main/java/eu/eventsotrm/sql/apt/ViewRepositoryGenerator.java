@@ -19,7 +19,7 @@ import eu.eventstorm.sql.Repository;
 import eu.eventstorm.sql.expression.AggregateFunctions;
 import eu.eventstorm.sql.expression.Expressions;
 import eu.eventstorm.sql.page.Page;
-import eu.eventstorm.sql.page.Pageable;
+import eu.eventstorm.sql.page.PageRequest;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -582,7 +582,7 @@ final class ViewRepositoryGenerator implements Generator {
         writer.write(descriptor.element().toString());
         writer.write(">");
         writer.write(" page(");
-        writer.write(Pageable.class.getName());
+        writer.write(PageRequest.class.getName());
         writer.write(" pageable) {");
         writeNewLine(writer);
         writer.write("        // create sql for count");

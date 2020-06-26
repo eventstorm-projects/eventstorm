@@ -60,7 +60,7 @@ import eu.eventstorm.sql.jdbc.ResultSetMappers;
 import eu.eventstorm.sql.jdbc.UpdateMapper;
 import eu.eventstorm.sql.page.Page;
 import eu.eventstorm.sql.page.PageImpl;
-import eu.eventstorm.sql.page.Pageable;
+import eu.eventstorm.sql.page.PageRequest;
 import eu.eventstorm.sql.page.Range;
 
 /**
@@ -306,14 +306,16 @@ public abstract class Repository {
 		return stream;
     }
 
-	protected final <T> Page<T> executeSelectPage(SqlQueryPageable query, ResultSetMapper<T> mapper, Pageable pageable) {
+	protected final <T> Page<T> executeSelectPage(SqlQueryPageable query, ResultSetMapper<T> mapper, PageRequest pageRequest) {
 
-		return executeSelectPage(query, noParameter(), mapper, pageable);
+		return executeSelectPage(query, noParameter(), mapper, pageRequest);
 	}
 	
-	protected final <T> Page<T> executeSelectPage(SqlQueryPageable query, PreparedStatementSetter pss, ResultSetMapper<T> mapper, Pageable pageable) {
+	protected final <T> Page<T> executeSelectPage(SqlQueryPageable query, PreparedStatementSetter pss, ResultSetMapper<T> mapper, PageRequest pageRequest) {
 		
-		Long count = executeSelect(query.sqlCount(pageable), pss, ResultSetMappers.SINGLE_LONG);
+		PreparedStatementSetter compose = pageRequest.getFilters().composeWith(query, pss);
+		
+		Long count = executeSelect(query.sqlCount(pageRequest), compose, ResultSetMappers.SINGLE_LONG);
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("find count=[{}]", count);
@@ -323,12 +325,7 @@ public abstract class Repository {
 			return Page.empty();
 		}
 		
-//		PreparedStatementSetter compose = ps -> {
-//			pss.set(ps);
-//			query.setPage(ps, pageable);
-//		};
-
-		return new PageImpl<>(stream(query.sql(pageable), pss , mapper), count, new Range(pageable.getPageOffset(), pageable.getPageOffset() + pageable.getPageSize() -1));
+		return new PageImpl<>(stream(query.sql(pageRequest), compose , mapper), count, new Range(pageRequest.getOffset(), pageRequest.getOffset() + pageRequest.getSize() -1));
 		
 	}
 

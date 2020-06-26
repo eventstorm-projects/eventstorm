@@ -39,6 +39,8 @@
 		<org.owasp.encoder.version>1.2.2</org.owasp.encoder.version>
 		<io.swagger.core.v3.version>2.1.2</io.swagger.core.v3.version>
 
+		<org.owasp.encoder.version>1.2.2</org.owasp.encoder.version>
+
 		<org.springframework.boot.version>2.3.1.RELEASE</org.springframework.boot.version>
 		<org.springframework.version>5.2.7.RELEASE</org.springframework.version>
 
@@ -48,9 +50,6 @@
 		<org.flywaydb.version>6.4.3</org.flywaydb.version>
 		<com.zaxxer.version>3.4.5</com.zaxxer.version>
 		<org.skyscreamer.jsonassert.version>1.5.0</org.skyscreamer.jsonassert.version>
-
-		<io.protostuff.version>2.2.27</io.protostuff.version>
-
 
 	</properties>
 
@@ -218,15 +217,21 @@
 			</dependency>
 
 			<dependency>
-				<groupId>io.protostuff</groupId>
-				<artifactId>protostuff-parser</artifactId>
-				<version>${io.protostuff.version}</version>
+				<groupId>org.antlr</groupId>
+				<artifactId>antlr4-runtime</artifactId>
+				<version>${org.antlr.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.antlr</groupId>
-				<artifactId>antlr4-runtime</artifactId>
+				<artifactId>antlr4</artifactId>
 				<version>${org.antlr.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.owasp.encoder</groupId>
+				<artifactId>encoder</artifactId>
+				<version>${org.owasp.encoder.version}</version>
 			</dependency>
 
 		</dependencies>

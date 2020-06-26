@@ -383,32 +383,36 @@ public final class Helper {
 		return name;
 	}
 	
-	private static boolean isInteger(String type) {
+	public static boolean isInteger(String type) {
 		return ("int".equals(type) || "java.lang.Integer".equals(type));
 	}
 
-	private static boolean isLong(String type) {
+	public static boolean isLong(String type) {
 		return ("long".equals(type) || "java.lang.Long".equals(type));
 	}
 
-	private static boolean isShort(String type) {
+	public static boolean isShort(String type) {
 		return ("short".equals(type) || "java.lang.Short".equals(type));
 	}
 
-	private static boolean isByte(String type) {
+	public static boolean isByte(String type) {
 		return ("byte".equals(type) || "java.lang.Byte".equals(type));
 	}
 
-	private static boolean isBoolean(String type) {
+	public static boolean isBoolean(String type) {
 		return ("boolean".equals(type) || "java.lang.Boolean".equals(type));
 	}
 
-	private static boolean isFloat(String type) {
+	public static boolean isFloat(String type) {
 		return ("float".equals(type) || "java.lang.Float".equals(type));
 	}
 
-	private static boolean isDouble(String type) {
+	public static boolean isDouble(String type) {
 		return ("double".equals(type) || "java.lang.Double".equals(type));
+	}
+	
+	public static boolean isString(String type) {
+		return "java.lang.String".equals(type);
 	}
 
 }

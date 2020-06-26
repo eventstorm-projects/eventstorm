@@ -28,6 +28,9 @@ final class LogicalExpression implements Expression{
 
     @Override
     public String build(Dialect dialect, boolean alias) {
+    	if (this.expressions.size() == 1) {
+    		return this.expressions.get(0).build(dialect, alias);
+    	}
         StringBuilder builder = new StringBuilder(512);
         builder.append('(');
         builder.append(this.expressions.get(0).build(dialect, alias));

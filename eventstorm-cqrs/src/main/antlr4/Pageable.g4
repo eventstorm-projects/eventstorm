@@ -1,7 +1,7 @@
 grammar Pageable;
 
 @header {
-package eu.eventstorm.core.page;    
+package eu.eventstorm.cqrs.query;    
 }
 
 request
@@ -13,7 +13,11 @@ request
 	;
 	
 range
-	: 'range' equal rangeStart minus rangeEnd; 
+	: 'range' equal rangeContent
+	; 
+	
+rangeContent
+	: rangeStart minus rangeEnd;
 
 rangeStart
 	: integer;
@@ -22,30 +26,37 @@ rangeEnd
 	: integer;
 		
 filter
-	: 'filter' equal filterList
+	: 'filter' equal filterContent
 	;
 	
-filterList
-	: filterItem
-	| filterItem ',' filterList;
+filterContent
+	: filterItem (',' filterItem)*
+	;	
 	
 filterItem
 	: key op value	
 	;
 
 sort 
-	: 'sort' equal sortList
+	: 'sort' equal sortContent
 	;
  
-sortList
-	: sortItem 
-	| sortItem ',' sortList
+sortContent
+	: sortItem (',' sortItem)*  
 	;
-
+	
 sortItem
-	: ('+' | '-') STRING
+	: (sortAsc | sortDesc) STRING
 	;	
 	
+sortAsc 
+	: plus
+	;
+
+sortDesc 
+	: minus
+	;
+
 key
 	: STRING;
    
@@ -60,10 +71,13 @@ value
 	 
 equal 
 	: '=';
-	
+
+plus
+	: '+';
+		
 minus
 	: '-';
-	
+		
 integer
 	: DIGIT+;
 

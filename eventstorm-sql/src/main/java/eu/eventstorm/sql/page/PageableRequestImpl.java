@@ -2,51 +2,49 @@ package eu.eventstorm.sql.page;
 
 import com.google.common.collect.ImmutableList;
 
-import eu.eventstorm.sql.expression.Expression;
+import eu.eventstorm.sql.builder.Order;
 import eu.eventstorm.util.ToStringBuilder;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-final class PageableImpl implements Pageable {
+final class PageableRequestImpl implements PageRequest {
 
     private final int offset;
     private final int size;
-    private final ImmutableList<Expression> filters;
-    private final ImmutableList<Sort> sorts;
+    private final Filters filters;
+    private final ImmutableList<Order> orders;
 
-	PageableImpl(int offset, int size, ImmutableList<Expression> filters, ImmutableList<Sort> sorts) {
+	PageableRequestImpl(int offset, int size, Filters filters, ImmutableList<Order> orders) {
         this.offset = offset;
         this.size = size;
         this.filters = filters;
-        this.sorts = sorts;
+        this.orders = orders;
 	}
 
-
 	@Override
-	public int getPageOffset() {
+	public int getOffset() {
 		return this.offset;
 	}
-
 	
 	@Override
-	public int getPageSize() {
+	public int getSize() {
 		return this.size;
 	}
 	
 	@Override
-	public ImmutableList<Expression> getFilters() {
+	public Filters getFilters() {
 		return this.filters;
 	}
 
 	@Override
-	public ImmutableList<Sort> getSorts() {
-		return this.sorts;
+	public ImmutableList<Order> getOrders() {
+		return this.orders;
 	}
 
 	@Override
-	public Pageable next() {
-		return new PageableImpl(offset + size, size, filters, sorts);
+	public PageRequest next() {
+		return new PageableRequestImpl(offset + size, size, filters, orders);
 	}
 
 	@Override

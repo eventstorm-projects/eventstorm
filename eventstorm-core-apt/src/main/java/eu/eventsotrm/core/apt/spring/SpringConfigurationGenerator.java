@@ -18,12 +18,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import eu.eventsotrm.core.apt.SourceCode;
+import eu.eventsotrm.core.apt.model.ProtobufMessage;
 import eu.eventsotrm.sql.apt.Helper;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
+import eu.eventstorm.cqrs.SqlQueryDescriptor;
+import eu.eventstorm.cqrs.QueryDescriptors;
 import eu.eventstorm.eventstore.StreamManager;
 import eu.eventstorm.eventstore.memory.InMemoryStreamManagerBuilder;
-import io.protostuff.compiler.model.Message;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -58,6 +60,7 @@ public final class SpringConfigurationGenerator {
 				writeTypeRegistry(writer, env, code);
 				writeCommandModule(writer, env, code);
 				writeQueryModule(writer, env, code);
+				writeQueryDescriptor(writer);
 		        writer.write("}");
 			}
 		} catch (IOException cause) {
@@ -107,6 +110,24 @@ public final class SpringConfigurationGenerator {
 			}
 		});
 	}
+	
+	private void writeQueryDescriptor(Writer writer) {
+		try {
+			writeNewLine(writer);
+			writer.write("    @Bean");
+			writeNewLine(writer);
+			writer.write("    "+ QueryDescriptors.class.getName() + " queryDescriptors() {");
+			 writeNewLine(writer);
+			writer.write("       return new EventstormQueryDescriptors();");
+		    writeNewLine(writer);
+			writer.write("    }");
+		    writeNewLine(writer);
+			
+		} catch (Exception cause) {
+			logger.error("Exception for [writeQueryDescriptor] -> [" + cause.getMessage() + "]", cause);
+		}
+	}
+	
 
 	private void writeTypeRegistry(Writer writer, ProcessingEnvironment env, SourceCode sourceCode) throws IOException {
 
@@ -120,7 +141,7 @@ public final class SpringConfigurationGenerator {
 		sourceCode.forEventEvolution(ee -> {
 			try {
 				for (String stream : ee.getMessages().keySet()) {
-					for (Message message : ee.getMessages().get(stream)) {
+					for (ProtobufMessage message : ee.getMessages().get(stream)) {
 						writer.write("                .add(" + message.getName() + ".getDescriptor())");
 						writeNewLine(writer);
 					}	
@@ -174,7 +195,7 @@ public final class SpringConfigurationGenerator {
         		for (String stream : ee.getMessages().keySet()) {
         			writer.write("            .withDefinition(\"" + stream + "\")");
         			writeNewLine(writer);
-        			for (Message message : ee.getMessages().get(stream)) {
+        			for (ProtobufMessage message : ee.getMessages().get(stream)) {
         				writer.write("                .withPayload(" + message.getName() + ".class, " +  message.getName()+".getDescriptor(), " +
         						message.getName()+".parser(), () -> " +  message.getName() + ".newBuilder())");
         				writeNewLine(writer);
@@ -202,8 +223,8 @@ public final class SpringConfigurationGenerator {
         sourceCode.forEventEvolution(ee -> {
         	try {
 	        	for (String stream : ee.getMessages().keySet()) {
-					for (Message message : ee.getMessages().get(stream)) {
-	        			writer.write("import " + String.valueOf(message.getProto().getOptions().get("java_package")) + "." + message.getName() + ";");
+					for (ProtobufMessage message : ee.getMessages().get(stream)) {
+	        			writer.write("import " + message.getProtobuf().getJavaPackage() + "." + message.getName() + ";");
 	    				writeNewLine(writer);	
 					}
 	        	}

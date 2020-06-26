@@ -39,7 +39,7 @@ import eu.eventstorm.sql.id.SequenceGenerator4Integer;
 import eu.eventstorm.sql.id.SequenceGenerator4Long;
 import eu.eventstorm.sql.jdbc.Batch;
 import eu.eventstorm.sql.page.Page;
-import eu.eventstorm.sql.page.Pageable;
+import eu.eventstorm.sql.page.PageRequest;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -746,7 +746,7 @@ final class RepositoryGenerator implements Generator {
         writer.write(descriptor.element().toString());
         writer.write(">");
         writer.write(" page(");
-        writer.write(Pageable.class.getName());
+        writer.write(PageRequest.class.getName());
         writer.write(" pageable) {");
         writeNewLine(writer);
         writer.write("        // create sql for count");

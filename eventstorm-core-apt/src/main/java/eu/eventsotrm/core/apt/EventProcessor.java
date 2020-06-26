@@ -37,6 +37,8 @@ import eu.eventsotrm.core.apt.model.EmbeddedCommandDescriptor;
 import eu.eventsotrm.core.apt.model.EventEvolutionDescriptor;
 import eu.eventsotrm.core.apt.model.RestControllerDescriptor;
 import eu.eventsotrm.core.apt.query.QueryBuilderGenerator;
+import eu.eventsotrm.core.apt.query.QueryDescriptorGenerator;
+import eu.eventsotrm.core.apt.query.QueryDescriptorsGenerator;
 import eu.eventsotrm.core.apt.query.QueryImplementationGenerator;
 import eu.eventsotrm.core.apt.query.QueryJacksonModuleGenerator;
 import eu.eventsotrm.core.apt.query.QueryJacksonStdSerializerGenerator;
@@ -86,8 +88,8 @@ public class EventProcessor extends AbstractProcessor {
 
 			logger.info("EventProcessor end");
 			this.firstTime = true;
-		} catch (Exception cause) {
-			logger.error("EventProcessor start", cause);
+		} catch (Throwable cause) {
+			logger.error("EventProcessor end with Excaption", cause);
 		} finally {
 			LoggerFactory.getInstance().close();
 		}
@@ -217,6 +219,8 @@ public class EventProcessor extends AbstractProcessor {
 		
 		new QueryJacksonStdSerializerGenerator().generate(processingEnv, sourceCode);
 		new QueryJacksonModuleGenerator().generate(processingEnv, sourceCode);
+		new QueryDescriptorGenerator().generate(processingEnv, sourceCode);
+		new QueryDescriptorsGenerator().generate(processingEnv, sourceCode);
 		
 //		sourceCode.forEachQuery(queryDescriptor -> {
 //		    CqrsQueryDatabaseView query =  queryDescriptor.element().getAnnotation(CqrsQueryDatabaseView.class);

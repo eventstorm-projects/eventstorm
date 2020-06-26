@@ -15,7 +15,6 @@ import com.google.common.collect.ImmutableList;
 
 import eu.eventsotrm.core.apt.SourceCode;
 import eu.eventsotrm.core.apt.model.DatabaseQueryDescriptor;
-import eu.eventsotrm.core.apt.model.EventDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 
@@ -83,9 +82,6 @@ public final class QueryJacksonModuleGenerator {
 		writer.write("        super();");
 		writeNewLine(writer);
 		for (DatabaseQueryDescriptor ed : descriptors) {
-			// addDeserializer(CreateUserCommand.class, new CreateUserCommandStdDeserializer());
-			//writer.write("        addDeserializer(" + ed.fullyQualidiedClassName() + ".class, new " + ed.simpleName() + "StdDeserializer());");
-			//writeNewLine(writer);
 			writer.write("        addSerializer(" + ed.fullyQualidiedClassName() + ".class, new " + ed.simpleName() + "StdSerializer());");
 			writeNewLine(writer);
 		}

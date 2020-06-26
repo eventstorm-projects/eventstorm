@@ -8,13 +8,12 @@ import java.util.Map;
 import javax.lang.model.element.Element;
 
 import eu.eventstorm.annotation.EventEvolution;
-import io.protostuff.compiler.model.Message;
 
 public class EventEvolutionDescriptor implements Descriptor {
 
     private final Element element;
     private final EventEvolution eventEvolution;
-    private final Map<String, List<Message>> messages = new HashMap<>();
+    private final Map<String, List<ProtobufMessage>> messages = new HashMap<>();
 
     public EventEvolutionDescriptor(Element element) {
         this.element = element;
@@ -38,11 +37,7 @@ public class EventEvolutionDescriptor implements Descriptor {
         return fqcn.substring(fqcn.lastIndexOf('.') + 1);
     }
     
-//    public void add(Message message) {
-//		this.messages.add(message);
-//	}
-    
-    public Map<String,List<Message>> getMessages() {
+    public Map<String,List<ProtobufMessage>> getMessages() {
     	return this.messages;
     }
 
@@ -57,7 +52,7 @@ public class EventEvolutionDescriptor implements Descriptor {
         return builder.toString();
     }
 
-	public void add(String proto, Message message) {
+	public void add(String proto, ProtobufMessage message) {
 		if (!this.messages.containsKey(proto)) {
 			this.messages.put(proto, new ArrayList<>());
 		} 

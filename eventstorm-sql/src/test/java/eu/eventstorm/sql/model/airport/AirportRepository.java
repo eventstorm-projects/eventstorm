@@ -15,7 +15,7 @@ import eu.eventstorm.sql.SqlQueryPageable;
 import eu.eventstorm.sql.builder.Order;
 import eu.eventstorm.sql.expression.AggregateFunctions;
 import eu.eventstorm.sql.page.Page;
-import eu.eventstorm.sql.page.Pageable;
+import eu.eventstorm.sql.page.PageRequest;
 
 public class AirportRepository extends eu.eventstorm.sql.Repository {
 
@@ -47,7 +47,7 @@ public class AirportRepository extends eu.eventstorm.sql.Repository {
 		return executeSelect(count, noParameter(), SINGLE_LONG);
 	}
 	
-	public Page<Airport> findAll(Pageable pageable) {
+	public Page<Airport> findAll(PageRequest pageable) {
 		return executeSelectPage(findAll, MAPPER, pageable);
 	}
 	
