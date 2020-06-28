@@ -3,6 +3,7 @@ package eu.eventstorm.sql.expression;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 
 import eu.eventstorm.sql.Database;
@@ -11,11 +12,13 @@ import eu.eventstorm.sql.desc.SqlColumn;
 import eu.eventstorm.sql.desc.SqlSingleColumn;
 import eu.eventstorm.sql.desc.SqlTable;
 import eu.eventstorm.sql.dialect.Dialects;
+import eu.eventstorm.test.LoggerInstancePostProcessor;
 import eu.eventstorm.test.Tests;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
+@ExtendWith(LoggerInstancePostProcessor.class)
 class AggregateFunctionsTest {
 
     private SqlTable table = new SqlTable("table_01", "a");

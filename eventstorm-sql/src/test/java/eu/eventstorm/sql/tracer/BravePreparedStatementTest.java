@@ -31,6 +31,7 @@ import java.time.LocalDate;
 import java.util.Calendar;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import brave.Tracer;
 import brave.Tracing;
@@ -39,7 +40,9 @@ import eu.eventstorm.sql.tracer.BravePreparedStatement;
 import eu.eventstorm.sql.tracer.BraveTracer;
 import eu.eventstorm.sql.tracer.LoggingBraveReporter;
 import eu.eventstorm.sql.tracer.TransactionTracers;
+import eu.eventstorm.test.LoggerInstancePostProcessor;
 
+@ExtendWith(LoggerInstancePostProcessor.class)
 class BravePreparedStatementTest {
 
 	private Tracer tracer = Tracing.newBuilder().sampler(Sampler.ALWAYS_SAMPLE).spanReporter(new LoggingBraveReporter()).build().tracer();

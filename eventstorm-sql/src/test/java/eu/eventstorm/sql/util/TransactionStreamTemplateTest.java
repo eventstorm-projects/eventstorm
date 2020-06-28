@@ -14,6 +14,7 @@ import org.h2.tools.RunScript;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -26,7 +27,9 @@ import eu.eventstorm.sql.impl.TransactionManagerImpl;
 import eu.eventstorm.sql.model.ex001.AbstractStudentRepository;
 import eu.eventstorm.sql.model.ex001.Student;
 import eu.eventstorm.sql.model.ex001.StudentImpl;
+import eu.eventstorm.test.LoggerInstancePostProcessor;
 
+@ExtendWith(LoggerInstancePostProcessor.class)
 class TransactionStreamTemplateTest {
 	
 	private TransactionTemplate template;
@@ -37,7 +40,7 @@ class TransactionStreamTemplateTest {
 	@BeforeEach
 	void before() throws SQLException, IOException {
 		HikariConfig config = new HikariConfig();
-		config.setJdbcUrl("jdbc:h2:mem:test;DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1");
+		config.setJdbcUrl("jdbc:h2:mem:test;DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=TRUE");
 		config.setUsername("sa");
 		config.setPassword("");
 

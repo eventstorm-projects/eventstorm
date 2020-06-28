@@ -5,12 +5,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 
 import eu.eventstorm.sql.page.PageImpl;
 import eu.eventstorm.sql.page.Range;
+import eu.eventstorm.test.LoggerInstancePostProcessor;
 
+@ExtendWith(LoggerInstancePostProcessor.class)
 class PageResponseEntityTest {
 
 	@Test

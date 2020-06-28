@@ -13,6 +13,4 @@ import java.lang.annotation.Target;
 @Retention(RUNTIME)
 public @interface HttpPageRequest {
 
-	String name();
-	
 }

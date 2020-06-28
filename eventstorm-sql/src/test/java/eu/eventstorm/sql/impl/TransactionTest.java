@@ -47,7 +47,7 @@ class TransactionTest {
 	@BeforeEach
 	void before() throws SQLException, IOException {
 		HikariConfig config = new HikariConfig();
-		config.setJdbcUrl("jdbc:h2:mem:test;DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1");
+		config.setJdbcUrl("jdbc:h2:mem:test;DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=TRUE");
 		config.setUsername("sa");
 		config.setPassword("");
 

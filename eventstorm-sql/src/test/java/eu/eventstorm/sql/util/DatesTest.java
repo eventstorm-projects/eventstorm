@@ -6,7 +6,11 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+import eu.eventstorm.test.LoggerInstancePostProcessor;
+
+@ExtendWith(LoggerInstancePostProcessor.class)
 class DatesTest {
 
 	@Test

@@ -1,5 +1,6 @@
 package eu.eventstorm.sql.type.common;
 
+
 public class Pojo {
 
 	private String value;

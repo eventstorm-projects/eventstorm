@@ -7,12 +7,15 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 
 import eu.eventstorm.core.validation.ConstraintViolation;
+import eu.eventstorm.test.LoggerInstancePostProcessor;
 
+@ExtendWith(LoggerInstancePostProcessor.class)
 class PropertyValidatorsTest {
 
 	@Test

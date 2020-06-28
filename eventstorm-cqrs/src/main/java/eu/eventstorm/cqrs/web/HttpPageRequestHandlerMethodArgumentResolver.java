@@ -88,7 +88,12 @@ public final class HttpPageRequestHandlerMethodArgumentResolver implements Handl
 				LOGGER.debug("Method query [{}]" , query);
 			}
 			
-			queryDescriptor = queryDescriptors.getSqlQueryDescriptor(((Class<?>)Array.get(query, 0)).getName());
+			Class<?> clazz = (Class<?>)Array.get(query, 0);
+			
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Method clazz [{}]" , clazz);
+			}
+			queryDescriptor = queryDescriptors.getSqlQueryDescriptor(clazz.getName());
 			this.descriptors.put(method, queryDescriptor);
 		}
 		

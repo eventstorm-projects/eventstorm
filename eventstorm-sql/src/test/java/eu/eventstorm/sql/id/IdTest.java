@@ -33,7 +33,7 @@ class IdTest {
 	
 	@BeforeEach
 	void before() {
-		ds = JdbcConnectionPool.create("jdbc:h2:mem:test;DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1;INIT=RUNSCRIPT FROM 'classpath:sql/sequence.sql'", "sa", "");
+		ds = JdbcConnectionPool.create("jdbc:h2:mem:test;DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=TRUE;INIT=RUNSCRIPT FROM 'classpath:sql/sequence.sql'", "sa", "");
 		//db = new DatabaseImpl(ds, Dialect.Name.H2, new TransactionManagerImpl(ds), "", new eu.eventstorm.sql.model.json.Module("test", null));
 		db = Mockito.mock(Database.class);
 		Module module = new Module("test") {

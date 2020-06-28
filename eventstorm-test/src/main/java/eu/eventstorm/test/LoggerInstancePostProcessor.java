@@ -31,10 +31,22 @@ public final class LoggerInstancePostProcessor implements TestInstancePostProces
 		LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
 		Configuration config = ctx.getConfiguration();
 		LoggerConfig loggerConfig = config.getLoggerConfig(LogManager.ROOT_LOGGER_NAME);
-		loggerConfig.setLevel(level);
-		for (LoggerConfig lc : config.getLoggers().values()) {
-			lc.setLevel(level);
+		if (Level.ALL == level) {
+			loggerConfig.setLevel(Level.INFO);
+			for (LoggerConfig lc : config.getLoggers().values()) {
+				if (lc.getName().startsWith("org") || lc.getName().startsWith("com")) {
+					lc.setLevel(Level.INFO);
+				} else {
+					lc.setLevel(level);	
+				}
+			}
+		} else {
+			loggerConfig.setLevel(level);
+			for (LoggerConfig lc : config.getLoggers().values()) {
+				lc.setLevel(level);
+			}	
 		}
+		
 		ctx.updateLoggers();
 	}
 
