@@ -4,6 +4,7 @@ import static eu.eventstorm.cqrs.util.PageRequests.parse;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +15,7 @@ import org.springframework.web.reactive.result.method.HandlerMethodArgumentResol
 import org.springframework.web.server.ServerWebExchange;
 
 import eu.eventstorm.cqrs.QueryDescriptors;
+import eu.eventstorm.cqrs.SqlQueryDescriptor;
 import eu.eventstorm.sql.page.PageRequest;
 import reactor.core.publisher.Mono;
 
@@ -30,14 +32,17 @@ public final class HttpPageRequestHandlerMethodArgumentResolver implements Handl
 		try {
 			GET_ACTUAL_TYPE_ARGUMENTS = ReflectionUtils.findMethod(Class.forName("sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl"), "getActualTypeArguments");
 		} catch (ClassNotFoundException cause) {
-			throw new RuntimeException("Failed to find class [sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl]", cause);
+			throw new IllegalStateException("Failed to find class [sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl]", cause);
 		}
 	}
 	
 	private final QueryDescriptors queryDescriptors;
 	
+	private final ConcurrentHashMap<Method, SqlQueryDescriptor> descriptors;
+	
 	public HttpPageRequestHandlerMethodArgumentResolver(QueryDescriptors queryDescriptors) {
 		this.queryDescriptors = queryDescriptors;
+		this.descriptors = new ConcurrentHashMap<>();
 	}
 
 	@Override
@@ -49,7 +54,6 @@ public final class HttpPageRequestHandlerMethodArgumentResolver implements Handl
 	public Mono<Object> resolveArgument(MethodParameter parameter, BindingContext bindingContext, ServerWebExchange exchange) {
 	
 		if (PageRequest.class.equals(parameter.getParameter().getType())) {
-			LOGGER.debug("bind SQL PageRequest --> [{}]", parameter);
 			return resolveArgument((Method) parameter.getExecutable(), exchange.getRequest().getURI().getQuery());
 		}
 		
@@ -58,16 +62,38 @@ public final class HttpPageRequestHandlerMethodArgumentResolver implements Handl
 	}
 	
 	private Mono<Object> resolveArgument(Method method, String uri) {
-		Object responseEntity = ReflectionUtils.invokeMethod(GET_ACTUAL_TYPE_ARGUMENTS, method.getGenericReturnType());
-		LOGGER.debug("resolveArgument --> responseEntity --> [{}]", responseEntity);
-		LOGGER.debug("resolveArgument --> responseEntity --> [{}]", responseEntity.getClass());
-		Object page = ReflectionUtils.invokeMethod(GET_ACTUAL_TYPE_ARGUMENTS, Array.get(responseEntity, 0));
-		LOGGER.debug("resolveArgument --> page --> [{}]", page);
-		LOGGER.debug("resolveArgument --> page --> [{}]", page.getClass());
-		Object query = ReflectionUtils.invokeMethod(GET_ACTUAL_TYPE_ARGUMENTS, Array.get(page, 0));
-		LOGGER.debug("resolveArgument --> page --> [{}]", query);
-		LOGGER.debug("resolveArgument --> page --> [{}]", Array.get(query, 0));
-		return Mono.just(parse(uri, queryDescriptors.getSqlQueryDescriptor(((Class<?>)Array.get(query, 0)).getName())));
+		
+		SqlQueryDescriptor queryDescriptor = this.descriptors.get(method);
+		
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("resolveArgument [{}] - [{}] -> [{}]" , uri, queryDescriptor, method);
+		}
+		
+		if (queryDescriptor == null) {
+			Object responseEntity = ReflectionUtils.invokeMethod(GET_ACTUAL_TYPE_ARGUMENTS, method.getGenericReturnType());
+			
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Method ResponseEntity [{}]" , responseEntity);
+			}
+			
+			Object page = ReflectionUtils.invokeMethod(GET_ACTUAL_TYPE_ARGUMENTS, Array.get(responseEntity, 0));
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Method Page [{}]" , page);
+			}
+			
+			Object query = ReflectionUtils.invokeMethod(GET_ACTUAL_TYPE_ARGUMENTS, Array.get(page, 0));
+			
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Method query [{}]" , query);
+			}
+			
+			queryDescriptor = queryDescriptors.getSqlQueryDescriptor(((Class<?>)Array.get(query, 0)).getName());
+			this.descriptors.put(method, queryDescriptor);
+		}
+		
+		return Mono.just(parse(uri, queryDescriptor));
+		
 	}
 
 }

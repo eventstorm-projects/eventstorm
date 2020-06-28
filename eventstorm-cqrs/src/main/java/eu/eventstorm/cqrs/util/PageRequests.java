@@ -107,7 +107,18 @@ public final class PageRequests {
 			for (FilterItemContext fic : filterContext.filterContent().filterItem()) {
 				String property = fic.property().getText();
 				String op = fic.op().getText();
-				Expression expression = EXPRESSIONS.get(op).apply(queryDescriptor.get(property));
+				
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("filter for queryDescriptor [{}] ", queryDescriptor);
+				}
+				
+				SqlColumn column = queryDescriptor.get(property);
+				
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("filter for property [{}] -> column [{}]", property, column);
+				}
+				
+				Expression expression = EXPRESSIONS.get(op).apply(column);
 				builder.withFilter(expression, queryDescriptor.getPreparedStatementIndexSetter(property, fic.value().getText()));
 			}
 		}
