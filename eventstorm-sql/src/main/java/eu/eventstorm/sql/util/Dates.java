@@ -11,6 +11,6 @@ public final class Dates {
 	}
 	
 	public static Timestamp convertTimestamp(String timestamp) {
-		return Timestamp.valueOf(eu.eventstorm.util.Dates.parseOffsetDateTime(timestamp).toLocalDateTime());
+		return Timestamp.from(eu.eventstorm.util.Dates.parseOffsetDateTime(timestamp).toInstant());
 	}
 }
