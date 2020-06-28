@@ -1,10 +1,10 @@
 package eu.eventstorm.util;
 
 import static eu.eventstorm.test.Tests.assertUtilClassIsWellDefined;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.nio.ByteBuffer;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -22,11 +22,11 @@ class BuffersTest {
 
         ByteBuffer buffer = ByteBuffer.allocateDirect(1_000_000);
 
-        Assertions.assertEquals(start+1_000_000 , pool.getMemoryUsed());
+        assertEquals(start+1_000_000 , pool.getMemoryUsed());
 
         Buffers.releaseDirectByteBuffer(buffer);
 
-        Assertions.assertEquals(start, pool.getMemoryUsed());
+        assertEquals(start, pool.getMemoryUsed());
 
 	}
 

@@ -34,7 +34,7 @@ filterContent
 	;	
 	
 filterItem
-	: key op value	
+	: property op value	
 	;
 
 sort 
@@ -57,17 +57,21 @@ sortDesc
 	: minus
 	;
 
-key
+property
 	: STRING;
    
 op
 	: '[eq]'
+	| '[neq]'
 	| '[gt]'
+	| '[ge]'
 	| '[lt]'
+	| '[le]'
 	;
 
 value
-	: STRING;
+	: STRING
+	| integer;
 	 
 equal 
 	: '=';

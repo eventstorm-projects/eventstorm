@@ -4,8 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import eu.eventstorm.util.hash.HashReader;
-import eu.eventstorm.util.hash.Hashing;
 import eu.eventstorm.util.unsafe.UnsafeHelper;
 import eu.eventstorm.util.unsafe.UnsafeString;
 

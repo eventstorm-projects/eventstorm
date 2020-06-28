@@ -1,6 +1,7 @@
 package eu.eventstorm.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.DateTimeException;
@@ -9,7 +10,6 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -172,6 +172,7 @@ class DatesTest {
 	@Test
 	void testFormatOffsetDateTime() {
 		OffsetDateTime odt = Dates.parseOffsetDateTime("2011-03-11T18:35:23.123Z");
-		Assertions.assertEquals("2011-03-11T18:35:23.123Z", Dates.format(odt));
+		assertEquals("2011-03-11T18:35:23.123Z", Dates.format(odt));
+		assertNull(Dates.format(null));
 	}
 }

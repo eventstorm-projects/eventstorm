@@ -1,6 +1,6 @@
 package eu.eventstorm.cqrs.web;
 
-import static eu.eventstorm.cqrs.util.PageRequests.parseQuery;
+import static eu.eventstorm.cqrs.util.PageRequests.parse;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
@@ -67,7 +67,7 @@ public final class HttpPageRequestHandlerMethodArgumentResolver implements Handl
 		Object query = ReflectionUtils.invokeMethod(GET_ACTUAL_TYPE_ARGUMENTS, Array.get(page, 0));
 		LOGGER.debug("resolveArgument --> page --> [{}]", query);
 		LOGGER.debug("resolveArgument --> page --> [{}]", Array.get(query, 0));
-		return Mono.just(parseQuery(uri, queryDescriptors.getSqlQueryDescriptor(((Class<?>)Array.get(query, 0)).getName())));
+		return Mono.just(parse(uri, queryDescriptors.getSqlQueryDescriptor(((Class<?>)Array.get(query, 0)).getName())));
 	}
 
 }
