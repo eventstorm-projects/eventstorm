@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>eu.eventstorm</groupId>
 		<artifactId>eventstorm</artifactId>
-		<version>0.9.0</version>
+		<version>0.10.0</version>
 	</parent>
 	<artifactId>eventstorm-sql</artifactId>
 	<name>eventStorm sql</name>
