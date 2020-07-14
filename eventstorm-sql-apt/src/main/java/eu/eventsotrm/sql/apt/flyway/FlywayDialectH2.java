@@ -45,6 +45,10 @@ final class FlywayDialectH2 implements FlywayDialect {
 		if (long.class.getName().equals(javaType) || Long.class.getName().equals(javaType)) {
 			return "BIGINT";
 		}
+		
+		if (byte.class.getName().equals(javaType) || Byte.class.getName().equals(javaType)) {
+			return "TINYINT";
+		}
 
 		if (boolean.class.getName().equals(javaType) || Boolean.class.getName().equals(javaType)) {
 			return "BOOLEAN";
