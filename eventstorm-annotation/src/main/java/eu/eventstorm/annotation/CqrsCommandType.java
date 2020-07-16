@@ -5,5 +5,5 @@ package eu.eventstorm.annotation;
  */
 public enum CqrsCommandType {
 
-    CREATE, UPDATE, DELETE
+    SERVER, CLIENT
 }

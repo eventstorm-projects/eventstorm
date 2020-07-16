@@ -2,6 +2,7 @@ package eu.eventstorm.starter;
 
 import java.util.List;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,13 +34,14 @@ public class EventStormAutoConfiguration {
 		return new PageModule();
 	}
 	
+	@ConditionalOnBean(TypeRegistry.class)
 	@Bean
 	Module cloudEventsModule(TypeRegistry registry) {
 		return new CloudEventsModule(registry);
 	}
 	
 	@Bean
-	CommandGateway commandGateway(List<CommandHandler<?>> handlers) {
+	CommandGateway commandGateway(List<CommandHandler<?,?>> handlers) {
 		CommandHandlerRegistry.Builder builder = CommandHandlerRegistry.newBuilder();
 		handlers.forEach(builder::add);
 		return new CommandGateway(builder.build());

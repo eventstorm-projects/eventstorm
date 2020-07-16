@@ -123,14 +123,14 @@ class DatabaseEventStoreTest extends EventStoreTest {
 				.and()
 				.build();
 		
-		EventStore eventStore = new DatabaseEventStore(db);
+		EventStore eventStore = new DatabaseEventStore(db, new EventStoreProperties());
 		//EventStoreException ese = assertThrows(EventStoreException.class , () -> eventStore.appendToStream(manager.getDefinition("user"), "1", new BadEventPayload()));
 		//assertEquals(EventStoreException.Type.FAILED_TO_SERILIAZE_PAYLOAD, ese.getType());
 	}
 
 	@Override
 	protected EventStore initEventStore() {
-		return new DatabaseEventStore(db);
+		return new DatabaseEventStore(db, new EventStoreProperties());
 	}
 	
 	

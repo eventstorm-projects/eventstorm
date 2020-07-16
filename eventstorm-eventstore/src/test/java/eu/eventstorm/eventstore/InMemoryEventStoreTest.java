@@ -9,6 +9,6 @@ class InMemoryEventStoreTest extends EventStoreTest {
 
 	@Override
 	protected EventStore initEventStore() {
-		return new InMemoryEventStore();
+		return new InMemoryEventStore(new EventStoreProperties());
 	}
 }

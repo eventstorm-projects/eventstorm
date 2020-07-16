@@ -2,7 +2,6 @@ package eu.eventstorm.cqrs;
 
 import static com.google.common.collect.ImmutableMap.of;
 
-import eu.eventstorm.core.Event;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -17,11 +16,11 @@ public final class CommandGateway {
         this.registry = registry;
     }
 
-	public <T extends Command> Flux<Event> dispatch(T command) {
+	public <T extends Command, E> Flux<E> dispatch(T command) {
 
 		return Mono.just(command)
 				// retrieve command handler associated
-				.flatMap(c -> Mono.justOrEmpty(registry.get(c)))
+				.flatMap(c -> Mono.justOrEmpty(registry.<T,E>get(c)))
 				// if no command handler => error
 				.switchIfEmpty(Mono.error(new CommandGatewayException(CommandGatewayException.Type.NOT_FOUND, of("command", command))))
 				// handle the Command

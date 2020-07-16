@@ -21,6 +21,7 @@ import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.annotation.HttpMethod;
 import eu.eventstorm.cloudevents.CloudEvent;
 import eu.eventstorm.cloudevents.CloudEvents;
+import eu.eventstorm.core.Event;
 import eu.eventstorm.cqrs.CommandGateway;
 
 /**
@@ -198,7 +199,7 @@ public final class CommandRestControllerImplementationGenerator {
 		writeNewLine(writer);
 		writer.write("            .log(LOGGER, Level.INFO, false, SignalType.ON_NEXT)");
 		writeNewLine(writer);
-		writer.write("            .flatMapMany(c -> gateway.dispatch(c))");
+		writer.write("            .flatMapMany(c -> gateway.<"+rcd.element().toString() + ","+ Event.class.getName() + ">dispatch(c))");
 		writeNewLine(writer);
 		writer.write("            .map(CloudEvents::to);");
 		writeNewLine(writer);

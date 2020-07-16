@@ -26,6 +26,8 @@ import eu.eventsotrm.sql.apt.Helper;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.annotation.Constraint;
+import eu.eventstorm.annotation.CqrsCommand;
+import eu.eventstorm.annotation.CqrsCommandType;
 import eu.eventstorm.annotation.constraint.CustomPropertiesValidator;
 import eu.eventstorm.annotation.constraint.CustomPropertiesValidators;
 import eu.eventstorm.annotation.constraint.CustomPropertyValidator;
@@ -55,6 +57,10 @@ public final class CommandValidatorGenerator {
     	// generate Implementation class;
         sourceCode.forEachCommand(t -> {
             try {
+            	if (CqrsCommandType.CLIENT == t.element().getAnnotation(CqrsCommand.class).type()) {
+            		// no validator for client -> skip
+            		return;
+            	}
             	this.variables.clear();
                 generate(processingEnvironment, t);
             } catch (Exception cause) {

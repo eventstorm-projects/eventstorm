@@ -9,6 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import eu.eventstorm.core.id.StreamIds;
 import eu.eventstorm.eventstore.EventStoreException;
+import eu.eventstorm.eventstore.EventStoreProperties;
 import eu.eventstorm.eventstore.StreamManager;
 import eu.eventstorm.eventstore.ex.UserCreatedEventPayload;
 import eu.eventstorm.test.LoggerInstancePostProcessor;
@@ -33,7 +34,7 @@ class InMemoryEventStoreClientTest {
 	@Test
 	void test() {
 		
-		InMemoryEventStoreClient client = new InMemoryEventStoreClient(manager, new InMemoryEventStore());
+		InMemoryEventStoreClient client = new InMemoryEventStoreClient(manager, new InMemoryEventStore(new EventStoreProperties()));
 
 		client.appendToStream("test", StreamIds.from(1), UserCreatedEventPayload.newBuilder().build());
 		client.appendToStream("test", StreamIds.from(2), UserCreatedEventPayload.newBuilder().build());

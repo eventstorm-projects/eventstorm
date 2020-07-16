@@ -4,63 +4,35 @@ import static eu.eventstorm.core.id.StreamIds.from;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.google.common.collect.ImmutableList;
 import com.google.protobuf.InvalidProtocolBufferException;
 
 import eu.eventstorm.core.Event;
-import eu.eventstorm.core.id.StreamIdGenerator;
-import eu.eventstorm.core.id.StreamIdGeneratorFactory;
 import eu.eventstorm.cqrs.CommandGateway;
-import eu.eventstorm.cqrs.CommandHandlerRegistry;
-import eu.eventstorm.cqrs.event.EvolutionHandlers;
 import eu.eventstorm.cqrs.ex001.command.CreateUserCommand;
 import eu.eventstorm.cqrs.ex001.event.UserCreatedEventPayload;
-import eu.eventstorm.cqrs.ex001.gen.evolution.UserEvolutionHandler;
 import eu.eventstorm.cqrs.ex001.gen.impl.CreateUserCommandImpl;
-import eu.eventstorm.cqrs.ex001.handler.CreateUserCommandHandler;
 import eu.eventstorm.cqrs.validation.CommandValidationException;
 import eu.eventstorm.eventstore.EventStoreClient;
-import eu.eventstorm.eventstore.StreamManager;
-import eu.eventstorm.eventstore.memory.InMemoryEventStore;
-import eu.eventstorm.eventstore.memory.InMemoryEventStoreClient;
-import eu.eventstorm.eventstore.memory.InMemoryStreamManagerBuilder;
 import eu.eventstorm.test.LoggerInstancePostProcessor;
 
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = { Ex001Configuration.class })
 @ExtendWith(LoggerInstancePostProcessor.class)
 class Ex001Test {
 
+	@Autowired
 	private CommandGateway gateway;
+	
+	@Autowired
 	private EventStoreClient eventStoreClient;
 
-	@BeforeEach
-	void before() {
-		StreamManager manager = new InMemoryStreamManagerBuilder()
-				.withDefinition("user")
-					.withPayload(UserCreatedEventPayload.class, UserCreatedEventPayload.getDescriptor(), UserCreatedEventPayload.parser(), () -> UserCreatedEventPayload.newBuilder())
-				.and()
-				.build();
-		
-		eventStoreClient = new InMemoryEventStoreClient(manager, new InMemoryEventStore());
-		
-		EvolutionHandlers evolutionHandlers = EvolutionHandlers.newBuilder()
-				.add(new UserEvolutionHandler())
-				.build();
-		
-		StreamIdGenerator userGenerator = StreamIdGeneratorFactory.inMemoryInteger();
-
-		CommandHandlerRegistry registry = CommandHandlerRegistry.newBuilder()
-		        .add(new CreateUserCommandHandler(eventStoreClient, evolutionHandlers, userGenerator))
-		        // .add(CreateUserCommandImpl.class, new CreateUserCommandHandler(eventStore,
-		        // eventBus))
-		        .build();
-
-		gateway = new CommandGateway(registry);
-	}
-	
 	@Test
 	void test() {
 
@@ -70,8 +42,8 @@ class Ex001Test {
 		command.setEmail("jm@mail.org");
 
 		ImmutableList.Builder<Event> builder = ImmutableList.builder();
-		gateway.dispatch(command).doOnNext(event -> builder.add(event)).blockLast();
-;		
+		gateway.<CreateUserCommand,Event>dispatch(command).doOnNext(event -> builder.add(event)).blockLast();
+		
 		assertEquals(1, eventStoreClient.readStream("user", from(1)).count());
 		Event event = eventStoreClient.readStream("user", from(1)).findFirst().get();
 
@@ -102,7 +74,7 @@ class Ex001Test {
 
 		ImmutableList.Builder<Event> builder = ImmutableList.builder();
 		
-		CommandValidationException cve = assertThrows(CommandValidationException.class, () -> gateway.dispatch(command).doOnNext(event -> builder.add(event)).blockLast());
+		CommandValidationException cve = assertThrows(CommandValidationException.class, () -> gateway.<CreateUserCommand, Event>dispatch(command).doOnNext(event -> builder.add(event)).blockLast());
 		assertEquals(command, cve.getCommand());
 		assertEquals("mail", cve.getConstraintViolations().get(0).getProperties().get(0));
 	}

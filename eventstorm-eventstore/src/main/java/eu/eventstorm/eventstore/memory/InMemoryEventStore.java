@@ -19,6 +19,7 @@ import eu.eventstorm.core.Event;
 import eu.eventstorm.core.UUID;
 import eu.eventstorm.eventstore.EventStore;
 import eu.eventstorm.eventstore.EventStoreException;
+import eu.eventstorm.eventstore.EventStoreProperties;
 import eu.eventstorm.eventstore.Statistics;
 import eu.eventstorm.eventstore.StreamDefinition;
 import eu.eventstorm.eventstore.StreamEventDefinition;
@@ -33,6 +34,12 @@ public final class InMemoryEventStore implements EventStore {
 	private final Map<String, Map<String, List<Event>>> map = new HashMap<>();
 
 	private final List<Event> allEvents = new LinkedList<>();
+	
+	private final EventStoreProperties eventStoreProperties;
+	
+	public InMemoryEventStore(EventStoreProperties eventStoreProperties) {
+		this.eventStoreProperties = eventStoreProperties;
+	}
 
 	@Override
 	public Stream<Event> readStream(StreamDefinition definition, String streamId) {
@@ -82,7 +89,7 @@ public final class InMemoryEventStore implements EventStore {
 				.setTimestamp(OffsetDateTime.now().toString())
 				.setRevision(revision)
 				.setCorrelation(UUID.newBuilder().setMostSigBits(correlation.getMostSignificantBits()).setLeastSigBits(correlation.getLeastSignificantBits()).build())
-				.setData(Any.pack(message,sepd.getStream()))
+				.setData(Any.pack(message,this.eventStoreProperties.getEventDataTypeUrl() + "/" + sepd.getStream() + "/"))
 				.build();
 		// @formatter:on
 

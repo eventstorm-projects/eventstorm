@@ -23,6 +23,7 @@ import eu.eventsotrm.core.apt.model.Protobuf;
 import eu.eventsotrm.core.apt.model.ProtobufMessage;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
+import eu.eventstorm.annotation.CqrsConfiguration;
 import eu.eventstorm.core.Event;
 import eu.eventstorm.core.apt.protobuf.Protobuf3BaseListener;
 import eu.eventstorm.core.apt.protobuf.Protobuf3Lexer;
@@ -45,7 +46,7 @@ public final class EventProtoGenerator {
 	      sourceCode.forEventEvolution(t -> {
 	    		logger.info("EventProtoGenerator -> " + t);
 		      try {
-		          generate(processingEnvironment, t);
+		          generate(processingEnvironment, t, sourceCode.getCqrsConfiguration());
 		      } catch (Exception cause) {
 		      	logger.error("Exception for [" + t + "] -> [" + cause.getMessage() + "]", cause);
 		      }
@@ -54,7 +55,7 @@ public final class EventProtoGenerator {
     }
     
     
-	private void generate(ProcessingEnvironment processingEnvironment, EventEvolutionDescriptor descriptor) throws IOException {
+	private void generate(ProcessingEnvironment processingEnvironment, EventEvolutionDescriptor descriptor, CqrsConfiguration configuration) throws IOException {
 
 		String[] protos = descriptor.eventEvolution().proto();
 		
@@ -98,13 +99,17 @@ public final class EventProtoGenerator {
 			
 			protobuf.setMessages(messages.build());
 			builder.add(protobuf);
+			
+			descriptor.add(protobuf);
 		}
 		
-		generate(processingEnvironment, descriptor, builder.build());
+	
+		
+		generate(processingEnvironment, descriptor, builder.build(), configuration);
 		
 	}
 
-	private void generate(ProcessingEnvironment env, EventEvolutionDescriptor descriptor, ImmutableList<Protobuf> ctxs) throws IOException {
+	private void generate(ProcessingEnvironment env, EventEvolutionDescriptor descriptor, ImmutableList<Protobuf> ctxs, CqrsConfiguration configuration) throws IOException {
 
 		logger.info("---------------------------> EventProtoGenerator -> generate : " + ctxs);
 		
@@ -121,7 +126,7 @@ public final class EventProtoGenerator {
 		JavaFileObject object = env.getFiler().createSourceFile(fcqn);
 		try (Writer writer = object.openWriter()) {
 			writeHeader(writer, env, descriptor, ctxs);
-			writeMethods(writer, descriptor, ctxs);
+			writeMethods(writer, descriptor, ctxs, configuration);
 			writer.write("}");
 		}
 
@@ -172,15 +177,15 @@ public final class EventProtoGenerator {
 		writeNewLine(writer);
 	}
 
-	private void writeMethods(Writer writer, EventEvolutionDescriptor descriptor, ImmutableList<Protobuf> protobufs) throws IOException {
-		writeMethodOnEvent(writer, descriptor, protobufs);
+	private void writeMethods(Writer writer, EventEvolutionDescriptor descriptor, ImmutableList<Protobuf> protobufs, CqrsConfiguration configuration) throws IOException {
+		writeMethodOnEvent(writer, descriptor, protobufs, configuration);
 		
 		for (Protobuf protobuf : protobufs) {
 			writeMethods(writer, descriptor, protobuf);
 		}
 	}
 
-	private void writeMethodOnEvent(Writer writer, EventEvolutionDescriptor descriptor, ImmutableList<Protobuf> protobufs) throws IOException {
+	private void writeMethodOnEvent(Writer writer, EventEvolutionDescriptor descriptor, ImmutableList<Protobuf> protobufs, CqrsConfiguration configuration) throws IOException {
 		writeNewLine(writer);
         writer.write("    /** {@inheritDoc} */");
         writeNewLine(writer);
@@ -192,11 +197,13 @@ public final class EventProtoGenerator {
         	for (ProtobufMessage message : protobuf.getMessages()) {
         		writeNewLine(writer);
         		writer.write("        if (event.getData().getTypeUrl().equals(\"");
-        		writer.write(message.getName());
+        		writer.write(configuration.evolutionDataTypeBaseUrl());
         		writer.write("/");
-        		if (!Strings.isEmpty(protobuf.getJavaPackage())) {
-        			writer.write(protobuf.getJavaPackage() + ".");	
-        		}
+        		writer.write(getStreamName(protobuf));
+        		writer.write("/");
+//        		if (!Strings.isEmpty(protobuf.getJavaPackage())) {
+//        			writer.write(protobuf.getJavaPackage() + ".");	
+//        		}
         		writer.write(message.getName());
         		writer.write("\")) {");
         		writeNewLine(writer);
@@ -238,4 +245,14 @@ public final class EventProtoGenerator {
 		
 	}
     
+	private String getStreamName(Protobuf protobuf) {
+		int index = protobuf.getProto().lastIndexOf('/');
+		if (index == -1) {
+			index = 0;
+		} else {
+			index++;
+		}
+		return protobuf.getProto().substring(index, protobuf.getProto().indexOf(".proto"));
+	}
+	
 }

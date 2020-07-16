@@ -22,4 +22,10 @@ public @interface CqrsConfiguration {
 	 */
 	String basePackage();
 	
+	
+	/**
+	 * evolution base url : @see https://developers.google.com/protocol-buffers/docs/proto3#any
+	 */
+	String evolutionDataTypeBaseUrl() default "";
+	
 }

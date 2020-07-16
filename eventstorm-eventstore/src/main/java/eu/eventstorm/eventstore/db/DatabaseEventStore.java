@@ -16,6 +16,7 @@ import com.google.protobuf.util.JsonFormat;
 
 import eu.eventstorm.core.Event;
 import eu.eventstorm.eventstore.EventStore;
+import eu.eventstorm.eventstore.EventStoreProperties;
 import eu.eventstorm.eventstore.Statistics;
 import eu.eventstorm.eventstore.StreamDefinition;
 import eu.eventstorm.eventstore.StreamEventDefinition;
@@ -35,12 +36,15 @@ public final class DatabaseEventStore implements EventStore {
 	
 	private final Database database;
 	
+	private final EventStoreProperties eventStoreProperties;
+	
 	private final DatabaseRepository databaseRepository;
 	
 	private final TransactionStreamTemplate streamTemplate;
 	
-	public DatabaseEventStore(Database database) {
+	public DatabaseEventStore(Database database, EventStoreProperties eventStoreProperties) {
 		this.database = database;
+		this.eventStoreProperties = eventStoreProperties;
 		this.databaseRepository = new DatabaseRepository(database);
 		this.streamTemplate = new TransactionStreamTemplate(database.transactionManager());
 	}
@@ -60,7 +64,7 @@ public final class DatabaseEventStore implements EventStore {
 		
 		DatabaseEvent de;
 		
-		try (Transaction transaction = database.transactionManager().newTransactionIsolatedReadWrite()) {
+		try (Transaction transaction = database.transactionManager().newTransactionReadWrite()) {
 			try (Stream<DatabaseEvent> events = this.databaseRepository.lock(sepd.getStream(), streamId)) {
 				Optional<DatabaseEvent> optional = events.findFirst();
 				DatabaseEventBuilder builder = new DatabaseEventBuilder()
@@ -92,7 +96,7 @@ public final class DatabaseEventStore implements EventStore {
 					.setStream(sepd.getStream())
 					.setTimestamp(time.toString())
 					.setRevision(de.getRevision())
-					.setData(Any.pack(message,"eventstorm"))
+					.setData(Any.pack(message,this.eventStoreProperties.getEventDataTypeUrl() + "/" + sepd.getStream() + "/"))
 					.build();
 		// @formatter:off
 	}

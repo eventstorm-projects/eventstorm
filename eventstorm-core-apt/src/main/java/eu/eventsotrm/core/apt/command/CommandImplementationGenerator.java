@@ -102,7 +102,10 @@ public final class CommandImplementationGenerator {
     		builder.append(",");
         }
     	
-    	builder.deleteCharAt(builder.length() -1);
+    	if (descriptor.properties().size() > 0) {
+    		builder.deleteCharAt(builder.length() -1);	
+    	}
+    	
     	writer.write(builder.toString());
     	writer.write(") {");
     	writeNewLine(writer);

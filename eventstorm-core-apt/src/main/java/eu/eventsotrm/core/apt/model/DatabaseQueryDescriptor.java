@@ -4,8 +4,6 @@ import java.util.List;
 
 import javax.lang.model.element.Element;
 
-import eu.eventstorm.annotation.CqrsQueryElsIndex;
-
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */

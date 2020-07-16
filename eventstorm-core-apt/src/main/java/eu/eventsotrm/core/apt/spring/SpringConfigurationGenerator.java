@@ -6,7 +6,9 @@ import static eu.eventsotrm.sql.apt.Helper.writePackage;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -22,7 +24,6 @@ import eu.eventsotrm.core.apt.model.ProtobufMessage;
 import eu.eventsotrm.sql.apt.Helper;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
-import eu.eventstorm.cqrs.SqlQueryDescriptor;
 import eu.eventstorm.cqrs.QueryDescriptors;
 import eu.eventstorm.eventstore.StreamManager;
 import eu.eventstorm.eventstore.memory.InMemoryStreamManagerBuilder;
@@ -60,7 +61,7 @@ public final class SpringConfigurationGenerator {
 				writeTypeRegistry(writer, env, code);
 				writeCommandModule(writer, env, code);
 				writeQueryModule(writer, env, code);
-				writeQueryDescriptor(writer);
+				writeQueryDescriptor(writer, code);
 		        writer.write("}");
 			}
 		} catch (IOException cause) {
@@ -111,7 +112,14 @@ public final class SpringConfigurationGenerator {
 		});
 	}
 	
-	private void writeQueryDescriptor(Writer writer) {
+	private void writeQueryDescriptor(Writer writer, SourceCode sourceCode) {
+		
+		AtomicInteger counter = new AtomicInteger(0);
+		sourceCode.forEachDatabaseQuery(dq -> counter.incrementAndGet());
+		if (counter.get() == 0) {
+			return;
+		}
+		
 		try {
 			writeNewLine(writer);
 			writer.write("    @Bean");
@@ -131,6 +139,13 @@ public final class SpringConfigurationGenerator {
 
 	private void writeTypeRegistry(Writer writer, ProcessingEnvironment env, SourceCode sourceCode) throws IOException {
 
+		AtomicInteger counter = new AtomicInteger(0);
+		sourceCode.forEventEvolution(eed -> counter.incrementAndGet());
+		
+		if (counter.get() == 0) {
+			return;
+		}
+		
 		writeNewLine(writer);
 		writer.write("    @Bean");
 		writeNewLine(writer);
@@ -182,6 +197,12 @@ public final class SpringConfigurationGenerator {
     
 	private void writeStreamManager(Writer writer, ProcessingEnvironment env, SourceCode sourceCode) throws IOException {
 		
+		AtomicInteger counter = new AtomicInteger(0);
+		sourceCode.forEventEvolution(dq -> counter.incrementAndGet());
+		if (counter.get() == 0) {
+			return;
+		}
+		
 		writeNewLine(writer);
 		writer.write("    @Bean");
 		writeNewLine(writer);
@@ -190,18 +211,28 @@ public final class SpringConfigurationGenerator {
         writer.write("        return new InMemoryStreamManagerBuilder()");
         writeNewLine(writer);
         
+        Set<String> streams = new HashSet<>();
+        
         sourceCode.forEventEvolution(ee -> {
         	try {
         		for (String stream : ee.getMessages().keySet()) {
+        			
+        			if (streams.contains(stream)) {
+        				continue;
+        			} else {
+        				streams.add(stream);
+        			}
+        			
         			writer.write("            .withDefinition(\"" + stream + "\")");
         			writeNewLine(writer);
         			for (ProtobufMessage message : ee.getMessages().get(stream)) {
         				writer.write("                .withPayload(" + message.getName() + ".class, " +  message.getName()+".getDescriptor(), " +
         						message.getName()+".parser(), () -> " +  message.getName() + ".newBuilder())");
         				writeNewLine(writer);
-        				writer.write("            .and()");
-        				writeNewLine(writer);
+        				
         			}
+        			writer.write("            .and()");
+        			writeNewLine(writer);
         		}
 			} catch (IOException cause) {
 				logger.error("Exception for [" + ee + "] -> [" + cause.getMessage() + "]", cause);

@@ -1,6 +1,5 @@
 package eu.eventsotrm.core.apt.model;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +8,7 @@ import javax.lang.model.element.Element;
 
 import eu.eventstorm.annotation.EventEvolution;
 
-public class EventEvolutionDescriptor implements Descriptor {
+public final class EventEvolutionDescriptor implements Descriptor {
 
     private final Element element;
     private final EventEvolution eventEvolution;
@@ -52,11 +51,15 @@ public class EventEvolutionDescriptor implements Descriptor {
         return builder.toString();
     }
 
-	public void add(String proto, ProtobufMessage message) {
-		if (!this.messages.containsKey(proto)) {
-			this.messages.put(proto, new ArrayList<>());
-		} 
-		this.messages.get(proto).add(message);
+	public void add(Protobuf protobuf) {
+		int index = protobuf.getProto().lastIndexOf('/');
+		if (index == -1 ) {
+			index = 0;
+		} else {
+			index++;
+		}
+		String stream = protobuf.getProto().substring(index, protobuf.getProto().indexOf(".proto")); 
+		this.messages.put(stream, protobuf.getMessages());
 	}
 
 }

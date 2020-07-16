@@ -9,13 +9,13 @@ import eu.eventstorm.cqrs.BatchCommand;
 import eu.eventstorm.cqrs.CommandHandler;
 import eu.eventstorm.cqrs.batch.BatchJobCreated;
 
-public abstract class AbstractBatchCommandHandler<C extends BatchCommand> implements CommandHandler<C> {
+public abstract class AbstractBatchEventCommandHandler<C extends BatchCommand> implements CommandHandler<C, Event> {
 
 	private final Class<C> type;
 
 	private final Batch batch;
 
-	public AbstractBatchCommandHandler(Class<C> type, Batch batch) {
+	public AbstractBatchEventCommandHandler(Class<C> type, Batch batch) {
 		this.type = type;
 		this.batch = batch;
 	}

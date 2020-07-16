@@ -13,6 +13,6 @@ import java.lang.annotation.Target;
 @Retention(RUNTIME)
 public @interface CqrsCommand {
 
-	CqrsCommandType type();
+	CqrsCommandType type() default CqrsCommandType.SERVER;
 	
 }

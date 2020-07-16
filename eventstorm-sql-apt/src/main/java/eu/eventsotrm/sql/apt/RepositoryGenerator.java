@@ -410,6 +410,7 @@ final class RepositoryGenerator implements Generator {
         generateMethodUpdate(writer, descriptor);
         generateMethodBatch(writer, descriptor);
         generateMethodFindByBusinessKey(writer, descriptor);
+        generateMethodDelete(writer, descriptor);
         generateMethodPage(writer, descriptor);
         generateMethodLink(writer, descriptor);
         generateMethodUnlink(writer, descriptor);
@@ -592,6 +593,39 @@ final class RepositoryGenerator implements Generator {
         writer.write(toUpperCase(descriptor.element().getSimpleName().toString()));
         writer.write(", pojo);");
 
+        writeNewLine(writer);
+        writer.write("    }");
+        writeNewLine(writer);
+
+    }
+    
+    private static void generateMethodDelete(Writer writer, PojoDescriptor descriptor) throws IOException {
+
+    	if (!checkCUD(descriptor)) {
+    		return;
+    	}
+
+        writeNewLine(writer);
+        writer.write("    public final void delete(");
+        
+        StringBuilder builder = new StringBuilder();
+        for (PojoPropertyDescriptor desc : descriptor.ids()) {
+        	builder.append(Helper.getReturnType(desc.getter())).append(" ").append(desc.name()).append(", ");
+        }
+        builder.deleteCharAt(builder.length() -1);
+        builder.deleteCharAt(builder.length() -1);
+        writer.write(builder.toString());
+        writer.write(") {");
+
+        writeNewLine(writer);
+        writer.write("        executeDelete(this.delete, ps -> {");
+        writeNewLine(writer);
+        int i = 1;
+        for (PojoPropertyDescriptor desc : descriptor.ids()) {
+        	 writer.write("            ps."  + Helper.preparedStatementSetter(Helper.getReturnType(desc.getter())) + "(" + (i++) +"," + desc.name() + ");");
+        	 writeNewLine(writer);
+        }
+        writer.write("        });");
         writeNewLine(writer);
         writer.write("    }");
         writeNewLine(writer);

@@ -17,6 +17,7 @@ import com.google.protobuf.TypeRegistry;
 
 import eu.eventstorm.core.json.CoreApiModule;
 import eu.eventstorm.eventstore.EventStore;
+import eu.eventstorm.eventstore.EventStoreProperties;
 import eu.eventstorm.eventstore.StreamManager;
 import eu.eventstorm.eventstore.ex.UserCreatedEventPayload;
 import eu.eventstorm.eventstore.memory.InMemoryEventStore;
@@ -46,7 +47,7 @@ class ApiRestControllerConfigurationTest implements WebFluxConfigurer {
 	
 	@Bean
 	EventStore eventStore() {
-		return new InMemoryEventStore();
+		return new InMemoryEventStore(new EventStoreProperties());
 	}
 	
 	@Bean

@@ -48,6 +48,10 @@ final class FlywayDialectOracle implements FlywayDialect {
 			return "NUMBER(19)";
 		}
 
+		if (byte.class.getName().equals(javaType) || Byte.class.getName().equals(javaType)) {
+			return "NUMBER(3)";
+		}
+		
 		if (boolean.class.getName().equals(javaType) || Boolean.class.getName().equals(javaType)) {
 			return "NUMBER(1)";
 		}

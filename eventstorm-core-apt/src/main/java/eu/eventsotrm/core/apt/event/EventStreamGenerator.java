@@ -48,23 +48,30 @@ public final class EventStreamGenerator {
     
 	private void generate(ProcessingEnvironment env, SourceCode sourceCode, List<String> streams) {
 
-		// check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
-         if (env.getElementUtils().getTypeElement(sourceCode.getCqrsConfiguration().basePackage() + ".Streams") != null) {
-            logger.info("Java SourceCode already exist [" + sourceCode.getCqrsConfiguration().basePackage() + ".Streams]");
-            return;
-        }
+		// check due to
+		// "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
+		if (env.getElementUtils().getTypeElement(sourceCode.getCqrsConfiguration().basePackage() + ".Streams") != null) {
+			logger.info("Java SourceCode already exist [" + sourceCode.getCqrsConfiguration().basePackage() + ".Streams]");
+			return;
+		}
+
+		if (streams.size() == 0) {
+			logger.info("No proto found => skip");
+			return;
+		}
 		
-	      try {
-	    	  JavaFileObject object = env.getFiler().createSourceFile(sourceCode.getCqrsConfiguration().basePackage() + ".Streams");
-	  		try (Writer writer = object.openWriter()) {
-	  			writeHeader(writer, env, sourceCode);
-	  			writeEnumContent(writer, streams);
-	  			writer.write("}");
-	  		}
-	      } catch (Exception cause) {
-	      	logger.error("Exception -> [" + cause.getMessage() + "]", cause);
-	      }
-    
+		
+		try {
+			JavaFileObject object = env.getFiler().createSourceFile(sourceCode.getCqrsConfiguration().basePackage() + ".Streams");
+			try (Writer writer = object.openWriter()) {
+				writeHeader(writer, env, sourceCode);
+				writeEnumContent(writer, streams);
+				writer.write("}");
+			}
+		} catch (Exception cause) {
+			logger.error("Exception -> [" + cause.getMessage() + "]", cause);
+		}
+
 	}
 
 	private void writeEnumContent(Writer writer, List<String> streams) throws IOException {

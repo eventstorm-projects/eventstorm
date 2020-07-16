@@ -145,6 +145,10 @@ public final class SourceCode {
 	}
 	
 	public CqrsConfiguration getCqrsConfiguration() {
+		logger.info("getCqrsConfiguration -------> " + cqrsConfiguration);
+		if (cqrsConfiguration == null) {
+			throw new IllegalStateException("Missing @CqrsConfiguration");
+		}
 		return cqrsConfiguration;
 	}
 	

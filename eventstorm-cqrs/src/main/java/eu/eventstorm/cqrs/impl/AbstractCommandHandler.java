@@ -2,35 +2,26 @@ package eu.eventstorm.cqrs.impl;
 
 import com.google.common.collect.ImmutableList;
 
-import eu.eventstorm.core.Event;
-import eu.eventstorm.core.EventCandidate;
 import eu.eventstorm.cqrs.Command;
 import eu.eventstorm.cqrs.CommandHandler;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-abstract class AbstractCommandHandler<T extends Command> implements CommandHandler<T> {
+abstract class AbstractCommandHandler<T extends Command, R> implements CommandHandler<T, R> {
 	
-	
-	public final ImmutableList<Event> handle(T command) {
+	public final ImmutableList<R> handle(T command) {
 		
 		// validate the command
 		validate(command);
 		
 		// apply the decision function (state,command) => events
-		ImmutableList<EventCandidate<?>> candidates = decision(command);
-		
-		// save the to the eventStore
-		ImmutableList<Event> events = store(candidates);
+		ImmutableList<R> candidates = decision(command);
 		
 		// apply the evolution function (state,Event) => State
-		evolution(events);
+		evolution(candidates);
 		
-		// publish events
-		publish(events);
-		
-		return events;
+		return candidates;
 	}
 
 	
@@ -39,19 +30,11 @@ abstract class AbstractCommandHandler<T extends Command> implements CommandHandl
 	/**
 	 * (state,command) => events
 	 */
-	protected abstract ImmutableList<EventCandidate<?>> decision(T command);
-
-	
-	protected abstract ImmutableList<Event> store(ImmutableList<EventCandidate<?>> candidates);
+	protected abstract ImmutableList<R> decision(T command);
 
 	/**
 	 *  (state,Event) => State
 	 */
-	protected abstract void evolution(ImmutableList<Event> events);
+	protected abstract void evolution(ImmutableList<R> events);
 	
-	/**
-	 * publish events
-	 */
-	protected abstract void publish(ImmutableList<Event> events);
-
 }

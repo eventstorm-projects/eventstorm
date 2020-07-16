@@ -4,6 +4,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.ImmutableList;
 
@@ -19,29 +20,24 @@ import eu.eventstorm.eventstore.EventStoreClient;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-public abstract class DefaultCommandHandler<T extends Command> extends AbstractCommandHandler<T> {
+public abstract class DefaultEventCommandHandler<T extends Command> extends AbstractEventCommandHandler<T> {
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultCommandHandler.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultEventCommandHandler.class);
 
-	private final EvolutionHandlers evolutionHandlers;
+	@Autowired
+	private EvolutionHandlers evolutionHandlers;
 	
-	private final EventStoreClient eventStoreClient;
-	
-	private final Validator<T> validator;
+	@Autowired
+	private EventStoreClient eventStoreClient;
 	
 	private final Class<T> type;
 	
-	public DefaultCommandHandler(Class<T> type, 
-			Validator<T> validator, 
-			EventStoreClient eventStoreClient, 
-			EvolutionHandlers evolutionHandlers) {
-		
+	private final Validator<T> validator;
+	
+	public DefaultEventCommandHandler(Class<T> type, Validator<T> validator) {
 		this.type = type;
 		this.validator = validator;
-		this.eventStoreClient = eventStoreClient;
-		this.evolutionHandlers = evolutionHandlers;
 	}
-	
 
 	@Override
 	public final Class<T> getType() {

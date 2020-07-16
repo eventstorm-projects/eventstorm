@@ -1,11 +1,9 @@
 package eu.eventstorm.cqrs.ex001.command;
 
-import static eu.eventstorm.annotation.CqrsCommandType.UPDATE;
-
 import eu.eventstorm.annotation.CqrsCommand;
 import eu.eventstorm.cqrs.Command;
 
-@CqrsCommand(type = UPDATE)
+@CqrsCommand
 public interface UpdateUserMailCommand extends Command {
 
 	String getId();

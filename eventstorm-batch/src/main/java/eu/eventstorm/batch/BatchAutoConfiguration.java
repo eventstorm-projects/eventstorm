@@ -1,5 +1,6 @@
 package eu.eventstorm.batch;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -18,9 +19,10 @@ import eu.eventstorm.batch.tmp.TemporaryResourceProperties;
 @ComponentScan("eu.eventstorm.batch")
 public class BatchAutoConfiguration {
 
-	@Bean 
+	@ConditionalOnBean(TypeRegistry.class)
+	@Bean
 	BatchModule batchModule(TypeRegistry registry) {
 		return new BatchModule(registry);
 	}
-	
+
 }

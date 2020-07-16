@@ -1,5 +1,8 @@
 package eu.eventstorm.cqrs.event;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.ImmutableList;
 
 import eu.eventstorm.core.Event;
@@ -9,6 +12,8 @@ import eu.eventstorm.core.Event;
  */
 public final class EvolutionHandlers implements EvolutionHandler {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(EvolutionHandlers.class);
+	
 	private final ImmutableList<EvolutionHandler> handlers;
 
 	public EvolutionHandlers(ImmutableList<EvolutionHandler> handlers) {
@@ -17,6 +22,14 @@ public final class EvolutionHandlers implements EvolutionHandler {
 
 	@Override
 	public void on(Event event) {
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("on ({})", event);
+		}
+		
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("handlers -> ", handlers);
+		}
 		
 		this.handlers.forEach(h -> h.on(event));
 

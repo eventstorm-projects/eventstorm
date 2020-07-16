@@ -28,4 +28,7 @@ public final class Protobuf {
 		this.javaPackage = javaPackage;
 	}
 
+	public String getProto() {
+		return this.proto;
+	}
 }

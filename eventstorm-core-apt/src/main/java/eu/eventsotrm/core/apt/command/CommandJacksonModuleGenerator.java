@@ -87,6 +87,9 @@ public final class CommandJacksonModuleGenerator {
 			// addDeserializer(CreateUserCommand.class, new CreateUserCommandStdDeserializer());
 			writer.write("        addDeserializer(" + cd.fullyQualidiedClassName() + ".class, new " + cd.simpleName() + "StdDeserializer());");
 			writeNewLine(writer);
+			writer.write("        addSerializer(" + cd.fullyQualidiedClassName() + ".class, new " + cd.simpleName() + "StdSerializer());");
+			writeNewLine(writer);
+			writeNewLine(writer);
 		}
 		
 		writer.write("    }");

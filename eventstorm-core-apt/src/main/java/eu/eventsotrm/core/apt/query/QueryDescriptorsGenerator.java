@@ -6,6 +6,7 @@ import static eu.eventsotrm.sql.apt.Helper.writePackage;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.JavaFileObject;
@@ -39,6 +40,16 @@ public final class QueryDescriptorsGenerator {
             logger.info("Java SourceCode already exist [" + fcqn + "]");
             return;
         }
+        
+        AtomicInteger counter = new AtomicInteger(0);
+        sourceCode.forEachDatabaseQuery(item -> {
+        	counter.incrementAndGet();
+        });
+        
+        if (counter.get() == 0) {
+			logger.info("No Database Queries found => skip");
+			return;
+		}
         
         try {
         	JavaFileObject object = env.getFiler().createSourceFile(fcqn);
