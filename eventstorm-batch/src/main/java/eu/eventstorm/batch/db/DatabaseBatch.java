@@ -1,11 +1,10 @@
-package eu.eventstorm.batch.memory;
+package eu.eventstorm.batch.db;
 
 import static java.util.UUID.randomUUID;
 
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.OffsetDateTime;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,37 +18,50 @@ import eu.eventstorm.batch.BatchExecutor;
 import eu.eventstorm.batch.BatchJob;
 import eu.eventstorm.batch.BatchJobContext;
 import eu.eventstorm.batch.BatchStatus;
-import eu.eventstorm.batch.db.BatchExecution;
-import eu.eventstorm.batch.db.BatchExecutionBuilder;
 import eu.eventstorm.core.Event;
 import eu.eventstorm.core.EventCandidate;
 import eu.eventstorm.core.UUID;
 import eu.eventstorm.cqrs.batch.BatchJobCreated;
-import eu.eventstorm.sql.type.memory.InMemoryJsonList;
+import eu.eventstorm.sql.Database;
+import eu.eventstorm.sql.Transaction;
 
-public final class InMemoryBatch implements Batch {
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(InMemoryBatch.class);
+/**
+ * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
+ */
+public final class DatabaseBatch implements Batch {
 
-	private final ConcurrentSkipListSet<BatchExecution> history = new ConcurrentSkipListSet<>();
+	private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseBatch.class);
 	
 	private final BatchExecutor batchExecutor;
 	
 	private final ApplicationContext applicationContext;
 	
-	public InMemoryBatch(ApplicationContext applicationContext, BatchExecutor batchExecutor) {
+	private final Database database;
+	
+	private final BatchExecutionRepository repository;
+	
+	public DatabaseBatch(ApplicationContext applicationContext, BatchExecutor batchExecutor, Database database, BatchExecutionRepository repository) {
 		this.applicationContext = applicationContext;
 		this.batchExecutor = batchExecutor;
+		this.database = database;
+		this.repository = repository;
 	}
-
 
 	@Override
 	public Event push(EventCandidate<BatchJobCreated> candidate) {
 		
 		java.util.UUID correlation = randomUUID();
 		
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("correlation id =[{}]", correlation);
+		}
+		
 		BatchJob batchJob = this.applicationContext.getBean(candidate.getMessage().getName(), BatchJob.class);
 			
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("BatchJob =[{}]", batchJob);
+		}
+		
 		Event event = Event.newBuilder()
 				.setStreamId(candidate.getStreamId().toStringValue())
 				.setStream(candidate.getStream())
@@ -62,7 +74,7 @@ public final class InMemoryBatch implements Batch {
 		BatchExecution batchExecution = new BatchExecutionBuilder()
 				.withName(candidate.getStream())
 				.withStatus((byte)BatchStatus.STARTING.ordinal())
-				.withResources(new InMemoryJsonList(candidate.getMessage().getUuidList()))
+				.withResources(database.dialect().createJson(candidate.getMessage().getUuidList()))
 				.withUuid(correlation.toString())
 				.withStartedAt(Timestamp.from(Instant.now()))
 				.build();
@@ -74,7 +86,7 @@ public final class InMemoryBatch implements Batch {
 			}
 		};
 		
-		batchExecutor.submit(batchJob, context).addCallback(new InMemoryListenableFutureCallback<>(context));				
+		batchExecutor.submit(batchJob, context).addCallback(new DatabaseBatchListenableFutureCallback<>(context));				
 						
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("submitted");
@@ -83,11 +95,11 @@ public final class InMemoryBatch implements Batch {
 		return event;
 	}
 
-	private class InMemoryListenableFutureCallback<V> implements ListenableFutureCallback<V> {
+	private class DatabaseBatchListenableFutureCallback<V> implements ListenableFutureCallback<V> {
 		
 		private final BatchJobContext context;
 		
-		private InMemoryListenableFutureCallback(BatchJobContext context) {
+		private DatabaseBatchListenableFutureCallback(BatchJobContext context) {
 			this.context = context;
 		}
 
@@ -98,18 +110,25 @@ public final class InMemoryBatch implements Batch {
 				LOGGER.debug("onSuccess()");
 			}
 			
-			InMemoryBatch.this.history.add(context.getBatchExecution());
+			try (Transaction tx = database.transactionManager().newTransactionReadWrite()) {
+				repository.update(context.getBatchExecution());
+			}
+			
 		}
 		
 		@Override
 		public void onFailure(Throwable ex) {
 			
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("onFailure()");
+				LOGGER.debug("onFailure()", ex);
 			}
 			
-			InMemoryBatch.this.history.add(context.getBatchExecution());
+			try (Transaction tx = database.transactionManager().newTransactionReadWrite()) {
+				// TODO => exception to json in log
+				//context.getBatchExecution().setLog(json);
+				repository.update(context.getBatchExecution());
+			}
+
 		}
 	}
-
 }

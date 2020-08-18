@@ -6,20 +6,20 @@ import java.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
-import org.springframework.stereotype.Component;
 import org.springframework.util.concurrent.ListenableFuture;
 
-@Component
+import eu.eventstorm.batch.config.BatchProperties;
+
 public final class BatchExecutor {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(BatchExecutor.class);
 
 	private final ThreadPoolTaskScheduler threadPoolTaskScheduler;
 
-	public BatchExecutor() {
+	public BatchExecutor(BatchProperties batchProperties) {
 		this.threadPoolTaskScheduler = new ThreadPoolTaskScheduler();
-		this.threadPoolTaskScheduler.setThreadNamePrefix("batch-");
-		this.threadPoolTaskScheduler.setPoolSize(1);
+		this.threadPoolTaskScheduler.setThreadNamePrefix(batchProperties.getPrefix());
+		this.threadPoolTaskScheduler.setPoolSize(batchProperties.getPoolSize());
 		this.threadPoolTaskScheduler.initialize();
 	}
 

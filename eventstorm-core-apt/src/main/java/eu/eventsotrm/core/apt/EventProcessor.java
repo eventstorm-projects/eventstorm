@@ -166,8 +166,10 @@ public class EventProcessor extends AbstractProcessor {
 
 		new CommandImplementationGenerator().generateCommand(this.processingEnv, sourceCode);
 		new CommandImplementationGenerator().generateEmbeddedCommand(this.processingEnv, sourceCode);
-		new CommandBuilderGenerator().generateCommand(this.processingEnv, sourceCode);
-		new CommandBuilderGenerator().generateEmbeddedCommand(this.processingEnv, sourceCode);
+		
+		CommandBuilderGenerator commandBuilderGenerator = new CommandBuilderGenerator();
+		commandBuilderGenerator.generateCommand(this.processingEnv, sourceCode);
+		commandBuilderGenerator.generateEmbeddedCommand(this.processingEnv, sourceCode);
 		
 		new CommandFactoryGenerator().generate(this.processingEnv, sourceCode);
 		

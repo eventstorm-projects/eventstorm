@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +16,6 @@ import org.springframework.web.reactive.function.BodyInserters;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.eventstorm.batch.tmp.TemporaryResource;
-import eu.eventstorm.batch.tmp.TemporaryResourceProperties;
 
 @SpringBootTest(classes = TestConfiguration.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 class TemporaryResourceReactiveControllerTest {

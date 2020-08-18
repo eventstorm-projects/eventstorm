@@ -26,17 +26,17 @@ class InMemoryBatchTest {
 
 		batch.push(new EventCandidate<BatchJobCreated>("read",StreamIds.from("123"), BatchJobCreated.newBuilder()
 				.setName("Test")
-				.setUuid(java.util.UUID.randomUUID().toString())
+				.addUuid(java.util.UUID.randomUUID().toString())
 				.build()));
 		
 		batch.push(new EventCandidate<BatchJobCreated>("read",StreamIds.from("456"), BatchJobCreated.newBuilder()
 				.setName("Test")
-				.setUuid(java.util.UUID.randomUUID().toString())
+				.addUuid(java.util.UUID.randomUUID().toString())
 				.build()));
 		
 		batch.push(new EventCandidate<BatchJobCreated>("read",StreamIds.from("789"), BatchJobCreated.newBuilder()
 				.setName("Test")
-				.setUuid(java.util.UUID.randomUUID().toString())
+				.addUuid(java.util.UUID.randomUUID().toString())
 				.build()));
 		
 		Thread.sleep(1500);

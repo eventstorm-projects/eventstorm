@@ -24,10 +24,10 @@ public interface BatchExecution {
 
 	void setUuid(String uuid);
 	
-	@Column(value = "uuid", length = 36)
-	String getResource();
+	@Column(value = "resources", length = 36)
+	Json getResources();
 
-	void setResource(String uuid);
+	void setResources(Json resources);
 
 	@Column(value = "name", length = 255)
 	String getName();

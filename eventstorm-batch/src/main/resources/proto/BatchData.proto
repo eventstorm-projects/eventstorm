@@ -6,6 +6,6 @@ option java_package = "eu.eventstorm.cqrs.batch";
 message BatchJobCreated {
 
 	string name = 1;
-	string uuid = 2;
+	repeated string uuid = 2;
 
 }

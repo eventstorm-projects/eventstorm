@@ -159,7 +159,7 @@ public final class CommandJacksonStdDeserializerGenerator {
 		    	writer.write("				");
 		    	String fcqnTarget = returnType.substring(15, returnType.length()-1);
 		    	String fcqnTargetSimpleName = fcqnTarget.substring(fcqnTarget.lastIndexOf('.') + 1);
-		    	writer.write(cd.fullyQualidiedClassName() + fcqnTargetSimpleName + "Builder childBuilder = builder.with" + Helper.firstToUpperCase(cpd.name()) + "();");
+		    	writer.write(cd.fullyQualidiedClassName() + "__"+fcqnTargetSimpleName + "__Builder childBuilder = builder.with" + Helper.firstToUpperCase(cpd.name()) + "();");
 		    	writeNewLine(writer);
 		    	writer.write("				ctxt.setAttribute(\""+ fcqnTarget +"\", childBuilder);");
 		    	writeNewLine(writer);

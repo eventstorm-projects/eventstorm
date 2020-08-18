@@ -1,5 +1,7 @@
 package eu.eventstorm.cqrs;
 
+import static com.google.common.collect.ImmutableMap.of;
+
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -64,7 +66,7 @@ public final class CommandHandlerRegistry {
 			}
 		}
 
-		return null;
+		throw new CommandGatewayException(CommandGatewayException.Type.NO_HANDLER_IN_REGISTRY, of("command", command));
 	}
 
 	public static Builder newBuilder() {

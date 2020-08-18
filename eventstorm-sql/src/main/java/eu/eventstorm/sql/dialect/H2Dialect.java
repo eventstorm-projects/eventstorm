@@ -46,9 +46,10 @@ final class H2Dialect extends AbstractDialect {
 		return new BlobJson(getDatabase().jsonMapper(), new BlobJsonMap(value));
 	}
 
-    @Override
-	public Json createJson(List<Object> value) {
-	    return new BlobJson(getDatabase().jsonMapper(),new BlobJsonList(value));
+    @SuppressWarnings("unchecked")
+	@Override
+	public Json createJson(List<?> value) {
+	    return new BlobJson(getDatabase().jsonMapper(),new BlobJsonList((List<Object>) value));
 	}
 
 	@Override

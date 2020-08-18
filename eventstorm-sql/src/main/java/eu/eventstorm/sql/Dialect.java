@@ -34,7 +34,7 @@ public interface Dialect {
 
     Json createJson(Map<String, Object> value);
 
-    Json createJson(List<Object> value);
+    Json createJson(List<?> value);
 
 	Json createJson(byte[] value);
 

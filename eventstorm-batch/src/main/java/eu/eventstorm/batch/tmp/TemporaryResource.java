@@ -21,6 +21,16 @@ public final class TemporaryResource {
 	
 	public TemporaryResource(TemporaryResourceProperties properties) {
 		this.properties = properties;
+		
+		Path path = Paths.get(properties.getBaseDirectory());
+		
+		if (!Files.exists(path)) {
+			try {
+				Files.createDirectories(path);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	public Path touch(String uuid) throws IOException {

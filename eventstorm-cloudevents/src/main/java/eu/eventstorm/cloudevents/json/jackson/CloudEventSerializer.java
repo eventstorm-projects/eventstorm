@@ -2,6 +2,9 @@ package eu.eventstorm.cloudevents.json.jackson;
 
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
@@ -21,6 +24,8 @@ import eu.eventstorm.cloudevents.CloudEvent;
 @SuppressWarnings({ "serial" })
 final class CloudEventSerializer extends StdSerializer<CloudEvent> {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(CloudEventSerializer.class);
+	
 	private transient final TypeRegistry registry;
 	
 	private transient final JsonFormat.Printer printer;
@@ -60,6 +65,11 @@ final class CloudEventSerializer extends StdSerializer<CloudEvent> {
 		if (value.data() instanceof Any) {
 			Any any = (Any) value.data();
 			Descriptor descriptor = registry.getDescriptorForTypeUrl(any.getTypeUrl());
+			
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("debug [{}] -> [{}] ", any, descriptor);
+			}
+			
 			Message message = DynamicMessage.getDefaultInstance(descriptor).getParserForType().parseFrom(any.getValue());
 			gen.writeRaw(printer.print(message));
 		} else {

@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -53,16 +52,14 @@ public final class TemporaryResourceReactiveController {
 	}
 	
 	@GetMapping(path = "${eu.eventstorm.batch.temporary.context-path:}/download/{uuid}")
-	 public Mono<Void> download(@PathVariable("uuid") String uuid, ServerHttpResponse response) throws IOException {
+	public Mono<Void> download(@PathVariable("uuid") String uuid, ServerHttpResponse response) throws IOException {
 		if (response instanceof ZeroCopyHttpOutputMessage) {
 			ZeroCopyHttpOutputMessage zeroCopyResponse = (ZeroCopyHttpOutputMessage) response;
-	        Path file = Paths.get(System.getProperty("java.io.tmpdir"), uuid); 
-	        return zeroCopyResponse.writeWith(file, 0, Files.size(file));	
+			Path file = temporaryResource.get(uuid);
+			return zeroCopyResponse.writeWith(file, 0, Files.size(file));
 		} else {
 			return null;
 		}
-		
-		
-    }
+	}
 	
 }

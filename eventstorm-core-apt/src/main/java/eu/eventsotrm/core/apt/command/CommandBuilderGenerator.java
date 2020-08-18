@@ -7,6 +7,8 @@ import static eu.eventsotrm.sql.apt.Helper.writePackage;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.JavaFileObject;
@@ -18,6 +20,7 @@ import eu.eventsotrm.core.apt.model.PropertyDescriptor;
 import eu.eventsotrm.sql.apt.Helper;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
+import eu.eventstorm.util.Strings;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -28,9 +31,12 @@ public final class CommandBuilderGenerator {
 	
 	private ProcessingEnvironment env; 
 	private SourceCode code;
+	
+	private final Map<String, String> holders;
 
 	public CommandBuilderGenerator() {
 		logger = LoggerFactory.getInstance().getLogger(CommandBuilderGenerator.class);
+		this.holders = new HashMap<>();
 	}
 
     public void generateCommand(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
@@ -69,11 +75,13 @@ public final class CommandBuilderGenerator {
         Writer writer = object.openWriter();
         writeHeader(writer, env, cd);
         writeConstructor(writer, cd);
-        writeVariables(writer, cd);
+        writeVariables(writer, cd, cd.fullyQualidiedClassName() + "Builder");
+       
         writeMethods(writer, cd);
 
         writer.write("}");
         writer.close();
+        
     }
 
 
@@ -99,9 +107,10 @@ public final class CommandBuilderGenerator {
         writeNewLine(writer);
     }
 
-    private static void writeVariables(Writer writer,  AbstractCommandDescriptor cd) throws IOException {
+    private void writeVariables(Writer writer,  AbstractCommandDescriptor cd, String parent) throws IOException {
     	writeNewLine(writer);
     	for (PropertyDescriptor ppd : cd.properties()) {
+    		
             writer.write("    private ");
             
             String returnType = getReturnType(ppd.getter());
@@ -109,7 +118,7 @@ public final class CommandBuilderGenerator {
             
             if (returnType.startsWith("java.util.List")) {
             	String target =  returnType.substring(15, returnType.length()-1);
-            	classname =  cd.simpleName() + target.substring(target.lastIndexOf('.') + 1) + "Builder";
+            	classname =  cd.simpleName() + "__" + target.substring(target.lastIndexOf('.') + 1) + "__Builder<"+ parent + ">";
             	writer.write(classname);
             } else {
                 writer.write(getReturnType(ppd.getter()));            	
@@ -174,6 +183,7 @@ public final class CommandBuilderGenerator {
     }
 
     private void writeMethod(Writer writer,AbstractCommandDescriptor cd, PropertyDescriptor cpd, String returnType) throws IOException {
+    	
         writeNewLine(writer);
         writer.write("    public ");
         String type = getReturnType(cpd.getter());
@@ -183,7 +193,8 @@ public final class CommandBuilderGenerator {
         	String newBuilder = genereteJoinBuilder(cd, cpd, type.substring(15, type.length()-1));
         	
         	writer.write(newBuilder);
-        	writer.write(" with");
+        	writer.write("<" + returnType);
+        	writer.write("> with");
             writer.write(Helper.firstToUpperCase(cpd.name()));
         	writer.write("() {");
         	writeNewLine(writer);
@@ -214,42 +225,78 @@ public final class CommandBuilderGenerator {
 	private String genereteJoinBuilder(AbstractCommandDescriptor cd, PropertyDescriptor cpd, String target)
 			throws IOException {
 
-		JavaFileObject object = env.getFiler().createSourceFile(cd.fullyQualidiedClassName() + target.substring(target.lastIndexOf('.') + 1) + "Builder");
-		Writer writer = object.openWriter();
+		String name = cd.fullyQualidiedClassName() + "__" + target.substring(target.lastIndexOf('.') + 1) + "__Builder";
+		String classname = holders.get(name);
 		
-		String classname =  cd.simpleName() + target.substring(target.lastIndexOf('.') + 1) + "Builder";
-		
-		
-		writePackage(writer, env.getElementUtils().getPackageOf(cd.element()).toString());
-		writeGenerated(writer, CommandBuilderGenerator.class.getName());
-		writer.write("public final class " + classname + " {");
-		writeNewLine(writer);
-        writer.write("    private final "+ cd.simpleName()+ "Builder parent;");
-        writeNewLine(writer);
+		if (!Strings.isEmpty(classname)) {
+			return  classname + "<" + cd.fullyQualidiedClassName() + "Builder>";
+		}
 
-        // constructor
-        writer.write("    " + classname + "("+ cd.simpleName() +"Builder parent) {");
-        writeNewLine(writer);
-        writer.write("        this.parent = parent;");
-        writeNewLine(writer);
-        writer.write("    }");
-        writeNewLine(writer);
+		classname =  cd.simpleName() + "__" + target.substring(target.lastIndexOf('.') + 1) + "__Builder";
 		
-		EmbeddedCommandDescriptor ecd = this.code.getEmbeddedCommandDescriptor(target);
-		// variables
-		writeVariables(writer, ecd);
-		writer.write("    java.util.List<" + target + "> $$list$$ = new java.util.ArrayList<>();");
-   	    writeNewLine(writer);
+		JavaFileObject object = env.getFiler().createSourceFile(name);
+		try (Writer writer = object.openWriter()) {
+			writePackage(writer, env.getElementUtils().getPackageOf(cd.element()).toString());
+			writeGenerated(writer, CommandBuilderGenerator.class.getName());
+			writer.write("public final class " + classname + "<T> {");
+			writeNewLine(writer);
+			writeNewLine(writer);
+	        writer.write("    private final T parent;");
+	        writeNewLine(writer);
+	
+	        // constructor
+	        writer.write("    " + classname + "(T parent) {");
+	        writeNewLine(writer);
+	        writer.write("        this.parent = parent;");
+	        writeNewLine(writer);
+	        writer.write("    }");
+	        writeNewLine(writer);
 		
-		for (PropertyDescriptor ppd : ecd.properties()) {
-	           writeMethod(writer, ecd, ppd, classname);
-	    }
-		writeEmbeddedMethods(writer, cd, classname, ecd, target);
-		
-		writer.write("}");
-		writer.close();
+			EmbeddedCommandDescriptor ecd = this.code.getEmbeddedCommandDescriptor(target);
+			// variables
+			writeVariables(writer, ecd, classname + "<T>");
+			writer.write("    private final java.util.List<" + target + "> $$list$$ = new java.util.ArrayList<>();");
+	   	    writeNewLine(writer);
+			
+			for (PropertyDescriptor ppd : ecd.properties()) {
+				
+				writeNewLine(writer);
+		        
+		        String type = getReturnType(ppd.getter());
 
-		return classname;
+		        if (type.startsWith("java.util.List")) {
+		        	
+		        	// skip ...
+			   
+		        } else {
+		        	writer.write("    public ");
+		            writer.write(classname + "<T>");
+		            writer.write(" with");
+		            writer.write(Helper.firstToUpperCase(ppd.name()));
+		            writer.write("(");
+		        	writer.write(type);
+			    	writer.write(' ');
+			        writer.write(ppd.variable());
+			        writer.write(") {");
+			        writeNewLine(writer);
+			        writer.write("        this." + ppd.variable() + "$$ = " + ppd.variable() + ";");
+			        writeNewLine(writer);
+			        writer.write("        return this;");
+			        writeNewLine(writer);
+			        writer.write("    }");
+			        writeNewLine(writer);
+		        }	
+				
+		    }
+			writeEmbeddedMethods(writer, cd, classname, ecd, target);
+			
+			writer.write("}");
+		}
+		
+		
+		this.holders.put(name, classname);
+
+		return classname; // + "<" + cd.simpleName() + "Builder>";
 	}
 	
 	private static void writeEmbeddedMethods(Writer writer, AbstractCommandDescriptor cd, String classname, EmbeddedCommandDescriptor ecd, String target) throws IOException {
@@ -262,7 +309,7 @@ public final class CommandBuilderGenerator {
         writeNewLine(writer);
         
 		writeNewLine(writer);
-        writer.write("    public " + cd.simpleName()  +"Builder parent() { ");
+        writer.write("    public T parent() { ");
         writeNewLine(writer);
         writer.write("        and();");
         writeNewLine(writer);
@@ -272,7 +319,7 @@ public final class CommandBuilderGenerator {
         writeNewLine(writer);
         
     	writeNewLine(writer);
-        writer.write("    public " + classname  +" and() { ");
+        writer.write("    public " + classname  +"<T> and() { ");
         writeNewLine(writer);
         writer.write("        this.$$list$$.add( new " + target + "Impl(");
         writeNewLine(writer);
@@ -294,7 +341,7 @@ public final class CommandBuilderGenerator {
         writeNewLine(writer);
         
         writeNewLine(writer);
-        writer.write("    public " + classname  +" and(" + ecd.fullyQualidiedClassName() + " item) { ");
+        writer.write("    public " + classname  +"<T> and(" + ecd.fullyQualidiedClassName() + " item) { ");
         writeNewLine(writer);
         writer.write("        this.$$list$$.add(item);");
         writeNewLine(writer);
