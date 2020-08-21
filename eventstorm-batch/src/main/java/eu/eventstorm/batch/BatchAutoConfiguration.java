@@ -11,18 +11,18 @@ import org.springframework.context.annotation.Configuration;
 import com.google.protobuf.TypeRegistry;
 
 import eu.eventstorm.batch.config.BatchProperties;
-import eu.eventstorm.batch.db.BatchExecutionRepository;
+import eu.eventstorm.batch.config.ResourceProperties;
+import eu.eventstorm.batch.db.DatabaseExecutionRepository;
 import eu.eventstorm.batch.db.DatabaseBatch;
 import eu.eventstorm.batch.json.BatchModule;
 import eu.eventstorm.batch.memory.InMemoryBatch;
-import eu.eventstorm.batch.tmp.TemporaryResourceProperties;
 import eu.eventstorm.sql.Database;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 @Configuration
-@EnableConfigurationProperties({TemporaryResourceProperties.class, BatchProperties.class})
+@EnableConfigurationProperties({ResourceProperties.class, BatchProperties.class})
 @ComponentScan("eu.eventstorm.batch")
 public class BatchAutoConfiguration {
 
@@ -46,7 +46,7 @@ public class BatchAutoConfiguration {
 	@Bean
 	@ConditionalOnProperty(prefix = "eu.eventstorm.batch", name = "type", havingValue = "DATABASE")
 	Batch batchDatabase(ApplicationContext context, BatchExecutor batchExecutor, Database database) {
-		return new DatabaseBatch(context, batchExecutor, database, new BatchExecutionRepository(database));
+		return new DatabaseBatch(context, batchExecutor, database, new DatabaseExecutionRepository(database));
 	}
 	
 }

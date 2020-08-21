@@ -72,6 +72,7 @@ public class EventProcessor extends AbstractProcessor {
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 
+		
 		if (firstTime) {
 			this.processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "EventProcessor done");
 			return false;
@@ -79,6 +80,12 @@ public class EventProcessor extends AbstractProcessor {
 
 		LoggerFactory.getInstance().init(processingEnv, "eu.eventstorm.report","event-output.txt");
 		Logger logger = LoggerFactory.getInstance().getLogger(EventProcessor.class);
+		
+		if (roundEnv.getClass().getName().startsWith("org.eclipse.jdt.internal.compiler.apt.")) {
+			logger.info("Disable internal eclipse apt ... [" + roundEnv + "]");
+			LoggerFactory.getInstance().close();
+			return true;
+		}
 		
 		Helper.setTypes(this.processingEnv.getTypeUtils());
 		

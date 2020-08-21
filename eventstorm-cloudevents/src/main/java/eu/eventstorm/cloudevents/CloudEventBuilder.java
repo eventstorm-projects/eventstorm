@@ -14,12 +14,13 @@ public final class CloudEventBuilder {
     private int version;
     private Object payload;
     private String timestamp;
+    private String dataContentType;
 
     public CloudEvent build() {
     	if (Strings.isEmpty(specVersion)) {
     		this.specVersion = "1.0";
     	}
-        return new CloudEventImpl(specVersion, aggregateId, aggreateType, timestamp, version, subject, payload);
+        return new CloudEventImpl(specVersion, aggregateId, aggreateType, timestamp, version, subject, dataContentType, payload);
     }
 
     public CloudEventBuilder withSpecVersion(String specVersion) {
@@ -56,6 +57,13 @@ public final class CloudEventBuilder {
         this.timestamp = timestamp;
         return this;
     }
+    
+    public CloudEventBuilder withDataContentType(String dataContentType) {
+        this.dataContentType = dataContentType;
+        return this;
+    }
+    
+    
 
     
 }

@@ -80,10 +80,7 @@ class TransactionTemplateTest {
         student.setCode("Code1");
       
        
-        template.executeWithReadWrite(() -> {
-        	this.repository.insert(student);
-        	return null;
-        });
+        template.executeWithReadWrite(() -> this.repository.insert(student));
         
         
         Student fresh = template.executeWithReadOnly(() -> repository.findById(1));

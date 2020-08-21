@@ -2,6 +2,8 @@ package eu.eventstorm.core;
 
 import com.google.protobuf.AbstractMessage;
 
+import eu.eventstorm.util.ToStringBuilder;
+
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
@@ -28,5 +30,16 @@ public final class EventCandidate<T extends AbstractMessage> {
 	public T getMessage() {
 		return message;
 	}
+
+	@Override
+	public String toString() {
+		return new ToStringBuilder(true)
+				.append("stream", stream)
+				.append("streamId", streamId)
+				.append("message", message)
+				.toString();
+	}
+	
+	
 
 }

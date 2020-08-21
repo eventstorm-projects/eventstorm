@@ -1,4 +1,4 @@
-package eu.eventstorm.batch.tmp;
+package eu.eventstorm.batch.file;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -9,20 +9,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import eu.eventstorm.batch.config.ResourceProperties;
+
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 @Component
-public final class TemporaryResource {
+public final class FileResource {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(TemporaryResource.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(FileResource.class);
 	
-	private final TemporaryResourceProperties properties;
+	private final ResourceProperties properties;
 	
-	public TemporaryResource(TemporaryResourceProperties properties) {
+	public FileResource(ResourceProperties properties) {
 		this.properties = properties;
 		
-		Path path = Paths.get(properties.getBaseDirectory());
+		Path path = Paths.get(properties.getTemporaryDirectory());
 		
 		if (!Files.exists(path)) {
 			try {
@@ -35,7 +37,7 @@ public final class TemporaryResource {
 
 	public Path touch(String uuid) throws IOException {
 		
-		Path file = Paths.get(properties.getBaseDirectory(), uuid);
+		Path file = Paths.get(properties.getTemporaryDirectory(), uuid);
 		
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("touch({})", file);
@@ -45,12 +47,12 @@ public final class TemporaryResource {
 	}
 	
 	public Path get(String uuid) {
-		return Paths.get(properties.getBaseDirectory(), uuid);
+		return Paths.get(properties.getTemporaryDirectory(), uuid);
 	}
 
 	public void delete(String uuid) throws IOException {
 		
-		Path file = Paths.get(properties.getBaseDirectory(), uuid);
+		Path file = Paths.get(properties.getTemporaryDirectory(), uuid);
 		
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("delete({})", file);

@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 
 import eu.eventstorm.sql.annotation.Column;
 import eu.eventstorm.sql.annotation.CreateTimestamp;
+import eu.eventstorm.sql.annotation.FlywayRef;
 import eu.eventstorm.sql.annotation.PrimaryKey;
 import eu.eventstorm.sql.annotation.Table;
 import eu.eventstorm.sql.type.Json;
@@ -11,8 +12,8 @@ import eu.eventstorm.sql.type.Json;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-@Table(value = "batch_execution")
-public interface BatchExecution {
+@Table(value = "batch_execution", flywayRef = @FlywayRef(version = "1.0.0"))
+public interface DatabaseExecution {
 
 	@PrimaryKey("id")
 	long getId();

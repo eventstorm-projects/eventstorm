@@ -113,7 +113,6 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command>  
 						LOGGER.debug("Stream definition for [{}] -> [{}]", candidate.getStream(), sd);
 					}
 					
-					
 					return this.eventStore.appendToStream(
 							sd.getStreamEventDefinition(candidate.getMessage().getClass().getSimpleName()), 
 							candidate.getStreamId().toStringValue(), 

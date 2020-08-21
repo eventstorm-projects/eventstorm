@@ -85,20 +85,20 @@ public final class CommandValidatorGenerator {
 
     	String fcqn = env.getElementUtils().getPackageOf(descriptor.element()).toString() + ".validator." + descriptor.simpleName() + "Validator" ;
 		
-        // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
+    	// check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
         if (env.getElementUtils().getTypeElement(fcqn) != null) {
-            logger.info("Java SourceCode already exist [" +fcqn + "]");
+            logger.info("Java SourceCode already exist [" + fcqn + "]");
             return;
         }
 
     	JavaFileObject object = env.getFiler().createSourceFile(fcqn);
-		Writer writer = object.openWriter();
-		writeHeader(writer, env, descriptor);
-		writeVariables(writer, descriptor);
-		writeConstructor(writer, descriptor);
-		writeMethodValidate(writer, descriptor);
-		writer.write("}");
-		writer.close();
+		try (Writer writer = object.openWriter()) {
+			writeHeader(writer, env, descriptor);
+			writeVariables(writer, descriptor);
+			writeConstructor(writer, descriptor);
+			writeMethodValidate(writer, descriptor);
+			writer.write("}");	
+		}
        
     }
 	

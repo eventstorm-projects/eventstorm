@@ -1,6 +1,5 @@
 package eu.eventstorm.batch;
 
-import java.sql.Timestamp;
 import java.time.Instant;
 
 import org.slf4j.Logger;
@@ -33,16 +32,16 @@ public final class BatchExecutor {
 				LOGGER.debug("onSuccess");
 			}
 			
-			context.getBatchExecution().setEndedAt(Timestamp.from(Instant.now()));
-			context.getBatchExecution().setStatus((byte) BatchStatus.COMPLETED.ordinal());
+			context.setEndedAt(Instant.now());
+			context.setStatus(BatchStatus.COMPLETED);
 		}, (ex) -> {
 			
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("onFailure");
 			}
 			
-			context.getBatchExecution().setEndedAt(Timestamp.from(Instant.now()));
-			context.getBatchExecution().setStatus((byte) BatchStatus.FAILED.ordinal());
+			context.setEndedAt(Instant.now());
+			context.setStatus(BatchStatus.FAILED);
 		});
 	
 		return future;

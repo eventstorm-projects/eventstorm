@@ -1,5 +1,6 @@
 package eu.eventsotrm.sql.apt.flyway;
 
+import java.sql.Blob;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -79,6 +80,10 @@ final class FlywayDialectH2 implements FlywayDialect {
 		}
 		
 		if (Json.class.getName().equals(javaType)) {
+			return "JSON";
+		}
+		
+		if (Blob.class.getName().equals(javaType)) {
 			return "BLOB";
 		}
 		

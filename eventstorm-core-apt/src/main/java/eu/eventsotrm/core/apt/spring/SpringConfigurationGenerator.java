@@ -16,9 +16,6 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.JavaFileObject;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
 import eu.eventsotrm.core.apt.SourceCode;
 import eu.eventsotrm.core.apt.model.ProtobufMessage;
 import eu.eventsotrm.sql.apt.Helper;
@@ -271,9 +268,9 @@ public final class SpringConfigurationGenerator {
 		writeNewLine(writer);
 		writer.write("import " + InMemoryStreamManagerBuilder.class.getName() + ";");
 		writeNewLine(writer);
-        writer.write("import " + Bean.class.getName() + ";");
+        writer.write("import org.springframework.context.annotation.Bean;");
 		writeNewLine(writer);
-        writer.write("import " + Configuration.class.getName() + ";");
+        writer.write("import org.springframework.context.annotation.Configuration;");
 		writeNewLine(writer);
         writeGenerated(writer,SpringConfigurationGenerator.class.getName());
         writer.write("@Configuration");

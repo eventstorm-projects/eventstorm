@@ -1,4 +1,4 @@
-package eu.eventstorm.batch.tmp;
+package eu.eventstorm.batch.rest;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>

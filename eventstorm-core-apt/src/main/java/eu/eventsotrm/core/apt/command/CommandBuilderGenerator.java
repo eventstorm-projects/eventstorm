@@ -72,22 +72,19 @@ public final class CommandBuilderGenerator {
         }
         
         JavaFileObject object = env.getFiler().createSourceFile(cd.fullyQualidiedClassName() + "Builder");
-        Writer writer = object.openWriter();
-        writeHeader(writer, env, cd);
-        writeConstructor(writer, cd);
-        writeVariables(writer, cd, cd.fullyQualidiedClassName() + "Builder");
-       
-        writeMethods(writer, cd);
-
-        writer.write("}");
-        writer.close();
-        
+        try (Writer writer = object.openWriter()) {
+        	writeHeader(writer, env, cd);
+            writeConstructor(writer, cd);
+            writeVariables(writer, cd, cd.fullyQualidiedClassName() + "Builder");
+            writeMethods(writer, cd);
+            writer.write("}");	
+        }
     }
 
 
     private static void writeHeader(Writer writer, ProcessingEnvironment env, AbstractCommandDescriptor descriptor) throws IOException {
 
-        writePackage(writer, env.getElementUtils().getPackageOf(descriptor.element()).toString());
+        writePackage(writer, env.getElementUtils().getPackageOf(descriptor.element()).getQualifiedName().toString());
         writeGenerated(writer,CommandBuilderGenerator.class.getName());
 
         writer.write("public final class ");

@@ -26,6 +26,7 @@
 			<groupId>eu.eventstorm</groupId>
 			<artifactId>eventstorm-batch</artifactId>
 			<version>${project.version}</version>
+			<optional>true</optional>
 		</dependency>
 
 		<dependency>

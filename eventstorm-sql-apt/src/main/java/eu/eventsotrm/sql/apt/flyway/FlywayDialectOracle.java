@@ -1,5 +1,6 @@
 package eu.eventsotrm.sql.apt.flyway;
 
+import java.sql.Blob;
 import java.sql.Date;
 import java.sql.Timestamp;
 
@@ -77,6 +78,14 @@ final class FlywayDialectOracle implements FlywayDialect {
 		}
 		
 		if (Json.class.getName().equals(javaType)) {
+			if (column.length() == 255) {
+				return "VARCHAR2(" + column.length() + ")";
+			} else {
+				return "BLOB";	
+			}
+		}
+		
+		if (Blob.class.getName().equals(javaType)) {
 			return "BLOB";
 		}
 		
@@ -86,7 +95,7 @@ final class FlywayDialectOracle implements FlywayDialect {
 
 	@Override
 	public String wrap(String value) {
-		return "\"" + value + "\"";
+		return value;
 	}
 
 	/**

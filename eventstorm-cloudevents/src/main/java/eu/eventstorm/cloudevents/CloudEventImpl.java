@@ -19,10 +19,12 @@ final class CloudEventImpl implements CloudEvent {
 
 	private final int version;
 
+	private final String dataContentType;
+	
 	private final Object payload;
 
 	public CloudEventImpl(String specVersion, String aggregateId, String aggreateType, String timestamp, int version, String subject,
-			Object payload) {
+			String dataContentType, Object payload) {
 		this.specVersion = specVersion;
 		this.aggregateId = aggregateId;
 		this.aggreateType = aggreateType;
@@ -30,6 +32,7 @@ final class CloudEventImpl implements CloudEvent {
 		this.subject = subject;
 		this.version = version;
 		this.payload = payload;
+		this.dataContentType = dataContentType;
 	}
 
 	@Override
@@ -54,7 +57,7 @@ final class CloudEventImpl implements CloudEvent {
 
 	@Override
 	public String dataContentType() {
-		return null;
+		return dataContentType;
 	}
 
 	@Override

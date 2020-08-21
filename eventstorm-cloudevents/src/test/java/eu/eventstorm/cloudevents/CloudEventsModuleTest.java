@@ -1,13 +1,18 @@
 package eu.eventstorm.cloudevents;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableList;
 import com.google.protobuf.Any;
 import com.google.protobuf.TypeRegistry;
 
@@ -66,5 +71,24 @@ class CloudEventsModuleTest {
 		objectMapper.readValue(writer.toString(), CloudEvent.class);
 	}
 	
+	@Test
+	void testSerDeserList() throws IOException, Exception {
+		
+		CloudEvent event = new CloudEventBuilder()
+				.withAggregateId("1")
+				.withAggregateType("test")
+				.withTimestamp("2011-03-09T18:36:30+02:00")
+				.withVersion(1)
+				.withPayload(SimpleMessage.newBuilder().setName("Jacques").build())
+				.build();
+		
+		StringWriter writer = new StringWriter();
+		objectMapper.writeValue(writer, ImmutableList.of(event));
+		
+    	List<CloudEvent> cloudEvents = objectMapper.readValue(writer.toString(), new TypeReference<List<CloudEvent>>(){});
+    	
+    	assertEquals(1, cloudEvents.size());
+    	assertEquals("test", cloudEvents.get(0).type());
+	}
 	
 }

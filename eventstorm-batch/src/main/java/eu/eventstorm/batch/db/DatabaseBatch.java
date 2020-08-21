@@ -16,7 +16,6 @@ import com.google.protobuf.Any;
 import eu.eventstorm.batch.Batch;
 import eu.eventstorm.batch.BatchExecutor;
 import eu.eventstorm.batch.BatchJob;
-import eu.eventstorm.batch.BatchJobContext;
 import eu.eventstorm.batch.BatchStatus;
 import eu.eventstorm.core.Event;
 import eu.eventstorm.core.EventCandidate;
@@ -38,9 +37,9 @@ public final class DatabaseBatch implements Batch {
 	
 	private final Database database;
 	
-	private final BatchExecutionRepository repository;
+	private final DatabaseExecutionRepository repository;
 	
-	public DatabaseBatch(ApplicationContext applicationContext, BatchExecutor batchExecutor, Database database, BatchExecutionRepository repository) {
+	public DatabaseBatch(ApplicationContext applicationContext, BatchExecutor batchExecutor, Database database, DatabaseExecutionRepository repository) {
 		this.applicationContext = applicationContext;
 		this.batchExecutor = batchExecutor;
 		this.database = database;
@@ -71,7 +70,7 @@ public final class DatabaseBatch implements Batch {
 				.setData(Any.pack(candidate.getMessage(),candidate.getStream()))
 			.build();	
 			
-		BatchExecution batchExecution = new BatchExecutionBuilder()
+		DatabaseExecution batchExecution = new DatabaseExecutionBuilder()
 				.withName(candidate.getStream())
 				.withStatus((byte)BatchStatus.STARTING.ordinal())
 				.withResources(database.dialect().createJson(candidate.getMessage().getUuidList()))
@@ -79,12 +78,7 @@ public final class DatabaseBatch implements Batch {
 				.withStartedAt(Timestamp.from(Instant.now()))
 				.build();
 			
-		BatchJobContext context = new BatchJobContext() {
-			@Override
-			public BatchExecution getBatchExecution() {
-				return batchExecution;
-			}
-		};
+		DatabaseBatchJobContext context = new DatabaseBatchJobContext(database, batchExecution);
 		
 		batchExecutor.submit(batchJob, context).addCallback(new DatabaseBatchListenableFutureCallback<>(context));				
 						
@@ -97,9 +91,9 @@ public final class DatabaseBatch implements Batch {
 
 	private class DatabaseBatchListenableFutureCallback<V> implements ListenableFutureCallback<V> {
 		
-		private final BatchJobContext context;
+		private final DatabaseBatchJobContext context;
 		
-		private DatabaseBatchListenableFutureCallback(BatchJobContext context) {
+		private DatabaseBatchListenableFutureCallback(DatabaseBatchJobContext context) {
 			this.context = context;
 		}
 
@@ -111,7 +105,7 @@ public final class DatabaseBatch implements Batch {
 			}
 			
 			try (Transaction tx = database.transactionManager().newTransactionReadWrite()) {
-				repository.update(context.getBatchExecution());
+				repository.update(context.getDatabaseExecution());
 			}
 			
 		}
@@ -126,7 +120,7 @@ public final class DatabaseBatch implements Batch {
 			try (Transaction tx = database.transactionManager().newTransactionReadWrite()) {
 				// TODO => exception to json in log
 				//context.getBatchExecution().setLog(json);
-				repository.update(context.getBatchExecution());
+				repository.update(context.getDatabaseExecution());
 			}
 
 		}

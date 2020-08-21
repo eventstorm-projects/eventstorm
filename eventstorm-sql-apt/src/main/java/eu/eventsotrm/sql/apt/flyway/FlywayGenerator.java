@@ -84,6 +84,8 @@ public final class FlywayGenerator {
 				} else {
 					flyway = map.get(pojo.getJoinTable().flywayRef().version());
 				}
+				
+				logger.info("Generate for version [" + flyway + "]");
 
 				if (flyway.version().trim().length() > 0) {
 					FlywayDialect fd = FlywayDialects.get(db);
@@ -93,8 +95,6 @@ public final class FlywayGenerator {
 						logger.error("Failed to generate [" + flyway + "] -> " + db, cause);
 					}
 				}
-				
-				
 
 			});
 			
@@ -104,6 +104,7 @@ public final class FlywayGenerator {
 			
 			holders.forEach((filename, tuple) -> {
 				try {
+					LoggerFactory.getInstance().getLogger(FlywayGenerator.class).info("to close [" + tuple.getX().toUri() + "]");
 					tuple.getY().close();
 				} catch (IOException cause) {
 					LoggerFactory.getInstance().getLogger(FlywayGenerator.class).error("Failed to close [" + tuple + "]", cause);

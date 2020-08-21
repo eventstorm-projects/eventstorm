@@ -1,15 +1,13 @@
 package eu.eventstorm.sql.type.common;
 
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.sql.Blob;
 
 import eu.eventstorm.util.FastByteArrayInputStream;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-class DefaultBlob implements Blob {
+class DefaultBlob extends AbstractBlob {
 
 	static final byte[] EMTPY = new byte[0];
 
@@ -37,53 +35,8 @@ class DefaultBlob implements Blob {
 	}
 
 	@Override
-	public byte[] getBytes(long pos, int length) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	public final InputStream getBinaryStream() {
 		return new FastByteArrayInputStream(this.buf);
-	}
-
-	@Override
-	public long position(byte[] pattern, long start) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public long position(Blob pattern, long start) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public int setBytes(long pos, byte[] bytes) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public int setBytes(long pos, byte[] bytes, int offset, int len) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public OutputStream setBinaryStream(long pos) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void truncate(long len) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void free() {
-        // Do nothing because heap memory blob.
-	}
-
-	@Override
-	public InputStream getBinaryStream(long pos, long length) {
-		throw new UnsupportedOperationException();
 	}
 
 }

@@ -1,0 +1,8 @@
+eu:
+  eventstorm:
+    batch:
+      type: memory
+      resource:
+        context-path: toto
+        
+spring:  autoconfigure:    exclude:    - org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration
