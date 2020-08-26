@@ -17,7 +17,7 @@ public final class AirportMapper implements eu.eventstorm.sql.jdbc.Mapper<Airpor
         return pojo;
     }
 
-    public void insert(java.sql.PreparedStatement ps, Airport pojo) throws java.sql.SQLException {
+    public void insert(eu.eventstorm.sql.Dialect dialect, java.sql.PreparedStatement ps, Airport pojo) throws java.sql.SQLException {
         ps.setString(1,  pojo.getId());
         ps.setString(2,  pojo.getType());
         ps.setString(3,  pojo.getName());
@@ -30,7 +30,7 @@ public final class AirportMapper implements eu.eventstorm.sql.jdbc.Mapper<Airpor
         ps.setString(7,  pojo.getRegion());
     }
 
-    public void update(java.sql.PreparedStatement ps, Airport pojo) throws java.sql.SQLException {
+    public void update(eu.eventstorm.sql.Dialect dialect, java.sql.PreparedStatement ps, Airport pojo) throws java.sql.SQLException {
     }
 
 }

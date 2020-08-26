@@ -19,7 +19,7 @@ public interface DatabaseResource {
 
 	void setId(String uuid);
 	
-	@Column(value = "meta", length = 400)
+	@Column(value = "meta", length = 2000)
 	Json getMeta();
 
 	void setMeta(Json value);

@@ -1,5 +1,8 @@
 package eu.eventstorm.sql.dialect;
 
+import java.sql.Blob;
+import java.sql.Clob;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -70,6 +73,21 @@ final class H2Dialect extends AbstractDialect {
 	@Override
 	public Xml createXml(FastByteArrayInputStream fbais) {
 		return new BlobXml(fbais.readAll());
+	}
+
+	@Override
+	public void setPreparedStatement(PreparedStatement ps, int index, Json json) throws SQLException {
+		ps.setBytes(index, json.toByteArray());
+	}
+
+	@Override
+	public void setPreparedStatement(PreparedStatement ps, int index, Blob blob) throws SQLException {
+		ps.setBlob(index, blob);
+	}
+
+	@Override
+	public void setPreparedStatement(PreparedStatement ps, int index, Clob clob) throws SQLException {
+		ps.setClob(index, clob);
 	}
 
 }

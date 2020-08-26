@@ -226,18 +226,6 @@ public final class Helper {
 			return "setTimestamp";
 		}
 
-		if ("java.sql.Blob".equals(type)) {
-			return "setBlob";
-		}
-		
-		if ("java.sql.Clob".equals(type)) {
-			return "setClob";
-		}
-
-		if (Json.class.getName().equals(type)) {
-			return "setObject";
-		}
-
 		throw new UnsupportedOperationException("Helper.preparedStatementSetter -> type not supported -> [" + type + "]");
 	}
 
@@ -296,7 +284,7 @@ public final class Helper {
 		}
 		
 		if (Json.class.getName().equals(type)) {
-			return "getObject";
+			return "getString";
 		}
 		throw new UnsupportedOperationException("Helper.preparedStatementGetter -> type not supported -> [" + type + "]");
 	}
@@ -374,15 +362,6 @@ public final class Helper {
 		}
 
 		return null;
-	}
-
-	public static boolean isFushable(String type) {
-
-		if (Json.class.getName().equals(type)) {
-			return true;
-		}
-
-		return false;
 	}
 
 	public static String toVariableName(String name) {

@@ -1,5 +1,7 @@
 package eu.eventstorm.sql.spring.ex001;
 
+import eu.eventstorm.sql.Dialect;
+
 public final class StudentMapper implements eu.eventstorm.sql.jdbc.Mapper<Student> {
 
     public StudentMapper() {
@@ -19,7 +21,7 @@ public final class StudentMapper implements eu.eventstorm.sql.jdbc.Mapper<Studen
         return pojo;
     }
 
-    public void insert(java.sql.PreparedStatement ps, Student pojo) throws java.sql.SQLException {
+    public void insert(Dialect dialect, java.sql.PreparedStatement ps, Student pojo) throws java.sql.SQLException {
         ps.setInt(1,  pojo.getId());
         ps.setString(2,  pojo.getCode());
         ps.setInt(3,  pojo.getAge());
@@ -31,7 +33,7 @@ public final class StudentMapper implements eu.eventstorm.sql.jdbc.Mapper<Studen
         ps.setTimestamp(5,  pojo.getCreatedAt());
     }
 
-    public void update(java.sql.PreparedStatement ps, Student pojo) throws java.sql.SQLException {
+    public void update(Dialect dialect, java.sql.PreparedStatement ps, Student pojo) throws java.sql.SQLException {
         ps.setString(1,  pojo.getCode());
         ps.setInt(2,  pojo.getAge());
         if (pojo.getOverallRating() != null) {

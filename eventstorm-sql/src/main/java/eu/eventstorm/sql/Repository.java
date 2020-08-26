@@ -129,7 +129,7 @@ public abstract class Repository {
 
 	private <E> void doInsert(SqlQuery query, InsertMapper<E> im, E pojo, TransactionQueryContext tqc) {
 		try {
-			im.insert(tqc.preparedStatement(), pojo);
+			im.insert(this.database.dialect(), tqc.preparedStatement(), pojo);
 		} catch (SQLException cause) {
 			throw tqc.exception(new EventstormRepositoryException(INSERT_MAPPER, of(PARAM_SQL, query, PARAM_POJO, pojo), cause));
 		}
@@ -166,7 +166,7 @@ public abstract class Repository {
 
 		try (TransactionQueryContext tqc = database.transactionManager().context().write(query)) {
 			try {
-				um.update(tqc.preparedStatement(), pojo);
+				um.update(this.database.dialect(), tqc.preparedStatement(), pojo);
 			} catch (SQLException cause) {
 				throw tqc.exception(new EventstormRepositoryException(UPDATE_MAPPER, of(PARAM_SQL, query, PARAM_POJO, pojo), cause));
 			}
@@ -374,7 +374,7 @@ public abstract class Repository {
 		@Override
 		public void add(E pojo) {
             try {
-                im.insert(tqc.preparedStatement(), pojo);
+                im.insert(database.dialect(), tqc.preparedStatement(), pojo);
             } catch (SQLException cause) {
                 throw tqc.exception(new EventstormRepositoryException(INSERT_MAPPER, of(PARAM_SQL, query, PARAM_POJO, pojo), cause));
             }

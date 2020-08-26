@@ -194,9 +194,6 @@ class JsonTest {
 		Json json2 = db.dialect().createJson("[]".getBytes());
 		json2.asList().add(new Pojo());
 
-		ex = assertThrows(SqlTypeException.class, () -> json2.flush());
-		assertEquals(SqlTypeException.Type.WRITE_JSON, ex.getType());
-
 	}
 
 	private static class Pojo {

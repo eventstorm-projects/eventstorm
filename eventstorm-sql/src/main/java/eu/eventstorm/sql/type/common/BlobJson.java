@@ -73,15 +73,12 @@ public final class BlobJson extends DefaultBlob implements Json {
 		throw new SqlTypeException(SqlTypeException.Type.AS_LIST_INVALID, of(PARAM_ADAPTEE, adaptee));
 	}
 
-    @Override
-	public void flush() {
-        if (adaptee != null && this.adaptee.isModified()) {
-        	 setBuf(this.adaptee.write(this.mapper));
-        }
-	}
-
 	@Override
-	public byte[] asRaw() {
+	public byte[] toByteArray() {
+		if (adaptee != null && this.adaptee.isModified()) {
+			setBuf(this.adaptee.write(this.mapper));
+		}
 		return getBuf();
 	}
+
 }

@@ -1,5 +1,8 @@
 package eu.eventstorm.sql;
 
+import java.sql.Blob;
+import java.sql.Clob;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -43,5 +46,11 @@ public interface Dialect {
 	String range(int offset, int limit);
 	
 	String range();
+
+	void setPreparedStatement(PreparedStatement ps, int index, Json json) throws SQLException;
+	
+	void setPreparedStatement(PreparedStatement ps, int index, Blob blob) throws SQLException;
+	
+	void setPreparedStatement(PreparedStatement ps, int index, Clob clob) throws SQLException;
 
 }

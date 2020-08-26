@@ -32,16 +32,6 @@ public final class InMemoryJsonList implements Json, JsonList {
 	}
 
 	@Override
-	public byte[] asRaw() {
-		return null;
-	}
-
-	@Override
-	public void flush() {
-		// nothing to do.
-	}
-
-	@Override
 	public <T> T get(int index, Class<T> clazz) {
 		return clazz.cast(this.list.get(index));
 	}
@@ -60,5 +50,15 @@ public final class InMemoryJsonList implements Json, JsonList {
 	public int size() {
 		return this.list.size();
 	}
+	
+	@Override
+	public byte[] toByteArray() {		
+		return "{}".getBytes();
+	}
+
+//	@Override
+//	public String toSqlString() {
+//		return "{}";
+//	}
 
 }

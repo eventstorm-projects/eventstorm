@@ -26,6 +26,7 @@ import eu.eventstorm.sql.annotation.AutoIncrement;
 import eu.eventstorm.sql.annotation.Column;
 import eu.eventstorm.sql.jdbc.Mapper;
 import eu.eventstorm.sql.jdbc.MapperWithAutoIncrement;
+import eu.eventstorm.sql.type.Json;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -226,6 +227,8 @@ final class MapperGenerator implements Generator {
 
         writeNewLine(writer);
         writer.write("    public void insert(");
+        writer.write(Dialect.class.getName());
+        writer.write(" dialect, ");
         writer.write(PreparedStatement.class.getName());
         writer.write(" ps, ");
         writer.write(descriptor.element().getSimpleName().toString());
@@ -263,6 +266,8 @@ final class MapperGenerator implements Generator {
 
         writeNewLine(writer);
         writer.write("    public void update(");
+        writer.write(Dialect.class.getName());
+        writer.write(" dialect, ");
         writer.write(PreparedStatement.class.getName());
         writer.write(" ps, ");
         writer.write(descriptor.element().getSimpleName().toString());
@@ -305,13 +310,16 @@ final class MapperGenerator implements Generator {
             writer.write("    ");
         }
         
-        if (Helper.isFushable(ppd.getter().getReturnType().toString())) {
-        	writer.write("        pojo.");
-        	writer.write(ppd.getter().getSimpleName().toString());
-            writer.write("().flush();");
-        	writeNewLine(writer);
-        }
-
+    	if (("java.sql.Blob".equals(ppd.getter().getReturnType().toString())) ||
+    			("java.sql.Clob".equals(ppd.getter().getReturnType().toString())) || 
+    			(Json.class.getName().equals(ppd.getter().getReturnType().toString()))){
+    		writer.write("        dialect.setPreparedStatement(ps, " + index+", pojo." );
+			writer.write(ppd.getter().getSimpleName().toString());
+	        writer.write("());");
+	        writeNewLine(writer);
+	        return;
+		}
+		
         writer.write("        ps.");
         writer.write(preparedStatementSetter(ppd.getter().getReturnType().toString()));
         writer.write("(");

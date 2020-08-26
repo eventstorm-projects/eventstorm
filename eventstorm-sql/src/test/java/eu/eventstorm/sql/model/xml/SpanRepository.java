@@ -62,11 +62,11 @@ public class SpanRepository extends eu.eventstorm.sql.Repository {
             return pojo;
         }
 
-        public void insert(java.sql.PreparedStatement ps, Span pojo) throws java.sql.SQLException {
+        public void insert(eu.eventstorm.sql.Dialect dialect, java.sql.PreparedStatement ps, Span pojo) throws java.sql.SQLException {
             ps.setObject(1,  pojo.getContent());
         }
 
-        public void update(java.sql.PreparedStatement ps, Span pojo) throws java.sql.SQLException {
+        public void update(eu.eventstorm.sql.Dialect dialect, java.sql.PreparedStatement ps, Span pojo) throws java.sql.SQLException {
             ps.setObject(1,  pojo.getContent());
             //set primary key
             ps.setInt(2,  pojo.getId());

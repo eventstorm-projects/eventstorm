@@ -214,7 +214,7 @@ class RepositoryTest {
 		student.setCode("Code1");
 		student.setCreatedAt(new Timestamp(System.currentTimeMillis()));
 		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
-			EventstormRepositoryException ex = assertThrows(EventstormRepositoryException.class, () -> repo.executeInsert(insertBuilder.build(), (ps, pojo) -> {
+			EventstormRepositoryException ex = assertThrows(EventstormRepositoryException.class, () -> repo.executeInsert(insertBuilder.build(), (dial, ps, pojo) -> {
 				ps.setString(100, "hello");
 			}, student));
 			assertEquals(EventstormRepositoryException.Type.INSERT_MAPPER, ex.getType());
