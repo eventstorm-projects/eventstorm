@@ -22,7 +22,7 @@ import eu.eventstorm.core.EventCandidate;
 import eu.eventstorm.core.UUID;
 import eu.eventstorm.cqrs.batch.BatchJobCreated;
 import eu.eventstorm.sql.Database;
-import eu.eventstorm.sql.Transaction;
+import eu.eventstorm.sql.util.TransactionTemplate;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -39,11 +39,14 @@ public final class DatabaseBatch implements Batch {
 	
 	private final DatabaseExecutionRepository repository;
 	
+	private final TransactionTemplate template;
+	
 	public DatabaseBatch(ApplicationContext applicationContext, BatchExecutor batchExecutor, Database database, DatabaseExecutionRepository repository) {
 		this.applicationContext = applicationContext;
 		this.batchExecutor = batchExecutor;
 		this.database = database;
 		this.repository = repository;
+		this.template = new TransactionTemplate(database.transactionManager());
 	}
 
 	@Override
@@ -78,6 +81,8 @@ public final class DatabaseBatch implements Batch {
 				.withStartedAt(Timestamp.from(Instant.now()))
 				.build();
 			
+		this.template.executeWithReadWrite(() -> repository.insert(batchExecution));
+		
 		DatabaseBatchJobContext context = new DatabaseBatchJobContext(database, batchExecution);
 		
 		batchExecutor.submit(batchJob, context).addCallback(new DatabaseBatchListenableFutureCallback<>(context));				
@@ -103,26 +108,16 @@ public final class DatabaseBatch implements Batch {
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("onSuccess()");
 			}
-			
-			try (Transaction tx = database.transactionManager().newTransactionReadWrite()) {
-				repository.update(context.getDatabaseExecution());
-			}
-			
+			template.executeWithReadWrite(() -> repository.update(context.getDatabaseExecution()));
 		}
 		
 		@Override
 		public void onFailure(Throwable ex) {
-			
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("onFailure()", ex);
 			}
-			
-			try (Transaction tx = database.transactionManager().newTransactionReadWrite()) {
-				// TODO => exception to json in log
-				//context.getBatchExecution().setLog(json);
-				repository.update(context.getDatabaseExecution());
-			}
-
+			//context.getBatchExecution().setLog(json);
+			template.executeWithReadWrite(() -> repository.update(context.getDatabaseExecution()));
 		}
 	}
 }
