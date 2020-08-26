@@ -6,7 +6,7 @@ CREATE TABLE "event_store" (
    "time"                   TIMESTAMP WITH TIME ZONE NOT NULL,
    "event_type"             VARCHAR(128)   	NOT NULL,
    "correlation"            VARCHAR(36)   	NOT NULL,
-   "payload"                JSON		   	NOT NULL,
+   "payload"                TEXT		   	NOT NULL,
    PRIMARY KEY ("id"),
    UNIQUE ("stream","stream_id","revision")
 );

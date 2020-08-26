@@ -229,6 +229,10 @@ public final class Helper {
 		if ("java.sql.Blob".equals(type)) {
 			return "setBlob";
 		}
+		
+		if ("java.sql.Clob".equals(type)) {
+			return "setClob";
+		}
 
 		if (Json.class.getName().equals(type)) {
 			return "setObject";
@@ -286,6 +290,11 @@ public final class Helper {
 		if ("java.sql.Blob".equals(type)) {
 			return "getBlob";
 		}
+		
+		if ("java.sql.Clob".equals(type)) {
+			return "getClob";
+		}
+		
 		if (Json.class.getName().equals(type)) {
 			return "getObject";
 		}

@@ -1,6 +1,5 @@
 package eu.eventstorm.eventstore.db;
 
-import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -24,7 +23,6 @@ import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Dialect;
 import eu.eventstorm.sql.Transaction;
 import eu.eventstorm.sql.jdbc.ResultSetMapper;
-import eu.eventstorm.sql.type.common.Blobs;
 import eu.eventstorm.sql.util.TransactionStreamTemplate;
 
 /**
@@ -54,9 +52,9 @@ public final class DatabaseEventStore implements EventStore {
 		
 		OffsetDateTime time = OffsetDateTime.now();
 
-		byte[] json;
+		String json;
 		try {
-			json = PRINTER.print(message).getBytes(StandardCharsets.UTF_8);
+			json = PRINTER.print(message);
 		} catch (InvalidProtocolBufferException e1) {
 			e1.printStackTrace();
 			return null;
@@ -71,7 +69,7 @@ public final class DatabaseEventStore implements EventStore {
 							.withStreamId(streamId)
 							.withStream(sepd.getStream())
 					        .withTime(Timestamp.from(time.toInstant()))
-					        .withPayload(Blobs.newBlob(json))
+					        .withPayload(json)
 					        .withCorrelation(correlation.toString())
 					        .withEventType(sepd.getEventType());
 
@@ -197,7 +195,7 @@ public final class DatabaseEventStore implements EventStore {
 
 		@Override
 		public Event map(Dialect dialect, ResultSet rs) throws SQLException {
-			Message message = definition.getStreamEventDefinition(rs.getString(4)).jsonParse(rs.getBytes(3));
+			Message message = definition.getStreamEventDefinition(rs.getString(4)).jsonParse(rs.getString(3));
 			// @formatter:off
 			Event event = Event.newBuilder()
 					.setStreamId(streamId)

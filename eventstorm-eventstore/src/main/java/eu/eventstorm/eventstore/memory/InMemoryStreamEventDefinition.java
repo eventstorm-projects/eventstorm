@@ -57,10 +57,10 @@ final class InMemoryStreamEventDefinition<T extends AbstractMessage> implements 
 
 
 	@Override
-	public Message jsonParse(byte[] json) {
+	public Message jsonParse(String json) {
 		Message.Builder builder = supplier.get();
 		try {
-			this.jsonParser.merge(new String(json), builder);
+			this.jsonParser.merge(json, builder);
 		} catch (InvalidProtocolBufferException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

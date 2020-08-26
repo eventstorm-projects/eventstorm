@@ -68,7 +68,14 @@ public final class EventProtoGenerator {
 
 			LinkedList<MessageContext> queue = new  LinkedList<>();
 			
-			Protobuf3Lexer lexer = new Protobuf3Lexer(CharStreams.fromStream(EventProtoGenerator.class.getResourceAsStream(proto)));
+			Protobuf3Lexer lexer;
+			try {
+				lexer = new Protobuf3Lexer(CharStreams.fromStream(EventProtoGenerator.class.getResourceAsStream(proto)));	
+			} catch (Exception cause) {
+				logger.error("proto [" + proto + "] => error : ", cause);
+				continue;
+			}
+			
 			CommonTokenStream tokens = new CommonTokenStream(lexer);
 			Protobuf3Parser parser = new Protobuf3Parser(tokens);
 			parser.addParseListener(new Protobuf3BaseListener() {

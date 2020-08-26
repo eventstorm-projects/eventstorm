@@ -113,6 +113,10 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command>  
 						LOGGER.debug("Stream definition for [{}] -> [{}]", candidate.getStream(), sd);
 					}
 					
+					if (sd == null) {
+						throw new IllegalStateException("No defintion found for stream [" + candidate.getStream() + "]");
+					}
+					
 					return this.eventStore.appendToStream(
 							sd.getStreamEventDefinition(candidate.getMessage().getClass().getSimpleName()), 
 							candidate.getStreamId().toStringValue(), 

@@ -13,7 +13,7 @@ public interface StreamEventDefinition {
 
 	Message parse(DataBuffer buffer);
 
-	Message jsonParse(byte[] json);
+	Message jsonParse(String json);
 
 	String getEventType();
 

@@ -1,6 +1,5 @@
 package eu.eventstorm.eventstore.db;
 
-import java.sql.Blob;
 import java.sql.Timestamp;
 
 import eu.eventstorm.sql.annotation.Column;
@@ -51,8 +50,8 @@ interface DatabaseEvent {
 	void setEventType(String type);
 	
 	@Column(value = "payload")
-	Blob getPayload();
+	String getPayload();
 	
-	void setPayload(Blob payload);
+	void setPayload(String payload);
 	
 }
