@@ -5,6 +5,7 @@ import static java.util.UUID.randomUUID;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,6 +80,7 @@ public final class DatabaseBatch implements Batch {
 				.withResources(database.dialect().createJson(candidate.getMessage().getUuidList()))
 				.withUuid(correlation.toString())
 				.withStartedAt(Timestamp.from(Instant.now()))
+				.withLog(database.dialect().createJson(new ArrayList<>()))
 				.build();
 			
 		this.template.executeWithReadWrite(() -> repository.insert(batchExecution));
