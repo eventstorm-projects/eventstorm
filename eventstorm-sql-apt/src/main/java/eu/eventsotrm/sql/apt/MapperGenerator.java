@@ -317,18 +317,17 @@ final class MapperGenerator implements Generator {
 			writer.write(ppd.getter().getSimpleName().toString());
 	        writer.write("());");
 	        writeNewLine(writer);
-	        return;
-		}
+    	} else {
+    		writer.write("        ps.");
+            writer.write(preparedStatementSetter(ppd.getter().getReturnType().toString()));
+            writer.write("(");
+            writer.write("" + index);
+            writer.write(", ");
+            writer.write(" pojo.");
+            writer.write(ppd.getter().getSimpleName().toString());
+            writer.write("());");	
+    	}
 		
-        writer.write("        ps.");
-        writer.write(preparedStatementSetter(ppd.getter().getReturnType().toString()));
-        writer.write("(");
-        writer.write("" + index);
-        writer.write(", ");
-        writer.write(" pojo.");
-        writer.write(ppd.getter().getSimpleName().toString());
-        writer.write("());");
-
         if (column != null && column.nullable()) {
             writeNewLine(writer);
             writer.write("        } else {");
