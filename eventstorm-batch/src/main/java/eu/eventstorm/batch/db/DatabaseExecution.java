@@ -15,17 +15,12 @@ import eu.eventstorm.sql.type.Json;
 @Table(value = "batch_execution", flywayRef = @FlywayRef(version = "1.0.0"))
 public interface DatabaseExecution {
 
-	@PrimaryKey("id")
-	long getId();
-
-	void setId(long id);
-	
-	@Column(value = "uuid", length = 36)
+	@PrimaryKey(value = "uuid", length = 36)
 	String getUuid();
 
 	void setUuid(String uuid);
 	
-	@Column(value = "resources", length = 36)
+	@Column(value = "resources", length = 2000)
 	Json getResources();
 
 	void setResources(Json resources);
