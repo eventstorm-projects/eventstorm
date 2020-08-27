@@ -9,6 +9,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 import com.google.protobuf.TypeRegistry;
+import com.google.protobuf.util.JsonFormat;
 
 import eu.eventstorm.batch.config.BatchProperties;
 import eu.eventstorm.batch.config.ResourceProperties;
@@ -30,6 +31,12 @@ public class BatchAutoConfiguration {
 	@Bean
 	BatchModule batchModule(TypeRegistry registry) {
 		return new BatchModule(registry);
+	}
+	
+	@ConditionalOnBean(TypeRegistry.class)
+	@Bean
+	JsonFormat.Parser eventJsonParser(TypeRegistry registry) {
+		return JsonFormat.parser().usingTypeRegistry(registry);
 	}
 
 	@Bean

@@ -13,6 +13,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.util.concurrent.ListenableFutureCallback;
 
 import com.google.protobuf.Any;
+import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.protobuf.util.JsonFormat;
 
 import eu.eventstorm.batch.Batch;
 import eu.eventstorm.batch.BatchExecutor;
@@ -32,6 +34,8 @@ public final class DatabaseBatch implements Batch {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseBatch.class);
 	
+	private static final JsonFormat.Printer PRINTER = JsonFormat.printer().omittingInsignificantWhitespace();
+
 	private final BatchExecutor batchExecutor;
 	
 	private final ApplicationContext applicationContext;
@@ -77,7 +81,7 @@ public final class DatabaseBatch implements Batch {
 		DatabaseExecution batchExecution = new DatabaseExecutionBuilder()
 				.withName(candidate.getStream())
 				.withStatus((byte)BatchStatus.STARTING.ordinal())
-				.withResources(database.dialect().createJson(candidate.getMessage().getUuidList()))
+				.withEvent(toJson(candidate.getMessage()))
 				.withUuid(correlation.toString())
 				.withStartedAt(Timestamp.from(Instant.now()))
 				.withLog(database.dialect().createJson(new ArrayList<>()))
@@ -85,7 +89,7 @@ public final class DatabaseBatch implements Batch {
 			
 		this.template.executeWithReadWrite(() -> repository.insert(batchExecution));
 		
-		DatabaseBatchJobContext context = new DatabaseBatchJobContext(database, batchExecution);
+		DatabaseBatchJobContext context = new DatabaseBatchJobContext(database, batchExecution, candidate.getMessage());
 		
 		batchExecutor.submit(batchJob, context).addCallback(new DatabaseBatchListenableFutureCallback<>(context));				
 						
@@ -120,6 +124,14 @@ public final class DatabaseBatch implements Batch {
 			}
 			//context.getBatchExecution().setLog(json);
 			template.executeWithReadWrite(() -> repository.update(context.getDatabaseExecution()));
+		}
+	}
+	
+	private static String toJson(BatchJobCreated batchJobCreated) {
+		try {
+			return PRINTER.print(batchJobCreated);
+		} catch (InvalidProtocolBufferException cause) {
+			throw new IllegalStateException(cause);
 		}
 	}
 }

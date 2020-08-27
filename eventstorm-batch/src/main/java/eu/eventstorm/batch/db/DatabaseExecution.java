@@ -20,10 +20,10 @@ public interface DatabaseExecution {
 
 	void setUuid(String uuid);
 	
-	@Column(value = "resources", length = 2000)
-	Json getResources();
+	@Column(value = "event", length = 4000)
+	String getEvent();
 
-	void setResources(Json resources);
+	void setEvent(String event);
 
 	@Column(value = "name", length = 255)
 	String getName();

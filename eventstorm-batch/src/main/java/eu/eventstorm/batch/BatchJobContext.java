@@ -1,7 +1,9 @@
 package eu.eventstorm.batch;
 
 import java.time.Instant;
-import java.util.List;
+
+import eu.eventstorm.cqrs.batch.BatchJobCreated;
+
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -12,6 +14,8 @@ public interface BatchJobContext {
 
 	void setStatus(BatchStatus status);
 	
-	List<BatchResource> getResources();
+	BatchJobCreated getBatchJobCreated();
+	
+	BatchResource getResource(String uuid);
 
 }

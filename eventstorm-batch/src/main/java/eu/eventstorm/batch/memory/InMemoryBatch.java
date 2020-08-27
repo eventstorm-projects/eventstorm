@@ -4,7 +4,6 @@ import static java.util.UUID.randomUUID;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
-import java.util.List;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 import org.slf4j.Logger;
@@ -116,7 +115,12 @@ public final class InMemoryBatch implements Batch {
 		}
 
 		@Override
-		public List<BatchResource> getResources() {
+		public BatchJobCreated getBatchJobCreated() {
+			return null;
+		}
+
+		@Override
+		public BatchResource getResource(String uuid) {
 			return null;
 		}
 		

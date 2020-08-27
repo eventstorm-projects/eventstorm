@@ -4,15 +4,12 @@ import java.io.InputStream;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.List;
-
-import com.google.common.collect.ImmutableList;
 
 import eu.eventstorm.batch.BatchJobContext;
 import eu.eventstorm.batch.BatchResource;
 import eu.eventstorm.batch.BatchStatus;
+import eu.eventstorm.cqrs.batch.BatchJobCreated;
 import eu.eventstorm.sql.Database;
-import eu.eventstorm.sql.type.JsonList;
 import eu.eventstorm.sql.util.TransactionTemplate;
 
 /**
@@ -23,11 +20,13 @@ final class DatabaseBatchJobContext implements BatchJobContext {
 	private final DatabaseExecution databaseExecution;
 	private final TransactionTemplate transactionTemplate;
 	private final DatabaseResourceRepository repository;
+	private final BatchJobCreated event;
 	
-	public DatabaseBatchJobContext(Database database, DatabaseExecution databaseExecution) {
+	public DatabaseBatchJobContext(Database database, DatabaseExecution databaseExecution, BatchJobCreated event) {
 		this.databaseExecution = databaseExecution;
 		this.transactionTemplate = new TransactionTemplate(database.transactionManager());
 		this.repository = new DatabaseResourceRepository(database);
+		this.event = event;
 	}
 
 	public DatabaseExecution getDatabaseExecution() {
@@ -45,13 +44,13 @@ final class DatabaseBatchJobContext implements BatchJobContext {
 	}
 
 	@Override
-	public List<BatchResource> getResources() {
-		ImmutableList.Builder<BatchResource> builder = ImmutableList.builder();		
-		JsonList list = this.databaseExecution.getResources().asList();
-		for (int i = 0; i < list.size(); i++) {
-			builder.add(new DatabaseBatchResourceWrapper(list.get(i, String.class)));
-		}
-		return builder.build();
+	public BatchJobCreated getBatchJobCreated() {
+		return this.event;
+	}
+	
+	@Override
+	public BatchResource getResource(String uuid) {
+		return new DatabaseBatchResourceWrapper(uuid);
 	}
 
 	private final class DatabaseBatchResourceWrapper implements BatchResource {
@@ -74,4 +73,7 @@ final class DatabaseBatchJobContext implements BatchJobContext {
 		}
 		
 	}
+
+	
+
 }
