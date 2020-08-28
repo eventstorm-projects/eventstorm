@@ -25,6 +25,7 @@ import eu.eventstorm.core.EventCandidate;
 import eu.eventstorm.core.UUID;
 import eu.eventstorm.cqrs.batch.BatchJobCreated;
 import eu.eventstorm.sql.Database;
+import eu.eventstorm.sql.type.Jsons;
 import eu.eventstorm.sql.util.TransactionTemplate;
 
 /**
@@ -84,7 +85,7 @@ public final class DatabaseBatch implements Batch {
 				.withEvent(toJson(candidate.getMessage()))
 				.withUuid(correlation.toString())
 				.withStartedAt(Timestamp.from(Instant.now()))
-				.withLog(database.dialect().createJson(new ArrayList<>()))
+				.withLog(Jsons.createList())
 				.build();
 			
 		this.template.executeWithReadWrite(() -> repository.insert(batchExecution));

@@ -5,16 +5,12 @@ import java.sql.Clob;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
 
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.desc.SqlSequence;
 import eu.eventstorm.sql.type.Json;
 import eu.eventstorm.sql.type.Xml;
 import eu.eventstorm.sql.type.common.BlobJson;
-import eu.eventstorm.sql.type.common.BlobJsonList;
-import eu.eventstorm.sql.type.common.BlobJsonMap;
 import eu.eventstorm.sql.type.common.BlobXml;
 import eu.eventstorm.util.FastByteArrayInputStream;
 
@@ -45,22 +41,6 @@ final class H2Dialect extends AbstractDialect {
 	}
 
 	@Override
-	public Json createJson(Map<String, Object> value) {
-		return new BlobJson(getDatabase().jsonMapper(), new BlobJsonMap(value));
-	}
-
-    @SuppressWarnings("unchecked")
-	@Override
-	public Json createJson(List<?> value) {
-	    return new BlobJson(getDatabase().jsonMapper(),new BlobJsonList((List<Object>) value));
-	}
-
-	@Override
-	public Json createJson(byte[] value) {
-		return new BlobJson(getDatabase().jsonMapper(), value);
-	}
-
-	@Override
 	public Json fromJdbcJson(ResultSet rs, int index) throws SQLException {
 		return new BlobJson(getDatabase().jsonMapper(), rs.getBytes(index));
 	}
@@ -77,7 +57,7 @@ final class H2Dialect extends AbstractDialect {
 
 	@Override
 	public void setPreparedStatement(PreparedStatement ps, int index, Json json) throws SQLException {
-		ps.setBytes(index, json.toByteArray());
+		ps.setBytes(index, json.write(this.getDatabase().jsonMapper()));
 	}
 
 	@Override

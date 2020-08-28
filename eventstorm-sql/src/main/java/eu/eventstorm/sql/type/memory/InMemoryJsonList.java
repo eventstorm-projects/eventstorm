@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.eventstorm.sql.JsonMapper;
 import eu.eventstorm.sql.type.Json;
 import eu.eventstorm.sql.type.JsonList;
 import eu.eventstorm.sql.type.JsonMap;
@@ -52,13 +53,7 @@ public final class InMemoryJsonList implements Json, JsonList {
 	}
 	
 	@Override
-	public byte[] toByteArray() {		
-		return "{}".getBytes();
-	}
-
-//	@Override
-//	public String toSqlString() {
-//		return "{}";
-//	}
+	public byte[] write(JsonMapper mapper) {
+		return "{}".getBytes();	}
 
 }

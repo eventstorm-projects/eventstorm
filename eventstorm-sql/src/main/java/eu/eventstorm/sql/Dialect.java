@@ -5,8 +5,6 @@ import java.sql.Clob;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
 
 import eu.eventstorm.sql.desc.SqlColumn;
 import eu.eventstorm.sql.desc.SqlSequence;
@@ -34,12 +32,6 @@ public interface Dialect {
 	Json fromJdbcJson(ResultSet rs, int index) throws SQLException;
 
 	Xml fromJdbcXml(ResultSet rs, int index) throws SQLException;
-
-    Json createJson(Map<String, Object> value);
-
-    Json createJson(List<?> value);
-
-	Json createJson(byte[] value);
 
 	Xml createXml(FastByteArrayInputStream fbais);
 

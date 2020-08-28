@@ -61,11 +61,11 @@ class JsonTest {
 		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
 			Span span = new Span();
 			span.setId(1);
-			span.setContent(db.dialect().createJson(new HashMap<>()));
+			span.setContent(Jsons.createMap());
 
 			Span span2 = new Span();
 			span2.setId(2);
-			span2.setContent(db.dialect().createJson("{\"key1\":\"val01\"}".getBytes()));
+			span2.setContent(Jsons.createMap(db.jsonMapper().readMap("{\"key1\":\"val01\"}".getBytes())));
 
 			repo.insert(span);
 			repo.insert(span2);
@@ -119,11 +119,11 @@ class JsonTest {
 		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
 			Span span = new Span();
 			span.setId(1);
-			span.setContent(db.dialect().createJson(new ArrayList<>()));
+			span.setContent(Jsons.createList());
 
 			Span span2 = new Span();
 			span2.setId(2);
-			span2.setContent(db.dialect().createJson("[\"val01\",\"val02\"]".getBytes()));
+			span2.setContent(Jsons.createList(db.jsonMapper().readList("[\"val01\",\"val02\"]".getBytes())));
 
 			repo.insert(span);
 			repo.insert(span2);
@@ -181,19 +181,6 @@ class JsonTest {
 		ex = assertThrows(SqlTypeException.class, () -> blobListJson.asMap());
 		assertEquals(SqlTypeException.Type.AS_MAP_INVALID, ex.getType());
 		assertEquals(BlobJsonList.class, ex.getValues().get(SqlTypeException.PARAM_ADAPTEE).getClass());
-	}
-
-	@Test
-	void jsonListExceptionTest() throws IOException {
-
-		Json json = db.dialect().createJson("bad json".getBytes());
-
-		SqlTypeException ex = assertThrows(SqlTypeException.class, () -> json.asList());
-		assertEquals(SqlTypeException.Type.READ_JSON, ex.getType());
-
-		Json json2 = db.dialect().createJson("[]".getBytes());
-		json2.asList().add(new Pojo());
-
 	}
 
 	private static class Pojo {

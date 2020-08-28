@@ -9,8 +9,6 @@ import java.sql.Clob;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
 
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.desc.SqlSequence;
@@ -19,8 +17,6 @@ import eu.eventstorm.sql.type.Xml;
 import eu.eventstorm.sql.type.common.AbstractBlob;
 import eu.eventstorm.sql.type.common.AbstractClob;
 import eu.eventstorm.sql.type.common.BlobJson;
-import eu.eventstorm.sql.type.common.BlobJsonList;
-import eu.eventstorm.sql.type.common.BlobJsonMap;
 import eu.eventstorm.sql.type.common.BlobXml;
 import eu.eventstorm.util.FastByteArrayInputStream;
 import eu.eventstorm.util.Streams;
@@ -52,22 +48,6 @@ final class OracleDialect extends AbstractDialect {
 	}
 
 	@Override
-	public Json createJson(Map<String, Object> value) {
-		return new BlobJson(getDatabase().jsonMapper(), new BlobJsonMap(value));
-	}
-
-    @SuppressWarnings("unchecked")
-	@Override
-	public Json createJson(List<?> value) {
-	    return new BlobJson(getDatabase().jsonMapper(),new BlobJsonList((List<Object>) value));
-	}
-
-	@Override
-	public Json createJson(byte[] value) {
-		return new BlobJson(getDatabase().jsonMapper(), value);
-	}
-
-	@Override
 	public Json fromJdbcJson(ResultSet rs, int index) throws SQLException {
 		return new BlobJson(getDatabase().jsonMapper(), rs.getBytes(index));
 	}
@@ -84,7 +64,7 @@ final class OracleDialect extends AbstractDialect {
 
 	@Override
 	public void setPreparedStatement(PreparedStatement ps, int index, Json json) throws SQLException {
-		ps.setString(index, new String(json.toByteArray(), StandardCharsets.UTF_8));
+		ps.setString(index, new String(json.write(this.getDatabase().jsonMapper()), StandardCharsets.UTF_8));
 	}
 
 	@Override

@@ -23,6 +23,7 @@ import eu.eventstorm.batch.db.DatabaseResourceBuilder;
 import eu.eventstorm.batch.db.DatabaseResourceRepository;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.type.Json;
+import eu.eventstorm.sql.type.Jsons;
 import eu.eventstorm.sql.type.common.Blobs;
 import eu.eventstorm.sql.util.TransactionTemplate;
 import eu.eventstorm.util.FastByteArrayOutputStream;
@@ -87,7 +88,7 @@ public final class DatabaseResourceReactiveController {
 	private Json getMeta(ServerHttpRequest serverRequest) {
 		String meta = serverRequest.getHeaders().getFirst("X-META");
 		try {
-			return database.dialect().createJson(this.objectMapper.readValue(meta, Map.class));
+			return Jsons.createMap(this.objectMapper.readValue(meta, Map.class));
 		} catch (JsonProcessingException cause) {
 			throw new ResourceException(ResourceException.Type.CONVERT_ERROR, ImmutableMap.of("meta",meta), cause);
 		}

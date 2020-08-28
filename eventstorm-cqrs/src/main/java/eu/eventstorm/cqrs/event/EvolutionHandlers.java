@@ -24,11 +24,7 @@ public final class EvolutionHandlers implements EvolutionHandler {
 	public void on(Event event) {
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("on ({})", event);
-		}
-		
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("handlers -> ", handlers);
+			LOGGER.debug("on ({},{})", event.getStream(), event.getStreamId());
 		}
 		
 		this.handlers.forEach(h -> h.on(event));
