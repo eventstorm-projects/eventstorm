@@ -197,6 +197,8 @@ public final class CommandJacksonStdDeserializerGenerator {
 			    writeNewLine(writer);
 		    	writer.write("				}");
 		    	writeNewLine(writer);
+		    	writer.write("				builder.with" + Helper.firstToUpperCase(cpd.name()) + "(mapBuilder.build());");
+		    	writeNewLine(writer);
 		    	
 		    } else {
 		   
