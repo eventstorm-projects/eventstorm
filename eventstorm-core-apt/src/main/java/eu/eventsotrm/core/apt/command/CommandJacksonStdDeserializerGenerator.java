@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.JavaFileObject;
@@ -174,6 +175,27 @@ public final class CommandJacksonStdDeserializerGenerator {
 		    	writer.write("                    }");
 		    	writeNewLine(writer);
 		    	writer.write("                }");
+		    	writeNewLine(writer);
+		    	
+		    } else if (returnType.startsWith(Map.class.getName())) {
+		    	
+		    	writer.write("				" + ImmutableMap.class.getName() + ".Builder<String,String> mapBuilder = " + ImmutableMap.class.getName() + ".builder();");
+		    	writeNewLine(writer);
+		    	writer.write("				// FIELD");
+		    	writeNewLine(writer);
+		    	writer.write("				parser.nextToken();");
+				writeNewLine(writer);
+				writer.write("				// START_OBJECT");
+				writeNewLine(writer);
+				writer.write("				parser.nextToken();");
+				writeNewLine(writer);
+		    	writer.write("				while (parser.currentToken() != JsonToken.END_OBJECT) {");
+		    	writeNewLine(writer);
+				writer.write("				    mapBuilder.put(parser.currentName(), parser.nextTextValue());");
+			    writeNewLine(writer);
+			    writer.write("				    parser.nextToken();");
+			    writeNewLine(writer);
+		    	writer.write("				}");
 		    	writeNewLine(writer);
 		    	
 		    } else {

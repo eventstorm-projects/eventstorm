@@ -262,8 +262,43 @@ public final class CommandBuilderGenerator {
 		        String type = getReturnType(ppd.getter());
 
 		        if (type.startsWith("java.util.List")) {
+
+		        	String target2 =  type.substring(15, type.length()-1);
+	            	String classname2 =  ecd.simpleName() + "__" + target2.substring(target.lastIndexOf('.') + 1) + "__Builder<"+ classname + "<T>>";
+	            	
+		        	writer.write("    public " + classname2 + " with");
+		            writer.write(Helper.firstToUpperCase(ppd.name()));
+		            writer.write("(");
+//		        	writer.write(type);
+//			    	writer.write(' ');
+//			        writer.write(ppd.variable());
+			        writer.write(") {");
+			        writeNewLine(writer);
+//			        writer.write("        this." + ppd.variable() + "$$ = " + ppd.variable() + ";");
+//			        writeNewLine(writer);
+			        writer.write("        return this." + ppd.variable() + "$$;");
+			        writeNewLine(writer);
+			        writer.write("    }");
+			        writeNewLine(writer);
 		        	
-		        	// skip ...
+		        
+//	            	writer.write(classname);
+//		        	
+//		            
+//		        	writer.write("    public ***************");
+//		        	writeNewLine(writer);
+//		        	
+//		        	writer.write("    public ***************");
+//		        	writeNewLine(writer);
+//		        	
+//		        	writer.write("    " + type);
+//		        	writeNewLine(writer);
+//		        	writer.write("    " + ppd);
+//		        	writeNewLine(writer);
+//		        	
+//		        	writer.write("    public ***************");
+//		        	writeNewLine(writer);
+		        	
 			   
 		        } else {
 		        	writer.write("    public ");
