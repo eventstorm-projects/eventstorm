@@ -10,6 +10,7 @@ import eu.eventstorm.core.EventCandidate;
 import eu.eventstorm.core.StreamId;
 import eu.eventstorm.core.id.StreamIdGenerator;
 import eu.eventstorm.core.id.StreamIdGeneratorFactory;
+import eu.eventstorm.cqrs.CommandContext;
 import eu.eventstorm.cqrs.ex001.command.CreateUserCommand;
 import eu.eventstorm.cqrs.ex001.event.UserCreatedEventPayload;
 import eu.eventstorm.cqrs.ex001.validator.CreateUserCommandValidator;
@@ -28,7 +29,7 @@ public final class CreateUserCommandHandler extends DefaultEventCommandHandler<C
 	}
 
 	@Override
-	protected ImmutableList<EventCandidate<?>> decision(CreateUserCommand command) {
+	protected ImmutableList<EventCandidate<?>> decision(CommandContext context, CreateUserCommand command) {
 		
 		StreamId id = this.aig.generate();
 		

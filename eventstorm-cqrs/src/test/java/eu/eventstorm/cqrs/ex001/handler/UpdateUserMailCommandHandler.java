@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.ImmutableList;
 
 import eu.eventstorm.core.EventCandidate;
+import eu.eventstorm.cqrs.CommandContext;
 import eu.eventstorm.cqrs.event.EvolutionHandlers;
 import eu.eventstorm.cqrs.ex001.command.UpdateUserMailCommand;
 import eu.eventstorm.cqrs.impl.DefaultEventCommandHandler;
@@ -19,7 +20,7 @@ public class UpdateUserMailCommandHandler extends DefaultEventCommandHandler<Upd
 	}
 
 	@Override
-	protected ImmutableList<EventCandidate<?>> decision(UpdateUserMailCommand command) {
+	protected ImmutableList<EventCandidate<?>> decision(CommandContext context, UpdateUserMailCommand command) {
 		return ImmutableList.of();
 	}
 

@@ -23,6 +23,7 @@ import eu.eventstorm.cloudevents.CloudEvent;
 import eu.eventstorm.cloudevents.CloudEvents;
 import eu.eventstorm.core.Event;
 import eu.eventstorm.cqrs.CommandGateway;
+import eu.eventstorm.cqrs.impl.ReactiveCommandContext;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -89,6 +90,8 @@ public final class CommandRestControllerImplementationGenerator {
 		writeNewLine(writer);
 		writer.write("import org.springframework.beans.factory.annotation.Qualifier;");       
         writeNewLine(writer);
+        writer.write("import org.springframework.web.server.ServerWebExchange;");       
+        writeNewLine(writer);
         
         writer.write("import reactor.core.publisher.Flux;");       
         writeNewLine(writer);
@@ -102,6 +105,8 @@ public final class CommandRestControllerImplementationGenerator {
 		writer.write("import " + CloudEvent.class.getName() + ";");
 		writeNewLine(writer);
 		writer.write("import " + CloudEvents.class.getName() + ";");
+		writeNewLine(writer);
+		writer.write("import " + ReactiveCommandContext.class.getName() + ";");
 		writeNewLine(writer);
 		
 		writeGenerated(writer, CommandRestControllerImplementationGenerator.class.getName());
@@ -188,7 +193,7 @@ public final class CommandRestControllerImplementationGenerator {
 */
     
 	private static void writeMethodRestAsync(Writer writer, RestControllerDescriptor rcd) throws IOException {
-		writer.write("    public Flux<CloudEvent> on(@RequestBody ");
+		writer.write("    public Flux<CloudEvent> on(ServerWebExchange exchange, @RequestBody ");
 		writer.write(rcd.element().toString());
 		writer.write(" command) {");
 		writeNewLine(writer);
@@ -199,7 +204,7 @@ public final class CommandRestControllerImplementationGenerator {
 		writeNewLine(writer);
 		writer.write("            .log(LOGGER, Level.INFO, false, SignalType.ON_NEXT)");
 		writeNewLine(writer);
-		writer.write("            .flatMapMany(c -> gateway.<"+rcd.element().toString() + ","+ Event.class.getName() + ">dispatch(c))");
+		writer.write("            .flatMapMany(c -> gateway.<"+rcd.element().toString() + ","+ Event.class.getName() + ">dispatch(new ReactiveCommandContext(exchange), c))");
 		writeNewLine(writer);
 		writer.write("            .map(CloudEvents::to);");
 		writeNewLine(writer);

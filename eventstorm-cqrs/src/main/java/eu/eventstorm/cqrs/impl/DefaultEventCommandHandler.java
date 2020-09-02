@@ -12,6 +12,7 @@ import eu.eventstorm.core.Event;
 import eu.eventstorm.core.EventCandidate;
 import eu.eventstorm.core.validation.ConstraintViolation;
 import eu.eventstorm.cqrs.Command;
+import eu.eventstorm.cqrs.CommandContext;
 import eu.eventstorm.cqrs.event.EvolutionHandlers;
 import eu.eventstorm.cqrs.validation.CommandValidationException;
 import eu.eventstorm.cqrs.validation.Validator;
@@ -45,7 +46,7 @@ public abstract class DefaultEventCommandHandler<T extends Command> extends Abst
 	}
 
 	@Override
-	protected void validate(T command) {
+	protected void validate(CommandContext context, T command) {
 		
 		ImmutableList<ConstraintViolation> constraintViolations = this.validator.validate(command);
 		

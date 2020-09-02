@@ -28,6 +28,10 @@ public final class CommandHandlerRegistry {
 
 	@SuppressWarnings("unchecked")
 	public <T extends Command, E> CommandHandler<T,E> get(Command key) {
+		
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("get({})", key);
+		}
 
 		String cacheKey = cache.get(key.getClass().getName());
 

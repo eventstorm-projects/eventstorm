@@ -16,7 +16,7 @@ public final class CommandGateway {
         this.registry = registry;
     }
 
-	public <T extends Command, E> Flux<E> dispatch(T command) {
+	public <T extends Command, E> Flux<E> dispatch(CommandContext context, T command) {
 
 		return Mono.just(command)
 				// retrieve command handler associated
@@ -24,7 +24,7 @@ public final class CommandGateway {
 				// if no command handler => error
 				.switchIfEmpty(Mono.error(new CommandGatewayException(CommandGatewayException.Type.NOT_FOUND, of("command", command))))
 				// handle the Command
-				.map(ch -> ch.handle(command))
+				.map(ch -> ch.handle(context, command))
 				// convert
 				.flatMapMany(Flux::fromIterable)
 				;

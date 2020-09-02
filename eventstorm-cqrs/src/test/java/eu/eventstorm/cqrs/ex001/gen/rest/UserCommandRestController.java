@@ -4,11 +4,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ServerWebExchange;
 
 import com.google.common.collect.ImmutableList;
 
 import eu.eventstorm.cqrs.CommandGateway;
 import eu.eventstorm.cqrs.ex001.command.CreateUserCommand;
+import eu.eventstorm.cqrs.impl.ReactiveCommandContext;
 
 @RestController
 public final class UserCommandRestController {
@@ -22,12 +24,12 @@ public final class UserCommandRestController {
 	}
 
 	@PostMapping(name = "command/user/create")
-	public void createUserCommand(CreateUserCommand command) {
+	public void createUserCommand(ServerWebExchange exchange, CreateUserCommand command) {
 
 		if (LOGGER.isTraceEnabled()) {
 			LOGGER.trace("createUserCommand (command/user/create) : [{}]", command);
 		}
-		gateway.dispatch(command).collect(ImmutableList.toImmutableList());
+		gateway.dispatch(new ReactiveCommandContext(exchange), command).collect(ImmutableList.toImmutableList());
 	}
 
 }

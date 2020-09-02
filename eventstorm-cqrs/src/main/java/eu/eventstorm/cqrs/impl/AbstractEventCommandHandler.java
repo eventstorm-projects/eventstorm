@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableList;
 import eu.eventstorm.core.Event;
 import eu.eventstorm.core.EventCandidate;
 import eu.eventstorm.cqrs.Command;
+import eu.eventstorm.cqrs.CommandContext;
 import eu.eventstorm.cqrs.CommandHandler;
 
 /**
@@ -13,13 +14,13 @@ import eu.eventstorm.cqrs.CommandHandler;
 abstract class AbstractEventCommandHandler<T extends Command> implements CommandHandler<T, Event> {
 	
 	
-	public final ImmutableList<Event> handle(T command) {
+	public final ImmutableList<Event> handle(CommandContext context, T command) {
 		
 		// validate the command
-		validate(command);
+		validate(context, command);
 		
 		// apply the decision function (state,command) => events
-		ImmutableList<EventCandidate<?>> candidates = decision(command);
+		ImmutableList<EventCandidate<?>> candidates = decision(context, command);
 		
 		// save the to the eventStore
 		ImmutableList<Event> events = store(candidates);
@@ -34,12 +35,12 @@ abstract class AbstractEventCommandHandler<T extends Command> implements Command
 	}
 
 	
-	protected abstract void validate(T command);
+	protected abstract void validate(CommandContext context, T command);
 
 	/**
 	 * (state,command) => events
 	 */
-	protected abstract ImmutableList<EventCandidate<?>> decision(T command);
+	protected abstract ImmutableList<EventCandidate<?>> decision(CommandContext context, T command);
 
 	
 	protected abstract ImmutableList<Event> store(ImmutableList<EventCandidate<?>> candidates);

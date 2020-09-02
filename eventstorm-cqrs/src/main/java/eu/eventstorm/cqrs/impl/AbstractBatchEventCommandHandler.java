@@ -6,6 +6,7 @@ import eu.eventstorm.batch.Batch;
 import eu.eventstorm.core.Event;
 import eu.eventstorm.core.EventCandidate;
 import eu.eventstorm.cqrs.BatchCommand;
+import eu.eventstorm.cqrs.CommandContext;
 import eu.eventstorm.cqrs.CommandHandler;
 import eu.eventstorm.cqrs.batch.BatchJobCreated;
 
@@ -26,22 +27,22 @@ public abstract class AbstractBatchEventCommandHandler<C extends BatchCommand> i
 	}
 
 	@Override
-	public ImmutableList<Event> handle(C command) {
-		
+	public ImmutableList<Event> handle(CommandContext context, C command) {
+
 		// validate the command
-		validate(command);
+		validate(context, command);
 
 		// apply the decision function (state,command) => events
-		EventCandidate<BatchJobCreated> data = decision(command);
+		EventCandidate<BatchJobCreated> data = decision(context, command);
 
 		// push the candidate to the batch
 		Event event = this.batch.push(data);
-		
+
 		return ImmutableList.of(event);
 	}
 
-	protected abstract EventCandidate<BatchJobCreated> decision(C command);
+	protected abstract EventCandidate<BatchJobCreated> decision(CommandContext context, C command);
 
-	protected abstract void validate(C command);
+	protected abstract void validate(CommandContext context, C command);
 
 }

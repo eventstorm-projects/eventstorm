@@ -9,6 +9,6 @@ public interface CommandHandler<C extends Command, T> {
 	
 	Class<C> getType();
 	
-	ImmutableList<T> handle(C command);
+	ImmutableList<T> handle(CommandContext context, C command);
 
 }
