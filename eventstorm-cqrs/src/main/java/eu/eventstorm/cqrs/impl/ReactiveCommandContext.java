@@ -7,7 +7,10 @@ import org.springframework.web.server.ServerWebExchange;
 
 import eu.eventstorm.cqrs.CommandContext;
 
-public class ReactiveCommandContext implements CommandContext {
+/**
+ * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
+ */
+public final class ReactiveCommandContext implements CommandContext {
 
 	private final ServerWebExchange exchange;
 	
@@ -20,4 +23,7 @@ public class ReactiveCommandContext implements CommandContext {
 		return String.valueOf(exchange.getAttributeOrDefault(attributeName, Collections.emptyMap()).get(name));	
 	}
 
+	public ServerWebExchange getServerWebExchange() {
+		return exchange;
+	}
 }

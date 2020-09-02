@@ -14,6 +14,7 @@ import eu.eventstorm.core.Event;
 import eu.eventstorm.core.EventCandidate;
 import eu.eventstorm.core.validation.ConstraintViolation;
 import eu.eventstorm.cqrs.Command;
+import eu.eventstorm.cqrs.CommandContext;
 import eu.eventstorm.cqrs.CommandHandler;
 import eu.eventstorm.cqrs.event.EvolutionHandlers;
 import eu.eventstorm.cqrs.validation.CommandValidationException;
@@ -27,7 +28,7 @@ import eu.eventstorm.sql.TransactionManager;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command>  implements CommandHandler<T, Event> {
+public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> implements CommandHandler<T, Event> {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(LocalDatabaseEventStoreCommandHandler.class);
 
@@ -57,17 +58,17 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command>  
 		return this.type;
 	}
 
-	public final ImmutableList<Event> handle(T command) {
+	public final ImmutableList<Event> handle(CommandContext context, T command) {
 		
 		ImmutableList<Event> events;
 		
 		try (Transaction tx = this.transactionManager.newTransactionReadWrite()) {
 			
 			// validate the command
-			validate(command);
+			validate(context, command);
 			
 			// apply the decision function (state,command) => events
-			ImmutableList<EventCandidate<?>> candidates = decision(command);
+			ImmutableList<EventCandidate<?>> candidates = decision(context, command);
 
 			// save the to the eventStore
 			events = store(candidates);
@@ -81,11 +82,11 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command>  
 		return events;
 	}
 
-	private void validate(T command) {
+	private void validate(CommandContext context, T command) {
 		
 		ImmutableList<ConstraintViolation> constraintViolations = this.validator.validate(command);
 		
-		ImmutableList<ConstraintViolation> consistencyValidation = consistencyValidation(command);
+		ImmutableList<ConstraintViolation> consistencyValidation = consistencyValidation(context, command);
 		
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Validation of [{}] -> [{}] [{}]", command, constraintViolations, consistencyValidation);
@@ -134,14 +135,14 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command>  
 		events.forEach(evolutionHandlers::on);
 	}
 
-	protected ImmutableList<ConstraintViolation> consistencyValidation(T command) {
+	protected ImmutableList<ConstraintViolation> consistencyValidation(CommandContext context, T command) {
 		return ImmutableList.of();
 	}
 
 	/**
 	 * (state,command) => events
 	 */
-	protected abstract ImmutableList<EventCandidate<?>> decision(T command);
+	protected abstract ImmutableList<EventCandidate<?>> decision(CommandContext context, T command);
 	
 
 }
