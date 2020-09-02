@@ -87,6 +87,10 @@ public final class SourceCode {
 		this.commands.values().forEach(consumer);
 	}
 	
+	public CommandDescriptor getCommandDescriptor(String fqcn) {
+		return this.commands.get(fqcn);
+	}
+	
 	public void forEachEmbeddedCommand(Consumer<EmbeddedCommandDescriptor> consumer) {
 		this.embeddedCommands.values().forEach(consumer);
 	}

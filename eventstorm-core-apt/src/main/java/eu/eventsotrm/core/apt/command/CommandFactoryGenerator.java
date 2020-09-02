@@ -53,14 +53,13 @@ public final class CommandFactoryGenerator {
         }
         
         JavaFileObject object = env.getFiler().createSourceFile(pack + ".CommandFactory");
-        Writer writer = object.openWriter();
+        try (Writer writer = object.openWriter()) {
+            writeHeader(writer, pack, descriptors);
+            writeConstructor(writer);
+            writeMethods(writer, descriptors);
+            writer.write("}");
+        }
 
-        writeHeader(writer, pack, descriptors);
-        writeConstructor(writer);
-        writeMethods(writer, descriptors);
-
-        writer.write("}");
-        writer.close();
     }
 
 
@@ -97,19 +96,27 @@ public final class CommandFactoryGenerator {
             
             StringBuilder builder = new StringBuilder();
             StringBuilder builder2 = new StringBuilder();
-            for (PropertyDescriptor prop : descriptor.properties()) {
-            	builder.append(getReturnType(prop.getter()));
-            	builder.append(' ');
-            	builder.append(prop.name());
-            	builder.append(", ");
-            	
-            	builder2.append(prop.name());
-            	builder2.append(", ");
+
+            // a command with fields 
+            if (descriptor.properties().size() > 0) {
+            	for (PropertyDescriptor prop : descriptor.properties()) {
+                	builder.append(getReturnType(prop.getter()));
+                	builder.append(' ');
+                	builder.append(prop.name());
+                	builder.append(", ");
+                	
+                	builder2.append(prop.name());
+                	builder2.append(", ");
+                }
+                builder.deleteCharAt(builder.length() -1);
+                builder.deleteCharAt(builder.length() -1);
+                builder2.deleteCharAt(builder2.length() -1);
+                builder2.deleteCharAt(builder2.length() -1);	
+            } else {
+            	// skip, it's a command with no parameters.
             }
-            builder.deleteCharAt(builder.length() -1);
-            builder.deleteCharAt(builder.length() -1);
-            builder2.deleteCharAt(builder2.length() -1);
-            builder2.deleteCharAt(builder2.length() -1);
+            
+            
             writer.write(builder.toString());
             writer.write(") {");
             

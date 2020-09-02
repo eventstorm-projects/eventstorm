@@ -105,7 +105,7 @@ public final class CommandBuilderGenerator {
     }
 
     private void writeVariables(Writer writer,  AbstractCommandDescriptor cd, String parent) throws IOException {
-    	writeNewLine(writer);
+    	writeNewLine(writer);    	
     	for (PropertyDescriptor ppd : cd.properties()) {
     		
             writer.write("    private ");
@@ -249,7 +249,16 @@ public final class CommandBuilderGenerator {
 	        writer.write("    }");
 	        writeNewLine(writer);
 		
-			EmbeddedCommandDescriptor ecd = this.code.getEmbeddedCommandDescriptor(target);
+	        AbstractCommandDescriptor ecd = this.code.getEmbeddedCommandDescriptor(target);
+			
+			if (ecd == null) {
+				ecd = this.code.getCommandDescriptor(target);
+				if (ecd == null) {
+					logger.error("No EmbeddedCommandDescriptor/CommandDescriptor for target [" +  target + "]");
+					throw new IllegalStateException("No EmbeddedCommandDescriptor/CommandDescriptor for target [" +  target + "]");
+				}
+			}
+			
 			// variables
 			writeVariables(writer, ecd, classname + "<T>");
 			writer.write("    private final java.util.List<" + target + "> $$list$$ = new java.util.ArrayList<>();");
@@ -331,7 +340,7 @@ public final class CommandBuilderGenerator {
 		return classname; // + "<" + cd.simpleName() + "Builder>";
 	}
 	
-	private static void writeEmbeddedMethods(Writer writer, AbstractCommandDescriptor cd, String classname, EmbeddedCommandDescriptor ecd, String target) throws IOException {
+	private static void writeEmbeddedMethods(Writer writer, AbstractCommandDescriptor cd, String classname, AbstractCommandDescriptor ecd, String target) throws IOException {
 		writeNewLine(writer);
         writer.write("    public java.util.List<" + ecd.simpleName()  +"> build() { ");
         writeNewLine(writer);
