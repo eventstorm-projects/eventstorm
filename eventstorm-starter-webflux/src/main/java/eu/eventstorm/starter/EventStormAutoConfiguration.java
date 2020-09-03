@@ -28,36 +28,41 @@ public class EventStormAutoConfiguration {
 	Module problemModule() {
 		return new ProblemModule();
 	}
-	
-	@Bean 
+
+	@Bean
 	Module pageModule() {
 		return new PageModule();
 	}
-	
+
+	@Bean
+	Module QueryModule() {
+		return new eu.eventstorm.cqrs.util.QueryModule();
+	}
+
 	@ConditionalOnBean(TypeRegistry.class)
 	@Bean
 	Module cloudEventsModule(TypeRegistry registry) {
 		return new CloudEventsModule(registry);
 	}
-	
+
 	@Bean
-	CommandGateway commandGateway(List<CommandHandler<?,?>> handlers) {
+	CommandGateway commandGateway(List<CommandHandler<?, ?>> handlers) {
 		CommandHandlerRegistry.Builder builder = CommandHandlerRegistry.newBuilder();
 		handlers.forEach(builder::add);
 		return new CommandGateway(builder.build());
-	}	
-	
+	}
+
 	@Bean
 	EvolutionHandlers evolutionHandlers(List<EvolutionHandler> handlers) {
 		EvolutionHandlers.Builder builder = EvolutionHandlers.newBuilder();
 		handlers.forEach(builder::add);
 		return builder.build();
 	}
-	
+
 	@ConditionalOnMissingBean(name = "event_store_scheduler")
 	@Bean("event_store_scheduler")
 	Scheduler eventStoreScheduler() {
 		return Schedulers.newSingle("event-loop");
 	}
-	
+
 }
