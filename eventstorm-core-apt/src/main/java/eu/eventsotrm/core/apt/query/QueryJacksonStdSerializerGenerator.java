@@ -181,7 +181,7 @@ public final class QueryJacksonStdSerializerGenerator {
 
 		writer.write(space + "        gen.writeFieldName(\"" + epd.name() + "\");");
 		writeNewLine(writer);
-		writer.write(space + "        byte[] " + var + " = payload." + epd.getter().getSimpleName() +"().asRaw();");
+		writer.write(space + "        byte[] " + var + " = payload." + epd.getter().getSimpleName() +"().write(null);");
 		writeNewLine(writer);
 		writer.write(space + "        gen.writeRawUTF8String("+var+", 0, "+var+".length);");
 		writeNewLine(writer);
