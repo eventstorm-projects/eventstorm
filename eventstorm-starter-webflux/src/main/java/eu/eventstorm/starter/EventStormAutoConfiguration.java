@@ -34,11 +34,6 @@ public class EventStormAutoConfiguration {
 		return new PageModule();
 	}
 
-	@Bean
-	Module QueryModule() {
-		return new eu.eventstorm.cqrs.util.QueryModule();
-	}
-
 	@ConditionalOnBean(TypeRegistry.class)
 	@Bean
 	Module cloudEventsModule(TypeRegistry registry) {
