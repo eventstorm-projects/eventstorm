@@ -22,7 +22,7 @@ final class H2Dialect extends AbstractDialect {
 
     @Override
     protected String aliasSeparator() {
-        return " AS ";
+        return " ";
     }
 
     @Override

@@ -64,7 +64,7 @@ public final class CommandRestControllerAdviceImplementationGenerator {
         writeNewLine(writer);
 
         
-        writer.write("import javax.servlet.http.HttpServletRequest;");
+        writer.write("import org.springframework.http.server.reactive.ServerHttpRequest;");
         writeNewLine(writer);
         writer.write("import eu.eventstorm.problem.Problem;");
         writeNewLine(writer);
@@ -108,7 +108,7 @@ public final class CommandRestControllerAdviceImplementationGenerator {
 	    writeNewLine(writer);
 		writer.write("    public ResponseEntity<Problem> on(");
 		writer.write(cd.element().toString());
-		writer.write("Exception  ex, HttpServletRequest request) { ");
+		writer.write("Exception  ex, ServerHttpRequest request) { ");
 		writeNewLine(writer);
 		writer.write("        return ResponseEntity.badRequest()");
 		writeNewLine(writer);
@@ -120,7 +120,7 @@ public final class CommandRestControllerAdviceImplementationGenerator {
         writeNewLine(writer);
         writer.write("                        .withDetail(ex.getMessage())");
         writeNewLine(writer);
-        writer.write("                        .with(request)");
+        writer.write("                        .withReactiveRequest(request)");
         writeNewLine(writer);
         writer.write("                        .withStatus(400)");
         writeNewLine(writer);

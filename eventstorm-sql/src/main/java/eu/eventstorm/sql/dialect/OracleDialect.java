@@ -29,7 +29,7 @@ final class OracleDialect extends AbstractDialect {
 
     @Override
     protected String aliasSeparator() {
-        return " AS ";
+        return " ";
     }
 
     @Override

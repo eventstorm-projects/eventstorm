@@ -272,10 +272,15 @@ public final class SelectBuilder extends AbstractBuilder {
             throw new SqlBuilderException(SqlBuilderException.Type.SELECT, ImmutableMap.of(METHOD,"leftJoin", "cause ", "join column [" + otherColumn + "] not found in from clause"));
         }
         
-        this.joins.add(new JoinClause(this.database(), JoinType.LEFT, targetTable, targetColumn, otherFrom, otherColumn, expression));
+        this.joins.add(new JoinClauseTable(this.database(), JoinType.LEFT, targetTable, targetColumn, otherFrom, otherColumn, expression));
         return this;
     }
 
+    public SelectBuilder leftJoin(SubSelect subSelect, SqlColumn targetColumn, SqlTable otherFrom, SqlColumn otherColumn) {
+        this.joins.add(new JoinClauseSubSelect(this.database(), JoinType.LEFT, subSelect, targetColumn, otherFrom, otherColumn));
+    	return this;
+    }
+    
 
     public SelectBuilder innerJoin(SqlTable targetTable, SqlColumn targetColumn, SqlColumn column) {
         return innerJoin(targetTable, targetColumn, column.table(), column);
@@ -285,7 +290,7 @@ public final class SelectBuilder extends AbstractBuilder {
         requireNonNull(targetTable, INNER_JOIN + TARGET_TABLE_NN);
         requireNonNull(targetColumn, INNER_JOIN + TARGET_COLUMN_NN);
         requireNonNull(fromColumn, INNER_JOIN + COLUMN_NN);
-        this.joins.add(new JoinClause(this.database(), JoinType.INNER, targetTable, targetColumn, fromTable, fromColumn));
+        this.joins.add(new JoinClauseTable(this.database(), JoinType.INNER, targetTable, targetColumn, fromTable, fromColumn));
         return this;
     }
 
@@ -297,7 +302,7 @@ public final class SelectBuilder extends AbstractBuilder {
         requireNonNull(targetTable, INNER_JOIN + TARGET_TABLE_NN);
         requireNonNull(targetColumn, INNER_JOIN + TARGET_COLUMN_NN);
         requireNonNull(fromColumn, INNER_JOIN + COLUMN_NN);
-        this.joins.add(new JoinClause(this.database(), JoinType.INNER, targetTable, targetColumn, fromTable, fromColumn, expression));
+        this.joins.add(new JoinClauseTable(this.database(), JoinType.INNER, targetTable, targetColumn, fromTable, fromColumn, expression));
         return this;
     }
 
@@ -305,8 +310,7 @@ public final class SelectBuilder extends AbstractBuilder {
         requireNonNull(targetTable, RIGHT_JOIN + TARGET_TABLE_NN);
         requireNonNull(targetColumn, RIGHT_JOIN + TARGET_COLUMN_NN);
         requireNonNull(column, RIGHT_JOIN + COLUMN_NN);
-        this.joins.add(
-                new JoinClause(this.database(), JoinType.RIGHT, targetTable, targetColumn, column.table(), column));
+        this.joins.add(new JoinClauseTable(this.database(), JoinType.RIGHT, targetTable, targetColumn, column.table(), column));
         return this;
     }
 
@@ -316,8 +320,7 @@ public final class SelectBuilder extends AbstractBuilder {
         requireNonNull(targetColumn, RIGHT_JOIN + TARGET_COLUMN_NN);
         requireNonNull(column, RIGHT_JOIN + COLUMN_NN);
         requireNonNull(expression, RIGHT_JOIN + EXPRESSION_NN);
-        this.joins.add(new JoinClause(this.database(), JoinType.RIGHT, targetTable, targetColumn, column.table(),
-                column, expression));
+        this.joins.add(new JoinClauseTable(this.database(), JoinType.RIGHT, targetTable, targetColumn, column.table(), column, expression));
         return this;
     }
 
@@ -397,6 +400,9 @@ public final class SelectBuilder extends AbstractBuilder {
     }
 
     boolean hasAlias() {
+    	if (this.from == null) {
+    		throw new SqlBuilderException(SqlBuilderException.Type.SELECT, ImmutableMap.of("cause", "missing call from()"));
+    	}
         return this.from.size() > 1 || !joins.isEmpty();
     }
 

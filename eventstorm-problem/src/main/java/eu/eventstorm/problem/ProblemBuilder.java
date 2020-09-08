@@ -9,9 +9,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.http.HttpServletRequest;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
@@ -40,10 +37,14 @@ public final class ProblemBuilder {
 	ProblemBuilder() {
 	}
 
-	public ProblemBuilder with(HttpServletRequest req) {
+	public ProblemBuilder withReactiveRequest(org.springframework.http.server.reactive.ServerHttpRequest req) {
+		return this;
+	}
+	
+	public ProblemBuilder with(javax.servlet.http.HttpServletRequest req) {
 		this.type = URI.create(forJava(req.getScheme()) + "://" + forJava(req.getServerName()) + ":" + req.getServerPort() + forJava(req.getContextPath()));
 
-		String originalUri = (String) req.getAttribute(RequestDispatcher.ERROR_REQUEST_URI);
+		String originalUri = (String) req.getAttribute(javax.servlet.RequestDispatcher.ERROR_REQUEST_URI);
 
 		if (originalUri != null) {
 			this.instance = URI.create(originalUri);

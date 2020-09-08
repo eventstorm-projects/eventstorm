@@ -27,6 +27,7 @@ import eu.eventsotrm.core.apt.command.CommandJacksonModuleGenerator;
 import eu.eventsotrm.core.apt.command.CommandJacksonStdDeserializerGenerator;
 import eu.eventsotrm.core.apt.command.CommandJacksonStdSerializerGenerator;
 import eu.eventsotrm.core.apt.command.CommandOpenApiGenerator;
+import eu.eventsotrm.core.apt.command.CommandRestControllerAdviceImplementationGenerator;
 import eu.eventsotrm.core.apt.command.CommandRestControllerImplementationGenerator;
 import eu.eventsotrm.core.apt.command.CommandValidatorGenerator;
 import eu.eventsotrm.core.apt.event.EventProtoGenerator;
@@ -193,8 +194,7 @@ public class EventProcessor extends AbstractProcessor {
 		new CommandValidatorGenerator().generate(processingEnv, sourceCode);
 		
 
-		// TODO => move to webflux
-		//new CommandRestControllerAdviceImplementationGenerator().generate(processingEnv, sourceCode);
+		new CommandRestControllerAdviceImplementationGenerator().generate(processingEnv, sourceCode);
 		
 		new CommandOpenApiGenerator().generate(processingEnv, sourceCode);
 		

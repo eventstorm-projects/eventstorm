@@ -107,14 +107,14 @@ class SelectBuilderTest {
         SelectBuilder builder = new SelectBuilder(database, of(COL_T1_01, COL_T1_02, COL_T1_03));
         builder.from(TABLE_T1);
         builder.leftJoin(TABLE_T2, COL_T2_01, COL_T1_01);
-        assertEquals("SELECT a.col_T1_01,a.col_T1_02,a.col_T1_03 FROM T1 AS a LEFT JOIN T2 AS b ON b.col_T2_01=a.col_T1_01", builder.<SqlQuery>build().sql());
+        assertEquals("SELECT a.col_T1_01,a.col_T1_02,a.col_T1_03 FROM T1 a LEFT JOIN T2 b ON b.col_T2_01=a.col_T1_01", builder.<SqlQuery>build().sql());
         builder.leftJoin(TABLE_T3, COL_T3_01, COL_T1_01);
-        assertEquals("SELECT a.col_T1_01,a.col_T1_02,a.col_T1_03 FROM T1 AS a LEFT JOIN T2 AS b ON b.col_T2_01=a.col_T1_01 LEFT JOIN T3 AS c ON c.col_T3_01=a.col_T1_01", builder.<SqlQuery>build().sql());
+        assertEquals("SELECT a.col_T1_01,a.col_T1_02,a.col_T1_03 FROM T1 a LEFT JOIN T2 b ON b.col_T2_01=a.col_T1_01 LEFT JOIN T3 c ON c.col_T3_01=a.col_T1_01", builder.<SqlQuery>build().sql());
 
         builder = new SelectBuilder(database, of(COL_T1_01, COL_T1_02, COL_T1_03));
         builder.from(TABLE_T1);
         builder.leftJoin(TABLE_T2, COL_T2_01, COL_T1_01, eq(COL_T2_02));
-        assertEquals("SELECT a.col_T1_01,a.col_T1_02,a.col_T1_03 FROM T1 AS a LEFT JOIN T2 AS b ON b.col_T2_01=a.col_T1_01 AND b.col_T2_02=?", builder.<SqlQuery>build().sql());
+        assertEquals("SELECT a.col_T1_01,a.col_T1_02,a.col_T1_03 FROM T1 a LEFT JOIN T2 b ON b.col_T2_01=a.col_T1_01 AND b.col_T2_02=?", builder.<SqlQuery>build().sql());
 
         // test exceptions
         SelectBuilder builderEx = new SelectBuilder(database, of(COL_T1_01, COL_T1_02, COL_T1_03));
@@ -129,7 +129,20 @@ class SelectBuilderTest {
         SelectBuilder builder = new SelectBuilder(database, of(COL_T1_01, COL_T1_02, COL_T1_03));
         builder.from(TABLE_T1, TABLE_T2);
         builder.leftJoin(TABLE_T3, COL_T3_01, COL_T1_01);
-        assertEquals("SELECT a.col_T1_01,a.col_T1_02,a.col_T1_03 FROM T1 AS a, T2 AS b LEFT JOIN T3 AS c ON c.col_T3_01=a.col_T1_01", builder.<SqlQuery>build().sql());
+        assertEquals("SELECT a.col_T1_01,a.col_T1_02,a.col_T1_03 FROM T1 a, T2 b LEFT JOIN T3 c ON c.col_T3_01=a.col_T1_01", builder.<SqlQuery>build().sql());
+    }
+    
+    @Test
+    void testLeftJoinAliasSubSelect() {
+    	SubSelect subSelect = SubSelects.from(
+    			new SelectBuilder(database, of(COL_T3_01, COL_T3_03, COL_T3_03)).from(TABLE_T3).build(),
+    			"toto");
+    	
+        SelectBuilder builder = new SelectBuilder(database, of(COL_T1_01, COL_T1_02, COL_T1_03, subSelect.column(COL_T3_01)));
+        builder.from(TABLE_T1);
+        builder.leftJoin(subSelect, COL_T3_01, TABLE_T1, COL_T1_01);
+        
+        assertEquals("SELECT a.col_T1_01,a.col_T1_02,a.col_T1_03,toto.col_T3_01 FROM T1 a LEFT JOIN (SELECT col_T3_01,col_T3_03,col_T3_03 FROM T3) toto ON toto.col_T3_01=a.col_T1_01", builder.<SqlQuery>build().sql());
     }
 
     @Test

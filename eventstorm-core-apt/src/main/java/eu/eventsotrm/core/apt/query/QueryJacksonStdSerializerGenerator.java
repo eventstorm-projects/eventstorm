@@ -183,7 +183,7 @@ public final class QueryJacksonStdSerializerGenerator {
 		writeNewLine(writer);
 		writer.write(space + "        byte[] " + var + " = payload." + epd.getter().getSimpleName() +"().write(null);");
 		writeNewLine(writer);
-		writer.write(space + "        gen.writeRawValue("+var+", 0, "+var+".length);");
+		writer.write(space + "        gen.writeRawValue(new String("+var+", 0, "+var+".length));");
 		writeNewLine(writer);
 		
 		if (property.column().nullable()) {
