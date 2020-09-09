@@ -8,12 +8,15 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.type.MirroredTypeException;
+import javax.lang.model.type.TypeMirror;
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;
 
 import com.google.common.collect.ImmutableMap;
 
 import eu.eventsotrm.sql.apt.Helper;
+import eu.eventsotrm.sql.apt.SourceCode;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventsotrm.sql.apt.model.GlobalConfigurationDescriptor;
@@ -25,6 +28,7 @@ import eu.eventstorm.sql.annotation.BusinessKey;
 import eu.eventstorm.sql.annotation.Column;
 import eu.eventstorm.sql.annotation.Db;
 import eu.eventstorm.sql.annotation.Flyway;
+import eu.eventstorm.sql.annotation.ForeignKey;
 import eu.eventstorm.sql.annotation.Index;
 import eu.eventstorm.sql.annotation.JoinColumn;
 import eu.eventstorm.sql.annotation.JoinTable;
@@ -44,9 +48,13 @@ public final class FlywayGenerator {
 	
 	private final List<DeferWriter> indexes = new ArrayList<>();
 	private final List<DeferWriter> sequences = new ArrayList<>();
+	private final List<DeferWriter> fks = new ArrayList<>();
 
-	public FlywayGenerator() {
+	private final SourceCode sourceCode;
+	
+	public FlywayGenerator(SourceCode sourceCode) {
 		logger = LoggerFactory.getInstance().getLogger(FlywayGenerator.class);
+		this.sourceCode = sourceCode;
 	}
 
 	public void generate(ProcessingEnvironment env, List<GlobalConfigurationDescriptor> configs) {
@@ -56,7 +64,6 @@ public final class FlywayGenerator {
 			} catch (Exception cause) {
 				logger.error("", cause);
 			}
-
 		}
 	}
 
@@ -100,6 +107,7 @@ public final class FlywayGenerator {
 			
 			this.sequences.forEach(DeferWriter::write);
 			this.indexes.forEach(DeferWriter::write);
+			this.fks.forEach(DeferWriter::write);
 			
 			
 			holders.forEach((filename, tuple) -> {
@@ -114,6 +122,7 @@ public final class FlywayGenerator {
 			holders.clear();
 			indexes.clear();
 			sequences.clear();
+			fks.clear();
 		}
 			
 		
@@ -121,8 +130,6 @@ public final class FlywayGenerator {
 
 
 	private void generate(ProcessingEnvironment env, PojoDescriptor descriptor, Flyway flyway, FlywayDialect fd, Db db) throws IOException {
-
-		List<String> businessKeys = new ArrayList<>();
 
 		String filename = "V" + flyway.version() + "__" + flyway.description() + ".sql";
 
@@ -140,19 +147,22 @@ public final class FlywayGenerator {
 
 
 		if (descriptor.getTable() != null) {
-			generateTable(descriptor, fd, businessKeys, writer, descriptor.getTable());
+			generateTable(descriptor, fd, writer, descriptor.getTable());
 			return;
 		}
 
 		if (descriptor.getJoinTable() != null) {
-			generateJoinTable(descriptor, fd, businessKeys, writer, descriptor.getJoinTable());
+			generateJoinTable(descriptor, fd, writer, descriptor.getJoinTable());
 			return;
 		}
 
 	}
 
-	private void generateTable(PojoDescriptor descriptor, FlywayDialect fd, List<String> businessKeys, Writer writer,
-			Table table) throws IOException {
+	private void generateTable(PojoDescriptor descriptor, FlywayDialect fd, Writer writer, Table table) throws IOException {
+		
+		List<String> businessKeys = new ArrayList<>();
+		List<PojoPropertyDescriptor> fks = new ArrayList<>();
+		
 		StringBuilder builder = new StringBuilder();
 		builder.append("CREATE TABLE ");
 		builder.append(fd.wrap(table.value()));
@@ -187,6 +197,11 @@ public final class FlywayGenerator {
 				if (id.getter().getAnnotation(Sequence.class) != null) {
 					generateSequence(writer, id.getter().getAnnotation(Sequence.class), fd);
 				}
+				
+				ForeignKey fk = id.getter().getAnnotation(ForeignKey.class);
+				if (fk != null) {
+					fks.add(id);
+				}
 
 			}
 			primaryKey.deleteCharAt(primaryKey.length()-1).append(')');	
@@ -220,6 +235,26 @@ public final class FlywayGenerator {
 				if (bk != null) {
 					businessKeys.add(columnName);
 				}
+				
+				ForeignKey fk = col.getter().getAnnotation(ForeignKey.class);
+				if (fk != null) {
+					
+					PojoDescriptor target = sourceCode.getPojoDescriptor(getClass(fk).toString());
+					PrimaryKey targetColumn;
+					if (target.ids().size() != 1) {
+						throw new UnsupportedOperationException();
+					} else {
+						targetColumn = target.ids().get(0).getter().getAnnotation(PrimaryKey.class);
+					}
+					
+					this.fks.add(new DeferWriter(writer,  "ALTER TABLE " + descriptor.getTable().value() + 
+							" ADD CONSTRAINT " + descriptor.getTable().value() + "__fk__" +  anno.value() +
+							" FOREIGN KEY (" + anno.value() + ")" +
+							" REFERENCES "+ target.getTable().value() + " (" + targetColumn.value() +");\n"));
+					
+					fks.add(col);
+				}
+				
 			}
 			builder.deleteCharAt(builder.length()-1);
 		}
@@ -242,10 +277,10 @@ public final class FlywayGenerator {
 		generateIndex(table, writer);
 	}
 
-	
 
-	private void generateJoinTable(PojoDescriptor descriptor, FlywayDialect fd, List<String> businessKeys, Writer writer,
-			JoinTable table) throws IOException {
+	private void generateJoinTable(PojoDescriptor descriptor, FlywayDialect fd, Writer writer, JoinTable table) throws IOException {
+		List<String> businessKeys = new ArrayList<>();
+		
 		StringBuilder builder = new StringBuilder();
 		builder.append("CREATE TABLE ");
 		builder.append(fd.wrap(table.value()));
@@ -305,6 +340,7 @@ public final class FlywayGenerator {
 		writer.append(builder.toString());
 	}
 
+	
 	private void generateSequence(Writer writer, Sequence sequence, FlywayDialect fd) {
 		logger.info("generate sequence " + sequence);
 		this.sequences.add(new DeferWriter(writer,  "CREATE SEQUENCE " + fd.wrap(sequence.value())  + ";\n"));
@@ -364,6 +400,15 @@ public final class FlywayGenerator {
 			
 		}
 		
+	}
+	
+	private static TypeMirror getClass(ForeignKey foreignKey) {
+	    try {
+	        foreignKey.target(); // this should throw
+	    } catch( MirroredTypeException mte ) {
+	        return mte.getTypeMirror();
+	    }
+	    return null; // can this ever happen ??
 	}
 
 }

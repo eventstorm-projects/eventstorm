@@ -123,7 +123,7 @@ public final class SqlProcessor extends AbstractProcessor {
             	.map(new GlobalConfigurationAnalyser(sourceCode))
             	.collect(Collectors.toList());
 
-        new FlywayGenerator().generate(this.processingEnv, configs);
+        new FlywayGenerator(sourceCode).generate(this.processingEnv, configs);
 
     }
 

@@ -17,5 +17,5 @@ public @interface ForeignKey {
 	Class<?> target();
 	
     AssociationType type();
-
+    
 }
