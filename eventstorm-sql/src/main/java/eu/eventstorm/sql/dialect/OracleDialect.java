@@ -20,6 +20,7 @@ import eu.eventstorm.sql.type.common.BlobJson;
 import eu.eventstorm.sql.type.common.BlobXml;
 import eu.eventstorm.util.FastByteArrayInputStream;
 import eu.eventstorm.util.Streams;
+import eu.eventstorm.util.Strings;
 
 final class OracleDialect extends AbstractDialect {
 
@@ -49,7 +50,13 @@ final class OracleDialect extends AbstractDialect {
 
 	@Override
 	public Json fromJdbcJson(ResultSet rs, int index) throws SQLException {
-		return new BlobJson(getDatabase().jsonMapper(), rs.getBytes(index));
+		//TODO .. to improve
+		String value = rs.getString(index);
+		if (Strings.isEmpty(value)) {
+			return null;
+		} else {
+			return new BlobJson(getDatabase().jsonMapper(), value.getBytes(StandardCharsets.UTF_8));	
+		}
 	}
 
 	@Override
