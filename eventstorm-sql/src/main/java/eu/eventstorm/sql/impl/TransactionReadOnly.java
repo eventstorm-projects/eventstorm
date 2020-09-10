@@ -1,5 +1,7 @@
 package eu.eventstorm.sql.impl;
 
+import java.sql.Blob;
+import java.sql.Clob;
 import java.sql.Connection;
 
 import eu.eventstorm.sql.SqlQuery;
@@ -38,6 +40,16 @@ final class TransactionReadOnly extends AbstractTransaction {
 
 	@Override
 	public TransactionQueryContext writeAutoIncrement(SqlQuery query) {
+		throw new TransactionException(TransactionException.Type.READ_ONLY);
+	}
+	
+	@Override
+	public Blob createBlob() {
+		throw new TransactionException(TransactionException.Type.READ_ONLY);
+	}
+
+	@Override
+	public Clob createClob() {
 		throw new TransactionException(TransactionException.Type.READ_ONLY);
 	}
 

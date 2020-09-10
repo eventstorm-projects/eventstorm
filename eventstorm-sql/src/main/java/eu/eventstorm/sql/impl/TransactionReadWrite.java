@@ -1,5 +1,9 @@
 package eu.eventstorm.sql.impl;
 
+import static eu.eventstorm.sql.impl.TransactionException.Type.CREATE_LOB;
+
+import java.sql.Blob;
+import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -51,5 +55,23 @@ class TransactionReadWrite extends AbstractTransaction {
         }
         return new TransactionNested(this, getTransactionManager());
     }
+	
+	@Override
+	public Blob createBlob() {
+		try {
+			return getConnection().createBlob();
+		} catch (SQLException cause) {
+			throw new TransactionException(CREATE_LOB, this, null, cause);
+		}
+	}
+
+	@Override
+	public Clob createClob() {
+		try {
+			return getConnection().createClob();
+		} catch (SQLException cause) {
+			throw new TransactionException(CREATE_LOB, this, null, cause);
+		}
+	}
 
 }
