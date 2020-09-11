@@ -18,7 +18,7 @@ public final class TransactionException extends EventstormSqlException {
 	private static final long serialVersionUID = -7353728745195001854L;
 
 	public enum Type implements EventstormSqlExceptionType {
-		PREPARED_STATEMENT, CREATE, NO_CURRENT_TRANSACTION,  READ_ONLY, CONNECTION_ISOLATION, NOT_ACTIVE, COMMIT , ROLLBACK, CREATE_LOB
+		PREPARED_STATEMENT, CREATE, NO_CURRENT_TRANSACTION,  READ_ONLY, CONNECTION_ISOLATION, NOT_ACTIVE, COMMIT , ROLLBACK
     }
 
 

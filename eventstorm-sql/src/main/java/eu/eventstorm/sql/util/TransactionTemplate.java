@@ -1,10 +1,7 @@
 package eu.eventstorm.sql.util;
 
-import java.util.function.Consumer;
-
 import eu.eventstorm.sql.Transaction;
 import eu.eventstorm.sql.TransactionManager;
-import eu.eventstorm.sql.impl.LobSupport;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -43,18 +40,6 @@ public final class TransactionTemplate {
 		}
 	}
 	
-	public void executeWithReadWrite(Consumer<LobSupport> consumer) {
-		try (Transaction tx = transactionManager.newTransactionReadWrite()) {
-			try {
-				consumer.accept(LobSupport.class.cast(tx));
-				tx.commit();
-			} catch (Exception cause) {
-				tx.rollback();
-				throw cause;
-			}
-		}
-	}
-
 	public <T> T executeWithReadOnly(TransactionCallback<T> callback) {
 		T returnValue;
 		try (Transaction tx = transactionManager.newTransactionReadOnly()) {

@@ -23,7 +23,7 @@ import eu.eventstorm.sql.tracer.TransactionTracer;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-abstract class AbstractTransaction implements TransactionSupport, LobSupport {
+abstract class AbstractTransaction implements TransactionSupport {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTransaction.class);
 
