@@ -21,6 +21,8 @@ import com.google.common.collect.ImmutableMap;
 import eu.eventstorm.batch.db.DatabaseResource;
 import eu.eventstorm.batch.db.DatabaseResourceBuilder;
 import eu.eventstorm.batch.db.DatabaseResourceRepository;
+import eu.eventstorm.core.uuid.UniversalUniqueIdentifier;
+import eu.eventstorm.core.uuid.UniversalUniqueIdentifierGenerator;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.type.Json;
 import eu.eventstorm.sql.type.Jsons;
@@ -36,22 +38,24 @@ import reactor.core.publisher.Mono;
 @RestController
 public final class DatabaseResourceReactiveController {
 
-	private final Database database;
 	private final DatabaseResourceRepository databaseResourceRepository;
 	private final ObjectMapper objectMapper;
 	private final TransactionTemplate transactionTemplate;
+	private final CreatedByExtractor createdByExtractor;
+	private final UniversalUniqueIdentifierGenerator generator;
 	
-	public DatabaseResourceReactiveController(Database database) {
-		this.database = database;
+	public DatabaseResourceReactiveController(Database database, CreatedByExtractor createdByExtractor, UniversalUniqueIdentifierGenerator generator) {
 		this.databaseResourceRepository = new DatabaseResourceRepository(database);
 		this.objectMapper = new ObjectMapper();
 		this.transactionTemplate = new TransactionTemplate(database.transactionManager());
+		this.createdByExtractor = createdByExtractor;
+		this.generator = generator;
 	}
 
 	@PostMapping(path = "${eu.eventstorm.batch.resource.context-path:}/upload")
 	public Mono<UploadResponse> upload(ServerHttpRequest serverRequest) throws IOException {
 
-		java.util.UUID uuid = java.util.UUID.randomUUID();
+		UniversalUniqueIdentifier uuid = generator.generate();
 		FastByteArrayOutputStream baos = new FastByteArrayOutputStream(32768);
 
 		return DataBufferUtils.write(serverRequest.getBody(), baos)
@@ -64,6 +68,7 @@ public final class DatabaseResourceReactiveController {
 								.withId(uuid.toString())
 								.withMeta(meta)
 								.withContent(Blobs.newBlob(baos))
+								.withCreatedBy(createdByExtractor.extract(serverRequest))
 								.build();
 						databaseResourceRepository.insert(br);
 						return null;

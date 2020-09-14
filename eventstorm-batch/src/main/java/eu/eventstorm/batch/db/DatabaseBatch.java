@@ -1,11 +1,8 @@
 package eu.eventstorm.batch.db;
 
-import static java.util.UUID.randomUUID;
-
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +19,6 @@ import eu.eventstorm.batch.BatchJob;
 import eu.eventstorm.batch.BatchStatus;
 import eu.eventstorm.core.Event;
 import eu.eventstorm.core.EventCandidate;
-import eu.eventstorm.core.UUID;
 import eu.eventstorm.cqrs.batch.BatchJobCreated;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.type.Jsons;
@@ -38,13 +34,9 @@ public final class DatabaseBatch implements Batch {
 	private static final JsonFormat.Printer PRINTER = JsonFormat.printer().omittingInsignificantWhitespace();
 
 	private final BatchExecutor batchExecutor;
-	
 	private final ApplicationContext applicationContext;
-	
 	private final Database database;
-	
 	private final DatabaseExecutionRepository repository;
-	
 	private final TransactionTemplate template;
 	
 	public DatabaseBatch(ApplicationContext applicationContext, BatchExecutor batchExecutor, Database database, DatabaseExecutionRepository repository) {
@@ -58,12 +50,6 @@ public final class DatabaseBatch implements Batch {
 	@Override
 	public Event push(EventCandidate<BatchJobCreated> candidate) {
 		
-		java.util.UUID correlation = randomUUID();
-		
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("correlation id =[{}]", correlation);
-		}
-		
 		BatchJob batchJob = this.applicationContext.getBean(candidate.getMessage().getName(), BatchJob.class);
 			
 		if (LOGGER.isDebugEnabled()) {
@@ -73,7 +59,7 @@ public final class DatabaseBatch implements Batch {
 		Event event = Event.newBuilder()
 				.setStreamId(candidate.getStreamId().toStringValue())
 				.setStream(candidate.getStream())
-				.setCorrelation(UUID.newBuilder().setLeastSigBits(correlation.getLeastSignificantBits()).setMostSigBits(correlation.getMostSignificantBits()))
+				//.setCorrelation(UUID.newBuilder().setLeastSigBits(correlation.getUuid().getLeastSignificantBits()).setMostSigBits(correlation.getUuid().getMostSignificantBits()))
 				.setRevision(1)
 				.setTimestamp(OffsetDateTime.now().toString())
 				.setData(Any.pack(candidate.getMessage(),candidate.getStream()))
@@ -83,8 +69,9 @@ public final class DatabaseBatch implements Batch {
 				.withName(candidate.getStream())
 				.withStatus((byte)BatchStatus.STARTING.ordinal())
 				.withEvent(toJson(candidate.getMessage()))
-				.withUuid(correlation.toString())
+				.withUuid(candidate.getStreamId().toStringValue())
 				.withStartedAt(Timestamp.from(Instant.now()))
+				.withCreatedBy(candidate.getMessage().getCreatedBy())
 				.withLog(Jsons.createList())
 				.build();
 			

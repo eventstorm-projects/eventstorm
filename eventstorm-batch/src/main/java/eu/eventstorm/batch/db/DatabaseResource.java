@@ -1,8 +1,10 @@
 package eu.eventstorm.batch.db;
 
 import java.sql.Blob;
+import java.sql.Timestamp;
 
 import eu.eventstorm.sql.annotation.Column;
+import eu.eventstorm.sql.annotation.CreateTimestamp;
 import eu.eventstorm.sql.annotation.FlywayRef;
 import eu.eventstorm.sql.annotation.PrimaryKey;
 import eu.eventstorm.sql.annotation.Table;
@@ -28,5 +30,17 @@ public interface DatabaseResource {
 	Blob getContent();
 
 	void setContent(Blob content);
+	
+	@Column(value = "created_by", length = 64)
+	String getCreatedBy();
+
+	void setCreatedBy(String createdBy);
+	
+	@Column(value = "created_at")
+	@CreateTimestamp
+	Timestamp getCreatedAt();
+
+	void setCreatedAt(Timestamp createdAt);
+
 	
 }

@@ -7,6 +7,8 @@ message BatchJobCreated {
 
 	string name = 1;
 	
-	bytes command = 2;
+	string createdBy = 2;
+	
+	bytes command = 50;
 
 }

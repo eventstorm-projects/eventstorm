@@ -29,7 +29,7 @@ interface DatabaseEvent {
 
 	void setStreamId(String streamId);
 	
-	@Column(value = "correlation", length = 36)
+	@Column(value = "correlation", length = 36, nullable = true)
 	String getCorrelation();
 
 	void setCorrelation(String correlation);

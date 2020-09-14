@@ -7,6 +7,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import eu.eventstorm.batch.rest.CreatedByExtractor;
+import eu.eventstorm.core.uuid.UniversalUniqueIdentifierDefinition;
+import eu.eventstorm.core.uuid.UniversalUniqueIdentifierGenerator;
+import eu.eventstorm.core.uuid.UniversalUniqueIdentifiers;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Dialect;
 import eu.eventstorm.sql.TransactionManager;
@@ -19,7 +23,6 @@ import eu.eventstorm.sql.tracer.TransactionTracers;
 @Profile("database")
 @Configuration
 @EnableAutoConfiguration
-//@ComponentScan(basePackages =  "eu.eventstorm.batch")
 public class DatabaseTestConfiguration {
 
 	@Bean
@@ -36,17 +39,21 @@ public class DatabaseTestConfiguration {
 		        TransactionTracers.noOp());
 		return new TransactionManagerImpl(dataSource, configuration);
 	}
-
 	
-//	@Bean
-//	InMemoryBatch batch(ApplicationContext applicationContext, BatchExecutor batchExecutor) {
-//		return new InMemoryBatch(applicationContext, batchExecutor);
-//	}
-//	
-//	@Bean
-//	com.google.protobuf.TypeRegistry typeRegistry() {
-//		return com.google.protobuf.TypeRegistry.newBuilder()
-//				.build();
-//	}
+	@Bean
+	CreatedByExtractor createdByExtractor() {
+		return request -> "junit";
+	}
 
+	@Bean
+	UniversalUniqueIdentifierGenerator universalUniqueIdentifierGenerator() {
+		return () -> UniversalUniqueIdentifiers.generate(new UniversalUniqueIdentifierDefinition() {
+			public short getRegion() {
+				return 0;
+			}
+			public short getNode() {
+				return 0;
+			}
+		});
+	}
 }

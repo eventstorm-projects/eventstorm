@@ -35,6 +35,11 @@ public interface DatabaseExecution {
 
 	void setStatus(byte status);
 
+	@Column(value = "created_by", length = 64)
+	String getCreatedBy();
+
+	void setCreatedBy(String createdBy);
+	
 	@Column(value = "created_at")
 	@CreateTimestamp
 	Timestamp getCreatedAt();
