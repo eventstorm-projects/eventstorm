@@ -16,6 +16,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import eu.eventstorm.core.Event;
 import eu.eventstorm.cqrs.CommandContext;
 import eu.eventstorm.cqrs.CommandGateway;
+import eu.eventstorm.cqrs.context.DefaultCommandContext;
 import eu.eventstorm.cqrs.ex001.command.CreateUserCommand;
 import eu.eventstorm.cqrs.ex001.event.UserCreatedEventPayload;
 import eu.eventstorm.cqrs.ex001.gen.impl.CreateUserCommandImpl;
@@ -43,7 +44,7 @@ class Ex001Test {
 		command.setEmail("jm@mail.org");
 
 		ImmutableList.Builder<Event> builder = ImmutableList.builder();
-		gateway.<CreateUserCommand,Event>dispatch(new CommandContext() {}, command).doOnNext(event -> builder.add(event)).blockLast();
+		gateway.<CreateUserCommand,Event>dispatch(new DefaultCommandContext(), command).doOnNext(event -> builder.add(event)).blockLast();
 		
 		assertEquals(1, eventStoreClient.readStream("user", from(1)).count());
 		Event event = eventStoreClient.readStream("user", from(1)).findFirst().get();
@@ -75,7 +76,7 @@ class Ex001Test {
 
 		ImmutableList.Builder<Event> builder = ImmutableList.builder();
 		
-		CommandValidationException cve = assertThrows(CommandValidationException.class, () -> gateway.<CreateUserCommand, Event>dispatch(new CommandContext() {},command).doOnNext(event -> builder.add(event)).blockLast());
+		CommandValidationException cve = assertThrows(CommandValidationException.class, () -> gateway.<CreateUserCommand, Event>dispatch(new DefaultCommandContext(),command).doOnNext(event -> builder.add(event)).blockLast());
 		assertEquals(command, cve.getCommand());
 		assertEquals("mail", cve.getConstraintViolations().get(0).getProperties().get(0));
 	}

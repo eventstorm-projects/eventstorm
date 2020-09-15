@@ -9,8 +9,8 @@ import org.springframework.web.server.ServerWebExchange;
 import com.google.common.collect.ImmutableList;
 
 import eu.eventstorm.cqrs.CommandGateway;
+import eu.eventstorm.cqrs.context.ReactiveCommandContext;
 import eu.eventstorm.cqrs.ex001.command.CreateUserCommand;
-import eu.eventstorm.cqrs.impl.ReactiveCommandContext;
 
 @RestController
 public final class UserCommandRestController {

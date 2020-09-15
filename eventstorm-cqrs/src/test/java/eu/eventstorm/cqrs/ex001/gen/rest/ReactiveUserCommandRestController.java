@@ -8,8 +8,8 @@ import org.springframework.web.server.ServerWebExchange;
 
 import eu.eventstorm.core.Event;
 import eu.eventstorm.cqrs.CommandGateway;
+import eu.eventstorm.cqrs.context.ReactiveCommandContext;
 import eu.eventstorm.cqrs.ex001.command.CreateUserCommand;
-import eu.eventstorm.cqrs.impl.ReactiveCommandContext;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

@@ -57,6 +57,7 @@ import eu.eventstorm.sql.jdbc.InsertMapperWithAutoIncrement;
 import eu.eventstorm.sql.jdbc.PreparedStatementSetter;
 import eu.eventstorm.sql.jdbc.ResultSetMapper;
 import eu.eventstorm.sql.jdbc.ResultSetMappers;
+import eu.eventstorm.sql.jdbc.SimpleUpdateMapper;
 import eu.eventstorm.sql.jdbc.UpdateMapper;
 import eu.eventstorm.sql.page.Page;
 import eu.eventstorm.sql.page.PageImpl;
@@ -162,6 +163,31 @@ public abstract class Repository {
 	}
 
 
+	protected final <E> void executeUpdate(SqlQuery query, SimpleUpdateMapper sum) {
+		
+		try (TransactionQueryContext tqc = database.transactionManager().context().write(query)) {
+			
+			try {
+				sum.update(this.database.dialect(), tqc.preparedStatement());
+			} catch (SQLException cause) {
+				throw tqc.exception(new EventstormRepositoryException(UPDATE_MAPPER, of(PARAM_SQL, query), cause));
+			}
+
+			int val;
+
+			try {
+				val = tqc.preparedStatement().executeUpdate();
+			} catch (SQLException cause) {
+				throw tqc.exception(new EventstormRepositoryException(UPDATE_EXECUTE_QUERY, of(PARAM_SQL, query), cause));
+			}
+
+			if (val != 1) {
+				throw tqc.exception(new EventstormRepositoryException(UPDATE_RESULT, of(PARAM_SQL, query)));
+			}
+			
+		}
+	}
+	
 	protected final <E> void executeUpdate(SqlQuery query, UpdateMapper<E> um, E pojo) {
 
 		try (TransactionQueryContext tqc = database.transactionManager().context().write(query)) {

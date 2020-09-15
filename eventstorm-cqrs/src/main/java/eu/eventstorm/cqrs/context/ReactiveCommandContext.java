@@ -1,16 +1,14 @@
-package eu.eventstorm.cqrs.impl;
+package eu.eventstorm.cqrs.context;
 
 import java.util.Collections;
 
 import org.springframework.web.reactive.HandlerMapping;
 import org.springframework.web.server.ServerWebExchange;
 
-import eu.eventstorm.cqrs.CommandContext;
-
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-public final class ReactiveCommandContext implements CommandContext {
+public final class ReactiveCommandContext extends DefaultCommandContext {
 
 	private final ServerWebExchange exchange;
 	
@@ -26,4 +24,5 @@ public final class ReactiveCommandContext implements CommandContext {
 	public ServerWebExchange getServerWebExchange() {
 		return exchange;
 	}
+
 }

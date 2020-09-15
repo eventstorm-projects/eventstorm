@@ -23,7 +23,7 @@ import eu.eventstorm.cloudevents.CloudEvent;
 import eu.eventstorm.cloudevents.CloudEvents;
 import eu.eventstorm.core.Event;
 import eu.eventstorm.cqrs.CommandGateway;
-import eu.eventstorm.cqrs.impl.ReactiveCommandContext;
+import eu.eventstorm.cqrs.context.ReactiveCommandContext;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
