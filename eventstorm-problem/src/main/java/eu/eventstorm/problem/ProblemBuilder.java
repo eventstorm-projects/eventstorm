@@ -41,7 +41,7 @@ public final class ProblemBuilder {
 		return this;
 	}
 	
-	public ProblemBuilder with(javax.servlet.http.HttpServletRequest req) {
+	public ProblemBuilder withServletRequest(javax.servlet.http.HttpServletRequest req) {
 		this.type = URI.create(forJava(req.getScheme()) + "://" + forJava(req.getServerName()) + ":" + req.getServerPort() + forJava(req.getContextPath()));
 
 		String originalUri = (String) req.getAttribute(javax.servlet.RequestDispatcher.ERROR_REQUEST_URI);

@@ -144,7 +144,7 @@ class ProblemTest {
 		mockHttpServletRequest.setAttribute(RequestDispatcher.ERROR_REQUEST_URI, "http://original/uri");
 		
 		Problem problem = Problem.builder()
-				.with(mockHttpServletRequest)
+				.withServletRequest(mockHttpServletRequest)
 				.build();
 		
 		assertEquals("http://localhost:12345/fake", problem.getType().toASCIIString());
@@ -164,7 +164,7 @@ class ProblemTest {
 		mockHttpServletRequest.setServletPath("servletPath");
 		
 		Problem problem = Problem.builder()
-				.with(mockHttpServletRequest)
+				.withServletRequest(mockHttpServletRequest)
 				.build();
 		
 		assertEquals("http://localhost:12345/fake", problem.getType().toASCIIString());
@@ -172,7 +172,7 @@ class ProblemTest {
 		
 		mockHttpServletRequest.setPathInfo("/pathInfo");
 		problem = Problem.builder()
-				.with(mockHttpServletRequest)
+				.withServletRequest(mockHttpServletRequest)
 				.build();
 		
 		assertEquals("http://localhost:12345/fake", problem.getType().toASCIIString());
@@ -182,7 +182,7 @@ class ProblemTest {
 		mockHttpServletRequest.setPathInfo("/pathInfo");
 		mockHttpServletRequest.setQueryString("?key=value");
 		problem = Problem.builder()
-				.with(mockHttpServletRequest)
+				.withServletRequest(mockHttpServletRequest)
 				.build();
 		
 		assertEquals("http://localhost:12345/fake", problem.getType().toASCIIString());

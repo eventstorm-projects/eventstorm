@@ -54,6 +54,11 @@ public class EventStormAutoConfiguration {
 		return builder.build();
 	}
 
+	@Bean
+	CommandValidationRestControllerAdvice commandValidationRestControllerAdvice() {
+	    return new CommandValidationRestControllerAdvice();
+	}
+	
 	@ConditionalOnMissingBean(name = "event_store_scheduler")
 	@Bean("event_store_scheduler")
 	Scheduler eventStoreScheduler() {

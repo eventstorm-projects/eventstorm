@@ -7,8 +7,6 @@ import static eu.eventsotrm.sql.apt.Helper.writePackage;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.JavaFileObject;
@@ -43,8 +41,8 @@ final class PojoDescriptorGenerator implements Generator {
 	public static final String KEY = "pojo.descriptor";
 
 	private final Logger logger;
-
-    private static final Map<String, Object> properties = new HashMap<>();
+	
+	private static String alias = null;
 
 	PojoDescriptorGenerator() {
 		logger = LoggerFactory.getInstance().getLogger(PojoImplementationGenerator.class);
@@ -60,8 +58,6 @@ final class PojoDescriptorGenerator implements Generator {
 				logger.error("PojoImplementationGenerator -> IOException for [" + t + "] -> [" + cause.getMessage() + "]", cause);
 			}
 		});
-
-        properties.clear();
 
 	}
 
@@ -138,7 +134,7 @@ final class PojoDescriptorGenerator implements Generator {
 		}
 
 		writer.write("\", \"");
-		writer.write(generateAlias(properties));
+		writer.write(generateAlias());
 		writer.write("\");");
 		writeNewLine(writer);
 	}
@@ -415,37 +411,37 @@ final class PojoDescriptorGenerator implements Generator {
 
 	}
 
-	private static String generateAlias(Map<String, Object> properties) {
+	private static String generateAlias() {
 
-		String current = (String) properties.get(KEY);
-
-		if (current == null) {
-			properties.put(KEY, "a");
-			return "a";
+		
+		if (alias == null) {
+			alias = "a";
+			return alias;
 		}
 
-		if ("z".equals(current)) {
-			properties.put(KEY, "aa");
-			return "aa";
+		else if ("z".equals(alias)) {
+			alias = "aa";
+			return alias;
 		}
 
-		if ("zz".equals(current)) {
-			properties.put(KEY, "aaa");
-			return "aaa";
+		else if ("zz".equals(alias)) {
+			alias = "aaa";
+			return alias;
 		}
 
-		if ("zzz".equals(current)) {
-			properties.put(KEY, "aaaa");
-			return "aaaa";
+		else if ("zzz".equals(alias)) {
+			alias = "aaa";
+			return alias;
 		}
 
 		StringBuilder builder = new StringBuilder();
 
-		if (current.length() > 1) {
-			builder.append(current.substring(0, current.length() - 2));
+		if (alias.length() > 1) {
+			builder.append(alias.substring(0, alias.length() - 2));
 		}
-		builder.append((char) (current.charAt(current.length() - 1) + 1));
+		builder.append((char) (alias.charAt(alias.length() - 1) + 1));
 
-		return builder.toString();
+		alias = builder.toString();
+		return alias;
 	}
 }

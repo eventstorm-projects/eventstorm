@@ -31,8 +31,10 @@ final class ProblemStdSerializer extends StdSerializer<Problem> {
 		gen.writeFieldName("timestamp");
 		gen.writeString(DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(value.getTimestamp()));
 		
-		gen.writeFieldName("type");
-		gen.writeString(value.getType().toASCIIString());
+		if (value.getType() != null) {
+			gen.writeFieldName("type");
+			gen.writeString(value.getType().toASCIIString());	
+		}
 		
 		gen.writeFieldName("title");
 		gen.writeString(value.getTitle());
