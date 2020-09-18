@@ -325,11 +325,19 @@ public final class Helper {
 		}
 
 		if ("eu.eventstorm.sql.type.Json".equals(type)) {
-			return "java.sql.Types.BLOB";
+			return "java.sql.Types.CLOB";
 		}
 
 		if ("eu.eventstorm.sql.type.Xml".equals(type)) {
 			return "java.sql.Types.SQLXML";
+		}
+		
+		if ("java.sql.Blob".equals(type)) {
+			return "java.sql.Types.BLOB";
+		}
+		
+		if ("java.sql.Clob".equals(type)) {
+			return "java.sql.Types.CLOB";
 		}
 
 		throw new UnsupportedOperationException("Helper.nullableType -> type not supported -> [" + type + "]");

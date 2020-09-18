@@ -1,6 +1,7 @@
 package eu.eventsotrm.sql.apt.flyway;
 
 import java.sql.Blob;
+import java.sql.Clob;
 import java.sql.Date;
 import java.sql.Timestamp;
 
@@ -87,6 +88,10 @@ final class FlywayDialectOracle implements FlywayDialect {
 		
 		if (Blob.class.getName().equals(javaType)) {
 			return "BLOB";
+		}
+		
+		if (Clob.class.getName().equals(javaType)) {
+			return "CLOB";
 		}
 		
 		LoggerFactory.getInstance().getLogger(FlywayDialectOracle.class).error("No sql type for java type [" + javaType + "]");
