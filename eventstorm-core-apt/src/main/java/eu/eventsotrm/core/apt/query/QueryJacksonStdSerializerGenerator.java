@@ -18,11 +18,12 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.google.common.collect.ImmutableList;
 
 import eu.eventsotrm.core.apt.SourceCode;
-import eu.eventsotrm.core.apt.model.DatabaseQueryDescriptor;
+import eu.eventsotrm.core.apt.model.QueryDescriptor;
 import eu.eventsotrm.core.apt.model.QueryPropertyDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.annotation.CqrsQueryDatabaseProperty;
+import eu.eventstorm.annotation.CqrsQueryPojoProperty;
 import eu.eventstorm.sql.type.Json;
 import eu.eventstorm.util.Dates;
 
@@ -49,11 +50,18 @@ public final class QueryJacksonStdSerializerGenerator {
 			}
 		});
 
+		sourceCode.forEachPojoQueryPackage((pack, list) -> {
+			try {
+				generate(processingEnvironment, pack, list);
+			} catch (Exception cause) {
+				logger.error("Exception for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
+			}
+		});
 	}
 
-	private void generate(ProcessingEnvironment env, String pack, ImmutableList<DatabaseQueryDescriptor> descriptors) throws IOException {
+	private void generate(ProcessingEnvironment env, String pack, ImmutableList<? extends QueryDescriptor> descriptors) throws IOException {
 
-		for (DatabaseQueryDescriptor ed : descriptors) {
+		for (QueryDescriptor ed : descriptors) {
 		    
 		    // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
             if (env.getElementUtils().getTypeElement(pack + ".json." + ed.simpleName() + "StdSerializer") != null) {
@@ -74,7 +82,7 @@ public final class QueryJacksonStdSerializerGenerator {
 
 	}
 
-	private static void writeHeader(Writer writer, String pack, DatabaseQueryDescriptor descriptor) throws IOException {
+	private static void writeHeader(Writer writer, String pack, QueryDescriptor descriptor) throws IOException {
 		writePackage(writer, pack);
 		
 		writer.write("import " + StdSerializer.class.getName() + ";");
@@ -95,7 +103,7 @@ public final class QueryJacksonStdSerializerGenerator {
 		writeNewLine(writer);
 	}
 	
-	private static void writeConstructor(Writer writer, DatabaseQueryDescriptor ed) throws IOException {
+	private static void writeConstructor(Writer writer, QueryDescriptor ed) throws IOException {
 		writeNewLine(writer);
 		writer.write("    " + ed.simpleName() +"StdSerializer");
 		writer.write("() {");
@@ -106,7 +114,7 @@ public final class QueryJacksonStdSerializerGenerator {
 		writeNewLine(writer);
 	}
 
-	private void writeMethod(Writer writer, DatabaseQueryDescriptor ed) throws IOException {
+	private void writeMethod(Writer writer, QueryDescriptor ed) throws IOException {
 		writeNewLine(writer);
 		writer.write("    @Override");
 		writeNewLine(writer);
@@ -117,10 +125,10 @@ public final class QueryJacksonStdSerializerGenerator {
 		writeNewLine(writer);
 		
 		for (QueryPropertyDescriptor epd : ed.properties()) {
-			CqrsQueryDatabaseProperty property = epd.getter().getAnnotation(CqrsQueryDatabaseProperty.class);
+			
 			if ("java.lang.String".equals(epd.getter().getReturnType().toString())) {
 			
-				if (property.column().nullable()) {
+				if (isNullable(epd)) {
 					writer.write("        if (payload." +  epd.getter().getSimpleName()+ "() != null) {");
 					writeNewLine(writer);
 					writer.write("            gen.writeStringField(\"" + epd.name() + "\", payload."+ epd.getter().getSimpleName() +"());");
@@ -137,9 +145,9 @@ public final class QueryJacksonStdSerializerGenerator {
 				writer.write("        gen.writeNumberField(\"" + epd.name() + "\", payload."+ epd.getter().getSimpleName() +"());");
 				writeNewLine(writer);	
 			} else if (OffsetDateTime.class.getName().equals(epd.getter().getReturnType().toString())) {
-				writeOffsetDateTime(writer, epd, property);
+				writeOffsetDateTime(writer, epd);
 			} else if (Json.class.getName().equals(epd.getter().getReturnType().toString())) {
-				writeJson(writer, epd, property);
+				writeJson(writer, epd);
 			} else {
 				writer.write("        // write (" + epd.name() + "); " + epd.getter().getReturnType());
 				writeNewLine(writer);
@@ -155,8 +163,8 @@ public final class QueryJacksonStdSerializerGenerator {
 		writeNewLine(writer);
 	}
 
-	private void writeOffsetDateTime(Writer writer, QueryPropertyDescriptor epd, CqrsQueryDatabaseProperty property) throws IOException {
-		if (property.column().nullable()) {
+	private void writeOffsetDateTime(Writer writer, QueryPropertyDescriptor epd) throws IOException {
+		if (isNullable(epd)) {
 			writer.write("        if (payload." +  epd.getter().getSimpleName()+ "() != null) {");
 			writeNewLine(writer);
 			writer.write("            gen.writeStringField(\"" + epd.name() + "\", "+ Dates.class.getName()+".format(payload."+ epd.getter().getSimpleName() +"()));");
@@ -169,12 +177,12 @@ public final class QueryJacksonStdSerializerGenerator {
 		}
 	}
 	
-	private void writeJson(Writer writer, QueryPropertyDescriptor epd, CqrsQueryDatabaseProperty property) throws IOException {
+	private void writeJson(Writer writer, QueryPropertyDescriptor epd) throws IOException {
 		
 		String var = "content_" + counter.getAndIncrement();
 		String space = "";
 		
-		if (property.column().nullable()) {
+		if (isNullable(epd)) {
 			writer.write("        if (payload." +  epd.getter().getSimpleName()+ "() != null) {");
 			space = "    ";
 		}
@@ -186,12 +194,22 @@ public final class QueryJacksonStdSerializerGenerator {
 		writer.write(space + "        gen.writeRawValue(new String("+var+", 0, "+var+".length));");
 		writeNewLine(writer);
 		
-		if (property.column().nullable()) {
+		if (isNullable(epd)) {
 			writer.write("        }");
 			writeNewLine(writer);
 		}
 		
-		
 	}
 	
+	private static boolean isNullable(QueryPropertyDescriptor epd) {
+		CqrsQueryDatabaseProperty property = epd.getter().getAnnotation(CqrsQueryDatabaseProperty.class);
+		if (property != null) {
+			return property.column().nullable();
+		}
+		CqrsQueryPojoProperty prop2 = epd.getter().getAnnotation(CqrsQueryPojoProperty.class);
+		if (prop2 != null) {
+			return prop2.nullable();
+		}
+		throw new IllegalStateException();
+	}
 }

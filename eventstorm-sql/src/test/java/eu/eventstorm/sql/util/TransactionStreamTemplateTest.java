@@ -91,6 +91,10 @@ class TransactionStreamTemplateTest {
         }
         assertEquals(0, ds.getHikariPoolMXBean().getActiveConnections());
 
+        System.runFinalization();
+        System.gc();
+        System.runFinalization();
+        System.gc();
         
         try (Stream<Student> stream = streamTemplate.stream(() -> repository.findAll())) {
         	assertEquals(1, ds.getHikariPoolMXBean().getActiveConnections());

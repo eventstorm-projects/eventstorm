@@ -23,6 +23,14 @@ public final class ResultSetMappers {
 		return value;
 	};
 
+	public static final ResultSetMapper<Integer> SINGLE_INTEGER = (dialect, rs) -> {
+		int value = rs.getInt(1);
+		if (rs.next()) {
+			throw new ResultSetMapperException(ResultSetMapperException.Type.MORE_THAN_ONE_RESULT, of("value", value));
+		}
+		return value;
+	}; 
+	
 	public static final ResultSetMapper<String> STRING = (dialect, rs) -> rs.getString(1);
 	
 	public static final ResultSetMapper<Boolean> IS_EXIST = (dialect, rs) -> rs.next();

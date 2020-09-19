@@ -91,7 +91,7 @@ public final class SpringConfigurationGenerator {
 	
 	private void writeQueryModule(Writer writer, ProcessingEnvironment env, SourceCode sourceCode) {
 		AtomicInteger counter = new AtomicInteger();
-		sourceCode.forEachDatabaseQueryPackage((pack, list) -> {
+		sourceCode.forEachQueryPackage((pack, list) -> {
 			try {
 				writeNewLine(writer);
 				writer.write("    @Bean");

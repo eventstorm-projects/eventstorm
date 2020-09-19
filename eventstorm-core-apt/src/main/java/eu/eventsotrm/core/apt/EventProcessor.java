@@ -17,6 +17,7 @@ import eu.eventsotrm.core.apt.analyser.CqrsCommandAnalyser;
 import eu.eventsotrm.core.apt.analyser.CqrsEmbeddedCommandAnalyser;
 import eu.eventsotrm.core.apt.analyser.CqrsQueryDatabaseAnalyser;
 import eu.eventsotrm.core.apt.analyser.CqrsQueryElasticSearchAnalyser;
+import eu.eventsotrm.core.apt.analyser.CqrsQueryPojoAnalyser;
 import eu.eventsotrm.core.apt.analyser.CqrsRestControllerAnalyser;
 import eu.eventsotrm.core.apt.analyser.EventEvolutionAnalyser;
 import eu.eventsotrm.core.apt.command.CommandBuilderGenerator;
@@ -37,6 +38,7 @@ import eu.eventsotrm.core.apt.model.DatabaseQueryDescriptor;
 import eu.eventsotrm.core.apt.model.ElsQueryDescriptor;
 import eu.eventsotrm.core.apt.model.EmbeddedCommandDescriptor;
 import eu.eventsotrm.core.apt.model.EventEvolutionDescriptor;
+import eu.eventsotrm.core.apt.model.PojoQueryDescriptor;
 import eu.eventsotrm.core.apt.model.RestControllerDescriptor;
 import eu.eventsotrm.core.apt.query.QueryBuilderGenerator;
 import eu.eventsotrm.core.apt.query.QueryDescriptorGenerator;
@@ -59,6 +61,7 @@ import eu.eventstorm.annotation.CqrsConfiguration;
 import eu.eventstorm.annotation.CqrsEmbeddedCommand;
 import eu.eventstorm.annotation.CqrsQueryDatabaseView;
 import eu.eventstorm.annotation.CqrsQueryElsIndex;
+import eu.eventstorm.annotation.CqrsQueryPojo;
 import eu.eventstorm.annotation.EventEvolution;
 
 /**
@@ -142,6 +145,9 @@ public class EventProcessor extends AbstractProcessor {
 		List<DatabaseQueryDescriptor> queriesDatabase  = roundEnvironment.getElementsAnnotatedWith(CqrsQueryDatabaseView.class).stream().map(new CqrsQueryDatabaseAnalyser())
                 .collect(Collectors.toList());
 		
+		List<PojoQueryDescriptor> queriesPojo  = roundEnvironment.getElementsAnnotatedWith(CqrsQueryPojo.class).stream().map(new CqrsQueryPojoAnalyser())
+                .collect(Collectors.toList());
+		
 //		queries.addAll(roundEnvironment.getElementsAnnotatedWith(CqrsQueryDatabaseView.class).stream().map(new CqrsQueryAnalyser())
 //		        .collect(Collectors.toList()));
 		
@@ -168,7 +174,8 @@ public class EventProcessor extends AbstractProcessor {
 			//	eventDescriptors,
 				restControllerDescriptors,
 				queries, 
-				queriesDatabase);
+				queriesDatabase,
+				queriesPojo);
 
 		sourceCode.dump();
 
@@ -203,25 +210,14 @@ public class EventProcessor extends AbstractProcessor {
 		new EventStreamGenerator().generate(processingEnv, sourceCode);
 		
 
-//		new EventPayloadImplementationGenerator().generate(this.processingEnv, sourceCode);
-//		new EventPayloadBuilderGenerator().generate(this.processingEnv, sourceCode);
-//		new EventPayloadFactoryGenerator().generate(this.processingEnv, sourceCode);
-//		
-//		new EventPayloadJacksonStdDeserializerGenerator().generate(this.processingEnv, sourceCode);
-//		new EventPayloadJacksonStdSerializerGenerator().generate(this.processingEnv, sourceCode);
-//		new EventPayloadJacksonModuleGenerator().generate(this.processingEnv, sourceCode);
-//		new EventPayloadDeserializerGenerator().generate(this.processingEnv, sourceCode);
-//		new EventPayloadSerializerGenerator().generate(this.processingEnv, sourceCode);
-//		new EventPayloadDeserializersGenerator().generate(this.processingEnv, sourceCode);
-//		new EventPayloadSerializersGenerator().generate(this.processingEnv, sourceCode);
-//
 //		new DomainModelHandlerImplementationGenerator().generate(this.processingEnv, sourceCode);
 		new CommandRestControllerImplementationGenerator().generate(processingEnv, sourceCode);
         
-		//	Query / ELS	
+		//	Query 
 		new QueryImplementationGenerator().generate(this.processingEnv, sourceCode);
 		new QueryBuilderGenerator().generate(processingEnv, sourceCode);
 //		
+		//  Quere / ELS	
 		new ElasticIndexDefinitionGenerator().generate(processingEnv, sourceCode);
 		
 		// Query / Database
@@ -230,6 +226,7 @@ public class EventProcessor extends AbstractProcessor {
 		new QueryDatabaseMapperGenerator().generate(processingEnv, sourceCode);
 		new QueryDatabaseModuleGenerator().generate(processingEnv, sourceCode);
 		
+		// Query / Database / Pojo
 		new QueryJacksonStdSerializerGenerator().generate(processingEnv, sourceCode);
 		new QueryJacksonModuleGenerator().generate(processingEnv, sourceCode);
 		new QueryDescriptorGenerator().generate(processingEnv, sourceCode);

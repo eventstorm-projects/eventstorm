@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.collect.ImmutableList;
 
 import eu.eventsotrm.core.apt.SourceCode;
-import eu.eventsotrm.core.apt.model.DatabaseQueryDescriptor;
+import eu.eventsotrm.core.apt.model.QueryDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 
@@ -31,7 +31,7 @@ public final class QueryJacksonModuleGenerator {
 
 	public void generate(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
 		// generate Implementation class;
-		sourceCode.forEachDatabaseQueryPackage((pack, list) -> {
+		sourceCode.forEachQueryPackage((pack, list) -> {
 			try {
 				generate(processingEnvironment, pack, list);
 			} catch (Exception cause) {
@@ -41,7 +41,7 @@ public final class QueryJacksonModuleGenerator {
 
 	}
 
-    private void generate(ProcessingEnvironment env, String pack, ImmutableList<DatabaseQueryDescriptor> descriptors) throws IOException {
+    private void generate(ProcessingEnvironment env, String pack, ImmutableList<QueryDescriptor> descriptors) throws IOException {
 
         // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
         if (env.getElementUtils().getTypeElement(pack + ".json.EventPayloadModule") != null) {
@@ -75,13 +75,13 @@ public final class QueryJacksonModuleGenerator {
 
 	
 	
-	private static void writeConstructor(Writer writer, ImmutableList<DatabaseQueryDescriptor> descriptors) throws IOException {
+	private static void writeConstructor(Writer writer, ImmutableList<? extends QueryDescriptor> descriptors) throws IOException {
 		writeNewLine(writer);
 		writer.write("    public QueryModule() {");
 		writeNewLine(writer);
 		writer.write("        super();");
 		writeNewLine(writer);
-		for (DatabaseQueryDescriptor ed : descriptors) {
+		for (QueryDescriptor ed : descriptors) {
 			writer.write("        addSerializer(" + ed.fullyQualidiedClassName() + ".class, new " + ed.simpleName() + "StdSerializer());");
 			writeNewLine(writer);
 		}
