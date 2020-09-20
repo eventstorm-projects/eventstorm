@@ -75,8 +75,6 @@ abstract class AbstractTransaction implements TransactionSupport {
 			try {
 				if (!this.connection.isClosed()) {
 					this.connection.close();
-				} else {
-					LOGGER.warn("connection is already closed()");
 				}
 			} catch (SQLException cause) {
 				span.exception(cause);
