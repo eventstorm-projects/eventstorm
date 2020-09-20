@@ -31,6 +31,11 @@ final class H2Dialect extends AbstractDialect {
     }
 
     @Override
+	public String limit(int limit) {
+    	return "LIMIT " + limit;
+	}
+    
+    @Override
     public String range(int offset, int limit) {
         return "LIMIT " + limit + " OFFSET " + offset;
     }
@@ -54,6 +59,7 @@ final class H2Dialect extends AbstractDialect {
 	public Xml createXml(FastByteArrayInputStream fbais) {
 		return new BlobXml(fbais.readAll());
 	}
+	
 
 	@Override
 	public void setPreparedStatement(PreparedStatement ps, int index, Json json) throws SQLException {

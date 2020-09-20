@@ -96,7 +96,7 @@ public final class SelectBuilder extends AbstractBuilder {
         if (limit != -1 && offset != -1) {
             builder.append(' ').append(this.database().dialect().range(offset, limit));
         } else if (limit != -1) {
-            builder.append(" LIMIT ").append(this.limit);
+        	builder.append(' ').append(this.database().dialect().limit(limit));
         } 
         
         String sql = builder.toString();

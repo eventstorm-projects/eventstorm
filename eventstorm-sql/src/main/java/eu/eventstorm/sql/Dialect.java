@@ -34,6 +34,8 @@ public interface Dialect {
 	Xml fromJdbcXml(ResultSet rs, int index) throws SQLException;
 
 	Xml createXml(FastByteArrayInputStream fbais);
+	
+	String limit(int limit);
 
 	String range(int offset, int limit);
 	

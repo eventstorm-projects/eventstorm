@@ -37,6 +37,12 @@ final class OracleDialect extends AbstractDialect {
     public String nextVal(SqlSequence sequence) {
         return "SELECT " + prefix(sequence) + ".nextval from dual";
     }
+    
+    @Override
+	public String limit(int limit) {
+    	return "FETCH NEXT " + limit + " ROWS ONLY";
+	}
+
 
     @Override
     public String range(int offset, int limit) {
