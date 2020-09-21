@@ -126,6 +126,7 @@ class TransactionTemplateTest {
        
         Assertions.assertThrows(RuntimeException.class, () -> template.executeWithIsolatedReadWrite(() -> {
         	this.repository.insert(student);
+        	assertEquals(1, template.executeWithReadOnly(() -> this.repository.findAll().count()));
         	template.executeWithIsolatedReadWrite(() -> {
             	this.repository.insert(s2);
             	return null;

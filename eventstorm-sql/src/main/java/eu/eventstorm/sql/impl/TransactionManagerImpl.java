@@ -71,12 +71,6 @@ public final class TransactionManagerImpl implements TransactionManager {
 	}
     
 	@Override
-	public Transaction newTransactionIsolatedRead() {
-		return getTransaction(TransactionDefinition.ISOLATED_READ);
-	}
-
-
-    @Override
     public Transaction current() {
     	Transaction transaction = this.transactions.get();
     	if (transaction == null) {
@@ -101,9 +95,6 @@ public final class TransactionManagerImpl implements TransactionManager {
 			if (TransactionDefinition.ISOLATED_READ_WRITE == definition) {
 				tx = new TransactionIsolatedReadWrite(this, doBegin(definition), tx);
 			} 
-			else if (TransactionDefinition.ISOLATED_READ == definition) {
-				tx = new TransactionIsolatedRead(this, doBegin(definition), tx);
-			} 
 			else {
 				// get TX inside another TX
 				tx = tx.innerTransaction(definition);
@@ -118,9 +109,6 @@ public final class TransactionManagerImpl implements TransactionManager {
 				break;
 			case READ_WRITE:
 				tx = new TransactionReadWrite(this, doBegin(definition));
-				break;
-			case ISOLATED_READ:
-				tx = new TransactionIsolatedRead(this, doBegin(definition), null);
 				break;
 			}
 			

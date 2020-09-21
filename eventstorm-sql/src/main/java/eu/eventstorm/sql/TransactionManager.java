@@ -13,8 +13,6 @@ public interface TransactionManager {
     
     Transaction newTransactionIsolatedReadWrite();
     
-    Transaction newTransactionIsolatedRead();
-
     Transaction current();
 
     boolean hasCurrent();

@@ -268,14 +268,22 @@ public abstract class Repository {
 		try {
 			pss.set(tqc.preparedStatement());
 		} catch (SQLException cause) {
-			throw tqc.exception(new EventstormRepositoryException(STREAM_PREPARED_STATEMENT_SETTER, of(PARAM_SQL, query), cause));
+			try {
+				throw tqc.exception(new EventstormRepositoryException(STREAM_PREPARED_STATEMENT_SETTER, of(PARAM_SQL, query), cause));
+			} finally {
+				tqc.close();
+			}
 		}
 
 		ResultSet rs;
 		try {
 			rs = tqc.preparedStatement().executeQuery();
 		} catch (SQLException cause) {
-			throw tqc.exception(new EventstormRepositoryException(STREAM_EXECUTE_QUERY, of(), cause));
+			try {
+				throw tqc.exception(new EventstormRepositoryException(STREAM_EXECUTE_QUERY, of(), cause));	
+			} finally {
+				tqc.close();
+			}
 		}
 
 		

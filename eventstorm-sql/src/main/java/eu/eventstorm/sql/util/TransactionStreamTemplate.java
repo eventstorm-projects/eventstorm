@@ -100,27 +100,4 @@ public final class TransactionStreamTemplate {
 		}
 	}
 
-	static final class OnCloseRunnable implements Runnable {
-
-		private final Transaction tx;
-		private boolean enable = true;
-
-		OnCloseRunnable(Transaction tx) {
-			this.tx = tx;
-		}
-
-		@Override
-		public void run() {
-			if (!enable) {
-				return;
-			}
-			enable = false;
-			try {
-				tx.rollback();
-			} finally {
-				tx.close();
-			}
-		}
-	}
-
 }
