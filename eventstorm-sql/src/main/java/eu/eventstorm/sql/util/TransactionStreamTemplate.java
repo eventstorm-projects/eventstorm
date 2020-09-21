@@ -29,7 +29,7 @@ public final class TransactionStreamTemplate {
 		if (transactionManager.hasCurrent()) {
 			return executeInExistingTx(callback);
 		}
-		Transaction tx = transactionManager.newTransactionIsolatedReadWrite();
+		Transaction tx = transactionManager.newTransactionReadOnly();
 		try {
 			return new EncapsulatedTx<>(new OnCloseRunnable(tx), callback).doInTransaction();
 		} catch (Exception cause) {
@@ -63,7 +63,7 @@ public final class TransactionStreamTemplate {
 		return callback.doInTransaction();
 	}
 
-	private static void rollbackAndClose(Transaction tx) {
+	static void rollbackAndClose(Transaction tx) {
 		try {
 			tx.rollback();
 		} finally {
@@ -71,12 +71,12 @@ public final class TransactionStreamTemplate {
 		}
 	}
 
-	private static final class EncapsulatedTx<T> {
+	static final class EncapsulatedTx<T> {
 
 		private final OnCloseRunnable closeRunnable;
 		private final TransactionCallback<Stream<T>> callback;
 
-		private EncapsulatedTx(OnCloseRunnable closeRunnable, TransactionCallback<Stream<T>> callback) {
+		EncapsulatedTx(OnCloseRunnable closeRunnable, TransactionCallback<Stream<T>> callback) {
 			this.closeRunnable = closeRunnable;
 			this.callback = callback;
 		}
@@ -100,12 +100,12 @@ public final class TransactionStreamTemplate {
 		}
 	}
 
-	private static final class OnCloseRunnable implements Runnable {
+	static final class OnCloseRunnable implements Runnable {
 
 		private final Transaction tx;
 		private boolean enable = true;
 
-		private OnCloseRunnable(Transaction tx) {
+		OnCloseRunnable(Transaction tx) {
 			this.tx = tx;
 		}
 
