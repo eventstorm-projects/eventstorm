@@ -39,7 +39,7 @@ public final class TransactionFluxTemplate {
 						try {
 							rollbackAndClose(tx);	
 						} catch (Exception cause) {
-							LOGGER.info("Failed to rollbackAndClose [{}]", cause);
+							LOGGER.debug("Failed to rollbackAndClose [{}]", cause.getMessage());
 						}
 					});
 		} catch (Exception cause) {

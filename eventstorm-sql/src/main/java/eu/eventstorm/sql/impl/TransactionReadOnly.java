@@ -7,7 +7,7 @@ import eu.eventstorm.sql.SqlQuery;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-final class TransactionReadOnly extends AbstractTransaction {
+class TransactionReadOnly extends AbstractTransaction {
 
 	TransactionReadOnly(TransactionManagerImpl transactionManager, Connection connection) {
 		super(transactionManager, connection);

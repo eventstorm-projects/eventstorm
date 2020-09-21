@@ -5,7 +5,7 @@ import java.sql.Connection;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-final class TransactionIsolatedRead extends TransactionReadWrite {
+final class TransactionIsolatedRead extends TransactionReadOnly {
 
 	private final TransactionSupport parent;
 
