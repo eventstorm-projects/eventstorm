@@ -216,4 +216,22 @@ abstract class AbstractTransaction implements TransactionSupport {
 		return this.uuid.hashCode();
 	}
 
+	@Override
+	protected void finalize() throws Throwable {
+		try {
+			try {
+				if (this.active) {
+					this.connection.rollback();
+				}	
+			} finally {
+				if (!this.connection.isClosed()) {
+					this.connection.close();	
+				}
+			}
+		} finally {
+			super.finalize();	
+		}
+	}
+
+	
 }

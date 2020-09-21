@@ -95,7 +95,7 @@ public final class TransactionManagerImpl implements TransactionManager {
             LOGGER.trace("getTransaction({})", definition);
         }
         TransactionSupport tx = this.transactions.get();
-
+        
 		if (tx != null) {
 
 			if (TransactionDefinition.ISOLATED_READ_WRITE == definition) {
@@ -130,7 +130,7 @@ public final class TransactionManagerImpl implements TransactionManager {
         return tx;
     }
     
-    Connection doBegin(TransactionDefinition definition) {
+	Connection doBegin(TransactionDefinition definition) {
     	final Connection conn;
         try {
             conn = dataSource.getConnection();
