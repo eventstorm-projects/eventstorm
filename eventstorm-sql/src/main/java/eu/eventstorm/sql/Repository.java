@@ -326,7 +326,7 @@ public abstract class Repository {
 
 		stream.onClose(() -> {
 			if (LOGGER.isTraceEnabled()) {
-				LOGGER.trace("onClose() [{}]", tqc);
+				LOGGER.trace("stream.onClose() [{}]", tqc);
 			}
 			try {
 				rs.close();
