@@ -2,6 +2,9 @@ package eu.eventstorm.sql.util;
 
 import java.util.stream.Stream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import eu.eventstorm.sql.Transaction;
 import eu.eventstorm.sql.TransactionManager;
 import eu.eventstorm.sql.impl.TransactionException;
@@ -12,7 +15,10 @@ import eu.eventstorm.sql.page.Page;
  */
 public final class TransactionStreamTemplate {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(TransactionStreamTemplate.class);
+	
 	private final TransactionManager transactionManager;
+	
 
 	public TransactionStreamTemplate(TransactionManager transactionManager) {
 		this.transactionManager = transactionManager;
@@ -23,7 +29,7 @@ public final class TransactionStreamTemplate {
 		if (transactionManager.hasCurrent()) {
 			return executeInExistingTx(callback);
 		}
-		Transaction tx = transactionManager.newTransactionReadOnly();
+		Transaction tx = transactionManager.newTransactionIsolatedReadWrite();
 		try {
 			return new EncapsulatedTx<>(new OnCloseRunnable(tx), callback).doInTransaction();
 		} catch (Exception cause) {
@@ -81,6 +87,11 @@ public final class TransactionStreamTemplate {
 
 		@Override
 		protected void finalize() throws Throwable {
+			
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("finalize");
+			}
+			
 			try {
 				closeRunnable.run();
 			} finally {

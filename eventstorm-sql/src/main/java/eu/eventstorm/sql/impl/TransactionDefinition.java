@@ -5,7 +5,7 @@ package eu.eventstorm.sql.impl;
  */
 enum TransactionDefinition {
 
-	READ_ONLY(true), READ_WRITE(false), ISOLATED_READ_WRITE(false);
+	READ_ONLY(true), READ_WRITE(false), ISOLATED_READ_WRITE(false), ISOLATED_READ(true);
 	
 	private final boolean isReadOnly;
 	

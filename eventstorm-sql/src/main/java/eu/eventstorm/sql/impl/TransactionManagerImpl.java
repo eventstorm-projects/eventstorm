@@ -69,6 +69,12 @@ public final class TransactionManagerImpl implements TransactionManager {
 	public Transaction newTransactionIsolatedReadWrite() {
     	return getTransaction(TransactionDefinition.ISOLATED_READ_WRITE);
 	}
+    
+	@Override
+	public Transaction newTransactionIsolatedRead() {
+		return getTransaction(TransactionDefinition.ISOLATED_READ);
+	}
+
 
     @Override
     public Transaction current() {
@@ -94,7 +100,11 @@ public final class TransactionManagerImpl implements TransactionManager {
 
 			if (TransactionDefinition.ISOLATED_READ_WRITE == definition) {
 				tx = new TransactionIsolatedReadWrite(this, doBegin(definition), tx);
-			} else {
+			} 
+			else if (TransactionDefinition.ISOLATED_READ_WRITE == definition) {
+				tx = new TransactionIsolatedRead(this, doBegin(definition), tx);
+			} 
+			else {
 				// get TX inside another TX
 				tx = tx.innerTransaction(definition);
 			}
@@ -109,7 +119,11 @@ public final class TransactionManagerImpl implements TransactionManager {
 			case READ_WRITE:
 				tx = new TransactionReadWrite(this, doBegin(definition));
 				break;
+			case ISOLATED_READ:
+				tx = new TransactionIsolatedRead(this, doBegin(definition), null);
+				break;
 			}
+			
 		}
         
         this.transactions.set(tx);
@@ -134,7 +148,22 @@ public final class TransactionManagerImpl implements TransactionManager {
     }
     
     void restart(TransactionSupport transaction) {
-        this.transactions.set(transaction);
+    	
+    	if (transaction instanceof AbstractTransaction) {
+    		AbstractTransaction tx =(AbstractTransaction) transaction;
+    		try {
+				if (tx.getConnection().isClosed()) {
+					this.transactions.remove();
+				} else {
+					this.transactions.set(transaction);
+				}
+			} catch (SQLException e) {
+				this.transactions.remove();
+			}
+    	} else {
+    		this.transactions.set(transaction);    		
+    	}
+        
     }
 
 	@Override
@@ -162,6 +191,5 @@ public final class TransactionManagerImpl implements TransactionManager {
 	protected final DataSource getDataSource() {
 		return this.dataSource;
 	}
-
 
 }

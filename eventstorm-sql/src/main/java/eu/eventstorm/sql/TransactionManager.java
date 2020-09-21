@@ -12,6 +12,8 @@ public interface TransactionManager {
     Transaction newTransactionReadWrite();
     
     Transaction newTransactionIsolatedReadWrite();
+    
+    Transaction newTransactionIsolatedRead();
 
     Transaction current();
 
