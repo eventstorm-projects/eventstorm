@@ -101,7 +101,7 @@ public final class TransactionManagerImpl implements TransactionManager {
 			if (TransactionDefinition.ISOLATED_READ_WRITE == definition) {
 				tx = new TransactionIsolatedReadWrite(this, doBegin(definition), tx);
 			} 
-			else if (TransactionDefinition.ISOLATED_READ_WRITE == definition) {
+			else if (TransactionDefinition.ISOLATED_READ == definition) {
 				tx = new TransactionIsolatedRead(this, doBegin(definition), tx);
 			} 
 			else {
