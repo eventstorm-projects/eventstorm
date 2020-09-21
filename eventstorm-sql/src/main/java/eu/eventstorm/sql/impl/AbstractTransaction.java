@@ -60,7 +60,7 @@ abstract class AbstractTransaction implements TransactionSupport {
 	public final void close() {
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("close() [{}]", active);
+			LOGGER.debug("close() active=[{}]", active);
 		}
 		TransactionException exception = null;
 		try {
@@ -76,21 +76,24 @@ abstract class AbstractTransaction implements TransactionSupport {
 				active = false;
 			}
 
-			close(this.select);
-
 			try {
-				boolean isClosed = this.connection.isClosed();
-				
-				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("close() connection : [{}] [{}]", isClosed, connection);
-				}
-				if (!isClosed) {
-					this.connection.close();
-				}
-			} catch (SQLException cause) {
-				span.exception(cause);
-				LOGGER.warn("Failed to close the connection", cause);
+				close(this.select);	
+			} finally {
+				try {
+					boolean isClosed = this.connection.isClosed();
+					
+					if (LOGGER.isDebugEnabled()) {
+						LOGGER.debug("close() connection : isClosed=[{}] connection=[{}]", isClosed, connection);
+					}
+					if (!isClosed) {
+						this.connection.close();
+					}
+				} catch (SQLException cause) {
+					span.exception(cause);
+					LOGGER.warn("Failed to close the connection", cause);
+				}	
 			}
+			
 
 		} finally {
 			this.span.close();
