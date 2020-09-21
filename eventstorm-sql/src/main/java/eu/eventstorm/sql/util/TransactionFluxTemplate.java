@@ -12,6 +12,7 @@ import eu.eventstorm.sql.TransactionManager;
 import eu.eventstorm.sql.util.TransactionStreamTemplate.EncapsulatedTx;
 import eu.eventstorm.sql.util.TransactionStreamTemplate.OnCloseRunnable;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 /**
@@ -46,8 +47,7 @@ public final class TransactionFluxTemplate {
 							LOGGER.debug("Failed to rollbackAndClose [{}]", cause.getMessage());
 						}
 					})
-					.doOnComplete(runnable)
-					.publishOn(scheduler);
+					.doOnComplete(runnable);
 		} catch (Exception cause) {
 			rollbackAndClose(tx);
 			throw cause;
