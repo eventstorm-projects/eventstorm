@@ -51,23 +51,22 @@ public final class SelectBuilder extends AbstractBuilder {
     private final List<JoinClause> joins = new ArrayList<>();
     private final List<Order> orderBy = new ArrayList<>();
     private ImmutableList<SqlColumn> groupBy;
-    private boolean forUpdate;
+    private boolean forUpdate = false;
     private int limit = -1;
     private int offset = -1;
     private boolean pageable = false;
 
     public SelectBuilder(Database database, ImmutableList<SqlColumn> columns) {
-        super(database);
-        forUpdate = false;
-        this.columns = columns;
-        this.aggregateFunction = null;
-
+    	this(database, columns, null);
     }
-
+    
     public SelectBuilder(Database database, AggregateFunction function) {
+        this(database, ImmutableList.of(), function);
+    }
+    
+    public SelectBuilder(Database database, ImmutableList<SqlColumn> columns, AggregateFunction function) {
         super(database);
-        forUpdate = false;
-        this.columns = ImmutableList.of();
+        this.columns = columns;
         this.aggregateFunction = function;
     }
 

@@ -202,7 +202,7 @@ public final class CommandRestControllerImplementationGenerator {
 		writeNewLine(writer);
 		writer.write("            .subscribeOn(scheduler)");
 		writeNewLine(writer);
-		writer.write("            .log(LOGGER, Level.INFO, false, SignalType.ON_NEXT)");
+		writer.write("            .log(LOGGER, Level.FINEST, false, SignalType.ON_NEXT)");
 		writeNewLine(writer);
 		writer.write("            .flatMapMany(c -> gateway.<"+rcd.element().toString() + ","+ Event.class.getName() + ">dispatch(new ReactiveCommandContext(exchange), c))");
 		writeNewLine(writer);
