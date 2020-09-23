@@ -96,7 +96,7 @@ public abstract class Repository {
 	}
 	
 	protected final SelectBuilder select(ImmutableList<SqlColumn> columns, AggregateFunction aggregateFunction) {
-		return new SelectBuilder(this.database, aggregateFunction);
+		return new SelectBuilder(this.database, columns, aggregateFunction);
 	}
 
 	protected final InsertBuilder insert(SqlTable table, ImmutableList<SqlPrimaryKey> keys, ImmutableList<SqlSingleColumn> columns) {
