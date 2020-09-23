@@ -36,6 +36,7 @@ class TransactionStreamTemplateTest {
 	private TransactionStreamTemplate streamTemplate;
 	private HikariDataSource ds;
 	private AbstractStudentRepository repository;
+	private Database db;
 
 	@BeforeEach
 	void before() throws SQLException, IOException {
@@ -52,7 +53,7 @@ class TransactionStreamTemplateTest {
 			}
 		}
 
-		Database db = DatabaseBuilder.from(Dialect.Name.H2)
+		db = DatabaseBuilder.from(Dialect.Name.H2)
 				.withTransactionManager(new TransactionManagerImpl(ds))
 				.withModule(new eu.eventstorm.sql.model.ex001.Module("test", null))
 				.build();
@@ -67,7 +68,10 @@ class TransactionStreamTemplateTest {
 
 	@AfterEach()
 	void after() throws SQLException{
-		ds.getConnection().createStatement().execute("SHUTDOWN");
+		db.close();
+		try (java.sql.Statement st = ds.getConnection().createStatement()) {
+			st.execute("SHUTDOWN");
+		}
 		ds.close();
 	}
 

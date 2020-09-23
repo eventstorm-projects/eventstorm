@@ -37,6 +37,7 @@ import eu.eventstorm.sql.model.ex001.StudentImpl;
 import eu.eventstorm.sql.tracer.LoggingBraveReporter;
 import eu.eventstorm.sql.tracer.TransactionTracers;
 import eu.eventstorm.test.LoggerInstancePostProcessor;
+import zipkin2.reporter.brave.ZipkinSpanHandler;
 
 @ExtendWith(LoggerInstancePostProcessor.class)
 class TransactionTest {
@@ -59,7 +60,7 @@ class TransactionTest {
 			}
 		}
 
-		Tracer tracer = Tracing.newBuilder().sampler(Sampler.ALWAYS_SAMPLE).spanReporter(new LoggingBraveReporter()).build().tracer();
+		Tracer tracer = Tracing.newBuilder().sampler(Sampler.ALWAYS_SAMPLE).addSpanHandler(ZipkinSpanHandler.create(new LoggingBraveReporter())).build().tracer();
 		db = DatabaseBuilder.from(Dialect.Name.H2)
 		        .withTransactionManager(new TransactionManagerImpl(ds, new TransactionManagerConfiguration(TransactionTracers.brave(tracer))))
 		        .withModule(new eu.eventstorm.sql.model.ex001.Module("test", null)).build();
@@ -67,8 +68,10 @@ class TransactionTest {
 
 	@AfterEach()
 	void after() throws SQLException {
+		db.close();
 		ds.getConnection().createStatement().execute("SHUTDOWN");
 		ds.close();
+		
 	}
 
 	@SuppressWarnings("all")

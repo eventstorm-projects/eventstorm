@@ -30,7 +30,7 @@ public final class TransactionManagerImpl implements TransactionManager {
 
     private final int defaultIsolationLevel;
 
-    private final ThreadLocal<TransactionSupport> transactions;
+    private final TransactionHolder transactions;
 
     private boolean enforceReadOnly = false;
 
@@ -48,7 +48,7 @@ public final class TransactionManagerImpl implements TransactionManager {
         } catch (SQLException cause) {
             throw new TransactionException(CONNECTION_ISOLATION, cause);
         }
-        this.transactions = new ThreadLocal<>();
+        this.transactions = new TransactionHolder();
     }
 
     public void setEnforceReadOnly(boolean enforceReadOnly) {
@@ -178,6 +178,11 @@ public final class TransactionManagerImpl implements TransactionManager {
 	
 	protected final DataSource getDataSource() {
 		return this.dataSource;
+	}
+
+	@Override
+	public void close() {
+		this.transactions.close();
 	}
 
 }

@@ -36,16 +36,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import brave.Tracer;
 import brave.Tracing;
 import brave.sampler.Sampler;
-import eu.eventstorm.sql.tracer.BravePreparedStatement;
-import eu.eventstorm.sql.tracer.BraveTracer;
-import eu.eventstorm.sql.tracer.LoggingBraveReporter;
-import eu.eventstorm.sql.tracer.TransactionTracers;
 import eu.eventstorm.test.LoggerInstancePostProcessor;
+import zipkin2.reporter.brave.ZipkinSpanHandler;
 
 @ExtendWith(LoggerInstancePostProcessor.class)
 class BravePreparedStatementTest {
 
-	private Tracer tracer = Tracing.newBuilder().sampler(Sampler.ALWAYS_SAMPLE).spanReporter(new LoggingBraveReporter()).build().tracer();
+	private Tracer tracer = Tracing.newBuilder().sampler(Sampler.ALWAYS_SAMPLE).addSpanHandler(ZipkinSpanHandler.create(new LoggingBraveReporter())).build().tracer();
 
 	@Test
 	void testExecute() throws SQLException {

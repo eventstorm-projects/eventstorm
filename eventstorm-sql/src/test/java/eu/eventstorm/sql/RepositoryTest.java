@@ -62,7 +62,10 @@ class RepositoryTest {
 
 	@AfterEach()
 	void after() throws SQLException {
-		ds.getConnection().createStatement().execute("SHUTDOWN");
+		db.close();
+		try (java.sql.Statement st = ds.getConnection().createStatement()) {
+			st.execute("SHUTDOWN");
+		}
 	}
 
 	@Test

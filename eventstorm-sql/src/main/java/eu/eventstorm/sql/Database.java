@@ -6,7 +6,7 @@ import eu.eventstorm.sql.desc.SqlTable;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-public interface Database {
+public interface Database extends AutoCloseable {
 
     Dialect dialect();
 
@@ -17,5 +17,8 @@ public interface Database {
     Module getModule(SqlSequence sequence);
     
     JsonMapper jsonMapper();
+
+	@Override
+	void close();
     
 }

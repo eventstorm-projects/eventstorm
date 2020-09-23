@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import eu.eventstorm.sql.Transaction;
 import eu.eventstorm.sql.TransactionManager;
 import reactor.core.publisher.Flux;
-import reactor.core.scheduler.Scheduler;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -20,11 +19,9 @@ public final class TransactionFluxTemplate {
 	private static final Logger LOGGER = LoggerFactory.getLogger(TransactionFluxTemplate.class);
 	
 	private final TransactionManager transactionManager;
-	private final Scheduler scheduler;
 
-	public TransactionFluxTemplate(Scheduler scheduler, TransactionManager transactionManager) {
+	public TransactionFluxTemplate(TransactionManager transactionManager) {
 		this.transactionManager = transactionManager;
-		this.scheduler = scheduler;
 	}
 
 	public <T> Flux<T> flux(TransactionCallback<Stream<T>> callback) {

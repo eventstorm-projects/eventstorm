@@ -16,12 +16,16 @@ final class TransactionIsolatedReadWrite extends TransactionReadWrite {
 
 	@Override
 	protected void afterCommit() {
-		getTransactionManager().restart(parent);
+		if (parent != null) {
+			getTransactionManager().restart(parent);	
+		}
 	}
 
 	@Override
 	protected void afterRollback() {
-		getTransactionManager().restart(parent);
+		if (parent != null) {
+			getTransactionManager().restart(parent);	
+		}
 	}
 
 }

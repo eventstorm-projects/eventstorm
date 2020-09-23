@@ -11,7 +11,6 @@ import static eu.eventstorm.sql.model.ex001.StudentDescriptor.TABLE;
 import java.util.stream.Stream;
 
 import eu.eventstorm.sql.SqlQuery;
-import eu.eventstorm.sql.jdbc.PreparedStatementSetter;
 import eu.eventstorm.sql.jdbc.PreparedStatementSetters;
 
 public abstract class AbstractStudentRepository extends eu.eventstorm.sql.Repository {

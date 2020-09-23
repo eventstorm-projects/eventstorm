@@ -5,7 +5,7 @@ import eu.eventstorm.sql.impl.TransactionContext;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-public interface TransactionManager {
+public interface TransactionManager extends AutoCloseable {
 
     Transaction newTransactionReadOnly();
 
@@ -18,5 +18,8 @@ public interface TransactionManager {
     boolean hasCurrent();
 
     TransactionContext context();
+
+	@Override
+	void close();
 
 }

@@ -158,4 +158,9 @@ final class DatabaseImpl implements Database {
 		}
 	}
 
+	@Override
+	public void close() {
+		this.transactionManager.close();
+	}
+
 }

@@ -1,18 +1,15 @@
 package eu.eventstorm.sql.model.airport;
 
-import static eu.eventstorm.sql.expression.Expressions.eq;
 import static eu.eventstorm.sql.jdbc.PreparedStatementSetters.noParameter;
 import static eu.eventstorm.sql.jdbc.ResultSetMappers.SINGLE_LONG;
 import static eu.eventstorm.sql.model.airport.AirportDescriptor.COLUMNS;
 import static eu.eventstorm.sql.model.airport.AirportDescriptor.ALL;
 import static eu.eventstorm.sql.model.airport.AirportDescriptor.IDS;
 import static eu.eventstorm.sql.model.airport.AirportDescriptor.ID;
-import static eu.eventstorm.sql.model.airport.AirportDescriptor.TYPE;
 import static eu.eventstorm.sql.model.airport.AirportDescriptor.TABLE;
 
 import eu.eventstorm.sql.SqlQuery;
 import eu.eventstorm.sql.SqlQueryPageable;
-import eu.eventstorm.sql.builder.Order;
 import eu.eventstorm.sql.expression.AggregateFunctions;
 import eu.eventstorm.sql.page.Page;
 import eu.eventstorm.sql.page.PageRequest;

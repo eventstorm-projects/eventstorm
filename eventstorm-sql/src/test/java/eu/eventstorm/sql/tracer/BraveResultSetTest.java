@@ -46,11 +46,8 @@ import com.google.common.io.CharStreams;
 import brave.Tracer;
 import brave.Tracing;
 import brave.sampler.Sampler;
-import eu.eventstorm.sql.tracer.BraveResultSet;
-import eu.eventstorm.sql.tracer.LoggingBraveReporter;
-import eu.eventstorm.sql.tracer.TransactionTracer;
-import eu.eventstorm.sql.tracer.TransactionTracers;
 import eu.eventstorm.util.Streams;
+import zipkin2.reporter.brave.ZipkinSpanHandler;
 
 class BraveResultSetTest {
 	
@@ -58,7 +55,7 @@ class BraveResultSetTest {
 	
 	@BeforeEach
 	void before() {
-		Tracer tracer = Tracing.newBuilder().sampler(Sampler.ALWAYS_SAMPLE).spanReporter(new LoggingBraveReporter()).build().tracer();
+		Tracer tracer = Tracing.newBuilder().sampler(Sampler.ALWAYS_SAMPLE).addSpanHandler(ZipkinSpanHandler.create(new LoggingBraveReporter())).build().tracer();
 		this.tracer = TransactionTracers.brave(tracer);
 	}
 
