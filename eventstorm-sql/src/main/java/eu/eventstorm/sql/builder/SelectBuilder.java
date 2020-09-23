@@ -327,18 +327,20 @@ public final class SelectBuilder extends AbstractBuilder {
         builder.append("SELECT ");
         boolean alias = hasAlias();
 
+        for (SqlColumn column : this.columns) {
+            database().dialect().wrap(builder, column, alias);
+            builder.append(',');
+        }
+        
+        
         // Aggregate Functions
         if (aggregateFunction != null) {
             builder.append(aggregateFunction.build(database().dialect(), alias));
-            builder.append(' ');
-        } else {
-            // OR Columns
-            for (SqlColumn column : this.columns) {
-                database().dialect().wrap(builder, column, alias);
-                builder.append(',');
-            }
-            builder.setCharAt(builder.length() - 1, ' ');
-        }
+            builder.append(',');
+        } 
+
+        builder.setCharAt(builder.length() - 1, ' ');
+        
     }
 
     private void appendJoins(StringBuilder builder) {
