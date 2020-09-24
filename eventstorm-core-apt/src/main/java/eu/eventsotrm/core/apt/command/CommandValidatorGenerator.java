@@ -35,6 +35,7 @@ import eu.eventstorm.annotation.constraint.InstantiatorType;
 import eu.eventstorm.annotation.constraint.NotEmpty;
 import eu.eventstorm.annotation.constraint.NotNull;
 import eu.eventstorm.core.validation.ConstraintViolation;
+import eu.eventstorm.cqrs.CommandContext;
 import eu.eventstorm.cqrs.validation.PropertyValidators;
 import eu.eventstorm.cqrs.validation.Validator;
 import eu.eventstorm.util.tuple.Tuple2;
@@ -113,6 +114,8 @@ public final class CommandValidatorGenerator {
         writeNewLine(writer);
         writer.write("import "+ PropertyValidators.class.getName() +";");
         writeNewLine(writer);
+        writer.write("import "+ CommandContext.class.getName() +";");
+        writeNewLine(writer);
         writer.write("import "+ ImmutableList.class.getName() +";");
         writeNewLine(writer);
         writer.write("import org.springframework.stereotype.Component;");
@@ -136,7 +139,7 @@ public final class CommandValidatorGenerator {
         writeNewLine(writer);
         writer.write("    @Override");
         writeNewLine(writer);
-        writer.write("    public ImmutableList<ConstraintViolation> validate("+ descriptor.fullyQualidiedClassName()+" command) {");
+        writer.write("    public ImmutableList<ConstraintViolation> validate(CommandContext context, "+ descriptor.fullyQualidiedClassName()+" command) {");
         writeNewLine(writer);
         
         writer.write("        ImmutableList.Builder<ConstraintViolation> builder = ImmutableList.builder();");
@@ -480,7 +483,7 @@ public final class CommandValidatorGenerator {
     	writer.write("            for (" + targetType + " item : command." + ppd.getter().getSimpleName().toString()+"()) {" );
     	writeNewLine(writer);
     	
-    	writer.write("                builder.addAll(this.$$listValidator" + Helper.firstToUpperCase(ppd.name()) +".validate(item));");
+    	writer.write("                builder.addAll(this.$$listValidator" + Helper.firstToUpperCase(ppd.name()) +".validate(context, item));");
     	writeNewLine(writer);
     	
     	

@@ -48,9 +48,9 @@ public abstract class DefaultEventCommandHandler<T extends Command> extends Abst
 	@Override
 	protected void validate(CommandContext context, T command) {
 		
-		ImmutableList<ConstraintViolation> constraintViolations = this.validator.validate(command);
+		ImmutableList<ConstraintViolation> constraintViolations = this.validator.validate(context, command);
 		
-		ImmutableList<ConstraintViolation> consistencyValidation = consistencyValidation(command);
+		ImmutableList<ConstraintViolation> consistencyValidation = consistencyValidation(context, command);
 		
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Validation of [{}] -> [{}] [{}]", command, constraintViolations, consistencyValidation);
@@ -72,7 +72,7 @@ public abstract class DefaultEventCommandHandler<T extends Command> extends Abst
 		events.forEach(evolutionHandlers::on);
 	}
 
-	protected ImmutableList<ConstraintViolation> consistencyValidation(T command) {
+	protected ImmutableList<ConstraintViolation> consistencyValidation(CommandContext context, T command) {
 		return ImmutableList.of();
 	}
 

@@ -18,7 +18,7 @@ final class ValidatorsTest {
 
 	@Test
 	void testEmpty() {
-		assertEquals(ImmutableList.of(), Validators.empty().validate(new Command() {
+		assertEquals(ImmutableList.of(), Validators.empty().validate(null, new Command() {
 		}));
 	}
 }

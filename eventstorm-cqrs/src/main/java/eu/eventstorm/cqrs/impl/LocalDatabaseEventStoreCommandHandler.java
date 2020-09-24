@@ -84,18 +84,18 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 
 	private void validate(CommandContext context, T command) {
 		
-		ImmutableList<ConstraintViolation> constraintViolations = this.validator.validate(command);
+		ImmutableList<ConstraintViolation> constraintViolations = this.validator.validate(context, command);
+		
+		if (!constraintViolations.isEmpty()) {
+			throw new CommandValidationException(constraintViolations, command);
+		}
 		
 		ImmutableList<ConstraintViolation> consistencyValidation = consistencyValidation(context, command);
 		
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Validation of [{}] -> [{}] [{}]", command, constraintViolations, consistencyValidation);
+		if (!consistencyValidation.isEmpty()) {
+			throw new CommandValidationException(consistencyValidation, command);
 		}
 		
-		if (!constraintViolations.isEmpty() || !consistencyValidation.isEmpty()) {
-			throw new CommandValidationException(ImmutableList.<ConstraintViolation>builder()
-					.addAll(constraintViolations).addAll(consistencyValidation).build(), command);
-		}
 	}
 
 	private ImmutableList<Event> store(ImmutableList<EventCandidate<?>> candidates) {
