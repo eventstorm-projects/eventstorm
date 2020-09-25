@@ -6,6 +6,8 @@ import static eu.eventsotrm.sql.apt.Helper.writePackage;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.stream.Stream;
 
@@ -32,6 +34,8 @@ public final class CommandRestControllerImplementationGenerator {
 
 	private final Logger logger;
 
+	private final List<String> schedulers = new ArrayList<>();
+	
 	public CommandRestControllerImplementationGenerator() {
 		logger = LoggerFactory.getInstance().getLogger(CommandRestControllerImplementationGenerator.class);
 	}
@@ -56,12 +60,18 @@ public final class CommandRestControllerImplementationGenerator {
             return;
         }
         
+		for (RestControllerDescriptor rcd : desc) {
+			if (!schedulers.contains(rcd.getRestController().eventLoop())) {
+				schedulers.add(rcd.getRestController().eventLoop());
+			}
+		}
+        
 		JavaFileObject object = env.getFiler().createSourceFile(name);
 		try (Writer writer = object.openWriter()) {
 
 			writeHeader(writer, env, desc);
 			writeVariables(writer, desc.get(0).getRestController().name());
-			writeConstructor(writer, desc.get(0), sourceCode);
+			writeConstructor(writer, desc, sourceCode);
 			writeMethods(writer, desc);
 			writer.write("}");
 		}
@@ -132,24 +142,44 @@ public final class CommandRestControllerImplementationGenerator {
 		writer.write(CommandGateway.class.getName());
 		writer.write(" gateway;");
 		writeNewLine(writer);
-		writer.write("    private final Scheduler scheduler;");
-        writeNewLine(writer);
+		
+		for (String schedulerName : schedulers) {
+			writer.write("    private final Scheduler scheduler__" + schedulerName + ";");
+	        writeNewLine(writer);	
+		}
         
 		writeNewLine(writer);
 	}
 
-	private void writeConstructor(Writer writer, RestControllerDescriptor desc, SourceCode sourceCode) throws IOException {
+	private void writeConstructor(Writer writer, ImmutableList<RestControllerDescriptor> desc, SourceCode sourceCode) throws IOException {
 
 		writer.write("    public ");
-		writer.write(desc.getRestController().name());
+		writer.write(desc.get(0).getRestController().name());
 		writer.write("(");
 		writer.write(CommandGateway.class.getName());
-		writer.write(" gateway,@Qualifier(\"event_store_scheduler\") Scheduler scheduler) {");
+		writer.write(" gateway,");
+		
+		StringBuilder builder = new StringBuilder();
+		schedulers.forEach(name -> {
+			builder.append("@Qualifier(\"");
+			builder.append(name);
+			builder.append("\") Scheduler scheduler__");
+			builder.append(name);
+			builder.append(',');
+		});
+		builder.deleteCharAt(builder.length()-1);		
+		
+		writer.write(builder.toString());
+		writer.write(") {");
+		//) {");
 		writeNewLine(writer);
 		writer.write("        this.gateway = gateway;");
 		writeNewLine(writer);
-	    writer.write("        this.scheduler = scheduler;");
-        writeNewLine(writer);    
+		
+		for (String schedulerName : schedulers) {
+			writer.write("        this.scheduler__" + schedulerName + " = scheduler__" + schedulerName + ";");
+	        writeNewLine(writer);
+		}
 		
 		writer.write("    }");
 		writeNewLine(writer);
@@ -200,7 +230,7 @@ public final class CommandRestControllerImplementationGenerator {
 		writeNewLine(writer);
 		writer.write("        return Mono.just(command)");
 		writeNewLine(writer);
-		writer.write("            .subscribeOn(scheduler)");
+		writer.write("            .subscribeOn(scheduler__" + rcd.getRestController().eventLoop() + ")");
 		writeNewLine(writer);
 		writer.write("            .log(LOGGER, Level.FINEST, false, SignalType.ON_NEXT)");
 		writeNewLine(writer);

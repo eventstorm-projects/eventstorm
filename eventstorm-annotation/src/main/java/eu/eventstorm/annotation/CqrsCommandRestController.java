@@ -26,5 +26,7 @@ public @interface CqrsCommandRestController {
 	String uri();
 	
 	HttpMethod method();
+
+	String eventLoop() default "event_store_scheduler";
 	
 }
