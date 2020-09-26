@@ -11,6 +11,9 @@ import eu.eventstorm.cqrs.validation.CommandValidationException;
 import eu.eventstorm.problem.Problem;
 import reactor.core.publisher.Mono;
 
+/**
+ * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
+ */
 @RestControllerAdvice
 final class CommandValidationRestControllerAdvice {
 
