@@ -24,7 +24,6 @@ import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.cqrs.SqlQueryDescriptor;
 import eu.eventstorm.sql.desc.SqlColumn;
-import eu.eventstorm.sql.expression.Expression;
 import eu.eventstorm.sql.page.PreparedStatementIndexSetter;
 import eu.eventstorm.sql.util.Dates;
 

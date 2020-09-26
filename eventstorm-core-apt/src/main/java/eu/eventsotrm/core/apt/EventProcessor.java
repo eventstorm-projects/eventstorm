@@ -32,7 +32,6 @@ import eu.eventsotrm.core.apt.command.CommandRestControllerAdviceImplementationG
 import eu.eventsotrm.core.apt.command.CommandRestControllerImplementationGenerator;
 import eu.eventsotrm.core.apt.command.CommandValidatorGenerator;
 import eu.eventsotrm.core.apt.event.EventProtoGenerator;
-import eu.eventsotrm.core.apt.event.EventStreamGenerator;
 import eu.eventsotrm.core.apt.model.CommandDescriptor;
 import eu.eventsotrm.core.apt.model.DatabaseQueryDescriptor;
 import eu.eventsotrm.core.apt.model.ElsQueryDescriptor;
@@ -207,10 +206,9 @@ public class EventProcessor extends AbstractProcessor {
 		
 		// EVENTS .....
 		new EventProtoGenerator().generate(processingEnv, sourceCode);
-		new EventStreamGenerator().generate(processingEnv, sourceCode);
+		//new EventStreamGenerator().generate(processingEnv, sourceCode);
 		
 
-//		new DomainModelHandlerImplementationGenerator().generate(this.processingEnv, sourceCode);
 		new CommandRestControllerImplementationGenerator().generate(processingEnv, sourceCode);
         
 		//	Query 
