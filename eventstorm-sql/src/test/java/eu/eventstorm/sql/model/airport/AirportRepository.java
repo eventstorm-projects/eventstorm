@@ -1,7 +1,7 @@
 package eu.eventstorm.sql.model.airport;
 
 import static eu.eventstorm.sql.jdbc.PreparedStatementSetters.noParameter;
-import static eu.eventstorm.sql.jdbc.ResultSetMappers.SINGLE_LONG;
+import static eu.eventstorm.sql.jdbc.ResultSetMappers.LONG;
 import static eu.eventstorm.sql.model.airport.AirportDescriptor.COLUMNS;
 import static eu.eventstorm.sql.model.airport.AirportDescriptor.ALL;
 import static eu.eventstorm.sql.model.airport.AirportDescriptor.IDS;
@@ -41,7 +41,7 @@ public class AirportRepository extends eu.eventstorm.sql.Repository {
 	}
 	
 	public long count() {
-		return executeSelect(count, noParameter(), SINGLE_LONG);
+		return executeSelect(count, noParameter(), LONG);
 	}
 	
 	public Page<Airport> findAll(PageRequest pageable) {

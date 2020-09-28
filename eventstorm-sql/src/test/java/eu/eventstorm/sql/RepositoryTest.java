@@ -266,7 +266,7 @@ class RepositoryTest {
                 .build();
 
         try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
-            long count = repo.executeSelect(select, noParameter(), ResultSetMappers.SINGLE_LONG);
+            long count = repo.executeSelect(select, noParameter(), ResultSetMappers.LONG);
             assertEquals(100, count);
 			tx.rollback();
         }
@@ -281,7 +281,7 @@ class RepositoryTest {
         }
 
         try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
-            long count = repo.executeSelect(select, noParameter(), ResultSetMappers.SINGLE_LONG);
+            long count = repo.executeSelect(select, noParameter(), ResultSetMappers.LONG);
             assertEquals(0, count);
 			tx.rollback();
         }
@@ -314,7 +314,7 @@ class RepositoryTest {
                 .build();
 
         try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
-            long count = repo.executeSelect(select, noParameter(), ResultSetMappers.SINGLE_LONG);
+            long count = repo.executeSelect(select, noParameter(), ResultSetMappers.LONG);
             assertEquals(100, count);
 			tx.rollback();
         }
@@ -329,7 +329,7 @@ class RepositoryTest {
         }
 
         try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
-            long count = repo.executeSelect(select, noParameter(), ResultSetMappers.SINGLE_LONG);
+            long count = repo.executeSelect(select, noParameter(), ResultSetMappers.LONG);
             assertEquals(0, count);
 			tx.rollback();
         }

@@ -353,7 +353,7 @@ public abstract class Repository {
 		
 		PreparedStatementSetter compose = pageRequest.getFilters().composeWith(query, pss);
 		
-		Long count = executeSelect(query.sqlCount(pageRequest), compose, ResultSetMappers.SINGLE_LONG);
+		Long count = executeSelect(query.sqlCount(pageRequest), compose, ResultSetMappers.LONG_NULLABLE);
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("find count=[{}]", count);
