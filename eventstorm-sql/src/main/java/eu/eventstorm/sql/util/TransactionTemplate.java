@@ -51,6 +51,16 @@ public final class TransactionTemplate {
 		}
 		return returnValue;
 	}
+	
+	public void executeWithReadOnly(TransactionCallbackVoid callback) {
+		try (Transaction tx = transactionManager.newTransactionReadOnly()) {
+			try {
+				callback.doInTransaction();
+			} finally {
+				tx.rollback();
+			}
+		}
+	}
 
 	public <T> T executeWithIsolatedReadWrite(TransactionCallback<T> callback) {
 		T returnValue;
