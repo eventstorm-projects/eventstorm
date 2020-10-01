@@ -30,7 +30,7 @@ import eu.eventstorm.sql.util.TransactionStreamTemplate;
  */
 public final class DatabaseEventStore implements EventStore {
 
-	private static final JsonFormat.Printer PRINTER = JsonFormat.printer().omittingInsignificantWhitespace();
+	private static final JsonFormat.Printer PRINTER = JsonFormat.printer().omittingInsignificantWhitespace().includingDefaultValueFields();
 	
 	private final Database database;
 	
