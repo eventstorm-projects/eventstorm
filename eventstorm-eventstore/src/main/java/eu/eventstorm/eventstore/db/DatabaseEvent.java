@@ -11,7 +11,7 @@ import eu.eventstorm.sql.annotation.Table;
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 @Table(value = "event_store")
-interface DatabaseEvent {
+public interface DatabaseEvent {
 
 	@Sequence("seq__event_store")
 	@PrimaryKey("id")

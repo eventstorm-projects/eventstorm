@@ -104,7 +104,7 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 			LOGGER.debug("store [{}]", candidates);
 		}
 		
-		UUID correlation = UUID.randomUUID();
+		UUID correlation = candidates.size() > 1 ? UUID.randomUUID() : null;
 		return candidates.stream()
 				.map(candidate -> {
 					

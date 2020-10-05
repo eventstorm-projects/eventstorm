@@ -70,9 +70,12 @@ public final class DatabaseEventStore implements EventStore {
 							.withStream(sepd.getStream())
 					        .withTime(Timestamp.from(time.toInstant()))
 					        .withPayload(json)
-					        .withCorrelation(correlation.toString())
 					        .withEventType(sepd.getEventType());
-
+					        
+				if (correlation != null) {
+					builder.withCorrelation(correlation.toString());
+				}
+				
 				if (optional.isPresent()) {
 					// "update"
 					builder.withRevision(optional.get().getRevision() + 1);
