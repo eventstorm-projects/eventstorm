@@ -24,6 +24,8 @@ import static eu.eventstorm.sql.EventstormRepositoryException.Type.STREAM_PREPAR
 import static eu.eventstorm.sql.EventstormRepositoryException.Type.UPDATE_EXECUTE_QUERY;
 import static eu.eventstorm.sql.EventstormRepositoryException.Type.UPDATE_MAPPER;
 import static eu.eventstorm.sql.EventstormRepositoryException.Type.UPDATE_RESULT;
+import static eu.eventstorm.sql.expression.Expressions.and;
+import static eu.eventstorm.sql.expression.Expressions.eq;
 import static eu.eventstorm.sql.jdbc.PreparedStatementSetters.noParameter;
 
 import java.sql.ResultSet;
@@ -48,6 +50,7 @@ import eu.eventstorm.sql.desc.SqlPrimaryKey;
 import eu.eventstorm.sql.desc.SqlSingleColumn;
 import eu.eventstorm.sql.desc.SqlTable;
 import eu.eventstorm.sql.expression.AggregateFunction;
+import eu.eventstorm.sql.expression.Expressions;
 import eu.eventstorm.sql.id.Identifier;
 import eu.eventstorm.sql.impl.TransactionContext;
 import eu.eventstorm.sql.impl.TransactionQueryContext;
@@ -103,10 +106,21 @@ public abstract class Repository {
 		return new InsertBuilder(this.database, table, keys, columns);
 	}
 
-	protected final UpdateBuilder update(SqlTable table, ImmutableList<SqlSingleColumn> columns, ImmutableList<SqlPrimaryKey> keys) {
-		return new UpdateBuilder(this.database, table, columns, keys);
+	protected final UpdateBuilder update(SqlTable table, ImmutableList<SqlSingleColumn> columns) {
+		return new UpdateBuilder(this.database, table, columns);
 	}
 
+	protected final UpdateBuilder update(SqlTable table, ImmutableList<SqlSingleColumn> columns, ImmutableList<SqlPrimaryKey> keys) {
+		UpdateBuilder updateBuilder = new UpdateBuilder(this.database, table, columns);
+		if (keys.size() == 1) {
+			return updateBuilder.where(Expressions.eq(keys.get(0)));
+		}
+		if (keys.size() == 2) {
+			return updateBuilder.where(and(eq(keys.get(0)), eq(keys.get(1))));
+		}
+		throw new IllegalArgumentException();
+	}
+	
 	protected final DeleteBuilder delete(SqlTable table) {
 		return new DeleteBuilder(this.database, table);
 	}
