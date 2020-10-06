@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import com.google.common.collect.ImmutableList;
 
+import eu.eventstorm.sql.builder.SubSelect;
 import eu.eventstorm.sql.desc.SqlColumn;
 
 /**
@@ -98,5 +99,8 @@ public final class Expressions {
         return new LogicalExpression("OR", ImmutableList.<Expression>builder().add(left).add(right).addAll(Arrays.asList(others)).build());
     }
 
+    public static Expression in(SqlColumn column, SubSelect value) {
+		return new InSubSelectExpression(column, value);
+    }
 	
 }
