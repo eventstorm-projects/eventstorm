@@ -50,6 +50,7 @@ import eu.eventstorm.sql.desc.SqlPrimaryKey;
 import eu.eventstorm.sql.desc.SqlSingleColumn;
 import eu.eventstorm.sql.desc.SqlTable;
 import eu.eventstorm.sql.expression.AggregateFunction;
+import eu.eventstorm.sql.expression.Expression;
 import eu.eventstorm.sql.expression.Expressions;
 import eu.eventstorm.sql.id.Identifier;
 import eu.eventstorm.sql.impl.TransactionContext;
@@ -118,7 +119,11 @@ public abstract class Repository {
 		if (keys.size() == 2) {
 			return updateBuilder.where(and(eq(keys.get(0)), eq(keys.get(1))));
 		}
-		throw new IllegalArgumentException();
+		Expression[] exps = new Expression[keys.size() - 2];
+		for (int i = 2 ; i < keys.size() ; i++) {
+			exps[i-2] = eq(keys.get(i));
+		}
+		return updateBuilder.where(and(eq(keys.get(0)), eq(keys.get(1)), exps));
 	}
 	
 	protected final DeleteBuilder delete(SqlTable table) {
