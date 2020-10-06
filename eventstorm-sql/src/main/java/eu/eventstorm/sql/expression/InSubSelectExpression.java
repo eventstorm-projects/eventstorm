@@ -31,6 +31,7 @@ final class InSubSelectExpression implements Expression {
     	if (alias) {
             builder.append(column.table().alias()).append('.');
         }
+    	builder.append(column.name());
     	builder.append(" in ( ");
     	builder.append(value.sql());
     	builder.append(" )");
