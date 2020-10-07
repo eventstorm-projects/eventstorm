@@ -20,6 +20,8 @@ import eu.eventstorm.cqrs.CommandHandlerRegistry;
 import eu.eventstorm.cqrs.event.EvolutionHandler;
 import eu.eventstorm.cqrs.event.EvolutionHandlers;
 import eu.eventstorm.cqrs.web.PageModule;
+import eu.eventstorm.eventbus.EventBus;
+import eu.eventstorm.eventbus.NoEventBus;
 import eu.eventstorm.problem.ProblemModule;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
@@ -75,6 +77,12 @@ public class EventStormAutoConfiguration {
 	@Bean 
 	UniversalUniqueIdentifierGenerator UniversalUniqueIdentifierGenerator(UniversalUniqueIdentifierDefinitionProperties def) {
 		return () -> UniversalUniqueIdentifiers.generate(def);
+	}
+	
+	@ConditionalOnMissingBean
+	@Bean
+	EventBus eventBus() {
+		return new NoEventBus();
 	}
 	
 }

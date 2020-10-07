@@ -80,7 +80,7 @@ public final class InMemoryEventStoreClient implements EventStoreClient {
 		// if sepd not found => exception.
 		StreamEventDefinition sepd = sd.getStreamEventDefinition(message.getDescriptorForType().getName());
 		
-		return this.inMemoryEventStore.appendToStream(sepd, streamId.toStringValue(), UUID.randomUUID(), message);
+		return this.inMemoryEventStore.appendToStream(sepd, streamId.toStringValue(), UUID.randomUUID().toString(), message);
 	}
 	
 

@@ -48,7 +48,7 @@ public final class DatabaseEventStore implements EventStore {
 	}
 
 	@Override
-	public Event appendToStream(StreamEventDefinition sepd, String streamId, java.util.UUID correlation, Message message) {
+	public Event appendToStream(StreamEventDefinition sepd, String streamId, String correlation, Message message) {
 		
 		OffsetDateTime time = OffsetDateTime.now();
 

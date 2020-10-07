@@ -19,6 +19,7 @@ import eu.eventstorm.cqrs.CommandHandler;
 import eu.eventstorm.cqrs.event.EvolutionHandlers;
 import eu.eventstorm.cqrs.validation.CommandValidationException;
 import eu.eventstorm.cqrs.validation.Validator;
+import eu.eventstorm.eventbus.EventBus;
 import eu.eventstorm.eventstore.StreamDefinition;
 import eu.eventstorm.eventstore.StreamManager;
 import eu.eventstorm.eventstore.db.DatabaseEventStore;
@@ -47,6 +48,9 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 	
 	@Autowired
 	private EvolutionHandlers evolutionHandlers;
+	
+	@Autowired
+	private EventBus eventBus;
 	
 	public LocalDatabaseEventStoreCommandHandler(Class<T> type, Validator<T> validator) {
 		this.type = type;
@@ -79,6 +83,8 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 			tx.commit();
 		}
 		
+		eventBus.publish(events);
+		
 		return events;
 	}
 
@@ -104,7 +110,7 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 			LOGGER.debug("store [{}]", candidates);
 		}
 		
-		UUID correlation = candidates.size() > 1 ? UUID.randomUUID() : null;
+		String correlation = candidates.size() > 1 ? UUID.randomUUID().toString() : null;
 		return candidates.stream()
 				.map(candidate -> {
 					

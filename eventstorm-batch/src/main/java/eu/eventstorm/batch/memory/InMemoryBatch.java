@@ -21,7 +21,6 @@ import eu.eventstorm.batch.BatchResource;
 import eu.eventstorm.batch.BatchStatus;
 import eu.eventstorm.core.Event;
 import eu.eventstorm.core.EventCandidate;
-import eu.eventstorm.core.UUID;
 import eu.eventstorm.cqrs.batch.BatchJobCreated;
 
 /**
@@ -45,14 +44,14 @@ public final class InMemoryBatch implements Batch {
 	@Override
 	public Event push(EventCandidate<BatchJobCreated> candidate) {
 		
-		java.util.UUID correlation = randomUUID();
+		String correlation = randomUUID().toString();
 		
 		BatchJob batchJob = this.applicationContext.getBean(candidate.getMessage().getName(), BatchJob.class);
 			
 		Event event = Event.newBuilder()
 				.setStreamId(candidate.getStreamId().toStringValue())
 				.setStream(candidate.getStream())
-				.setCorrelation(UUID.newBuilder().setLeastSigBits(correlation.getLeastSignificantBits()).setMostSigBits(correlation.getMostSignificantBits()))
+				.setCorrelation(correlation)
 				.setRevision(1)
 				.setTimestamp(OffsetDateTime.now().toString())
 				.setData(Any.pack(candidate.getMessage(),candidate.getStream()))

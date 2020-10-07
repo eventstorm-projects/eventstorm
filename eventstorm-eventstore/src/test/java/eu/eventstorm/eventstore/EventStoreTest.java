@@ -33,7 +33,7 @@ abstract class EventStoreTest {
 			.build();
 		
 		eventStore.appendToStream(manager.getDefinition("user").getStreamEventDefinition(UserCreatedEventPayload.class.getSimpleName()), 
-				"1", UUID.randomUUID(),  UserCreatedEventPayload.newBuilder()
+				"1", UUID.randomUUID().toString(),  UserCreatedEventPayload.newBuilder()
 					.setAge(39)
 					.setName("ja")
 					.setEmail("gmail")
