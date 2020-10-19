@@ -238,26 +238,12 @@ public final class FlywayGenerator {
 				
 				ForeignKey fk = col.getter().getAnnotation(ForeignKey.class);
 				if (fk != null) {
-					
-					PojoDescriptor target = sourceCode.getPojoDescriptor(getClass(fk).toString());
-					PrimaryKey targetColumn;
-					if (target.ids().size() != 1) {
-						throw new UnsupportedOperationException();
-					} else {
-						targetColumn = target.ids().get(0).getter().getAnnotation(PrimaryKey.class);
-					}
-					
-					this.fks.add(new DeferWriter(writer,  "ALTER TABLE " + descriptor.getTable().value() + 
-							" ADD CONSTRAINT " + descriptor.getTable().value() + "__fk__" +  anno.value() +
-							" FOREIGN KEY (" + anno.value() + ")" +
-							" REFERENCES "+ target.getTable().value() + " (" + targetColumn.value() +");\n"));
-					
 					fks.add(col);
 				}
 				
 			}
-			builder.deleteCharAt(builder.length()-1);
 		}
+		builder.deleteCharAt(builder.length()-1);
 		
 		if (descriptor.ids().size() > 0) {
 			builder.append(",\n   ");
@@ -275,8 +261,41 @@ public final class FlywayGenerator {
 		}
 		
 		generateIndex(table, writer);
+		
+		genretateForeignKeys(writer, descriptor, fks);
 	}
 
+
+	private void genretateForeignKeys(Writer writer, PojoDescriptor descriptor, List<PojoPropertyDescriptor> fks) {
+		
+		fks.forEach( ppd -> {
+			
+			ForeignKey fk = ppd.getter().getAnnotation(ForeignKey.class);
+			
+			String name;
+			Column anno = ppd.getter().getAnnotation(Column.class);
+			if (anno != null) {
+				name = anno.value();
+			} else {
+				name = ppd.getter().getAnnotation(PrimaryKey.class).value();
+			}
+			
+			PojoDescriptor target = sourceCode.getPojoDescriptor(getClass(fk).toString());
+			PrimaryKey targetColumn;
+			if (target.ids().size() != 1) {
+				throw new UnsupportedOperationException();
+			} else {
+				targetColumn = target.ids().get(0).getter().getAnnotation(PrimaryKey.class);
+			}
+			
+			this.fks.add(new DeferWriter(writer,  "ALTER TABLE " +  descriptor.getTable().value() + 
+					" ADD CONSTRAINT " + descriptor.getTable().value() + "__fk__" +  name +
+					" FOREIGN KEY (" + name + ")" +
+					" REFERENCES "+ target.getTable().value() + " (" + targetColumn.value() +");\n"));	
+		});
+		
+				
+	}
 
 	private void generateJoinTable(PojoDescriptor descriptor, FlywayDialect fd, Writer writer, JoinTable table) throws IOException {
 		List<String> businessKeys = new ArrayList<>();

@@ -12,6 +12,8 @@ import java.util.concurrent.Executor;
 import java.util.stream.Stream;
 
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.type.MirroredTypeException;
+import javax.lang.model.type.TypeMirror;
 import javax.tools.JavaFileObject;
 
 import com.google.common.collect.ImmutableList;
@@ -223,7 +225,13 @@ public final class CommandRestControllerImplementationGenerator {
 */
     
 	private static void writeMethodRestAsync(Writer writer, RestControllerDescriptor rcd) throws IOException {
-		writer.write("    public Flux<CloudEvent> on(ServerWebExchange exchange, @RequestBody ");
+		String returnType = getReturnTypeClassname(rcd);
+		
+		if (Void.class.getName().equals(returnType)) {
+			writer.write("    public Flux<CloudEvent> on(ServerWebExchange exchange, @RequestBody ");	
+		} else {
+			writer.write("    public Flux<" + returnType + "> on(ServerWebExchange exchange, @RequestBody ");
+		}
 		writer.write(rcd.element().toString());
 		writer.write(" command) {");
 		writeNewLine(writer);
@@ -234,30 +242,50 @@ public final class CommandRestControllerImplementationGenerator {
 		writeNewLine(writer);
 		writer.write("            .log(LOGGER, Level.FINEST, false, SignalType.ON_NEXT)");
 		writeNewLine(writer);
-		writer.write("            .flatMapMany(c -> gateway.<"+rcd.element().toString() + ","+ Event.class.getName() + ">dispatch(new ReactiveCommandContext(exchange), c))");
-		writeNewLine(writer);
-		writer.write("            .map(CloudEvents::to);");
-		writeNewLine(writer);
+		if (Void.class.getName().equals(returnType)) {
+			writer.write("            .flatMapMany(c -> gateway.<"+rcd.element().toString() + ","+ Event.class.getName() + ">dispatch(new ReactiveCommandContext(exchange), c))");
+			writeNewLine(writer);
+			writer.write("            .map(CloudEvents::to);");
+			writeNewLine(writer);			
+		} else {
+			writer.write("            .flatMapMany(c -> gateway.dispatch(new ReactiveCommandContext(exchange), c));");
+			writeNewLine(writer);
+		}
+
 		writer.write("    }");
 		writeNewLine(writer);
 		
 	}
 	
 	private static void writeSpring(Writer writer, RestControllerDescriptor rcd) throws IOException {
-
+		String returnType = getReturnTypeClassname(rcd);
+		
+		String type = "application/cloudevents+json";
+		if (!Void.class.getName().equals(returnType)) {
+			type = "application/json";
+		}
+		
 		if (HttpMethod.POST == rcd.getRestController().method()) {
-			writer.write("    @org.springframework.web.bind.annotation.PostMapping(path=\"" + rcd.getRestController().uri() + "\", produces = \"application/cloudevents+json\")");
+			writer.write("    @org.springframework.web.bind.annotation.PostMapping(path=\"" + rcd.getRestController().uri() + "\", produces = \""+ type +"\")");
 			writeNewLine(writer);
 
 			return;
 		}
 
 		if (HttpMethod.PUT == rcd.getRestController().method()) {
-			writer.write("    @org.springframework.web.bind.annotation.PutMapping(name=\"" + rcd.getRestController().uri() + "\", produces = \"application/cloudevents+json\")");
+			writer.write("    @org.springframework.web.bind.annotation.PutMapping(name=\"" + rcd.getRestController().uri() + "\", produces = \""+ type +"\")");
 			writeNewLine(writer);
 			return;
 		}
 
 	}
 
+	private static String getReturnTypeClassname(RestControllerDescriptor rcd) {
+		try {
+			return rcd.getRestController().returnType().getName();
+		} catch (MirroredTypeException e) {
+			TypeMirror typeMirror = e.getTypeMirror();
+			return typeMirror.toString();
+		}
+	}
 }
