@@ -52,8 +52,8 @@ public class BatchAutoConfiguration {
 	
 	@Bean
 	@ConditionalOnProperty(prefix = "eu.eventstorm.batch", name = "type", havingValue = "DATABASE")
-	Batch batchDatabase(ApplicationContext context, BatchExecutor batchExecutor, Database database) {
-		return new DatabaseBatch(context, batchExecutor, database, new DatabaseExecutionRepository(database));
+	Batch batchDatabase(ApplicationContext context, BatchExecutor batchExecutor, Database database, TypeRegistry registry) {
+		return new DatabaseBatch(context, batchExecutor, database, new DatabaseExecutionRepository(database), registry);
 	}
 	
 }

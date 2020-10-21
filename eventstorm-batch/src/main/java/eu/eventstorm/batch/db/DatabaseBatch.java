@@ -11,6 +11,7 @@ import org.springframework.util.concurrent.ListenableFutureCallback;
 
 import com.google.protobuf.Any;
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.protobuf.TypeRegistry;
 import com.google.protobuf.util.JsonFormat;
 
 import eu.eventstorm.batch.Batch;
@@ -31,20 +32,21 @@ public final class DatabaseBatch implements Batch {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseBatch.class);
 	
-	private static final JsonFormat.Printer PRINTER = JsonFormat.printer().omittingInsignificantWhitespace();
-
 	private final BatchExecutor batchExecutor;
 	private final ApplicationContext applicationContext;
 	private final Database database;
 	private final DatabaseExecutionRepository repository;
 	private final TransactionTemplate template;
+	private final JsonFormat.Printer jsonPrinter;
 	
-	public DatabaseBatch(ApplicationContext applicationContext, BatchExecutor batchExecutor, Database database, DatabaseExecutionRepository repository) {
+	public DatabaseBatch(ApplicationContext applicationContext, BatchExecutor batchExecutor, Database database, DatabaseExecutionRepository repository,
+	        TypeRegistry registry) {
 		this.applicationContext = applicationContext;
 		this.batchExecutor = batchExecutor;
 		this.database = database;
 		this.repository = repository;
 		this.template = new TransactionTemplate(database.transactionManager());
+		this.jsonPrinter = JsonFormat.printer().omittingInsignificantWhitespace().usingTypeRegistry(registry).includingDefaultValueFields();
 	}
 
 	@Override
@@ -115,9 +117,9 @@ public final class DatabaseBatch implements Batch {
 		}
 	}
 	
-	private static String toJson(BatchJobCreated batchJobCreated) {
+	private String toJson(BatchJobCreated batchJobCreated) {
 		try {
-			return PRINTER.print(batchJobCreated);
+			return jsonPrinter.print(batchJobCreated);
 		} catch (InvalidProtocolBufferException cause) {
 			throw new IllegalStateException(cause);
 		}
