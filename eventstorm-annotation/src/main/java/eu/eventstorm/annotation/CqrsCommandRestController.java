@@ -30,8 +30,6 @@ public @interface CqrsCommandRestController {
 	 */
 	HttpMethod method() default HttpMethod.POST;
 	
-	String eventLoop() default "event_store_scheduler";
-	
 	/**
 	 * Return type for this method; if default return type (Void.class) => return CloudEvent
 	 */

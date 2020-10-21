@@ -1,6 +1,6 @@
 package eu.eventstorm.cqrs;
 
-import com.google.common.collect.ImmutableList;
+import reactor.core.publisher.Flux;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -9,6 +9,6 @@ public interface CommandHandler<C extends Command, T> {
 	
 	Class<C> getType();
 	
-	ImmutableList<T> handle(CommandContext context, C command);
+	Flux<T> handle(CommandContext context, C command);
 
 }

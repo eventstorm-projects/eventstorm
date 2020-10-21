@@ -41,6 +41,13 @@ final class DatabaseRepository extends AbstractDatabaseEventRepository {
 			ps.setString(2, streamId);
 		}, Mappers.DATABASE_EVENT);
 	}
+	
+//	public Stream<DatabaseEvent> lock(String stream, String streamId) {
+//		return stream(this.findByAggreateTypeAndAggregateIdLock, ps -> {
+//			ps.setString(1, stream);
+//			ps.setString(2, streamId);
+//		}, Mappers.DATABASE_EVENT);
+//	}
 
 	public  <T> Stream<T> findAllByStreamAndStreamId(String stream, String streamId, ResultSetMapper<T> rsm) {
 		return stream(this.findByAggreateTypeAndAggregateId, ps -> {

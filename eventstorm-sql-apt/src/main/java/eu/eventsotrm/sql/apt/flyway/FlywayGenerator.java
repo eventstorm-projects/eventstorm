@@ -369,7 +369,11 @@ public final class FlywayGenerator {
 		
 		for (Index index : table.indexes()) {
 			StringBuilder builder = new StringBuilder();
-			builder.append("CREATE INDEX ");
+			builder.append("CREATE ");
+			if (index.unique()) {
+				builder.append("UNIQUE ");
+			}
+			builder.append("INDEX ");
 			builder.append(index.name());
 			builder.append(" ON ");
 			builder.append(table.value());

@@ -5,14 +5,14 @@ import com.google.common.collect.ImmutableList;
 import eu.eventstorm.cqrs.Command;
 import eu.eventstorm.cqrs.CommandContext;
 import eu.eventstorm.cqrs.CommandHandler;
+import reactor.core.publisher.Flux;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 abstract class AbstractCommandHandler<T extends Command, R> implements CommandHandler<T, R> {
 	
-	public final ImmutableList<R> handle(CommandContext context, T command) {
-		
+	public final Flux<R> handle(CommandContext context, T command) {
 		// validate the command
 		validate(context, command);
 		
@@ -22,7 +22,7 @@ abstract class AbstractCommandHandler<T extends Command, R> implements CommandHa
 		// apply the evolution function (state,Event) => State
 		evolution(candidates);
 		
-		return candidates;
+		return Flux.fromIterable(candidates);
 	}
 
 	

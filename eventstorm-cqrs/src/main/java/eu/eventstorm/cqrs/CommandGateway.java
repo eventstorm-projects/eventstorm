@@ -24,9 +24,7 @@ public final class CommandGateway {
 				// if no command handler => error
 				.switchIfEmpty(Mono.error(new CommandGatewayException(CommandGatewayException.Type.NOT_FOUND, of("command", command))))
 				// handle the Command
-				.map(ch -> ch.handle(context, command))
-				// convert
-				.flatMapMany(Flux::fromIterable)
+				.flatMapMany(ch -> ch.handle(context, command))
 				;
     }
 

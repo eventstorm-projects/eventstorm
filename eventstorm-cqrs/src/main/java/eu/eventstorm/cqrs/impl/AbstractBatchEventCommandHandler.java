@@ -1,7 +1,5 @@
 package eu.eventstorm.cqrs.impl;
 
-import com.google.common.collect.ImmutableList;
-
 import eu.eventstorm.batch.Batch;
 import eu.eventstorm.core.Event;
 import eu.eventstorm.core.EventCandidate;
@@ -9,6 +7,7 @@ import eu.eventstorm.cqrs.BatchCommand;
 import eu.eventstorm.cqrs.CommandContext;
 import eu.eventstorm.cqrs.CommandHandler;
 import eu.eventstorm.cqrs.batch.BatchJobCreated;
+import reactor.core.publisher.Flux;
 
 public abstract class AbstractBatchEventCommandHandler<C extends BatchCommand> implements CommandHandler<C, Event> {
 
@@ -27,8 +26,7 @@ public abstract class AbstractBatchEventCommandHandler<C extends BatchCommand> i
 	}
 
 	@Override
-	public ImmutableList<Event> handle(CommandContext context, C command) {
-
+	public Flux<Event> handle(CommandContext context, C command) {
 		// validate the command
 		validate(context, command);
 
@@ -38,7 +36,7 @@ public abstract class AbstractBatchEventCommandHandler<C extends BatchCommand> i
 		// push the candidate to the batch
 		Event event = this.batch.push(data);
 
-		return ImmutableList.of(event);
+		return Flux.just(event);
 	}
 
 	protected abstract EventCandidate<BatchJobCreated> decision(CommandContext context, C command);

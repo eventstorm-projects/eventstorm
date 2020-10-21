@@ -16,15 +16,19 @@ import eu.eventstorm.core.validation.ConstraintViolation;
 import eu.eventstorm.cqrs.Command;
 import eu.eventstorm.cqrs.CommandContext;
 import eu.eventstorm.cqrs.CommandHandler;
+import eu.eventstorm.cqrs.EventLoop;
 import eu.eventstorm.cqrs.event.EvolutionHandlers;
 import eu.eventstorm.cqrs.validation.CommandValidationException;
 import eu.eventstorm.cqrs.validation.Validator;
 import eu.eventstorm.eventbus.EventBus;
 import eu.eventstorm.eventstore.StreamDefinition;
 import eu.eventstorm.eventstore.StreamManager;
-import eu.eventstorm.eventstore.db.DatabaseEventStore;
+import eu.eventstorm.eventstore.db.LocalDatabaseEventStore;
 import eu.eventstorm.sql.Transaction;
 import eu.eventstorm.sql.TransactionManager;
+import eu.eventstorm.util.tuple.Tuples;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -38,7 +42,7 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 	private final Validator<T> validator;
 	
 	@Autowired
-	private DatabaseEventStore eventStore;
+	private LocalDatabaseEventStore eventStore;
 	
 	@Autowired
 	private TransactionManager transactionManager;
@@ -52,6 +56,9 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 	@Autowired
 	private EventBus eventBus;
 	
+	@Autowired
+	private EventLoop eventLoop;
+	
 	public LocalDatabaseEventStoreCommandHandler(Class<T> type, Validator<T> validator) {
 		this.type = type;
 		this.validator = validator;
@@ -62,30 +69,41 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 		return this.type;
 	}
 
-	public final ImmutableList<Event> handle(CommandContext context, T command) {
+	public final Flux<Event> handle(CommandContext context, T command) {
 		
-		ImmutableList<Event> events;
 		
-		try (Transaction tx = this.transactionManager.newTransactionReadWrite()) {
-			
+		
+		try (Transaction tx = this.transactionManager.newTransactionReadOnly()) {
 			// validate the command
 			validate(context, command);
 			
-			// apply the decision function (state,command) => events
-			ImmutableList<EventCandidate<?>> candidates = decision(context, command);
-
-			// save the to the eventStore
-			events = store(candidates);
-			
-			// apply the evolution function (state,Event) => State
-			evolution(events);
-			
-			tx.commit();
+			tx.rollback();
 		}
 		
-		eventBus.publish(events);
-		
-		return events;
+		return Mono.just(Tuples.of(context, command))
+				.publishOn(eventLoop.get(command))
+				.map(tuple -> {
+					ImmutableList<Event> events;
+					try (Transaction tx = this.transactionManager.newTransactionReadWrite()) {
+						
+						// apply the decision function (state,command) => events
+						ImmutableList<EventCandidate<?>> candidates = decision(tuple.getT1(), tuple.getT2());
+						
+						// save the to the eventStore
+						events = store(candidates);
+						
+						// apply the evolution function (state,Event) => State
+						evolution(events);
+						
+						tx.commit();
+					}
+					return events;
+				})
+				.map(events -> {
+					eventBus.publish(events);
+					return events;
+				})
+				.flatMapMany(Flux::fromIterable);
 	}
 
 	private void validate(CommandContext context, T command) {

@@ -1,5 +1,7 @@
 package eu.eventstorm.cqrs.impl;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.google.common.collect.ImmutableList;
 
 import eu.eventstorm.core.Event;
@@ -7,31 +9,41 @@ import eu.eventstorm.core.EventCandidate;
 import eu.eventstorm.cqrs.Command;
 import eu.eventstorm.cqrs.CommandContext;
 import eu.eventstorm.cqrs.CommandHandler;
+import eu.eventstorm.cqrs.EventLoop;
+import eu.eventstorm.util.tuple.Tuples;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 abstract class AbstractEventCommandHandler<T extends Command> implements CommandHandler<T, Event> {
 	
+	@Autowired
+	private EventLoop eventLoop;
 	
-	public final ImmutableList<Event> handle(CommandContext context, T command) {
+	public final Flux<Event> handle(CommandContext context, T command) {
 		
-		// validate the command
-		validate(context, command);
+		return Mono.just(Tuples.of(context,command))
+			.map( tuple -> {
+				// validate the command
+				validate(tuple.getT1(), tuple.getT2());
+				return tuple;
+			})
+			.map( tuple -> {
+				// apply the decision function (state,command) => events
+				return decision(context, command);
+			})
+			// publish on event lopp before store
+			.publishOn(eventLoop.get(command))
+			// save the to the eventStore
+			.map( candidates -> store(candidates))
+			// apply the evolution function (state,Event) => State
+			.doOnSuccess(events -> evolution(events))
+			// publish events
+			.doOnSuccess(events -> publish(events))
+			.flatMapMany(Flux::fromIterable);
 		
-		// apply the decision function (state,command) => events
-		ImmutableList<EventCandidate<?>> candidates = decision(context, command);
-		
-		// save the to the eventStore
-		ImmutableList<Event> events = store(candidates);
-		
-		// apply the evolution function (state,Event) => State
-		evolution(events);
-		
-		// publish events
-		publish(events);
-		
-		return events;
 	}
 
 	
