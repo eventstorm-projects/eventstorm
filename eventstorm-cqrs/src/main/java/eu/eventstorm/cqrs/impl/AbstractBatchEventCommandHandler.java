@@ -7,7 +7,9 @@ import eu.eventstorm.cqrs.BatchCommand;
 import eu.eventstorm.cqrs.CommandContext;
 import eu.eventstorm.cqrs.CommandHandler;
 import eu.eventstorm.cqrs.batch.BatchJobCreated;
+import eu.eventstorm.util.tuple.Tuples;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 public abstract class AbstractBatchEventCommandHandler<C extends BatchCommand> implements CommandHandler<C, Event> {
 
@@ -27,16 +29,17 @@ public abstract class AbstractBatchEventCommandHandler<C extends BatchCommand> i
 
 	@Override
 	public Flux<Event> handle(CommandContext context, C command) {
-		// validate the command
-		validate(context, command);
-
-		// apply the decision function (state,command) => events
-		EventCandidate<BatchJobCreated> data = decision(context, command);
-
-		// push the candidate to the batch
-		Event event = this.batch.push(data);
-
-		return Flux.just(event);
+		
+		return Mono.just(Tuples.of(context, command))
+				// validate the command
+				.doOnNext(t -> validate(t.getT1(), t.getT2()))
+				// apply the decision function (state,command) => events
+				.map(t -> decision(t.getT1(), t.getT2()))
+				// push the candidate to the batch
+				.map(candidate -> this.batch.push(candidate))
+				// to flux
+				.flux();
+				
 	}
 
 	protected abstract EventCandidate<BatchJobCreated> decision(CommandContext context, C command);

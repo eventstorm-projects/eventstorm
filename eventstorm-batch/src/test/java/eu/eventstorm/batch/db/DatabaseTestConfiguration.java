@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import com.google.protobuf.TypeRegistry;
+
 import eu.eventstorm.batch.rest.CreatedByExtractor;
 import eu.eventstorm.core.uuid.UniversalUniqueIdentifierDefinition;
 import eu.eventstorm.core.uuid.UniversalUniqueIdentifierGenerator;
@@ -56,4 +58,10 @@ public class DatabaseTestConfiguration {
 			}
 		});
 	}
+	
+	@Bean
+	TypeRegistry typeRegistry() {
+		return TypeRegistry.getEmptyTypeRegistry();
+	}
+	
 }
