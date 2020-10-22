@@ -1,7 +1,5 @@
 package eu.eventstorm.cqrs.impl;
 
-import static com.google.common.collect.ImmutableList.toImmutableList;
-
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -149,33 +147,31 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 	}
 
 	private ImmutableList<Event> store(ImmutableList<EventCandidate<?>> candidates) {
-		
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("store [{}]", candidates);
 		}
 		
 		String correlation = candidates.size() > 1 ? UUID.randomUUID().toString() : null;
-		return candidates.stream()
-				.map(candidate -> {
+		ImmutableList.Builder<Event> builder = ImmutableList.builder();
+		candidates.forEach(candidate -> {
+			StreamDefinition sd = streamManager.getDefinition(candidate.getStream());
 					
-					StreamDefinition sd = streamManager.getDefinition(candidate.getStream());
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Stream definition for [{}] -> [{}]", candidate.getStream(), sd);
+			}
 					
-					if (LOGGER.isDebugEnabled()) {
-						LOGGER.debug("Stream definition for [{}] -> [{}]", candidate.getStream(), sd);
-					}
+			if (sd == null) {
+				throw new IllegalStateException("No defintion found for stream [" + candidate.getStream() + "]");
+			}
 					
-					if (sd == null) {
-						throw new IllegalStateException("No defintion found for stream [" + candidate.getStream() + "]");
-					}
-					
-					return this.eventStore.appendToStream(
-							sd.getStreamEventDefinition(candidate.getMessage().getClass().getSimpleName()), 
-							candidate.getStreamId().toStringValue(), 
-							correlation, 
-							candidate.getMessage())
-						;
-				})
-				.collect(toImmutableList());
+			builder.add(this.eventStore.appendToStream(
+					sd.getStreamEventDefinition(candidate.getMessage().getClass().getSimpleName()), 
+					candidate.getStreamId().toStringValue(), 
+					correlation, 
+					candidate.getMessage())
+				);
+		});
+		return builder.build();
 	}
 
 	private void evolution(ImmutableList<Event> events) {
