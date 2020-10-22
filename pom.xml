@@ -33,7 +33,7 @@
 		<com.google.protobuf.version>3.13.0</com.google.protobuf.version>
 
 		<com.fasterxml.jackson.core.version>2.11.2</com.fasterxml.jackson.core.version>
-		<io.zipkin.brave.version>5.12.6</io.zipkin.brave.version>
+		<io.zipkin.brave.version>5.12.7</io.zipkin.brave.version>
 		<org.antlr.version>4.8-1</org.antlr.version>
 		<javax.servlet.version>4.0.1</javax.servlet.version>
 		<org.owasp.encoder.version>1.2.2</org.owasp.encoder.version>

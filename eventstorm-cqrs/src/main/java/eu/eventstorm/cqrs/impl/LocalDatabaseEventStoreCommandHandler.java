@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.ImmutableList;
 
+import brave.Span;
+import brave.Tracer;
 import eu.eventstorm.core.Event;
 import eu.eventstorm.core.EventCandidate;
 import eu.eventstorm.core.validation.ConstraintViolation;
@@ -26,6 +28,7 @@ import eu.eventstorm.eventstore.StreamManager;
 import eu.eventstorm.eventstore.db.LocalDatabaseEventStore;
 import eu.eventstorm.sql.Transaction;
 import eu.eventstorm.sql.TransactionManager;
+import eu.eventstorm.util.tuple.Tuple2;
 import eu.eventstorm.util.tuple.Tuples;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -58,6 +61,9 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 	
 	@Autowired
 	private EventLoop eventLoop;
+
+	@Autowired
+	private Tracer tracer;
 	
 	public LocalDatabaseEventStoreCommandHandler(Class<T> type, Validator<T> validator) {
 		this.type = type;
@@ -71,41 +77,61 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 
 	public final Flux<Event> handle(CommandContext context, T command) {
 		
-		
-		
-		try (Transaction tx = this.transactionManager.newTransactionReadOnly()) {
-			// validate the command
-			validate(context, command);
-			
-			tx.rollback();
+		Span newSpan = this.tracer.nextSpan().name("validate");
+		try (Tracer.SpanInScope ws = this.tracer.withSpanInScope(newSpan.start())) {
+			try (Transaction tx = this.transactionManager.newTransactionReadOnly()) {
+				// validate the command
+				validate(context, command);
+				
+				tx.rollback();
+			}	
+		} finally {
+			newSpan.finish();
 		}
 		
 		return Mono.just(Tuples.of(context, command))
 				.publishOn(eventLoop.get(command))
-				.map(tuple -> {
-					ImmutableList<Event> events;
-					try (Transaction tx = this.transactionManager.newTransactionReadWrite()) {
-						
-						// apply the decision function (state,command) => events
-						ImmutableList<EventCandidate<?>> candidates = decision(tuple.getT1(), tuple.getT2());
-						
-						// save the to the eventStore
-						events = store(candidates);
-						
-						// apply the evolution function (state,Event) => State
-						evolution(events);
-						
-						tx.commit();
-					}
-					return events;
-				})
-				.map(events -> {
-					eventBus.publish(events);
-					return events;
-				})
+				.map(this::storeAndEvolution)
+				.doOnNext(eventBus::publish)
 				.flatMapMany(Flux::fromIterable);
 	}
 
+	private ImmutableList<Event> storeAndEvolution(Tuple2<CommandContext, T> tuple) {
+		ImmutableList<Event> events;
+		try (Transaction tx = this.transactionManager.newTransactionReadWrite()) {
+			
+			ImmutableList<EventCandidate<?>> candidates;
+			
+			Span span = this.tracer.nextSpan().name("decision");
+			try (Tracer.SpanInScope ws = this.tracer.withSpanInScope(span.start())) {
+				// apply the decision function (state,command) => events
+				candidates = decision(tuple.getT1(), tuple.getT2());
+			} finally {
+				span.finish();
+			}
+			
+			span = this.tracer.nextSpan().name("store");
+			try (Tracer.SpanInScope ws = this.tracer.withSpanInScope(span.start())) {
+				// save the to the eventStore
+				events = store(candidates);
+			} finally {
+				span.finish();
+			}
+			
+			
+			span = this.tracer.nextSpan().name("evolution");
+			try (Tracer.SpanInScope ws = this.tracer.withSpanInScope(span.start())) {
+				// apply the evolution function (state,Event) => State
+				evolution(events);
+			} finally {
+				span.finish();
+			}
+			
+			tx.commit();
+		}
+		return events;
+	}
+	
 	private void validate(CommandContext context, T command) {
 		
 		ImmutableList<ConstraintViolation> constraintViolations = this.validator.validate(context, command);
