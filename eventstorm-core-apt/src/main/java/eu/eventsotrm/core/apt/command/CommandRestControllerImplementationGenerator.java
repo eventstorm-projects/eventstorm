@@ -229,7 +229,7 @@ public final class CommandRestControllerImplementationGenerator {
 		
 		String type = "application/cloudevents+json";
 		if (!Void.class.getName().equals(returnType)) {
-			type = "application/json";
+			type = rcd.getRestController().produces();
 		}
 		
 		if (HttpMethod.POST == rcd.getRestController().method()) {

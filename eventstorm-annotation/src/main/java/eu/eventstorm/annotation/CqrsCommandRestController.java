@@ -35,4 +35,9 @@ public @interface CqrsCommandRestController {
 	 */
 	Class<?> returnType() default Void.class;
 	
+	/**
+	 * response produce media type
+	 */
+	String produces() default "application/cloudevents+json";
+	
 }
