@@ -18,7 +18,7 @@ final class TransactionHolder implements AutoCloseable {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(TransactionHolder.class);
 
-	private final ConcurrentHashMap<Thread, TransactionSupport> holder;
+	private final ConcurrentHashMap<Long, TransactionSupport> holder;
 
 	private final ScheduledExecutorService ses;
 
@@ -29,15 +29,15 @@ final class TransactionHolder implements AutoCloseable {
 	}
 
 	TransactionSupport get() {
-		return this.holder.get(Thread.currentThread());
+		return this.holder.get(Long.valueOf(Thread.currentThread().getId()));
 	}
 
 	void set(TransactionSupport tx) {
-		this.holder.put(Thread.currentThread(), tx);
+		this.holder.put(Long.valueOf(Thread.currentThread().getId()), tx);
 	}
 
 	void remove() {
-		this.holder.remove(Thread.currentThread());
+		this.holder.remove(Long.valueOf(Thread.currentThread().getId()));
 	}
 
 	private final class CleanerCommand implements Runnable {
@@ -49,11 +49,6 @@ final class TransactionHolder implements AutoCloseable {
 				LOGGER.trace("Start Transaction Holder Cleaner on [{}]", holder.size());
 			}
 			holder.forEach((th, tx) -> {
-				if (th.isInterrupted()) {
-					if (LOGGER.isDebugEnabled()) {
-						LOGGER.debug("found thread interrupted => remove");
-					}
-				}
 				if (tx.isMain()) {
 					AbstractTransaction a = (AbstractTransaction) tx;
 					try {

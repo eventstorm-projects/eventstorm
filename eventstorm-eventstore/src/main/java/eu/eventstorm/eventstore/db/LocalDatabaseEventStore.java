@@ -5,7 +5,6 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 import com.google.protobuf.Any;
@@ -56,40 +55,28 @@ public class LocalDatabaseEventStore implements EventStore {
 			return null;
 		}
 		
-		DatabaseEvent de;
+		long revision = this.databaseRepository.lastRevision(sepd.getStream(), streamId);
 		
-		try (Stream<DatabaseEvent> events = this.databaseRepository.lock(sepd.getStream(), streamId)) {
-			Optional<DatabaseEvent> optional = events.findFirst();
-			DatabaseEventBuilder builder = new DatabaseEventBuilder()
+		DatabaseEventBuilder builder = new DatabaseEventBuilder()
 						.withStreamId(streamId)
 						.withStream(sepd.getStream())
 				        .withTime(Timestamp.from(time.toInstant()))
 				        .withPayload(json)
+				        .withRevision((int) (revision + 1))
 				        .withEventType(sepd.getEventType());
 				        
-			if (correlation != null) {
-				builder.withCorrelation(correlation.toString());
-			}
-			
-			if (optional.isPresent()) {
-				// "update"
-				builder.withRevision(optional.get().getRevision() + 1);
-			} else {
-				// "insert"
-				builder.withRevision(1);
-			}
-
-			de = builder.build();
-			
-			this.databaseRepository.insert(de);
+		if (correlation != null) {
+			builder.withCorrelation(correlation.toString());
 		}
+			
+		this.databaseRepository.insert(builder.build());
 
 		// @formatter:off
 		return Event.newBuilder()
 					.setStreamId(streamId)
 					.setStream(sepd.getStream())
 					.setTimestamp(time.toString())
-					.setRevision(de.getRevision())
+					.setRevision((int) (revision + 1))
 					.setData(Any.pack(message,this.eventStoreProperties.getEventDataTypeUrl() + "/" + sepd.getStream() + "/"))
 					.build();
 		// @formatter:off
