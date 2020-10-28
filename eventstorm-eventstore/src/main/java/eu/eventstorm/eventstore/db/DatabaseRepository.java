@@ -9,7 +9,6 @@ import static eu.eventstorm.eventstore.db.DatabaseEventDescriptor.REVISION;
 import static eu.eventstorm.eventstore.db.DatabaseEventDescriptor.TABLE;
 import static eu.eventstorm.eventstore.db.DatabaseEventDescriptor.TIME;
 import static eu.eventstorm.sql.builder.Order.asc;
-import static eu.eventstorm.sql.builder.Order.desc;
 import static eu.eventstorm.sql.expression.AggregateFunctions.max;
 import static eu.eventstorm.sql.expression.Expressions.and;
 import static eu.eventstorm.sql.expression.Expressions.eq;
@@ -27,13 +26,13 @@ import eu.eventstorm.sql.jdbc.ResultSetMappers;
 final class DatabaseRepository extends AbstractDatabaseEventRepository {
 
 	private final SqlQuery findByAggreateTypeAndAggregateIdLock;
+	
 	private final SqlQuery findByAggreateTypeAndAggregateId;
 	private final SqlQuery lastRevision;
 
 	DatabaseRepository(Database database) {
 		super(database);
-		this.findByAggreateTypeAndAggregateIdLock = select(ALL).from(TABLE).where(and(eq(STREAM), eq(STREAM_ID))).orderBy(desc(REVISION)).forUpdate()
-		        .build();
+		this.findByAggreateTypeAndAggregateIdLock = select(ALL).from(TABLE).where(and(eq(STREAM), eq(STREAM_ID), eq(REVISION))).forUpdate().build();
 		this.lastRevision = select(max(REVISION)).from(TABLE).where(and(eq(STREAM), eq(STREAM_ID))).build();
 		
 		this.findByAggreateTypeAndAggregateId = select(TIME, REVISION, PAYLOAD, EVENT_TYPE).from(TABLE).where(and(eq(STREAM), eq(STREAM_ID))).orderBy(asc(REVISION))
@@ -47,20 +46,14 @@ final class DatabaseRepository extends AbstractDatabaseEventRepository {
 		}, ResultSetMappers.LONG);
 	}
 	
-	public Stream<DatabaseEvent> lock(String stream, String streamId) {
-		return stream(this.findByAggreateTypeAndAggregateIdLock, ps -> {
+	public DatabaseEvent lock(String stream, String streamId, int revision) {
+		return executeSelect(this.findByAggreateTypeAndAggregateIdLock, ps -> {
 			ps.setString(1, stream);
 			ps.setString(2, streamId);
+			ps.setInt(3, revision);
 		}, Mappers.DATABASE_EVENT);
 	}
 	
-//	public Stream<DatabaseEvent> lock(String stream, String streamId) {
-//		return stream(this.findByAggreateTypeAndAggregateIdLock, ps -> {
-//			ps.setString(1, stream);
-//			ps.setString(2, streamId);
-//		}, Mappers.DATABASE_EVENT);
-//	}
-
 	public  <T> Stream<T> findAllByStreamAndStreamId(String stream, String streamId, ResultSetMapper<T> rsm) {
 		return stream(this.findByAggreateTypeAndAggregateId, ps -> {
 			ps.setString(1, stream);
