@@ -63,6 +63,6 @@ public final class SqlTable {
      */
     @Override
     public int hashCode() {
-        return this.name.hashCode();
+        return this.name.hashCode() + this.alias.hashCode();
     }
 }
