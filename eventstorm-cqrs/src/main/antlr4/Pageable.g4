@@ -67,6 +67,7 @@ op
 	| '[ge]'
 	| '[lt]'
 	| '[le]'
+	| '[cnt]'
 	;
 
 value

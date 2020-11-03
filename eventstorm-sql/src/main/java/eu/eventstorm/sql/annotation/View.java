@@ -19,4 +19,9 @@ public @interface View {
      */
     String value();
 
+    /**
+	 * enable support of page in repository
+	 */
+	boolean pageable() default false;
+	
 }

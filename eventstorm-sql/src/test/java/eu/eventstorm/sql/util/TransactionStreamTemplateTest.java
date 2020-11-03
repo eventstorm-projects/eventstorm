@@ -33,7 +33,6 @@ import eu.eventstorm.test.LoggerInstancePostProcessor;
 class TransactionStreamTemplateTest {
 	
 	private TransactionTemplate template;
-	private TransactionStreamTemplate streamTemplate;
 	private HikariDataSource ds;
 	private AbstractStudentRepository repository;
 	private Database db;
@@ -59,7 +58,6 @@ class TransactionStreamTemplateTest {
 				.build();
 		
 		template = new TransactionTemplate(db.transactionManager());
-		streamTemplate = new TransactionStreamTemplate(db.transactionManager());
 		
 		repository = new AbstractStudentRepository(db) {
         };
@@ -90,7 +88,7 @@ class TransactionStreamTemplateTest {
         });
         
         assertEquals(0, ds.getHikariPoolMXBean().getActiveConnections());
-        try (Stream<Student> stream = streamTemplate.stream(() -> repository.findAll())) {
+        try (Stream<Student> stream = template.stream(() -> repository.findAll())) {
         	assertEquals(1, ds.getHikariPoolMXBean().getActiveConnections());
         }
         assertEquals(0, ds.getHikariPoolMXBean().getActiveConnections());
@@ -100,9 +98,9 @@ class TransactionStreamTemplateTest {
         System.runFinalization();
         System.gc();
         
-        try (Stream<Student> stream = streamTemplate.stream(() -> repository.findAll())) {
+        try (Stream<Student> stream = template.stream(() -> repository.findAll())) {
         	assertEquals(1, ds.getHikariPoolMXBean().getActiveConnections());
-        	try (Stream<Student> stream2 = streamTemplate.stream(() -> repository.findAll())) {
+        	try (Stream<Student> stream2 = template.stream(() -> repository.findAll())) {
             	assertEquals(1, ds.getHikariPoolMXBean().getActiveConnections());
             }
         }
@@ -114,7 +112,7 @@ class TransactionStreamTemplateTest {
 		assertEquals(0, ds.getHikariPoolMXBean().getActiveConnections());
         template.executeWithReadWrite(() -> {
         	assertEquals(1, ds.getHikariPoolMXBean().getActiveConnections());
-        	assertThrows(TransactionException.class, () -> streamTemplate.stream(() -> repository.findAll()));
+        	assertThrows(TransactionException.class, () -> template.stream(() -> repository.findAll()));
         	return null;
         });
         

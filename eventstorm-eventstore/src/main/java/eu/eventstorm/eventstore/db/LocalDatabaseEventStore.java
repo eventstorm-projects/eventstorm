@@ -21,7 +21,7 @@ import eu.eventstorm.eventstore.StreamEventDefinition;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Dialect;
 import eu.eventstorm.sql.jdbc.ResultSetMapper;
-import eu.eventstorm.sql.util.TransactionStreamTemplate;
+import eu.eventstorm.sql.util.TransactionTemplate;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -34,12 +34,12 @@ public class LocalDatabaseEventStore implements EventStore {
 	
 	private final DatabaseRepository databaseRepository;
 	
-	private final TransactionStreamTemplate streamTemplate;
+	private final TransactionTemplate template;
 	
 	public LocalDatabaseEventStore(Database database, EventStoreProperties eventStoreProperties) {
 		this.eventStoreProperties = eventStoreProperties;
 		this.databaseRepository = new DatabaseRepository(database);
-		this.streamTemplate = new TransactionStreamTemplate(database.transactionManager());
+		this.template = new TransactionTemplate(database.transactionManager());
 	}
 
 	@Override
@@ -89,7 +89,7 @@ public class LocalDatabaseEventStore implements EventStore {
 
 	@Override
 	public Stream<Event> readStream(StreamDefinition definition, String streamId) {
-		return streamTemplate.stream(() -> 
+		return template.stream(() -> 
 		this.databaseRepository.findAllByStreamAndStreamId(definition.getName(), streamId,  new EventResultSetMapper(streamId, definition)));
 
 	}

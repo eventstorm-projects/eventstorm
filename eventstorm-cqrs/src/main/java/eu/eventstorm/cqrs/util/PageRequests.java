@@ -42,6 +42,7 @@ public final class PageRequests {
 			.put("[gt]", Expressions::gt)
 			.put("[le]", Expressions::le)
 			.put("[lt]", Expressions::lt)
+			.put("[cnt]", Expressions::like)
 			.build();
 	
 	private static final BaseErrorListener BASE_ERROR_LISTENER = new BaseErrorListener() {
@@ -119,7 +120,11 @@ public final class PageRequests {
 				}
 				
 				Expression expression = EXPRESSIONS.get(op).apply(column);
-				builder.withFilter(expression, queryDescriptor.getPreparedStatementIndexSetter(property, fic.value().getText()));
+				if ("[cnt]".equals(op)) {
+					builder.withFilter(expression, queryDescriptor.getPreparedStatementIndexSetter(property, "%" + fic.value().getText() + "%"));
+				} else {
+					builder.withFilter(expression, queryDescriptor.getPreparedStatementIndexSetter(property, fic.value().getText()));					
+				}
 			}
 		}
 		

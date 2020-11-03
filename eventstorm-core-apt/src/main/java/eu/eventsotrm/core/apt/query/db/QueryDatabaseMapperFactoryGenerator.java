@@ -35,10 +35,6 @@ public final class QueryDatabaseMapperFactoryGenerator {
     	
     	sourceCode.forEachDatabaseQueryPackage((package_, list) -> {
     	    
-    	    logger.info(list.toString());
-    	    logger.info(list.get(0).toString());
-    	    logger.info(list.get(0).element().toString());
-    	    
     		if (list.stream().filter(desc -> desc.element().getAnnotation(CqrsQueryDatabaseView.class) != null).findFirst().isPresent()) {
     			 try {
                      create(env, package_, list);

@@ -20,11 +20,11 @@ import eu.eventstorm.sql.jdbc.ResultSetMapper;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-final class ViewMapperFactoryGenerator implements Generator {
+public final class ViewMapperFactoryGenerator implements Generator {
 
     private final Logger logger;
 
-	ViewMapperFactoryGenerator() {
+	public ViewMapperFactoryGenerator() {
 		logger = LoggerFactory.getInstance().getLogger(ViewMapperFactoryGenerator.class);
 	}
 
@@ -38,7 +38,7 @@ final class ViewMapperFactoryGenerator implements Generator {
         });
     }
 
-    private void create(ProcessingEnvironment env, String pack, List<ViewDescriptor> descriptors) throws IOException {
+    public void create(ProcessingEnvironment env, String pack, List<ViewDescriptor> descriptors) throws IOException {
 
         JavaFileObject object = env.getFiler().createSourceFile(pack + ".Mappers");
         Writer writer = object.openWriter();

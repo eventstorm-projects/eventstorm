@@ -1,6 +1,6 @@
 package eu.eventstorm.sql.util;
 
-import static eu.eventstorm.sql.util.TransactionStreamTemplate.rollbackAndClose;
+import static eu.eventstorm.sql.util.TransactionTemplate.rollbackAndClose;
 
 import java.util.stream.Stream;
 

@@ -270,7 +270,7 @@ final class ViewRepositoryGenerator implements Generator {
 
 
     private static void writeMethods(Writer writer, ViewDescriptor descriptor) throws IOException {
-       // generateMethodPage(writer, descriptor);
+        generateMethodPage(writer, descriptor);
     }
 //
 //
@@ -575,6 +575,10 @@ final class ViewRepositoryGenerator implements Generator {
 
     private static void generateMethodPage(Writer writer, ViewDescriptor descriptor) throws IOException {
 
+    	if (descriptor.getView().pageable() == false) {
+    		return;
+    	}
+    	
         writeNewLine(writer);
         writer.write("    public final ");
         writer.write(Page.class.getName());

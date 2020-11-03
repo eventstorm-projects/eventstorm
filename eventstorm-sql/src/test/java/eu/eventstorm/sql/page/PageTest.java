@@ -41,7 +41,7 @@ import eu.eventstorm.sql.model.airport.Airport;
 import eu.eventstorm.sql.model.airport.AirportDescriptor;
 import eu.eventstorm.sql.model.airport.AirportImpl;
 import eu.eventstorm.sql.model.airport.AirportRepository;
-import eu.eventstorm.sql.util.TransactionStreamTemplate;
+import eu.eventstorm.sql.util.TransactionTemplate;
 import eu.eventstorm.test.LoggerInstancePostProcessor;
 
 /**
@@ -53,7 +53,7 @@ class PageTest {
 	private JdbcConnectionPool ds;
 	private Database db;
 	private AirportRepository repo;
-	private TransactionStreamTemplate transactionStreamTemplate;
+	private TransactionTemplate transactionTemplate;
 	
 	@BeforeEach
 	void before() {
@@ -64,7 +64,7 @@ class PageTest {
 				.withModule(new eu.eventstorm.sql.model.airport.Module("test", null))
 				.build();  
 		repo = new AirportRepository(db);
-		transactionStreamTemplate = new TransactionStreamTemplate(transactionManager);
+		transactionTemplate = new TransactionTemplate(transactionManager);
 	}
 	
 	@Test
@@ -109,7 +109,6 @@ class PageTest {
 		  try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
 			  
 			  PageRequest pageable = PageRequest.of(0, 10).build();
-			  System.out.println(pageable);
 			  
 			  Page<Airport> page = this.repo.findAll(pageable);
 			  List<Airport> content = page.getContent().collect(ImmutableList.toImmutableList());
@@ -158,7 +157,7 @@ class PageTest {
 			  tx.rollback();
 		  }
 		  
-		  Page<Airport> page = transactionStreamTemplate.page(() -> this.repo.findAll( PageRequest.of(0, 10).withFilter(eq(AirportDescriptor.TYPE, "small_airport")).build()));
+		  Page<Airport> page = transactionTemplate.page(() -> this.repo.findAll( PageRequest.of(0, 10).withFilter(eq(AirportDescriptor.TYPE, "small_airport")).build()));
 		  assertEquals(34475, page.getTotalElements());
 		  List<Airport> content;
 		  try (Stream<Airport> stream = page.getContent()) {
@@ -179,7 +178,7 @@ class PageTest {
 		  }
 		  
 		  try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
-			  page = transactionStreamTemplate.page(() -> this.repo.findAll( PageRequest.of(0, 10).withFilter(eq(AirportDescriptor.TYPE, "small_airport")).build()));
+			  page = transactionTemplate.page(() -> this.repo.findAll( PageRequest.of(0, 10).withFilter(eq(AirportDescriptor.TYPE, "small_airport")).build()));
 			  assertEquals(34475, page.getTotalElements());
 			  try (Stream<Airport> stream = page.getContent()) {
 				  content = stream.collect(toImmutableList());  
@@ -202,7 +201,7 @@ class PageTest {
 		  }
 		  
 		  try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
-			  page = transactionStreamTemplate.page(() -> this.repo.findAll( PageRequest.of(0, 10)
+			  page = transactionTemplate.page(() -> this.repo.findAll( PageRequest.of(0, 10)
 					  .withFilter(eq(AirportDescriptor.TYPE, "small_airport"))
 					  .withOrder(Order.desc(AirportDescriptor.ID))
 					  .build()));
@@ -230,7 +229,7 @@ class PageTest {
 
 		  
 		  try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
-			  assertThrows(TransactionException.class, () -> transactionStreamTemplate.page(() -> this.repo.findAll(PageRequest.of(0, 10).withFilter(eq(AirportDescriptor.TYPE, "small_airport")).build())));
+			  assertThrows(TransactionException.class, () -> transactionTemplate.page(() -> this.repo.findAll(PageRequest.of(0, 10).withFilter(eq(AirportDescriptor.TYPE, "small_airport")).build())));
 			  tx.rollback();
 		  }
 	}
