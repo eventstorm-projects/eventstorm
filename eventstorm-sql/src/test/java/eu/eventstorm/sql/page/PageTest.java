@@ -135,7 +135,7 @@ class PageTest {
 		  
 		  try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
 			  
-			  PageRequest pageable = PageRequest.of(0, 10).withFilter(eq(AirportDescriptor.TYPE), (ps,index) -> ps.setString(index,"small_airport")).build();
+			  PageRequest pageable = PageRequest.of(0, 10).withFilter(eq(AirportDescriptor.TYPE), (ps,index) -> {ps.setString(index,"small_airport"); return index+1;}).build();
 			  Page<Airport> page = this.repo.findAll(pageable);
 			  assertEquals(34475, page.getTotalElements());
 			  

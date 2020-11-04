@@ -3,12 +3,15 @@ package eu.eventstorm.cqrs.util;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import static org.mockito.Mockito.anyString;
+
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import eu.eventstorm.cqrs.SqlQueryDescriptor;
 import eu.eventstorm.sql.builder.OrderType;
 import eu.eventstorm.sql.page.PageRequest;
+import eu.eventstorm.sql.page.PreparedStatementIndexSetter;
 
 class PageRequestsTest {
 
@@ -23,7 +26,7 @@ class PageRequestsTest {
 	
 	@Test
 	void testParseRangeAndFilter() {
-		PageRequest pr = PageRequests.parse("range=0-9&filter=code[eq]ab", Mockito.mock(SqlQueryDescriptor.class));
+		PageRequest pr = PageRequests.parse("range=0-9&filter=code[eq]'ab'", Mockito.mock(SqlQueryDescriptor.class));
 		assertEquals(0, pr.getOffset());
 		assertEquals(10, pr.getSize());
 		assertEquals(1, pr.getFilters().size());
@@ -37,7 +40,17 @@ class PageRequestsTest {
 		assertEquals(0, pr.getOrders().size());
 		assertEquals(1, pr.getFilters().toExpressions().size());
 		
-		pr = PageRequests.parse("range=0-19&filter=code[eq]25,type[ge]ab", Mockito.mock(SqlQueryDescriptor.class));
+		pr = PageRequests.parse("range=0-19&filter=code[eq]25,type[ge]'ab'", Mockito.mock(SqlQueryDescriptor.class));
+		assertEquals(0, pr.getOffset());
+		assertEquals(20, pr.getSize());
+		assertEquals(2, pr.getFilters().size());
+		assertEquals(0, pr.getOrders().size());
+		assertEquals(2, pr.getFilters().toExpressions().size());
+		
+		SqlQueryDescriptor mock = Mockito.mock(SqlQueryDescriptor.class);
+		Mockito.when(mock.getPreparedStatementIndexSetter(anyString(), anyString())).thenReturn(Mockito.mock(PreparedStatementIndexSetter.class));
+		
+		pr = PageRequests.parse("range=0-19&filter=code[eq]25,type[in]['ab';'cd']", mock);
 		assertEquals(0, pr.getOffset());
 		assertEquals(20, pr.getSize());
 		assertEquals(2, pr.getFilters().size());
@@ -47,14 +60,14 @@ class PageRequestsTest {
 	
 	@Test
 	void testParseRangeAndFilterAndSort() {
-		PageRequest pr = PageRequests.parse("range=0-9&filter=code[eq]ab&sort=+code", Mockito.mock(SqlQueryDescriptor.class));
+		PageRequest pr = PageRequests.parse("range=0-9&filter=code[eq]'ab'&sort=+code", Mockito.mock(SqlQueryDescriptor.class));
 		assertEquals(0, pr.getOffset());
 		assertEquals(10, pr.getSize());
 		assertEquals(1, pr.getFilters().size());
 		assertEquals(1, pr.getOrders().size());
 		assertEquals(OrderType.ASC, pr.getOrders().get(0).type());
 		
-		pr = PageRequests.parse("range=0-9&filter=code[eq]ab&sort=+code,-type", Mockito.mock(SqlQueryDescriptor.class));
+		pr = PageRequests.parse("range=0-9&filter=code[eq]'ab'&sort=+code,-type", Mockito.mock(SqlQueryDescriptor.class));
 		assertEquals(0, pr.getOffset());
 		assertEquals(10, pr.getSize());
 		assertEquals(1, pr.getFilters().size());

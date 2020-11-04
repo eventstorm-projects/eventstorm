@@ -9,6 +9,6 @@ import java.sql.SQLException;
 @FunctionalInterface
 public interface PreparedStatementIndexSetter {
 
-    void set(PreparedStatement ps, int index) throws SQLException;
+    int set(PreparedStatement ps, int index) throws SQLException;
 
 }

@@ -37,7 +37,7 @@ final class FiltersImpl implements Filters{
 			for (Filter filter : list) {
 				PreparedStatementIndexSetter psis = filter.getPreparedStatementIndexSetter();
 				if (psis != null) {
-					psis.set(ps, i++);
+					i = psis.set(ps, i);
 				}
 			}
 		};

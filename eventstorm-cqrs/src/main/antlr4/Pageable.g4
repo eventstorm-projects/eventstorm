@@ -10,6 +10,7 @@ request
 	| range '&' filter '&' sort
 	| range '&' sort
 	| filter '&' sort
+	| filter
 	;
 	
 range
@@ -46,7 +47,7 @@ sortContent
 	;
 	
 sortItem
-	: (sortAsc | sortDesc) STRING
+	: (sortAsc | sortDesc) IDENTIFIER
 	;	
 	
 sortAsc 
@@ -58,7 +59,7 @@ sortDesc
 	;
 
 property
-	: STRING;
+	: IDENTIFIER;
    
 op
 	: '[eq]'
@@ -68,12 +69,22 @@ op
 	| '[lt]'
 	| '[le]'
 	| '[cnt]'
+	| '[in]'
 	;
 
 value
-	: STRING
-	| integer;
+	: multipleValue
+	| singleValue
+	;
 	 
+singleValue
+	: STRING	
+	| integer;
+	
+multipleValue 
+    : '[' singleValue (';' singleValue)* ']'
+    ;
+     
 equal 
 	: '=';
 
@@ -86,10 +97,14 @@ minus
 integer
 	: DIGIT+;
 
-STRING
-   : [a-zA-Z] [a-zA-Z0-9_]*
-   ;
-
 DIGIT
    : [0-9]
+   ;
+   
+IDENTIFIER
+   : [a-zA-Z] [a-zA-Z0-9_]*
+   ;
+   
+STRING
+   :  '\'' ('\'\'' | ~ ('\''))* '\''
    ;

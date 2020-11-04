@@ -103,7 +103,12 @@ public final class Expressions {
 		return new InSubSelectExpression(column, value);
     }
 	
+    public static Expression in(SqlColumn column, int size) {
+		return new InExpression(column, size);
+    }
+    
     public static Expression like(SqlColumn column) {
 		return new LikeExpression(column);
     }
+    
 }

@@ -10,6 +10,7 @@ import org.antlr.v4.runtime.Recognizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import eu.eventstorm.cqrs.SqlQueryDescriptor;
@@ -19,6 +20,7 @@ import eu.eventstorm.cqrs.query.PageableParser.FilterContext;
 import eu.eventstorm.cqrs.query.PageableParser.FilterItemContext;
 import eu.eventstorm.cqrs.query.PageableParser.RangeContext;
 import eu.eventstorm.cqrs.query.PageableParser.RequestContext;
+import eu.eventstorm.cqrs.query.PageableParser.SingleValueContext;
 import eu.eventstorm.cqrs.query.PageableParser.SortContext;
 import eu.eventstorm.cqrs.query.PageableParser.SortItemContext;
 import eu.eventstorm.sql.builder.Order;
@@ -27,6 +29,7 @@ import eu.eventstorm.sql.expression.Expression;
 import eu.eventstorm.sql.expression.Expressions;
 import eu.eventstorm.sql.page.PageRequest;
 import eu.eventstorm.sql.page.PageRequestBuilder;
+import eu.eventstorm.sql.page.PreparedStatementIndexSetter;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -35,14 +38,15 @@ public final class PageRequests {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(PageRequests.class);
 	
-	private static final ImmutableMap<String, Function<SqlColumn, Expression>> EXPRESSIONS = ImmutableMap.<String, Function<SqlColumn, Expression>>builder()
-			.put("[eq]", Expressions::eq)
-			.put("[neq]", Expressions::notEq)
-			.put("[ge]", Expressions::ge)
-			.put("[gt]", Expressions::gt)
-			.put("[le]", Expressions::le)
-			.put("[lt]", Expressions::lt)
-			.put("[cnt]", Expressions::like)
+	private static final ImmutableMap<String, ExpressionFunction> EXPRESSIONS = ImmutableMap.<String, ExpressionFunction>builder()
+			.put("[eq]", new SimpleExpressionFunction(Expressions::eq))
+			.put("[neq]", new SimpleExpressionFunction(Expressions::notEq))
+			.put("[ge]", new SimpleExpressionFunction(Expressions::ge))
+			.put("[gt]", new SimpleExpressionFunction(Expressions::gt))
+			.put("[le]", new SimpleExpressionFunction(Expressions::le))
+			.put("[lt]", new SimpleExpressionFunction(Expressions::lt))
+			.put("[cnt]", new ContainsExpressionFunction())
+			.put("[in]", new InExpressionFunction())
 			.build();
 	
 	private static final BaseErrorListener BASE_ERROR_LISTENER = new BaseErrorListener() {
@@ -70,6 +74,10 @@ public final class PageRequests {
 		parseSort(builder, ctx.sort(), queryDescriptor);
 		
 		return builder.build();
+	}
+	
+	public static String unwrap(String value) {
+		return value.substring(1, value.length()-1);
 	}
 
 	private static RequestContext parse(String query) {
@@ -119,12 +127,13 @@ public final class PageRequests {
 					LOGGER.debug("filter for property [{}] -> column [{}]", property, column);
 				}
 				
-				Expression expression = EXPRESSIONS.get(op).apply(column);
-				if ("[cnt]".equals(op)) {
-					builder.withFilter(expression, queryDescriptor.getPreparedStatementIndexSetter(property, "%" + fic.value().getText() + "%"));
-				} else {
-					builder.withFilter(expression, queryDescriptor.getPreparedStatementIndexSetter(property, fic.value().getText()));					
+				ExpressionFunction ef = EXPRESSIONS.get(op);
+				
+				if (ef == null) {
+					throw new PageRequestException(PageRequestException.Type.INVALID_OP, ImmutableMap.of("op",op));
 				}
+				
+				builder.withFilter(ef.apply(column, fic), ef.getPreparedStatementIndexSetter(queryDescriptor, property, fic));
 			}
 		}
 		
@@ -145,5 +154,76 @@ public final class PageRequests {
 		}
 		
 		return PageRequest.of(rangeStart , rangeEnd - rangeStart + 1);
+	}
+	
+	private static interface ExpressionFunction {
+
+		Expression apply(SqlColumn column, FilterItemContext fic);
+		
+		PreparedStatementIndexSetter getPreparedStatementIndexSetter(SqlQueryDescriptor queryDescriptor, String property, FilterItemContext fic); 
+
+	}
+	
+	private static final class SimpleExpressionFunction implements ExpressionFunction {
+		private final Function<SqlColumn, Expression> func;
+		public SimpleExpressionFunction(Function<SqlColumn, Expression> func) {
+			this.func = func;
+		}
+		public Expression apply(SqlColumn column, FilterItemContext fic) {
+			return func.apply(column);
+		}
+		public PreparedStatementIndexSetter getPreparedStatementIndexSetter(SqlQueryDescriptor queryDescriptor, String property, FilterItemContext fic) {
+			return queryDescriptor.getPreparedStatementIndexSetter(property, value(fic));
+		}
+	}
+	
+	private static final class ContainsExpressionFunction implements ExpressionFunction {
+		public Expression apply(SqlColumn column, FilterItemContext fic) {
+			return Expressions.like(column);
+		}
+		public PreparedStatementIndexSetter getPreparedStatementIndexSetter(SqlQueryDescriptor queryDescriptor, String property, FilterItemContext fic) {
+			return queryDescriptor.getPreparedStatementIndexSetter(property, "%" + value(fic) + "%");
+		}
+	}
+	
+	private static final class InExpressionFunction implements ExpressionFunction {
+		public Expression apply(SqlColumn column, FilterItemContext fic) {
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("InExpressionFunction.apply({})", fic.value().getText());
+			}
+			if (fic.value().singleValue() != null) {
+				return Expressions.in(column, 1);
+			} else {
+				return Expressions.in(column, fic.value().multipleValue().singleValue().size());	
+			}
+			
+		}
+		public PreparedStatementIndexSetter getPreparedStatementIndexSetter(SqlQueryDescriptor queryDescriptor, String property, FilterItemContext fic) {
+			ImmutableList.Builder<PreparedStatementIndexSetter> builder = ImmutableList.builder();
+			for (SingleValueContext svc : fic.value().multipleValue().singleValue()) {
+				builder.add(queryDescriptor.getPreparedStatementIndexSetter(property, value(svc)));	
+			}
+			ImmutableList<PreparedStatementIndexSetter> list = builder.build();
+			return (ps, index) -> {
+				for (int i = 0 ; i < list.size(); i++) {
+					list.get(i).set(ps, index + i);
+				}
+				return index + list.size();
+			};
+		}
+	}
+	
+	private static String value(FilterItemContext fic) {
+		return value(fic.value().singleValue());
+	}
+	private static String value(SingleValueContext svc) {
+		if (svc != null) {
+			if (svc.integer() != null) {
+				return svc.integer().getText();
+			} else {
+				return PageRequests.unwrap(svc.STRING().getText());
+			}
+		}
+		return null;
 	}
 }
