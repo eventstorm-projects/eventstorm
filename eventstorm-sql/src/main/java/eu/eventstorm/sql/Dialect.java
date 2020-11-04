@@ -39,8 +39,6 @@ public interface Dialect {
 
 	String range(int offset, int limit);
 	
-	String range();
-
 	void setPreparedStatement(PreparedStatement ps, int index, Json json) throws SQLException;
 	
 	void setPreparedStatement(PreparedStatement ps, int index, Blob blob) throws SQLException;

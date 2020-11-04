@@ -46,14 +46,9 @@ final class OracleDialect extends AbstractDialect {
 
     @Override
     public String range(int offset, int limit) {
-        return "LIMIT " + limit + " OFFSET " + offset;
+        return "OFFSET " + offset + " ROWS FETCH NEXT " + limit + " ROWS ONLY";
     }
     
-	@Override
-	public String range() {
-		return "LIMIT ? OFFSET ?";
-	}
-
 	@Override
 	public Json fromJdbcJson(ResultSet rs, int index) throws SQLException {
 		//TODO .. to improve

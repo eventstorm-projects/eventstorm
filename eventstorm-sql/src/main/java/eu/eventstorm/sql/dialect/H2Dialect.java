@@ -41,11 +41,6 @@ final class H2Dialect extends AbstractDialect {
     }
     
 	@Override
-	public String range() {
-		return "LIMIT ? OFFSET ?";
-	}
-
-	@Override
 	public Json fromJdbcJson(ResultSet rs, int index) throws SQLException {
 		return new BlobJson(getDatabase().jsonMapper(), rs.getBytes(index));
 	}
