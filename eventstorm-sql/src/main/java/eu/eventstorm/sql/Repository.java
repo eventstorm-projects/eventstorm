@@ -375,7 +375,7 @@ public abstract class Repository {
 		Long count = executeSelect(query.sqlCount(pageRequest), compose, ResultSetMappers.LONG_NULLABLE);
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("find count=[{}]", count);
+			LOGGER.debug("executeSelectPage -> find count=[{}]", count);
 		}
 
 		if (count == null || count == 0) {

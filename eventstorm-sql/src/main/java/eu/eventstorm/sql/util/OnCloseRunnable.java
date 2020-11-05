@@ -23,7 +23,7 @@ final class OnCloseRunnable implements Runnable {
 	public void run() {
 		
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("OnCloseRunnable.run() [{}] [{}]", enable, tx);
+			LOGGER.debug("OnCloseRunnable.run() enable=[{}] tx=[{}]", enable, tx);
 		}
 		
 		if (!enable) {

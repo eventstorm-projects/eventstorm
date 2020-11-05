@@ -3,6 +3,7 @@ package eu.eventstorm.sql.page;
 import com.google.common.collect.ImmutableList;
 
 import eu.eventstorm.sql.builder.Order;
+import eu.eventstorm.util.Strings;
 import eu.eventstorm.util.ToStringBuilder;
 
 /**
@@ -10,12 +11,14 @@ import eu.eventstorm.util.ToStringBuilder;
  */
 final class PageableRequestImpl implements PageRequest {
 
+	private final String query;
     private final int offset;
     private final int size;
     private final Filters filters;
     private final ImmutableList<Order> orders;
 
-	PageableRequestImpl(int offset, int size, Filters filters, ImmutableList<Order> orders) {
+	PageableRequestImpl(String query, int offset, int size, Filters filters, ImmutableList<Order> orders) {
+		this.query = query;
         this.offset = offset;
         this.size = size;
         this.filters = filters;
@@ -44,17 +47,18 @@ final class PageableRequestImpl implements PageRequest {
 
 	@Override
 	public PageRequest next() {
-		return new PageableRequestImpl(offset + size, size, filters, orders);
+		return new PageableRequestImpl(Strings.EMPTY, offset + size, size, filters, orders);
 	}
 
 	@Override
 	public String toString() {
 		return new ToStringBuilder(true)
+				.append("query", query)
 				.append("offset", offset)
 				.append("size", size)
+				.append("filter", this.filters)
+				.append("orders", this.orders)
 				.toString();
 	}
-	
-
 
 }

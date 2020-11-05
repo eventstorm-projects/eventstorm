@@ -3,6 +3,7 @@ package eu.eventstorm.sql.page;
 import com.google.common.collect.ImmutableList;
 
 import eu.eventstorm.sql.builder.Order;
+import eu.eventstorm.util.Strings;
 
 /**
  * Abstract interface for pagination information.
@@ -22,7 +23,7 @@ public interface PageRequest {
     PageRequest next();
 
     public static PageRequestBuilder of(int offset, int size) {
-       return new PageRequestBuilder(offset, size);
+       return new PageRequestBuilder(Strings.EMPTY, offset, size);
     }
     
 }

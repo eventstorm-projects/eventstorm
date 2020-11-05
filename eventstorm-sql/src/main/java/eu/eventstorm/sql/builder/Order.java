@@ -1,6 +1,7 @@
 package eu.eventstorm.sql.builder;
 
 import eu.eventstorm.sql.desc.SqlColumn;
+import eu.eventstorm.util.ToStringBuilder;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -30,4 +31,13 @@ public final class Order {
     public SqlColumn column() {
         return this.column;
     }
+
+	@Override
+	public String toString() {
+		return new ToStringBuilder(false)
+				.append("column", column)
+				.append("type", type)
+				.toString();
+	}
+    
 }

@@ -1,6 +1,7 @@
 package eu.eventstorm.sql.page;
 
 import eu.eventstorm.sql.expression.Expression;
+import eu.eventstorm.util.ToStringBuilder;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -28,5 +29,13 @@ class FilterImpl implements Filter {
 	public PreparedStatementIndexSetter getPreparedStatementIndexSetter() {
 		return this.psis;
 	}
+
+	@Override
+	public String toString() {
+		return new ToStringBuilder(false)
+				.append("expression", expression)
+				.toString();
+	}
+	
 	
 }

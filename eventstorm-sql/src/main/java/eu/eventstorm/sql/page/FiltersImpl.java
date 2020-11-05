@@ -7,7 +7,11 @@ import com.google.common.collect.ImmutableList;
 import eu.eventstorm.sql.SqlQueryPageable;
 import eu.eventstorm.sql.expression.Expression;
 import eu.eventstorm.sql.jdbc.PreparedStatementSetter;
+import eu.eventstorm.util.ToStringBuilder;
 
+/**
+ * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
+ */
 final class FiltersImpl implements Filters{
 	
 	private final ImmutableList<Filter> list;
@@ -41,6 +45,13 @@ final class FiltersImpl implements Filters{
 				}
 			}
 		};
+	}
+
+	@Override
+	public String toString() {
+		return new ToStringBuilder(false)
+				.append("list", this.list)
+				.toString();
 	}
 
 }

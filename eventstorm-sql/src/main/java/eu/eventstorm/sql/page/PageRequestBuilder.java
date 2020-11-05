@@ -10,18 +10,20 @@ import eu.eventstorm.sql.expression.Expression;
  */
 public final class PageRequestBuilder {
 
+	private final String query;
 	private final int offset;
 	private final int size;
 	private final ImmutableList.Builder<Filter> filters = ImmutableList.builder();
 	private final ImmutableList.Builder<Order> orders = ImmutableList.builder();
 	
-	PageRequestBuilder(int offset, int size) {
+	PageRequestBuilder(String query, int offset, int size) {
+		this.query = query;
 		this.offset = offset;
 		this.size = size;
 	}
 	  
 	public PageRequest build() {
-		return new PageableRequestImpl(offset, size, new FiltersImpl(filters.build()), orders.build());
+		return new PageableRequestImpl(query, offset, size, new FiltersImpl(filters.build()), orders.build());
 	}
 
 	public PageRequestBuilder withFilter(Expression expression, PreparedStatementIndexSetter psis) {

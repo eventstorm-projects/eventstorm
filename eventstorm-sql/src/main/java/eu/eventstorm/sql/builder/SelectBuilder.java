@@ -170,7 +170,7 @@ public final class SelectBuilder extends AbstractBuilder {
 				pageRequest.getOffset() + pageRequest.getSize()));
 		
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("SQL Pageable [{}]", builder.toString());
+			LOGGER.debug("SQL Pageable [{}]", builder);
 		}
 
 		return new SqlQueryImpl(builder.toString());

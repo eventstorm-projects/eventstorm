@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import eu.eventstorm.sql.SqlQuery;
 import eu.eventstorm.sql.tracer.TransactionSpan;
 import eu.eventstorm.sql.tracer.TransactionTracer;
+import eu.eventstorm.util.ToStringBuilder;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -245,6 +246,13 @@ abstract class AbstractTransaction implements TransactionSupport {
 			super.finalize();	
 		}
 	}
-
+	
+	@Override
+	public String toString() {
+		return new ToStringBuilder(this, false)
+				.append("uuid", uuid)
+				.append("active", active)
+				.toString();
+	}
 	
 }
