@@ -166,8 +166,7 @@ public final class SelectBuilder extends AbstractBuilder {
 		appendWherePage(builder, pageRequest);
 		appendOrderPage(builder, pageRequest);
 
-		builder.append(' ').append(this.database().dialect().range(pageRequest.getOffset(),
-				pageRequest.getOffset() + pageRequest.getSize()));
+		builder.append(' ').append(this.database().dialect().range(pageRequest.getOffset(), pageRequest.getSize()));
 		
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("SQL Pageable [{}]", builder);
