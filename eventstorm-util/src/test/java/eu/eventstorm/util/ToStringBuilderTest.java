@@ -10,6 +10,7 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import eu.eventstorm.test.LoggerInstancePostProcessor;
@@ -196,6 +197,18 @@ class ToStringBuilderTest {
 		builder = new ToStringBuilder(true);
 		builder.append("array", new String[] {"1", "2"});
 		assertEquals("{\"array\":[\"1\",\"2\"]}", builder.toString());
+
+    }
+	
+	@Test
+	void testList() {
+		ToStringBuilder builder = new ToStringBuilder(true);
+		builder.append("list", ImmutableList.of(1L, 2L));
+		assertEquals("{\"list\":[1,2]}", builder.toString());
+
+		builder = new ToStringBuilder(true);
+		builder.append("list", ImmutableList.of("1", "2"));
+		assertEquals("{\"list\":[\"1\",\"2\"]}", builder.toString());
 
     }
 	

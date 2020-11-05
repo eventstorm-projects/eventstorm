@@ -69,7 +69,7 @@ public final class PageRequests {
 		
 		RequestContext ctx = parse(query); 
 		
-		PageRequestBuilder builder = parseRange(ctx.range());
+		PageRequestBuilder builder = parseRange(query, ctx.range());
 		parseFilter(builder, ctx.filter(), queryDescriptor);
 		parseSort(builder, ctx.sort(), queryDescriptor);
 		
@@ -139,7 +139,7 @@ public final class PageRequests {
 		
 	}
 
-	private static PageRequestBuilder parseRange(RangeContext rangeContext) {
+	private static PageRequestBuilder parseRange(String query, RangeContext rangeContext) {
 		
 		int rangeStart = 0;
 		int rangeEnd = 24;
@@ -153,7 +153,7 @@ public final class PageRequests {
 			rangeEnd = Integer.valueOf(rangeContext.rangeContent().rangeEnd().integer().getText());
 		}
 		
-		return PageRequest.of(rangeStart , rangeEnd - rangeStart + 1);
+		return PageRequest.of(query, rangeStart , rangeEnd - rangeStart + 1);
 	}
 	
 	private static interface ExpressionFunction {

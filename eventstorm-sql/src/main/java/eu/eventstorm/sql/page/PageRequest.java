@@ -12,18 +12,22 @@ import eu.eventstorm.util.Strings;
  */
 public interface PageRequest {
 
-    int getSize();
+	int getSize();
 
-    int getOffset();
+	int getOffset();
 
-    Filters getFilters();
-    
-    ImmutableList<Order> getOrders();
-    
-    PageRequest next();
+	Filters getFilters();
 
-    public static PageRequestBuilder of(int offset, int size) {
-       return new PageRequestBuilder(Strings.EMPTY, offset, size);
-    }
-    
+	ImmutableList<Order> getOrders();
+
+	PageRequest next();
+
+	public static PageRequestBuilder of(String query, int offset, int size) {
+		return new PageRequestBuilder(query, offset, size);
+	}
+
+	public static PageRequestBuilder of(int offset, int size) {
+		return new PageRequestBuilder(Strings.EMPTY, offset, size);
+	}
+	
 }

@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -137,16 +138,7 @@ public final class ToStringBuilder {
 			if (value.getClass().isArray()) {
 				insertRaw(getChars(toString((Object[])value)));
 			} else {
-				if (Number.class.isAssignableFrom(value.getClass())) {
-					insertRaw(getChars(value.toString()));
-				} else {
-					char[] content = getChars(value.toString());
-					if (content.length > 1 && content[0] == '{' && content[content.length-1] == '}') {
-						insertRaw(content);
-					} else {
-						insertValue(content);
-					}
-				}
+				this.insertValue(value);
 			}
 		}
 		return this;
@@ -216,6 +208,29 @@ public final class ToStringBuilder {
 	 * Append.
 	 *
 	 * @param key the key
+	 * @param value the value
+	 * @return the to string builder
+	 */
+	public ToStringBuilder append(String key, List<?> values) {
+		if (!this.appendNull && value == null) {
+			return this;
+		}
+		insertKey(getChars(key));
+		if (value == null) {
+			insertNullValue();
+		} else {
+			this.value[idx++] = '[';
+			values.forEach(this::insertValue);
+			this.value[idx-1] = ']';
+			this.value[idx++] = ',';
+		}
+		return this;
+	}
+	
+	/**
+	 * Append.
+	 *
+	 * @param key the key
 	 * @param map the map
 	 * @return the to string builder
 	 */
@@ -269,6 +284,19 @@ public final class ToStringBuilder {
 			newCapacity = minimumCapacity;
 		}
 		this.value = Arrays.copyOf(this.value, newCapacity);
+	}
+
+	private void insertValue(Object value) {
+		if (Number.class.isAssignableFrom(value.getClass())) {
+			insertRaw(getChars(value.toString()));
+		} else {
+			char[] content = getChars(value.toString());
+			if (content.length > 1 && content[0] == '{' && content[content.length - 1] == '}') {
+				insertRaw(content);
+			} else {
+				insertValue(content);
+			}
+		}
 	}
 
 	private void insertKey(char[] value) {
@@ -350,7 +378,7 @@ public final class ToStringBuilder {
 		this.value[ptr++] = ',';
 		this.idx = ptr;
 	}
-
+	
 	private void insertNullValue() {
 		int max = this.idx + 5;
 		if (max > this.value.length) {
