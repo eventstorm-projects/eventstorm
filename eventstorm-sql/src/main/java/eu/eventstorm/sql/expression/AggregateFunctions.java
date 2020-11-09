@@ -22,5 +22,13 @@ public final class AggregateFunctions {
     public static AggregateFunction distinct(SqlColumn column) {
         return new SimpleAggregateFunction(column, "distinct");
     }
+    
+    public static AggregateFunction rowNumber() {
+        return new RowNumberAggregateFunction();
+    }
+    
+    public static AggregateFunction rowNumber(OverPartition overPartition) {
+        return new RowNumberAggregateFunction(overPartition);
+    }
 
 }

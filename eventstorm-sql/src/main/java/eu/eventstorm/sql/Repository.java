@@ -44,6 +44,8 @@ import com.google.common.collect.ImmutableList;
 import eu.eventstorm.sql.builder.DeleteBuilder;
 import eu.eventstorm.sql.builder.InsertBuilder;
 import eu.eventstorm.sql.builder.SelectBuilder;
+import eu.eventstorm.sql.builder.SelectBuilderFromSubSelect;
+import eu.eventstorm.sql.builder.SubSelect;
 import eu.eventstorm.sql.builder.UpdateBuilder;
 import eu.eventstorm.sql.desc.SqlColumn;
 import eu.eventstorm.sql.desc.SqlPrimaryKey;
@@ -103,6 +105,10 @@ public abstract class Repository {
 		return new SelectBuilder(this.database, columns, aggregateFunction);
 	}
 
+	protected final SelectBuilderFromSubSelect select(SubSelect subSelect) {
+		return new SelectBuilderFromSubSelect(database, subSelect);
+	}
+	
 	protected final InsertBuilder insert(SqlTable table, ImmutableList<SqlPrimaryKey> keys, ImmutableList<SqlSingleColumn> columns) {
 		return new InsertBuilder(this.database, table, keys, columns);
 	}

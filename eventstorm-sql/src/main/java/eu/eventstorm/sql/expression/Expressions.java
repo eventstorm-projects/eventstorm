@@ -111,4 +111,8 @@ public final class Expressions {
 		return new LikeExpression(column);
     }
     
+    public static Expression raw(String raw) {
+  		return (dialect, alias) -> raw;
+    }
+    
 }

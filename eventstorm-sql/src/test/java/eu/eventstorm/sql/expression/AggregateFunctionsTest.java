@@ -8,6 +8,7 @@ import org.mockito.Mockito;
 
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Dialect;
+import eu.eventstorm.sql.builder.Order;
 import eu.eventstorm.sql.desc.SqlColumn;
 import eu.eventstorm.sql.desc.SqlSingleColumn;
 import eu.eventstorm.sql.desc.SqlTable;
@@ -57,6 +58,20 @@ class AggregateFunctionsTest {
 
         assertEquals("max(a.number)", AggregateFunctions.max(number).build(dialect, true));
         assertEquals("max(number)", AggregateFunctions.max(number).build(dialect, false));
+
+    }
+    
+    @Test
+    void testRowNumber() {
+
+        SqlColumn number = new SqlSingleColumn(table, "number", false, true, true);
+
+        assertEquals("ROW_NUMBER()", AggregateFunctions.rowNumber().build(dialect, true));
+        assertEquals("ROW_NUMBER() OVER (PARTITION BY number) toto", AggregateFunctions.rowNumber(OverPartitions.by(number, "toto")).build(dialect, false));
+        assertEquals("ROW_NUMBER() OVER (PARTITION BY a.number) toto", AggregateFunctions.rowNumber(OverPartitions.by(number, "toto")).build(dialect, true));
+
+        assertEquals("ROW_NUMBER() OVER (PARTITION BY number ORDER BY number DESC) toto", AggregateFunctions.rowNumber(OverPartitions.by(number, Order.desc(number), "toto")).build(dialect, false));
+        assertEquals("ROW_NUMBER() OVER (PARTITION BY a.number ORDER BY a.number DESC) toto", AggregateFunctions.rowNumber(OverPartitions.by(number, Order.desc(number), "toto")).build(dialect, true));
 
     }
 
