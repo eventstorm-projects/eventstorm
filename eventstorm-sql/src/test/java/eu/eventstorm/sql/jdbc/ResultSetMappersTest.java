@@ -31,7 +31,7 @@ class ResultSetMappersTest {
 		reset(rs);
 		when(rs.getLong(1)).thenReturn(123456L);
 		when(rs.next()).thenReturn(true);
-		ResultSetMappers.ResultSetMapperException ex = assertThrows(ResultSetMappers.ResultSetMapperException.class, () -> ResultSetMappers.LONG.map(dialect, rs));
+		ResultSetMappers.ResultSetMapperException ex = assertThrows(ResultSetMappers.ResultSetMapperException.class, () -> ResultSetMappers.SINGLE_LONG.map(dialect, rs));
 		
 		assertEquals(ResultSetMappers.ResultSetMapperException.Type.MORE_THAN_ONE_RESULT, ex.getType());
 	}

@@ -19,6 +19,10 @@ public final class ResultSetMappers {
 	}
 	
 	public static final ResultSetMapper<Long> LONG = (dialect, rs) -> {
+		return rs.getLong(1);
+	};
+	
+	public static final ResultSetMapper<Long> SINGLE_LONG = (dialect, rs) -> {
 		long value = rs.getLong(1);
 		checkOnlyOneResult(rs, value);
 		return value;
