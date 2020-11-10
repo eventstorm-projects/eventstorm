@@ -55,19 +55,15 @@ public class LocalDatabaseEventStore implements EventStore {
 			return null;
 		}
 		
-		long revision = this.databaseRepository.lastRevision(sepd.getStream(), streamId);
-
-		if (revision > 0) {
-			// lock the row
-			this.databaseRepository.lock(sepd.getStream(), streamId, (int)revision);	
-		}
+		// lock row
+		long revision = this.databaseRepository.lock(sepd.getStream(), streamId).count();
 
 		DatabaseEventBuilder builder = new DatabaseEventBuilder()
 						.withStreamId(streamId)
 						.withStream(sepd.getStream())
 				        .withTime(Timestamp.from(time.toInstant()))
 				        .withPayload(json)
-				        .withRevision((int) (revision + 1))
+				        .withRevision((int) revision)
 				        .withEventType(sepd.getEventType());
 				        
 		if (correlation != null) {
