@@ -11,15 +11,28 @@ final class SqlFunctionColumn extends SqlColumn {
         super(column.table(), column.name());
         this.function = function;
     }
+    
+    private SqlFunctionColumn(String function, SqlTable table, String column, String alias) {
+        super(table, column, alias);
+        this.function = function;
+    }
 
     @Override
     public String toSql() {
-        return new StringBuilder().append(this.function).append('(').append(name()).append(')').toString();
+        return new StringBuilder()
+        		.append(this.function).append('(').append(name()).append(')')
+        		// TODO add alias
+        		.toString();
     }
 
     @Override
     protected SqlColumn newColumFromAlias(SqlTable targetTable) {
         return null;
     }
+
+	@Override
+	public SqlColumn as(String alias) {
+		return new SqlFunctionColumn(function, table(), name(), alias);
+	}
 
 }

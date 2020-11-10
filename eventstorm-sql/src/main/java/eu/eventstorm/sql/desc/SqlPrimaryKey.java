@@ -11,6 +11,11 @@ public final class SqlPrimaryKey extends SqlColumn {
         super(table, name);
         this.sequence = sequence;
     }
+    
+    private SqlPrimaryKey(SqlTable table, SqlSequence sequence, String name, String alias) {
+    	 super(table, name, alias);
+    	 this.sequence = sequence;
+    }
 
     @Override
     protected SqlColumn newColumFromAlias(SqlTable targetTable) {
@@ -20,5 +25,10 @@ public final class SqlPrimaryKey extends SqlColumn {
     public SqlSequence sequence() {
     	return this.sequence;
     }
+
+	@Override
+	public SqlColumn as(String alias) {
+		return new SqlPrimaryKey(table(), sequence, name(), alias);
+	}
     
 }

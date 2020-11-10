@@ -13,6 +13,7 @@ import eu.eventstorm.sql.Module;
 import eu.eventstorm.sql.desc.SqlColumn;
 import eu.eventstorm.sql.desc.SqlSequence;
 import eu.eventstorm.sql.desc.SqlTable;
+import eu.eventstorm.util.Strings;
 
 abstract class AbstractDialect implements Dialect {
 
@@ -66,6 +67,12 @@ abstract class AbstractDialect implements Dialect {
 			}
 
 			appendable.append(column.toSql());
+			
+			if (!Strings.EMPTY.equals(column.alias())) {
+				appendable.append(' ');
+				appendable.append(column.alias());
+			}
+			
 		} catch (IOException cause) {
 			LOGGER.warn("Failed to wrap({},{},{}) -> {}", appendable, column, alias, cause.getMessage());
 		}
