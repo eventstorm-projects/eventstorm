@@ -63,7 +63,7 @@ public class LocalDatabaseEventStore implements EventStore {
 						.withStream(sepd.getStream())
 				        .withTime(Timestamp.from(time.toInstant()))
 				        .withPayload(json)
-				        .withRevision((int) revision)
+				        .withRevision((int) revision + 1)
 				        .withEventType(sepd.getEventType());
 				        
 		if (correlation != null) {
