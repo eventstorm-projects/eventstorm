@@ -1,7 +1,7 @@
 package eu.eventstorm.eventstore.db;
 
-import static eu.eventstorm.eventstore.db.DatabaseEventDescriptor.ALL;
 import static eu.eventstorm.eventstore.db.DatabaseEventDescriptor.EVENT_TYPE;
+import static eu.eventstorm.eventstore.db.DatabaseEventDescriptor.ID;
 import static eu.eventstorm.eventstore.db.DatabaseEventDescriptor.PAYLOAD;
 import static eu.eventstorm.eventstore.db.DatabaseEventDescriptor.REVISION;
 import static eu.eventstorm.eventstore.db.DatabaseEventDescriptor.STREAM;
@@ -30,7 +30,7 @@ final class DatabaseRepository extends AbstractDatabaseEventRepository {
 
 	DatabaseRepository(Database database) {
 		super(database);
-		this.findByAggreateTypeAndAggregateIdLock = select(ALL).from(TABLE).where(and(eq(STREAM), eq(STREAM_ID))).forUpdate().build();
+		this.findByAggreateTypeAndAggregateIdLock = select(ID).from(TABLE).where(and(eq(STREAM), eq(STREAM_ID))).forUpdate().build();
 		
 		this.findByAggreateTypeAndAggregateId = select(TIME, REVISION, PAYLOAD, EVENT_TYPE).from(TABLE).where(and(eq(STREAM), eq(STREAM_ID))).orderBy(asc(REVISION))
 		        .build();
