@@ -1,7 +1,6 @@
 package eu.eventstorm.eventstore.db;
 
 import static eu.eventstorm.eventstore.db.DatabaseEventDescriptor.EVENT_TYPE;
-import static eu.eventstorm.eventstore.db.DatabaseEventDescriptor.ID;
 import static eu.eventstorm.eventstore.db.DatabaseEventDescriptor.PAYLOAD;
 import static eu.eventstorm.eventstore.db.DatabaseEventDescriptor.REVISION;
 import static eu.eventstorm.eventstore.db.DatabaseEventDescriptor.STREAM;
@@ -16,6 +15,7 @@ import java.util.stream.Stream;
 
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.SqlQuery;
+import eu.eventstorm.sql.builder.Order;
 import eu.eventstorm.sql.jdbc.ResultSetMapper;
 import eu.eventstorm.sql.jdbc.ResultSetMappers;
 
@@ -30,17 +30,17 @@ final class DatabaseRepository extends AbstractDatabaseEventRepository {
 
 	DatabaseRepository(Database database) {
 		super(database);
-		this.findByAggreateTypeAndAggregateIdLock = select(ID).from(TABLE).where(and(eq(STREAM), eq(STREAM_ID))).forUpdate().build();
+		this.findByAggreateTypeAndAggregateIdLock = select(REVISION).from(TABLE).where(and(eq(STREAM), eq(STREAM_ID))).orderBy(Order.desc(REVISION)).forUpdate().build();
 		
 		this.findByAggreateTypeAndAggregateId = select(TIME, REVISION, PAYLOAD, EVENT_TYPE).from(TABLE).where(and(eq(STREAM), eq(STREAM_ID))).orderBy(asc(REVISION))
 		        .build();
 	}
 
-	public Stream<Long> lock(String stream, String streamId) {
+	public Stream<Integer> lock(String stream, String streamId) {
 		return stream(this.findByAggreateTypeAndAggregateIdLock, ps -> {
 			ps.setString(1, stream);
 			ps.setString(2, streamId);
-		}, ResultSetMappers.LONG);
+		}, ResultSetMappers.INTEGER);
 	}
 	
 	public  <T> Stream<T> findAllByStreamAndStreamId(String stream, String streamId, ResultSetMapper<T> rsm) {

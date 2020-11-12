@@ -37,6 +37,24 @@ class ResultSetMappersTest {
 	}
 	
 	@Test
+	void singleSingleIntegerTest() throws SQLException {
+
+		Dialect dialect = mock(Dialect.class);
+		ResultSet rs = mock(ResultSet.class);
+
+		when(rs.getInt(1)).thenReturn(123456);
+		when(rs.next()).thenReturn(false);
+		assertEquals(123456, ResultSetMappers.SINGLE_INTEGER.map(dialect, rs));
+
+		reset(rs);
+		when(rs.getInt(1)).thenReturn(123456);
+		when(rs.next()).thenReturn(true);
+		ResultSetMappers.ResultSetMapperException ex = assertThrows(ResultSetMappers.ResultSetMapperException.class, () -> ResultSetMappers.SINGLE_INTEGER.map(dialect, rs));
+		
+		assertEquals(ResultSetMappers.ResultSetMapperException.Type.MORE_THAN_ONE_RESULT, ex.getType());
+	}
+	
+	@Test
 	void singleIntegerTest() throws SQLException {
 
 		Dialect dialect = mock(Dialect.class);
@@ -49,9 +67,7 @@ class ResultSetMappersTest {
 		reset(rs);
 		when(rs.getInt(1)).thenReturn(123456);
 		when(rs.next()).thenReturn(true);
-		ResultSetMappers.ResultSetMapperException ex = assertThrows(ResultSetMappers.ResultSetMapperException.class, () -> ResultSetMappers.INTEGER.map(dialect, rs));
-		
-		assertEquals(ResultSetMappers.ResultSetMapperException.Type.MORE_THAN_ONE_RESULT, ex.getType());
+		assertEquals(123456, ResultSetMappers.INTEGER.map(dialect, rs));
 	}
 	
 	@Test

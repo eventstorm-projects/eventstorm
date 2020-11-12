@@ -4,7 +4,6 @@ import java.sql.Timestamp;
 
 import eu.eventstorm.sql.annotation.Column;
 import eu.eventstorm.sql.annotation.PrimaryKey;
-import eu.eventstorm.sql.annotation.Sequence;
 import eu.eventstorm.sql.annotation.Table;
 
 /**
@@ -13,21 +12,20 @@ import eu.eventstorm.sql.annotation.Table;
 @Table(value = "event_store")
 public interface DatabaseEvent {
 
-	@Sequence("seq__event_store")
-	@PrimaryKey("id")
-	long getId();
-
-	void setId(long id);
-
-	@Column(value = "stream", length = 64)
+	@PrimaryKey(value = "stream", length = 64)
 	String getStream();
 
 	void setStream(String stream);
 	
-	@Column(value = "stream_id", length = 64)
+	@PrimaryKey(value = "stream_id", length = 64)
 	String getStreamId();
 
 	void setStreamId(String streamId);
+	
+	@PrimaryKey(value = "revision")
+	int getRevision();
+	
+	void setRevision(int revision);
 	
 	@Column(value = "correlation", length = 36, nullable = true)
 	String getCorrelation();
@@ -38,11 +36,6 @@ public interface DatabaseEvent {
 	Timestamp getTime();
 	
 	void setTime(Timestamp time);
-	
-	@Column(value = "revision")
-	int getRevision();
-	
-	void setRevision(int revision);
 	
 	@Column(value = "event_type", length = 128)
 	String getEventType();

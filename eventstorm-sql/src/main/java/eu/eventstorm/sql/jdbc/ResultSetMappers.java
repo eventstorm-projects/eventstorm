@@ -18,9 +18,7 @@ public final class ResultSetMappers {
 	private ResultSetMappers() {
 	}
 	
-	public static final ResultSetMapper<Long> LONG = (dialect, rs) -> {
-		return rs.getLong(1);
-	};
+	public static final ResultSetMapper<Long> LONG = (dialect, rs) ->  rs.getLong(1);
 	
 	public static final ResultSetMapper<Long> SINGLE_LONG = (dialect, rs) -> {
 		long value = rs.getLong(1);
@@ -28,7 +26,9 @@ public final class ResultSetMappers {
 		return value;
 	};
 
-	public static final ResultSetMapper<Integer> INTEGER = (dialect, rs) -> {
+	public static final ResultSetMapper<Integer> INTEGER = (dialect, rs) -> rs.getInt(1);
+	
+	public static final ResultSetMapper<Integer> SINGLE_INTEGER = (dialect, rs) -> {
 		int value = rs.getInt(1);
 		checkOnlyOneResult(rs, value);
 		return value;
