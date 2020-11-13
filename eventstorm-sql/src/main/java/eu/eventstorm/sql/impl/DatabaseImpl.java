@@ -17,6 +17,7 @@ import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Dialect;
 import eu.eventstorm.sql.JsonMapper;
 import eu.eventstorm.sql.Module;
+import eu.eventstorm.sql.RawSqlExecutor;
 import eu.eventstorm.sql.TransactionManager;
 import eu.eventstorm.sql.desc.SqlPrimaryKey;
 import eu.eventstorm.sql.desc.SqlSequence;
@@ -161,6 +162,11 @@ final class DatabaseImpl implements Database {
 	@Override
 	public void close() {
 		this.transactionManager.close();
+	}
+
+	@Override
+	public RawSqlExecutor rawSqlExecutor() {
+		return new RawSqlExecutorImpl(((TransactionManagerImpl) transactionManager).getDataSource());
 	}
 
 }

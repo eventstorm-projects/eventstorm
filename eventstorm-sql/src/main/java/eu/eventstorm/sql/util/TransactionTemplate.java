@@ -2,6 +2,7 @@ package eu.eventstorm.sql.util;
 
 import java.util.stream.Stream;
 
+import org.omg.IOP.TransactionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -115,6 +116,15 @@ public final class TransactionTemplate {
 		}
 		page.getContent().onClose(new OnCloseRunnable(tx));
 		return page;
+	}
+	
+	public void executeWithReadOnlySql(String sql) {
+		try (Transaction tx = transactionManager.newTransactionReadOnly()) {
+			try {
+			} finally {
+				tx.rollback();
+			}
+		}
 	}
 
 	private <T> T executeInExistingTx(TransactionCallback<T> callback) {

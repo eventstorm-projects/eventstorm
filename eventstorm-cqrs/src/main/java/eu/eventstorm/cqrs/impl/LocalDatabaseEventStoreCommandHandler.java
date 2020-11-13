@@ -91,6 +91,7 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 		return Mono.just(Tuples.of(context, command))
 				.publishOn(eventLoop.get(command))
 				.map(this::storeAndEvolution)
+				.doOnNext(this::postStoreAndEvolution)
 				.doOnNext(eventBus::publish)
 				.flatMapMany(Flux::fromIterable);
 	}
@@ -185,6 +186,19 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 		}
 		events.forEach(evolutionHandlers::on);
 	}
+	
+	private void postStoreAndEvolution(ImmutableList<Event> events) {
+		Span span = this.tracer.nextSpan().name("postStoreAndEvolution");
+		span.tag("thread",  Thread.currentThread().getName());
+		try (Tracer.SpanInScope ws = this.tracer.withSpanInScope(span.start())) {
+			doPostStoreAndEvolution(events);
+		} finally {
+			span.finish();
+		}
+	}
+	
+	protected void doPostStoreAndEvolution(ImmutableList<Event> events) {
+	}
 
 	protected ImmutableList<ConstraintViolation> consistencyValidation(CommandContext context, T command) {
 		return ImmutableList.of();
@@ -194,6 +208,7 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 	 * (state,command) => events
 	 */
 	protected abstract ImmutableList<EventCandidate<?>> decision(CommandContext context, T command);
+	
 	
 
 }

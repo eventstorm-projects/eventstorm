@@ -13,11 +13,11 @@ class XXHashTest {
 	void test() {
 		String value = "Hello World !";
 		assertEquals(-7739591154577084421l, Hashing.xx(123456, value));
-		assertEquals(-7739591154577084421l, Hashing.xx(123456, new HashReader4String(UnsafeString.getChars(value))));
+		//assertEquals(-7739591154577084421l, Hashing.xx(123456, new HashReader4String(UnsafeString.getChars(value))));
 		
 		value = "Hello World !Hello World !Hello World !Hello World !Hello World !Hello World !Hello World !";
 		assertEquals(2875214966217480447l, Hashing.xx(123456, value));
-		assertEquals(2875214966217480447l, Hashing.xx(123456, new HashReader4String(UnsafeString.getChars(value))));
+		//assertEquals(2875214966217480447l, Hashing.xx(123456, new HashReader4String(UnsafeString.getChars(value))));
 	}
 
 	@SuppressWarnings("restriction")

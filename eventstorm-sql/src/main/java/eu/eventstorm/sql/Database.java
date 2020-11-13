@@ -11,6 +11,8 @@ public interface Database extends AutoCloseable {
     Dialect dialect();
 
     TransactionManager transactionManager();
+    
+    RawSqlExecutor rawSqlExecutor();
 
     Module getModule(SqlTable table);
     
