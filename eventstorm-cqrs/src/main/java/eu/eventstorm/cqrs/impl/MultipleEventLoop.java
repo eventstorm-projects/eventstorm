@@ -24,9 +24,12 @@ final class MultipleEventLoop implements EventLoop {
 	
 	private final Scheduler defaultScheduler; 
 	
-	public MultipleEventLoop(Scheduler defaultScheduler, ImmutableMap<String, Scheduler> others) {
+	private final Scheduler postScheduler;
+	
+	public MultipleEventLoop(Scheduler defaultScheduler, ImmutableMap<String, Scheduler> others, Scheduler postScheduler) {
 		this.others = others;
 		this.defaultScheduler = defaultScheduler;
+		this.postScheduler = postScheduler;
 	}
 
 	@Override
@@ -66,4 +69,10 @@ final class MultipleEventLoop implements EventLoop {
 		
 		return defaultScheduler;
 	}
+
+	@Override
+	public Scheduler post() {
+		return postScheduler;
+	}
+	
 }

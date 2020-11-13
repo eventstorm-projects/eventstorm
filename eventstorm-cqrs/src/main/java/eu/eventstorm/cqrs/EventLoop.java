@@ -9,4 +9,6 @@ public interface EventLoop {
 
 	Scheduler get(Command command);
 
+	Scheduler post();
+
 }
