@@ -27,10 +27,9 @@ import eu.eventstorm.sql.Database;
 @ComponentScan("eu.eventstorm.batch")
 public class BatchAutoConfiguration {
 
-	@ConditionalOnBean(TypeRegistry.class)
 	@Bean
-	BatchModule batchModule(TypeRegistry registry) {
-		return new BatchModule(registry);
+	BatchModule batchModule() {
+		return new BatchModule();
 	}
 	
 	@ConditionalOnBean(TypeRegistry.class)

@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.Map;
 
 import org.reactivestreams.Publisher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -29,6 +31,7 @@ import eu.eventstorm.sql.type.Jsons;
 import eu.eventstorm.sql.type.common.Blobs;
 import eu.eventstorm.sql.util.TransactionTemplate;
 import eu.eventstorm.util.FastByteArrayOutputStream;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
@@ -38,6 +41,8 @@ import reactor.core.publisher.Mono;
 @RestController
 public final class DatabaseResourceReactiveController {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseResourceReactiveController.class);
+	
 	private final DatabaseResourceRepository databaseResourceRepository;
 	private final ObjectMapper objectMapper;
 	private final TransactionTemplate transactionTemplate;
@@ -55,6 +60,10 @@ public final class DatabaseResourceReactiveController {
 	@PostMapping(path = "${eu.eventstorm.batch.resource.context-path:}/upload")
 	public Mono<UploadResponse> upload(ServerHttpRequest serverRequest) throws IOException {
 
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("upload");
+		}
+		
 		UniversalUniqueIdentifier uuid = generator.generate();
 		FastByteArrayOutputStream baos = new FastByteArrayOutputStream(32768);
 
@@ -75,6 +84,21 @@ public final class DatabaseResourceReactiveController {
 					});
 				})
 				.map(result -> new UploadResponse(uuid.toString()));
+	}
+	
+	@GetMapping(path = "${eu.eventstorm.batch.resource.context-path:}/list")
+	public Flux<DatabaseResourceQuery> list(ServerHttpRequest serverRequest) throws IOException {
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("list for [{}]", serverRequest.getQueryParams());
+		}
+		
+		ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
+		serverRequest.getQueryParams().forEach((k,v) -> builder.put(k, v.get(0)));
+		
+		return this.transactionTemplate.flux(() -> databaseResourceRepository.findByMeta(builder.build(), (dialect, rs) -> {
+			return new DatabaseResourceQuery(rs.getString(1), rs.getString(2), rs.getString(3), rs.getTimestamp(4));
+		}));
 
 	}
 	

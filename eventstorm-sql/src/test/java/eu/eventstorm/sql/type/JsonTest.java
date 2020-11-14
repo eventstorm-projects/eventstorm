@@ -5,7 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -33,12 +35,12 @@ import eu.eventstorm.test.LoggerInstancePostProcessor;
 @ExtendWith(LoggerInstancePostProcessor.class)
 class JsonTest {
 
-	private DataSource ds;
+	private JdbcConnectionPool ds;
 	private Database db;
 
 	@BeforeEach
 	void before() {
-		ds = JdbcConnectionPool.create("jdbc:h2:mem:test;DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1;INIT=RUNSCRIPT FROM 'classpath:sql/json.sql'", "sa", "");
+		ds = JdbcConnectionPool.create("jdbc:h2:mem:test_json;DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1;INIT=RUNSCRIPT FROM 'classpath:sql/json.sql'", "sa", "");
 		db = DatabaseBuilder.from(Dialect.Name.H2)
 				.withTransactionManager(new TransactionManagerImpl(ds))
 				.withJsonMapper(new JacksonJsonMapper())
@@ -48,7 +50,12 @@ class JsonTest {
 
 	@AfterEach()
 	void after() throws SQLException {
-		ds.getConnection().createStatement().execute("SHUTDOWN");
+		db.close();
+		try (Connection c = ds.getConnection()) {
+			try (Statement st = c.createStatement()) {
+				st.execute("SHUTDOWN");
+			}
+		}
 	}
 
 	@SuppressWarnings("all")

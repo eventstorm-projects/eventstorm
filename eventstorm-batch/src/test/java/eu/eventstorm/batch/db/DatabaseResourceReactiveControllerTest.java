@@ -50,6 +50,15 @@ class DatabaseResourceReactiveControllerTest {
 		
 		assertEquals("helloWorld", new String(result.getResponseBody()));
 		
+		
+		webClient.get()
+				.uri("/db/list?name=test_file.txt")
+				.exchange()
+				.expectStatus().is2xxSuccessful()
+				.expectBody()
+		       	.jsonPath("$[0].id").isEqualTo(response.get("uuid"))
+		       	.jsonPath("$[0].meta.name").isEqualTo("test_file.txt");
+			
 	}
 	
 }

@@ -8,12 +8,15 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
+import org.checkerframework.checker.units.qual.m;
 import org.h2.jdbcx.JdbcConnectionPool;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,7 +53,7 @@ class RepositoryTest {
 
 	@BeforeEach
 	void before() {
-		ds = JdbcConnectionPool.create("jdbc:h2:mem:test;DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1;INIT=RUNSCRIPT FROM 'classpath:sql/ex001.sql'", "sa", "");
+		ds = JdbcConnectionPool.create("jdbc:h2:mem:test2;DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1;INIT=RUNSCRIPT FROM 'classpath:sql/ex001.sql'", "sa", "");
 		TransactionManager transactionManager = new TransactionManagerImpl(ds);
 		db = DatabaseBuilder.from(Dialect.Name.H2)
 				.withTransactionManager(transactionManager)
@@ -63,8 +66,10 @@ class RepositoryTest {
 	@AfterEach()
 	void after() throws SQLException {
 		db.close();
-		try (java.sql.Statement st = ds.getConnection().createStatement()) {
-			st.execute("SHUTDOWN");
+		try (Connection c = ds.getConnection()) {
+			try (Statement st = c.createStatement()) {
+				st.execute("SHUTDOWN");
+			}
 		}
 	}
 

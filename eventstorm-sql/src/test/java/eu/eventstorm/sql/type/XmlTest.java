@@ -4,9 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Connection;
 import java.sql.SQLException;
-
-import javax.sql.DataSource;
+import java.sql.Statement;
 
 import org.h2.jdbcx.JdbcConnectionPool;
 import org.junit.jupiter.api.AfterEach;
@@ -28,12 +28,12 @@ import eu.eventstorm.util.Streams;
 @ExtendWith(LoggerInstancePostProcessor.class)
 class XmlTest {
 
-	private DataSource ds;
+	private JdbcConnectionPool ds;
 	private Database db;
 	
 	@BeforeEach
 	void before() {
-		ds = JdbcConnectionPool.create("jdbc:h2:mem:test;DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1;INIT=RUNSCRIPT FROM 'classpath:sql/xml.sql'", "sa", "");
+		ds = JdbcConnectionPool.create("jdbc:h2:mem:test_xml;DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1;INIT=RUNSCRIPT FROM 'classpath:sql/xml.sql'", "sa", "");
 		db = DatabaseBuilder.from(Dialect.Name.H2)
 				.withTransactionManager(new TransactionManagerImpl(ds))
 				.withModule(new eu.eventstorm.sql.model.xml.Module("test", null))
@@ -42,7 +42,13 @@ class XmlTest {
 
 	@AfterEach()
 	void after() throws SQLException{
-		ds.getConnection().createStatement().execute("SHUTDOWN");
+		db.close();
+		try (Connection c = ds.getConnection()) {
+			try (Statement st = c.createStatement()) {
+				st.execute("SHUTDOWN");
+			}
+		}
+		ds.dispose();
 	}
 
 	@SuppressWarnings("all")

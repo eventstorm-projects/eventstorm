@@ -8,9 +8,11 @@ import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Module;
+import eu.eventstorm.sql.RawSqlExecutor;
 import eu.eventstorm.sql.desc.SqlPrimaryKey;
 import eu.eventstorm.sql.desc.SqlSingleColumn;
 import eu.eventstorm.sql.desc.SqlTable;
@@ -37,6 +39,7 @@ class InsertBuilderTest {
 		};
         when(database.dialect()).thenReturn(h2(database));
         when(database.getModule(TABLE_T1)).thenReturn(module);
+        when(database.rawSqlExecutor()).thenReturn(Mockito.mock(RawSqlExecutor.class));
 
         InsertBuilder builder = new InsertBuilder(database, TABLE_T1, COL_T1_01, of(COL_T1_02, COL_T1_03, COL_T1_04, COL_T1_05));
         assertEquals("INSERT INTO T1 (col_T1_01,col_T1_02,col_T1_03,col_T1_05) VALUES (?,?,?,?)", builder.build().sql());

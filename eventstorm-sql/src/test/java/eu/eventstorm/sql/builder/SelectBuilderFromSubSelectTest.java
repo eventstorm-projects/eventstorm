@@ -13,6 +13,7 @@ import org.mockito.Mockito;
 
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Module;
+import eu.eventstorm.sql.RawSqlExecutor;
 import eu.eventstorm.sql.desc.SqlColumn;
 import eu.eventstorm.sql.desc.SqlSingleColumn;
 import eu.eventstorm.sql.desc.SqlTable;
@@ -43,6 +44,7 @@ class SelectBuilderFromSubSelectTest {
 		when(database.getModule(TABLE_T1)).thenReturn(module);
 		when(database.getModule(TABLE_T2)).thenReturn(module);
 		when(database.getModule(TABLE_T3)).thenReturn(module);
+		Mockito.when(database.rawSqlExecutor()).thenReturn(Mockito.mock(RawSqlExecutor.class));
 	}
 
 	@Test

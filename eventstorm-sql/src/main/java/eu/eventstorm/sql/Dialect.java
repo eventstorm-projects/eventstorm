@@ -22,6 +22,8 @@ public interface Dialect {
 		H2, ORACLE, POSTGRES
 	}
 
+	void init();
+
 	String nextVal(SqlSequence sequence);
 
 	void wrap(Appendable appendable, SqlTable table, boolean alias);
@@ -44,5 +46,7 @@ public interface Dialect {
 	void setPreparedStatement(PreparedStatement ps, int index, Blob blob) throws SQLException;
 	
 	void setPreparedStatement(PreparedStatement ps, int index, Clob clob) throws SQLException;
+
+	String functionJsonValue(String col, String key, String value);
 
 }

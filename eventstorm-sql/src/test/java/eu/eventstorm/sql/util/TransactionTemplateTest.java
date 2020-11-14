@@ -9,16 +9,15 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 
+import org.h2.jdbcx.JdbcConnectionPool;
 import org.h2.tools.RunScript;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
 
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Dialect;
@@ -33,18 +32,14 @@ import eu.eventstorm.test.LoggerInstancePostProcessor;
 class TransactionTemplateTest {
 	
 	private TransactionTemplate template;
-	private HikariDataSource ds;
+	private JdbcConnectionPool ds;
 	private AbstractStudentRepository repository;
 	private Database db;
 
 	@BeforeEach
 	void before() throws SQLException, IOException {
-		HikariConfig config = new HikariConfig();
-		config.setJdbcUrl("jdbc:h2:mem:test;DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=TRUE");
-		config.setUsername("sa");
-		config.setPassword("");
 
-		ds = new HikariDataSource(config);
+		ds = JdbcConnectionPool.create("jdbc:h2:mem:test_tx;DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1", "sa", "");
 
 		try (Connection conn = ds.getConnection()) {
 			try (InputStream inputStream = TransactionTemplateTest.class.getResourceAsStream("/sql/ex001.sql")) {
@@ -66,11 +61,13 @@ class TransactionTemplateTest {
 
 	@AfterEach()
 	void after() throws SQLException{
-		db.close();
-		try (java.sql.Statement st = ds.getConnection().createStatement()) {
-			st.execute("SHUTDOWN");
+		try (Connection c = ds.getConnection()) {
+			try (Statement st = c.createStatement()) {
+				st.execute("SHUTDOWN");
+			}
 		}
-		ds.close();
+		db.close();
+		ds.dispose();
 	}
 
 	@Test

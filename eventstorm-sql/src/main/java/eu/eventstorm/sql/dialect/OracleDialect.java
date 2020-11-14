@@ -110,5 +110,14 @@ final class OracleDialect extends AbstractDialect {
 		}
 		ps.setClob(index, oracleClob);
 	}
+	
+	@Override
+	public String functionJsonValue(String col, String key, String value) {
+		return "json_value(" + col + "," + key + ") = " + value;
+	}
+
+	@Override
+	public void init() {
+	}
 
 }

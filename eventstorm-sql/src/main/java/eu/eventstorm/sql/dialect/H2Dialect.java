@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import eu.eventstorm.sql.Database;
+import eu.eventstorm.sql.RawSqlExecutor;
 import eu.eventstorm.sql.desc.SqlSequence;
 import eu.eventstorm.sql.type.Json;
 import eu.eventstorm.sql.type.Xml;
@@ -20,7 +21,7 @@ final class H2Dialect extends AbstractDialect {
         super(database);
     }
 
-    @Override
+	@Override
     protected String aliasSeparator() {
         return " ";
     }
@@ -71,4 +72,19 @@ final class H2Dialect extends AbstractDialect {
 		ps.setClob(index, clob);
 	}
 
+    public void init() {
+    	RawSqlExecutor sql = getDatabase().rawSqlExecutor();
+    	try {
+			sql.execute("CREATE ALIAS json_exists FOR \" eu.eventstorm.sql.util.H2Functions.json_exists\";");
+			sql.execute("CREATE ALIAS json_value FOR \" eu.eventstorm.sql.util.H2Functions.json_value\";");
+		} catch (SQLException cause) {
+			throw new IllegalStateException(cause);
+		}
+	}
+
+	@Override
+	public String functionJsonValue(String col, String key, String value) {
+		return "json_value(" + col + "," + key + ") = " + value;
+	}
+	
 }

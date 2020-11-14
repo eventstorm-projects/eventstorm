@@ -2,7 +2,6 @@ package eu.eventstorm.sql.util;
 
 import java.util.stream.Stream;
 
-import org.omg.IOP.TransactionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,6 +9,7 @@ import eu.eventstorm.sql.Transaction;
 import eu.eventstorm.sql.TransactionManager;
 import eu.eventstorm.sql.impl.TransactionException;
 import eu.eventstorm.sql.page.Page;
+import reactor.core.publisher.Flux;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -127,6 +127,26 @@ public final class TransactionTemplate {
 		}
 	}
 
+	public <T> Flux<T> flux(TransactionCallback<Stream<T>> callback) {
+
+		Transaction tx = transactionManager.newTransactionReadOnly();
+		
+		OnCloseRunnable runnable = new OnCloseRunnable(tx);
+		try {
+			return Flux.fromStream(callback.doInTransaction())
+					.doFinally(signal -> {
+						try {
+							runnable.run();
+						} catch (Exception cause) {
+							LOGGER.debug("Failed to rollbackAndClose [{}]", cause.getMessage());
+						}
+					});
+		} catch (Exception cause) {
+			rollbackAndClose(tx);
+			throw cause;
+		}
+	}
+	
 	private <T> T executeInExistingTx(TransactionCallback<T> callback) {
 		if (!this.transactionManager.current().isReadOnly()) {
 			throw new TransactionException(TransactionException.Type.READ_ONLY, transactionManager.current());

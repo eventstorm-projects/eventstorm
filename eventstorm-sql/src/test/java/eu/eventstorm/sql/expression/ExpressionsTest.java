@@ -5,12 +5,14 @@ import static eu.eventstorm.sql.expression.Expressions.eq;
 import static eu.eventstorm.sql.expression.Expressions.or;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Dialect;
+import eu.eventstorm.sql.RawSqlExecutor;
 import eu.eventstorm.sql.desc.SqlColumn;
 import eu.eventstorm.sql.desc.SqlSingleColumn;
 import eu.eventstorm.sql.desc.SqlTable;
@@ -25,8 +27,15 @@ import eu.eventstorm.test.Tests;
 class ExpressionsTest {
 
     private SqlTable table = new SqlTable("table_01", "a");
-    private Dialect dialect = Dialects.h2(Mockito.mock(Database.class));
+    
+    private Dialect dialect;
 
+    @BeforeEach
+    void beforeEach() {
+    	Database database = Mockito.mock(Database.class);
+    	Mockito.when(database.rawSqlExecutor()).thenReturn(Mockito.mock(RawSqlExecutor.class));
+    	dialect = Dialects.h2(database);
+    }
 
     @Test
 	void testConstructor() throws Exception {

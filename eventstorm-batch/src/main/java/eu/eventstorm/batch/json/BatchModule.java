@@ -1,16 +1,18 @@
 package eu.eventstorm.batch.json;
 
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.google.protobuf.TypeRegistry;
 
+import eu.eventstorm.batch.rest.DatabaseResourceQuery;
+import eu.eventstorm.batch.rest.DatabaseResourceQueryStdSerializer;
 import eu.eventstorm.cqrs.batch.BatchJobCreated;
 
 @SuppressWarnings("serial")
 public final class BatchModule extends SimpleModule {
 
-	public BatchModule(TypeRegistry registry) {
+	public BatchModule() {
 		super();
 		addSerializer(BatchJobCreated.class, new BatchJobCreatedSerializer());
+		addSerializer(DatabaseResourceQuery.class, new DatabaseResourceQueryStdSerializer());
 	}
 	
 }

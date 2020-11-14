@@ -23,7 +23,7 @@ class DatabaseBuilderTest {
 		Module module = new Module("fake", "");
 		SqlSequence sqlSequence = new SqlSequence("toto");
 		
-		Database db = DatabaseBuilder.from(Dialect.Name.H2)
+		Database db = DatabaseBuilder.from(Dialect.Name.ORACLE)
 			.withTransactionManager(Mockito.mock(TransactionManager.class))
 			.withModuleAndExternalConfig(module)
 			.withSequence(sqlSequence)
@@ -31,7 +31,7 @@ class DatabaseBuilderTest {
 		
 		assertEquals(module, db.getModule(sqlSequence));
 		
-		db = DatabaseBuilder.from(Dialect.Name.H2)
+		db = DatabaseBuilder.from(Dialect.Name.ORACLE)
 				.withTransactionManager(Mockito.mock(TransactionManager.class))
 				.withModule(module)
 				.build();

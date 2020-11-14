@@ -54,8 +54,8 @@ final class DatabaseImpl implements Database {
 
 	DatabaseImpl(Dialect.Name dialect, TransactionManager transactionManager, JsonMapper jsonMapper, ImmutableList<Module> modules,
 	        ImmutableList<DatabaseExternalConfig> externals) {
-		this.dialect = Dialects.dialect(dialect, this);
 		this.transactionManager = transactionManager;
+		this.dialect = Dialects.dialect(dialect, this);
 		this.jsonMapper = jsonMapper;
 		this.modules = modules;
 
@@ -123,6 +123,7 @@ final class DatabaseImpl implements Database {
 		if (transactionManager instanceof TransactionManagerImpl) {
 			trace(((TransactionManagerImpl) transactionManager).getDataSource(), this.modules);
 		}
+		dialect.init();
 	}
 
 	private static void trace(DataSource dataSource, List<Module> modules) {

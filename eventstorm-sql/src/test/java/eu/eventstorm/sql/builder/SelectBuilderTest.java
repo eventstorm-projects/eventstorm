@@ -15,6 +15,7 @@ import org.mockito.Mockito;
 
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Module;
+import eu.eventstorm.sql.RawSqlExecutor;
 import eu.eventstorm.sql.SqlQuery;
 import eu.eventstorm.sql.desc.SqlColumn;
 import eu.eventstorm.sql.desc.SqlSingleColumn;
@@ -45,13 +46,16 @@ class SelectBuilderTest {
     @BeforeEach
     void before() {
         database = Mockito.mock(Database.class);
-        
+        when(database.rawSqlExecutor()).thenReturn(Mockito.mock(RawSqlExecutor.class));
+
         Module module = new Module("test") {
 		};
         when(database.dialect()).thenReturn(h2(database));
         when(database.getModule(TABLE_T1)).thenReturn(module);
         when(database.getModule(TABLE_T2)).thenReturn(module);
         when(database.getModule(TABLE_T3)).thenReturn(module);
+        when(database.rawSqlExecutor()).thenReturn(Mockito.mock(RawSqlExecutor.class));
+        
     }
 
 

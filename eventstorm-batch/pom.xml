@@ -39,7 +39,7 @@
 			<version>${project.version}</version>
 			<optional>true</optional>
 		</dependency>
-
+		
 		<dependency>
 			<groupId>eu.eventstorm</groupId>
 			<artifactId>eventstorm-test</artifactId>

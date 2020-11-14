@@ -30,7 +30,7 @@ public final class Expressions {
     public static Expression eq(SqlColumn column, boolean value) {
 		return new SimpleBooleanExpression(column, "=", value);
     }
-
+    
     public static Expression notEq(SqlColumn column) {
 		return new ParameterSimpleExpression(column, "<>");
     }
@@ -114,5 +114,9 @@ public final class Expressions {
     public static Expression raw(String raw) {
   		return (dialect, alias) -> raw;
     }
+
+	public static Expression eqJson(SqlColumn column) {
+		return new JsonEqExpression(column);
+	}
     
 }
