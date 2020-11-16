@@ -75,8 +75,8 @@ final class H2Dialect extends AbstractDialect {
     public void init() {
     	RawSqlExecutor sql = getDatabase().rawSqlExecutor();
     	try {
-			sql.execute("CREATE ALIAS json_exists FOR \" eu.eventstorm.sql.util.H2Functions.json_exists\";");
-			sql.execute("CREATE ALIAS json_value FOR \" eu.eventstorm.sql.util.H2Functions.json_value\";");
+			sql.execute("CREATE ALIAS IF NOT EXISTS json_exists FOR \" eu.eventstorm.sql.util.H2Functions.json_exists\";");
+			sql.execute("CREATE ALIAS IF NOT EXISTS json_value FOR \" eu.eventstorm.sql.util.H2Functions.json_value\";");
 		} catch (SQLException cause) {
 			throw new IllegalStateException(cause);
 		}
