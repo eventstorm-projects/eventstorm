@@ -52,7 +52,9 @@ public final class ResultSetMappers {
 		return value;
 	};
 	
-	public static final ResultSetMapper<String> STRING = (dialect, rs) -> {
+	public static final ResultSetMapper<String> STRING = (dialect, rs) ->  rs.getString(1);
+	
+	public static final ResultSetMapper<String> SINGLE_STRING = (dialect, rs) -> {
 		String value = rs.getString(1);
 		checkOnlyOneResult(rs, value);
 		return value;
