@@ -15,6 +15,7 @@ import javax.tools.Diagnostic;
 
 import eu.eventsotrm.core.apt.analyser.CqrsCommandAnalyser;
 import eu.eventsotrm.core.apt.analyser.CqrsEmbeddedCommandAnalyser;
+import eu.eventsotrm.core.apt.analyser.CqrsQueryClientAnalyser;
 import eu.eventsotrm.core.apt.analyser.CqrsQueryDatabaseAnalyser;
 import eu.eventsotrm.core.apt.analyser.CqrsQueryElasticSearchAnalyser;
 import eu.eventsotrm.core.apt.analyser.CqrsQueryPojoAnalyser;
@@ -38,6 +39,7 @@ import eu.eventsotrm.core.apt.model.ElsQueryDescriptor;
 import eu.eventsotrm.core.apt.model.EmbeddedCommandDescriptor;
 import eu.eventsotrm.core.apt.model.EventEvolutionDescriptor;
 import eu.eventsotrm.core.apt.model.PojoQueryDescriptor;
+import eu.eventsotrm.core.apt.model.QueryClientDescriptor;
 import eu.eventsotrm.core.apt.model.RestControllerDescriptor;
 import eu.eventsotrm.core.apt.query.QueryBuilderGenerator;
 import eu.eventsotrm.core.apt.query.QueryDescriptorGenerator;
@@ -45,6 +47,7 @@ import eu.eventsotrm.core.apt.query.QueryDescriptorsGenerator;
 import eu.eventsotrm.core.apt.query.QueryImplementationGenerator;
 import eu.eventsotrm.core.apt.query.QueryJacksonModuleGenerator;
 import eu.eventsotrm.core.apt.query.QueryJacksonStdSerializerGenerator;
+import eu.eventsotrm.core.apt.query.client.QueryClientGeneratorFacade;
 import eu.eventsotrm.core.apt.query.db.QueryDatabaseDescriptorGenerator;
 import eu.eventsotrm.core.apt.query.db.QueryDatabaseMapperFactoryGenerator;
 import eu.eventsotrm.core.apt.query.db.QueryDatabaseMapperGenerator;
@@ -58,6 +61,7 @@ import eu.eventstorm.annotation.CqrsCommand;
 import eu.eventstorm.annotation.CqrsCommandRestController;
 import eu.eventstorm.annotation.CqrsConfiguration;
 import eu.eventstorm.annotation.CqrsEmbeddedCommand;
+import eu.eventstorm.annotation.CqrsQueryClient;
 import eu.eventstorm.annotation.CqrsQueryDatabaseView;
 import eu.eventstorm.annotation.CqrsQueryElsIndex;
 import eu.eventstorm.annotation.CqrsQueryPojo;
@@ -147,23 +151,12 @@ public class EventProcessor extends AbstractProcessor {
 		List<PojoQueryDescriptor> queriesPojo  = roundEnvironment.getElementsAnnotatedWith(CqrsQueryPojo.class).stream().map(new CqrsQueryPojoAnalyser())
                 .collect(Collectors.toList());
 		
-//		queries.addAll(roundEnvironment.getElementsAnnotatedWith(CqrsQueryDatabaseView.class).stream().map(new CqrsQueryAnalyser())
-//		        .collect(Collectors.toList()));
 		
-//		for (QueryDescriptor qd : queries) {
-//		    for (TypeMirror tm : ((TypeElement)qd.element()).getInterfaces()) {
-//		        String fcqn = tm.toString();
-//		        logger.info("add from [" + fcqn + "]");
-//		        for (QueryDescriptor temp : queries) {
-//		            if (temp.fullyQualidiedClassName().equals(fcqn)) {
-//		                logger.info("found -> ");
-//		                qd.properties().addAll(temp.properties());
-//		                break;
-//		            }
-//		        }
-//		    }
-//		    
-//        }
+		List<QueryClientDescriptor> clientQueries  = roundEnvironment.getElementsAnnotatedWith(CqrsQueryClient.class).stream().map(new CqrsQueryClientAnalyser())
+                .collect(Collectors.toList());
+
+		
+
 
 		SourceCode sourceCode = new SourceCode(this.processingEnv, 
 				cqrsConfiguration, 
@@ -174,7 +167,8 @@ public class EventProcessor extends AbstractProcessor {
 				restControllerDescriptors,
 				queries, 
 				queriesDatabase,
-				queriesPojo);
+				queriesPojo, 
+				clientQueries);
 
 		sourceCode.dump();
 
@@ -230,15 +224,8 @@ public class EventProcessor extends AbstractProcessor {
 		new QueryDescriptorGenerator().generate(processingEnv, sourceCode);
 		new QueryDescriptorsGenerator().generate(processingEnv, sourceCode);
 		
-//		sourceCode.forEachQuery(queryDescriptor -> {
-//		    CqrsQueryDatabaseView query =  queryDescriptor.element().getAnnotation(CqrsQueryDatabaseView.class);
-//		    if (query != null) {
-//		    	new QueryDatabaseDescriptorGenerator().generate(processingEnv, queryDescriptor);
-//		    	new QueryDatabaseMapperGenerator().generate(processingEnv, queryDescriptor);
-//		    }
-//		});
-//		new QueryDatabaseMapperFactoryGenerator().generate(processingEnv, sourceCode);
-//		new QueryDatabaseModuleGenerator().generate(processingEnv, sourceCode);
+		// Query Client
+		QueryClientGeneratorFacade.generate(processingEnv, sourceCode);
 
 		new SpringConfigurationGenerator().generateCommand(processingEnv, sourceCode);
 	}

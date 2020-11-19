@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.collect.ImmutableList;
 
 import eu.eventsotrm.core.apt.SourceCode;
+import eu.eventsotrm.core.apt.model.QueryClientDescriptor;
 import eu.eventsotrm.core.apt.model.QueryDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
@@ -40,8 +41,8 @@ public final class QueryJacksonModuleGenerator {
 		});
 
 	}
-
-    private void generate(ProcessingEnvironment env, String pack, ImmutableList<QueryDescriptor> descriptors) throws IOException {
+	
+    private void generate(ProcessingEnvironment env, String pack, ImmutableList<? extends QueryDescriptor> descriptors) throws IOException {
 
         // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
         if (env.getElementUtils().getTypeElement(pack + ".json.EventPayloadModule") != null) {
@@ -82,7 +83,11 @@ public final class QueryJacksonModuleGenerator {
 		writer.write("        super();");
 		writeNewLine(writer);
 		for (QueryDescriptor ed : descriptors) {
-			writer.write("        addSerializer(" + ed.fullyQualidiedClassName() + ".class, new " + ed.simpleName() + "StdSerializer());");
+			if (ed instanceof QueryClientDescriptor) {
+				writer.write("        addDeserializer(" + ed.fullyQualidiedClassName() + ".class, new " + ed.simpleName() + "StdDeserializer());");
+			} else {
+				writer.write("        addSerializer(" + ed.fullyQualidiedClassName() + ".class, new " + ed.simpleName() + "StdSerializer());");				
+			}
 			writeNewLine(writer);
 		}
 		

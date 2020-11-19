@@ -26,6 +26,7 @@ import eu.eventsotrm.core.apt.model.ElsQueryDescriptor;
 import eu.eventsotrm.core.apt.model.EmbeddedCommandDescriptor;
 import eu.eventsotrm.core.apt.model.EventEvolutionDescriptor;
 import eu.eventsotrm.core.apt.model.PojoQueryDescriptor;
+import eu.eventsotrm.core.apt.model.QueryClientDescriptor;
 import eu.eventsotrm.core.apt.model.QueryDescriptor;
 import eu.eventsotrm.core.apt.model.RestControllerDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
@@ -57,6 +58,9 @@ public final class SourceCode {
 	private final ImmutableMap<String, ImmutableList<DatabaseQueryDescriptor>> queriesDatabasePackages;
 	private final ImmutableMap<String, ImmutableList<PojoQueryDescriptor>> queriesPojoPackages;
 	private final ImmutableMap<String, ImmutableList<QueryDescriptor>> queriesPackages;
+	
+	private final ImmutableMap<String,QueryClientDescriptor> clientQueries;
+	private final ImmutableMap<String, ImmutableList<QueryClientDescriptor>> clientQueriesPackages;
 
 	
 	SourceCode(ProcessingEnvironment env, CqrsConfiguration cqrsConfiguration,
@@ -67,7 +71,8 @@ public final class SourceCode {
 	        List<RestControllerDescriptor> restControllerDescriptors, 
 	        List<ElsQueryDescriptor> queriesElasticSearch,
 	        List<DatabaseQueryDescriptor> queriesDatabase,
-	        List<PojoQueryDescriptor> queriesPojo) {
+	        List<PojoQueryDescriptor> queriesPojo,
+	        List<QueryClientDescriptor> clientQueries) {
 		this.cqrsConfiguration = cqrsConfiguration;
 		this.commands = commands.stream().collect(toImmutableMap(CommandDescriptor::fullyQualidiedClassName, identity()));
 		this.embeddedCommands = embeddedCommands.stream().collect(toImmutableMap(EmbeddedCommandDescriptor::fullyQualidiedClassName, identity()));
@@ -91,9 +96,13 @@ public final class SourceCode {
 		this.queriesPojo = queriesPojo.stream().collect(toImmutableMap(PojoQueryDescriptor::fullyQualidiedClassName, identity()));
 		this.queriesPojoPackages = mapByPackage(env, this.queriesPojo);
 		
-    	ImmutableList.Builder<QueryDescriptor> builder = ImmutableList.<QueryDescriptor>builder();
+    	this.clientQueries = clientQueries.stream().collect(toImmutableMap(QueryClientDescriptor::fullyQualidiedClassName, identity()));
+		this.clientQueriesPackages = mapByPackage(env, this.clientQueries);
+
+		ImmutableList.Builder<QueryDescriptor> builder = ImmutableList.<QueryDescriptor>builder();
     	builder.addAll((Iterable<? extends QueryDescriptor>) queriesDatabase);
     	builder.addAll((Iterable<? extends QueryDescriptor>) queriesPojo);
+    	builder.addAll((Iterable<? extends QueryDescriptor>) clientQueries);
     	this.queriesPackages = mapByPackage(env, builder.build().stream().collect(toImmutableMap(QueryDescriptor::fullyQualidiedClassName, identity())));
     	
 	}
@@ -134,7 +143,6 @@ public final class SourceCode {
         this.queriesElasticSearch.values().forEach(consumer);
         this.queriesDatabase.values().forEach(consumer);
         this.queriesPojo.values().forEach(consumer);
-
 	}
 	
     public void forEachElasticSearchQuery(Consumer<ElsQueryDescriptor> consumer) {
@@ -143,6 +151,10 @@ public final class SourceCode {
     
     public void forEachDatabaseQuery(Consumer<DatabaseQueryDescriptor> consumer) {
         this.queriesDatabase.values().forEach(consumer);
+    }
+    
+    public void forEachQueryClient(Consumer<QueryClientDescriptor> consumer) {
+        this.clientQueries.values().forEach(consumer);
     }
     
     public void forEachDatabaseQueryPackage(BiConsumer<String, ImmutableList<DatabaseQueryDescriptor>> consumer) {
@@ -155,6 +167,10 @@ public final class SourceCode {
 
     public void forEachQueryPackage(BiConsumer<String, ImmutableList<QueryDescriptor>> consumer) {
     	this.queriesPackages.forEach(consumer);
+    }
+    
+    public void forEachQueryClientPackage(BiConsumer<String, ImmutableList<QueryClientDescriptor>> consumer) {
+    	this.clientQueriesPackages.forEach(consumer);
     }
     
 	public void forEachRestController(BiConsumer<String, ImmutableList<RestControllerDescriptor>> consumer) {

@@ -31,6 +31,18 @@ public final class QueryImplementationGenerator {
 		logger = LoggerFactory.getInstance().getLogger(QueryImplementationGenerator.class);
 	}
 
+	public void generateClient(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
+		// generate Implementation class;
+		sourceCode.forEachQueryClient(t -> {
+			try {
+				generate(processingEnvironment, t);
+			} catch (Exception cause) {
+				logger.error("Exception for [" + t + "] -> [" + cause.getMessage() + "]", cause);
+			}
+		});
+
+	}
+
     public void generate(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
         // generate Implementation class;
         sourceCode.forEachQuery(t -> {

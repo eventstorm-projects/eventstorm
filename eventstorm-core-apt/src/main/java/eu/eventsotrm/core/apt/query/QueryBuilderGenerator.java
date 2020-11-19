@@ -28,6 +28,16 @@ public final class QueryBuilderGenerator {
 	public QueryBuilderGenerator() {
 		logger = LoggerFactory.getInstance().getLogger(QueryBuilderGenerator.class);
 	}
+	
+	public void generateClient(ProcessingEnvironment processingEnv, SourceCode sourceCode) {
+		sourceCode.forEachQueryClient(t -> {
+			try {
+				generate(processingEnv, t);
+			} catch (Exception cause) {
+				logger.error("Exception for [" + t + "] -> [" + cause.getMessage() + "]", cause);
+			}
+		});
+	}
 
     public void generate(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
         sourceCode.forEachQuery(t -> {
@@ -140,5 +150,5 @@ public final class QueryBuilderGenerator {
         writer.write("    }");
         writeNewLine(writer);
     }
-    
+
 }
