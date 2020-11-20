@@ -1,5 +1,6 @@
 package eu.eventstorm.sql.impl;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -24,6 +25,17 @@ final class RawSqlExecutorImpl implements RawSqlExecutor {
 			try (Statement statement = conn.createStatement()) {
 				for (int i = 0 ; i < sql.length ; i++) {
 					statement.execute(sql[i]);	
+				}
+			}
+		}
+	}
+
+	@Override
+	public void call(String...sql) throws SQLException {
+		try (Connection conn = dataSource.getConnection()) {
+			for (int i = 0 ; i < sql.length ; i++) {
+				try (CallableStatement statement = conn.prepareCall(sql[i])) {
+					statement.execute();
 				}
 			}
 		}
