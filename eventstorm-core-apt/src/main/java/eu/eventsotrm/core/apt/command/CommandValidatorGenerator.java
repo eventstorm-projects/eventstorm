@@ -166,7 +166,14 @@ public final class CommandValidatorGenerator {
         for (PropertyDescriptor ppd : descriptor.properties()) {
             String returnType = Helper.getReturnType(ppd.getter());
             if (returnType.startsWith(List.class.getName())) {
-            	writeListImtepValidator(writer, descriptor, ppd);
+            	String targetClass = returnType.substring(15,returnType.length() - 1);
+    			
+    			if (Helper.isString(targetClass)) {
+    				
+    			} else {
+    				writeListImtepValidator(writer, descriptor, ppd);	
+    			}
+            	
             }
         }
         
@@ -419,10 +426,17 @@ public final class CommandValidatorGenerator {
     	for (PropertyDescriptor ppd : descriptor.properties()) {
     		String returnType = Helper.getReturnType(ppd.getter());
     		if (returnType.startsWith(List.class.getName())) {
-    			String validatorClassName = returnType.substring(15, returnType.lastIndexOf(".")) + ".validator." + 
-    					returnType.substring(returnType.lastIndexOf(".")+1, returnType.length()-1) + "Validator";
-    			variables.add(Tuples.of(validatorClassName, ppd));
-    			writer.write("    private final " + validatorClassName +" $$listValidator" + Helper.firstToUpperCase(ppd.name()) + ";");
+    			
+    			String targetClass = returnType.substring(15,returnType.length() - 1);
+    			
+    			if (Helper.isString(targetClass)) {
+    				
+    			} else {
+    				String validatorClassName = returnType.substring(15, returnType.lastIndexOf(".")) + ".validator." + 
+        					returnType.substring(returnType.lastIndexOf(".")+1, returnType.length()-1) + "Validator";
+        			variables.add(Tuples.of(validatorClassName, ppd));
+        			writer.write("    private final " + validatorClassName +" $$listValidator" + Helper.firstToUpperCase(ppd.name()) + ";");
+    			}
     		}
     	}
     }

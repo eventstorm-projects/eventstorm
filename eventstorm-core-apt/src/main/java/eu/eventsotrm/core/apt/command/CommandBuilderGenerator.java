@@ -13,6 +13,8 @@ import java.util.Map;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.JavaFileObject;
 
+import com.google.common.collect.ImmutableList;
+
 import eu.eventsotrm.core.apt.SourceCode;
 import eu.eventsotrm.core.apt.model.AbstractCommandDescriptor;
 import eu.eventsotrm.core.apt.model.EmbeddedCommandDescriptor;
@@ -111,12 +113,21 @@ public final class CommandBuilderGenerator {
             writer.write("    private ");
             
             String returnType = getReturnType(ppd.getter());
-            String classname = null;
+            
+            String newInstance = null;
             
             if (returnType.startsWith("java.util.List")) {
             	String target =  returnType.substring(15, returnType.length()-1);
-            	classname =  cd.simpleName() + "__" + target.substring(target.lastIndexOf('.') + 1) + "__Builder<"+ parent + ">";
-            	writer.write(classname);
+            	if (Helper.isString(target)) {
+            		writer.write(ImmutableList.class.getName());
+            		writer.write(".Builder<String> ");
+            		newInstance = " = " + ImmutableList.class.getName() + ".builder();";
+            	} else {
+            		String classname =  cd.simpleName() + "__" + target.substring(target.lastIndexOf('.') + 1) + "__Builder<"+ parent + ">";
+                	writer.write(classname);
+                	newInstance = " = new " + classname + "(this);";
+            	}
+            	
             } else {
                 writer.write(getReturnType(ppd.getter()));            	
             }
@@ -125,8 +136,8 @@ public final class CommandBuilderGenerator {
             writer.write(ppd.variable());
             writer.write("$$");
             
-            if (classname != null) {
-            	writer.write(" = new " + classname + "(this);");
+            if (newInstance != null) {
+            	writer.write(newInstance);
             } else {
                 writer.write(";");            	
             }
@@ -187,11 +198,19 @@ public final class CommandBuilderGenerator {
 
         if (type.startsWith("java.util.List")) {
         	
-        	String newBuilder = genereteJoinBuilder(cd, cpd, type.substring(15, type.length()-1));
+        	String subtype = type.substring(15, type.length()-1);
+        	String newBuilder;
+        	if (Helper.isString(subtype)) {
+        		newBuilder = ImmutableList.class.getName() + ".Builder<String>";
+        		writer.write(newBuilder);
+        	} else {
+        		newBuilder = genereteJoinBuilder(cd, cpd, subtype);
+        		writer.write(newBuilder);
+            	writer.write("<" + returnType);
+            	writer.write(">");
+        	}
         	
-        	writer.write(newBuilder);
-        	writer.write("<" + returnType);
-        	writer.write("> with");
+        	writer.write(" with");
             writer.write(Helper.firstToUpperCase(cpd.name()));
         	writer.write("() {");
         	writeNewLine(writer);
