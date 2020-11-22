@@ -173,7 +173,7 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 					
 			builder.add(this.eventStore.appendToStream(
 					sd.getStreamEventDefinition(candidate.getMessage().getClass().getSimpleName()), 
-					candidate.getStreamId().toStringValue(), 
+					candidate.getStreamId(), 
 					correlation, 
 					candidate.getMessage())
 				);

@@ -2,7 +2,7 @@ package eu.eventstorm.starter;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-import eu.eventstorm.core.uuid.UniversalUniqueIdentifierDefinition;
+import eu.eventstorm.core.id.UniversalUniqueIdentifierDefinition;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>

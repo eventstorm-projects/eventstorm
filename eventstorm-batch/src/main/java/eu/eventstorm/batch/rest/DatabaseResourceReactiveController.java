@@ -23,8 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import eu.eventstorm.batch.db.DatabaseResource;
 import eu.eventstorm.batch.db.DatabaseResourceBuilder;
 import eu.eventstorm.batch.db.DatabaseResourceRepository;
-import eu.eventstorm.core.uuid.UniversalUniqueIdentifier;
-import eu.eventstorm.core.uuid.UniversalUniqueIdentifierGenerator;
+import eu.eventstorm.core.id.StreamIdGenerator;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.type.Json;
 import eu.eventstorm.sql.type.Jsons;
@@ -47,9 +46,9 @@ public final class DatabaseResourceReactiveController {
 	private final ObjectMapper objectMapper;
 	private final TransactionTemplate transactionTemplate;
 	private final CreatedByExtractor createdByExtractor;
-	private final UniversalUniqueIdentifierGenerator generator;
+	private final StreamIdGenerator generator;
 	
-	public DatabaseResourceReactiveController(Database database, CreatedByExtractor createdByExtractor, UniversalUniqueIdentifierGenerator generator) {
+	public DatabaseResourceReactiveController(Database database, CreatedByExtractor createdByExtractor, StreamIdGenerator generator) {
 		this.databaseResourceRepository = new DatabaseResourceRepository(database);
 		this.objectMapper = new ObjectMapper();
 		this.transactionTemplate = new TransactionTemplate(database.transactionManager());
@@ -64,7 +63,7 @@ public final class DatabaseResourceReactiveController {
 			LOGGER.debug("upload");
 		}
 		
-		UniversalUniqueIdentifier uuid = generator.generate();
+		String streamId = generator.generate();
 		FastByteArrayOutputStream baos = new FastByteArrayOutputStream(32768);
 
 		return DataBufferUtils.write(serverRequest.getBody(), baos)
@@ -74,7 +73,7 @@ public final class DatabaseResourceReactiveController {
 					this.transactionTemplate.executeWithReadWrite(() -> {
 						Json meta = getMeta(serverRequest);
 						DatabaseResource br = new DatabaseResourceBuilder()
-								.withId(uuid.toString())
+								.withId(streamId)
 								.withMeta(meta)
 								.withContent(Blobs.newBlob(baos))
 								.withCreatedBy(createdByExtractor.extract(serverRequest))
@@ -83,7 +82,7 @@ public final class DatabaseResourceReactiveController {
 						return null;
 					});
 				})
-				.map(result -> new UploadResponse(uuid.toString()));
+				.map(result -> new UploadResponse(streamId));
 	}
 	
 	@GetMapping(path = "${eu.eventstorm.batch.resource.context-path:}/list")

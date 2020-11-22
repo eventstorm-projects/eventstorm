@@ -1,4 +1,4 @@
-package eu.eventstorm.core.uuid;
+package eu.eventstorm.core.id;
 
 import java.time.Clock;
 import java.time.Instant;

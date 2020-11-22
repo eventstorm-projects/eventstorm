@@ -10,9 +10,9 @@ import org.springframework.context.annotation.Profile;
 import com.google.protobuf.TypeRegistry;
 
 import eu.eventstorm.batch.rest.CreatedByExtractor;
-import eu.eventstorm.core.uuid.UniversalUniqueIdentifierDefinition;
-import eu.eventstorm.core.uuid.UniversalUniqueIdentifierGenerator;
-import eu.eventstorm.core.uuid.UniversalUniqueIdentifiers;
+import eu.eventstorm.core.id.StreamIdGenerator;
+import eu.eventstorm.core.id.StreamIdGeneratorFactory;
+import eu.eventstorm.core.id.UniversalUniqueIdentifierDefinition;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Dialect;
 import eu.eventstorm.sql.TransactionManager;
@@ -48,8 +48,8 @@ public class DatabaseTestConfiguration {
 	}
 
 	@Bean
-	UniversalUniqueIdentifierGenerator universalUniqueIdentifierGenerator() {
-		return () -> UniversalUniqueIdentifiers.generate(new UniversalUniqueIdentifierDefinition() {
+	StreamIdGenerator streamIdGenerator() {
+		return StreamIdGeneratorFactory.uuid(new UniversalUniqueIdentifierDefinition() {
 			public short getRegion() {
 				return 0;
 			}

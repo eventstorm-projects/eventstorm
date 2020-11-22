@@ -1,4 +1,4 @@
-package eu.eventstorm.core;
+package eu.eventstorm.core.id;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -6,6 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableMap;
+
+import eu.eventstorm.core.EventstormException;
+import eu.eventstorm.core.EventstormExceptionType;
 
 class EventstormExceptionTest {
 

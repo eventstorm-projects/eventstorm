@@ -15,9 +15,9 @@ class StreamIdGeneratorManagerTest {
 		builder.put("id02", StreamIdGeneratorFactory.inMemoryLong());
 		StreamIdGeneratorManager manager = new StreamIdGeneratorManager(builder.build());
 		
-		assertEquals("1", manager.getAggregateIdGenerator("id01").generate().toStringValue());
-		assertEquals("2", manager.getAggregateIdGenerator("id01").generate().toStringValue());
-		assertEquals("1", manager.getAggregateIdGenerator("id02").generate().toStringValue());
-		assertEquals("2", manager.getAggregateIdGenerator("id02").generate().toStringValue());
+		assertEquals("1", manager.getAggregateIdGenerator("id01").generate().toString());
+		assertEquals("2", manager.getAggregateIdGenerator("id01").generate().toString());
+		assertEquals("1", manager.getAggregateIdGenerator("id02").generate().toString());
+		assertEquals("2", manager.getAggregateIdGenerator("id02").generate().toString());
 	}
 }

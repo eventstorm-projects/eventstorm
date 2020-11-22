@@ -25,4 +25,8 @@ public final class StreamIdGeneratorFactory {
     public static StreamIdGenerator sequenceLong(SequenceGenerator<Long> sequenceGenerator) {
         return new SqlSequenceStreamIdGenerator.Long(sequenceGenerator);
     }
+    
+    public static StreamIdGenerator uuid(UniversalUniqueIdentifierDefinition definition) {
+        return new UniversalUniqueIdentifierStreamIdGenerator(definition);
+    }
 }

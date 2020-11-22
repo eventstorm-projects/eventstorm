@@ -10,10 +10,10 @@ import eu.eventstorm.util.ToStringBuilder;
 public final class EventCandidate<T extends AbstractMessage> {
 
 	private final String stream;
-	private final StreamId streamId;
+	private final String streamId;
 	private final T message;
 
-	public EventCandidate(String stream, StreamId streamId, T message) {
+	public EventCandidate(String stream, String streamId, T message) {
 		this.stream = stream;
 		this.streamId = streamId;
 		this.message = message;
@@ -23,7 +23,7 @@ public final class EventCandidate<T extends AbstractMessage> {
 		return stream;
 	}
 
-	public StreamId getStreamId() {
+	public String getStreamId() {
 		return streamId;
 	}
 
@@ -39,7 +39,5 @@ public final class EventCandidate<T extends AbstractMessage> {
 				.append("message", message)
 				.toString();
 	}
-	
-	
 
 }

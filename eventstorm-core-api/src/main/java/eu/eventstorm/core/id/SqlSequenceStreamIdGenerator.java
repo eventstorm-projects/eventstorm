@@ -1,6 +1,5 @@
 package eu.eventstorm.core.id;
 
-import eu.eventstorm.core.StreamId;
 import eu.eventstorm.sql.Transaction;
 import eu.eventstorm.sql.id.SequenceGenerator;
 
@@ -22,13 +21,13 @@ abstract class SqlSequenceStreamIdGenerator<T> implements StreamIdGenerator {
         }
         
         @Override
-        public StreamId generate() {
-            StreamId aggregateId;
+        public String generate() {
+            String id;
             try (Transaction tx = sequenceGenerator.getDatabase().transactionManager().newTransactionReadOnly()) {
-                aggregateId = StreamIds.from(sequenceGenerator.next());
+            	id = String.valueOf(sequenceGenerator.next());
                 tx.rollback();
             }
-            return aggregateId;
+            return id;
         }
 	    
 	}
@@ -40,13 +39,13 @@ abstract class SqlSequenceStreamIdGenerator<T> implements StreamIdGenerator {
         }
         
         @Override
-        public StreamId generate() {
-            StreamId aggregateId;
+        public String generate() {
+            String id;
             try (Transaction tx = sequenceGenerator.getDatabase().transactionManager().newTransactionReadOnly()) {
-                aggregateId = StreamIds.from(sequenceGenerator.next());
+            	id = String.valueOf(sequenceGenerator.next());
                 tx.rollback();
             }
-            return aggregateId;
+            return id;
         }
         
     }

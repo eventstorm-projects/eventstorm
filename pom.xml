@@ -39,7 +39,7 @@
 		<org.owasp.encoder.version>1.2.2</org.owasp.encoder.version>
 		<io.swagger.core.v3.version>2.1.5</io.swagger.core.v3.version>
 
-		<org.springframework.boot.version>2.3.5.RELEASE</org.springframework.boot.version>
+		<org.springframework.boot.version>2.3.6.RELEASE</org.springframework.boot.version>
 		<org.springframework.version>5.2.10.RELEASE</org.springframework.version>
 
 		<org.junit.jupiter.version>5.7.0</org.junit.jupiter.version>

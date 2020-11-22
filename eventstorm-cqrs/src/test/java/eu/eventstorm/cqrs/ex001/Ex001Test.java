@@ -1,6 +1,5 @@
 package eu.eventstorm.cqrs.ex001;
 
-import static eu.eventstorm.core.id.StreamIds.from;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -14,7 +13,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.protobuf.InvalidProtocolBufferException;
 
 import eu.eventstorm.core.Event;
-import eu.eventstorm.cqrs.CommandContext;
 import eu.eventstorm.cqrs.CommandGateway;
 import eu.eventstorm.cqrs.context.DefaultCommandContext;
 import eu.eventstorm.cqrs.ex001.command.CreateUserCommand;
@@ -46,8 +44,8 @@ class Ex001Test {
 		ImmutableList.Builder<Event> builder = ImmutableList.builder();
 		gateway.<CreateUserCommand,Event>dispatch(new DefaultCommandContext(), command).doOnNext(event -> builder.add(event)).blockLast();
 		
-		assertEquals(1, eventStoreClient.readStream("user", from(1)).count());
-		Event event = eventStoreClient.readStream("user", from(1)).findFirst().get();
+		assertEquals(1, eventStoreClient.readStream("user", "1").count());
+		Event event = eventStoreClient.readStream("user", "1").findFirst().get();
 
 		assertEquals("user", event.getStream());
 		assertEquals("1", event.getStreamId());

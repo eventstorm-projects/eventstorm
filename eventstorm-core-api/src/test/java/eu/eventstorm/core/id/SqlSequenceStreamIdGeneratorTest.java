@@ -65,7 +65,7 @@ class SqlSequenceStreamIdGeneratorTest {
 	void testInteger() {
 		StreamIdGenerator generator = StreamIdGeneratorFactory.sequenceInteger(new SequenceGenerator4Integer(db, sequence));
 		for (int i = 1 ; i < 20 ; i++) {
-			assertEquals(StreamIds.from(i),  generator.generate());	
+			assertEquals(String.valueOf(i),  generator.generate());	
 		}
 	}
 
@@ -73,7 +73,7 @@ class SqlSequenceStreamIdGeneratorTest {
 	void testLong() {
 		StreamIdGenerator generator = StreamIdGeneratorFactory.sequenceLong(new SequenceGenerator4Long(db, sequence));
 		for (long i = 1 ; i < 20 ; i++) {
-			assertEquals(StreamIds.from(i),  generator.generate());	
+			assertEquals(String.valueOf(i),  generator.generate());	
 		}
 	}
 

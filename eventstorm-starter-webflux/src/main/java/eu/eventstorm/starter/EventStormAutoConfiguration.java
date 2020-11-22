@@ -11,8 +11,6 @@ import org.springframework.context.annotation.Configuration;
 import com.fasterxml.jackson.databind.Module;
 import com.google.protobuf.TypeRegistry;
 
-import eu.eventstorm.core.uuid.UniversalUniqueIdentifierGenerator;
-import eu.eventstorm.core.uuid.UniversalUniqueIdentifiers;
 import eu.eventstorm.cloudevents.json.jackson.CloudEventsModule;
 import eu.eventstorm.cqrs.CommandGateway;
 import eu.eventstorm.cqrs.CommandHandler;
@@ -72,11 +70,6 @@ public class EventStormAutoConfiguration {
 	@Bean("event_store_scheduler")
 	Scheduler eventStoreScheduler() {
 		return Schedulers.newSingle("event-loop");
-	}
-
-	@Bean 
-	UniversalUniqueIdentifierGenerator UniversalUniqueIdentifierGenerator(UniversalUniqueIdentifierDefinitionProperties def) {
-		return () -> UniversalUniqueIdentifiers.generate(def);
 	}
 	
 	@ConditionalOnMissingBean

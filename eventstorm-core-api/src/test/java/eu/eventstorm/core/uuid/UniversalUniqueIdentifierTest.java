@@ -1,6 +1,6 @@
 package eu.eventstorm.core.uuid;
 
-import static eu.eventstorm.core.uuid.UniversalUniqueIdentifierV6.from;
+import static eu.eventstorm.core.id.UniversalUniqueIdentifierV6.from;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.Clock;
@@ -8,6 +8,10 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 import org.junit.jupiter.api.Test;
+
+import eu.eventstorm.core.id.UniversalUniqueIdentifierDefinition;
+import eu.eventstorm.core.id.UniversalUniqueIdentifierV6;
+import eu.eventstorm.core.id.UniversalUniqueIdentifiers;
 
 /**
  * @author <a href="mailto:jacques.militello@ext.europarl.europa.eu">Jacques Militello</a>

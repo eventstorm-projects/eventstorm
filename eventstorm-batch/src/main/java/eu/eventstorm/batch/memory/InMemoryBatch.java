@@ -49,7 +49,7 @@ public final class InMemoryBatch implements Batch {
 		BatchJob batchJob = this.applicationContext.getBean(candidate.getMessage().getName(), BatchJob.class);
 			
 		Event event = Event.newBuilder()
-				.setStreamId(candidate.getStreamId().toStringValue())
+				.setStreamId(candidate.getStreamId())
 				.setStream(candidate.getStream())
 				.setCorrelation(correlation)
 				.setRevision(1)

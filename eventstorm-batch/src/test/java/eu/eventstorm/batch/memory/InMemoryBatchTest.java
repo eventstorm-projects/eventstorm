@@ -14,7 +14,6 @@ import com.google.protobuf.ByteString;
 
 import eu.eventstorm.batch.rest.FileTestConfiguration;
 import eu.eventstorm.core.EventCandidate;
-import eu.eventstorm.core.id.StreamIds;
 import eu.eventstorm.cqrs.batch.BatchJobCreated;
 
 @ActiveProfiles("file")
@@ -30,17 +29,17 @@ class InMemoryBatchTest {
 	@Test
 	void push() throws Exception {
 
-		batch.push(new EventCandidate<BatchJobCreated>("read",StreamIds.from("123"), BatchJobCreated.newBuilder()
+		batch.push(new EventCandidate<BatchJobCreated>("read","123", BatchJobCreated.newBuilder()
 				.setName("Test")
 				.setCommand(ByteString.copyFrom("[{\"uuid\":\""+ java.util.UUID.randomUUID() +"\"}]", StandardCharsets.UTF_8))
 				.build()));
 		
-		batch.push(new EventCandidate<BatchJobCreated>("read",StreamIds.from("456"), BatchJobCreated.newBuilder()
+		batch.push(new EventCandidate<BatchJobCreated>("read","456", BatchJobCreated.newBuilder()
 				.setName("Test")
 				.setCommand(ByteString.copyFrom("[{\"uuid\":\""+ java.util.UUID.randomUUID() +"\"}]", StandardCharsets.UTF_8))
 				.build()));
 		
-		batch.push(new EventCandidate<BatchJobCreated>("read",StreamIds.from("789"), BatchJobCreated.newBuilder()
+		batch.push(new EventCandidate<BatchJobCreated>("read","789", BatchJobCreated.newBuilder()
 				.setName("Test")
 				.setCommand(ByteString.copyFrom("[{\"uuid\":\""+ java.util.UUID.randomUUID() +"\"}]", StandardCharsets.UTF_8))
 				.build()));

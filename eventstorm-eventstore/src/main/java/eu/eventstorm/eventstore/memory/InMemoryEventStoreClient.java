@@ -16,7 +16,6 @@ import com.google.protobuf.AbstractMessage;
 
 import eu.eventstorm.core.Event;
 import eu.eventstorm.core.EventCandidate;
-import eu.eventstorm.core.StreamId;
 import eu.eventstorm.eventstore.EventStoreClient;
 import eu.eventstorm.eventstore.EventStoreException;
 import eu.eventstorm.eventstore.StreamDefinition;
@@ -40,7 +39,7 @@ public final class InMemoryEventStoreClient implements EventStoreClient {
 
 
 	@Override
-	public Event appendToStream(String stream, StreamId streamId, AbstractMessage message) {
+	public Event appendToStream(String stream, String streamId, AbstractMessage message) {
 		
 		if (LOGGER.isTraceEnabled()) {
 			LOGGER.trace("appendToStream({},{},{})", stream, streamId, message);
@@ -51,8 +50,8 @@ public final class InMemoryEventStoreClient implements EventStoreClient {
 	
 
 	@Override
-	public Stream<Event> readStream(String stream, StreamId streamId) {
-		return inMemoryEventStore.readStream(streamManager.getDefinition(stream), streamId.toStringValue());
+	public Stream<Event> readStream(String stream, String streamId) {
+		return inMemoryEventStore.readStream(streamManager.getDefinition(stream), streamId);
 	}
 
 
@@ -69,7 +68,7 @@ public final class InMemoryEventStoreClient implements EventStoreClient {
 	}
 
 
-	private Event appendToStream(String stream, StreamId streamId, UUID uuid, AbstractMessage message) {
+	private Event appendToStream(String stream, String streamId, UUID uuid, AbstractMessage message) {
 		
 		StreamDefinition sd = this.streamManager.getDefinition(stream);
 		
@@ -80,7 +79,7 @@ public final class InMemoryEventStoreClient implements EventStoreClient {
 		// if sepd not found => exception.
 		StreamEventDefinition sepd = sd.getStreamEventDefinition(message.getDescriptorForType().getName());
 		
-		return this.inMemoryEventStore.appendToStream(sepd, streamId.toStringValue(), UUID.randomUUID().toString(), message);
+		return this.inMemoryEventStore.appendToStream(sepd, streamId, UUID.randomUUID().toString(), message);
 	}
 	
 

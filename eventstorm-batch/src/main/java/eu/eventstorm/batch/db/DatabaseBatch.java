@@ -59,7 +59,7 @@ public final class DatabaseBatch implements Batch {
 		}
 		
 		Event event = Event.newBuilder()
-				.setStreamId(candidate.getStreamId().toStringValue())
+				.setStreamId(candidate.getStreamId())
 				.setStream(candidate.getStream())
 				//.setCorrelation(UUID.newBuilder().setLeastSigBits(correlation.getUuid().getLeastSignificantBits()).setMostSigBits(correlation.getUuid().getMostSignificantBits()))
 				.setRevision(1)
@@ -71,7 +71,7 @@ public final class DatabaseBatch implements Batch {
 				.withName(candidate.getStream())
 				.withStatus((byte)BatchStatus.STARTING.ordinal())
 				.withEvent(toJson(candidate.getMessage()))
-				.withUuid(candidate.getStreamId().toStringValue())
+				.withUuid(candidate.getStreamId())
 				.withStartedAt(Timestamp.from(Instant.now()))
 				.withCreatedBy(candidate.getMessage().getCreatedBy())
 				.withLog(Jsons.createList())

@@ -1,15 +1,13 @@
-package eu.eventstorm.core.uuid;
+package eu.eventstorm.core.id;
 
 import java.util.UUID;
-
-import eu.eventstorm.core.StreamId;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  * 
  * @see https://tools.ietf.org/html/draft-peabody-dispatch-new-uuid-format-00
  */
-public abstract class UniversalUniqueIdentifier implements StreamId {
+public abstract class UniversalUniqueIdentifier {
 
 	private final UUID uuid;
 
@@ -26,9 +24,4 @@ public abstract class UniversalUniqueIdentifier implements StreamId {
 		return this.uuid.toString();
 	}
 
-	@Override
-	public final String toStringValue() {
-		return this.uuid.toString();
-	}
-    
 }

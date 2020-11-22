@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.ImmutableList;
 
 import eu.eventstorm.core.EventCandidate;
-import eu.eventstorm.core.StreamId;
 import eu.eventstorm.core.id.StreamIdGenerator;
 import eu.eventstorm.core.id.StreamIdGeneratorFactory;
 import eu.eventstorm.cqrs.CommandContext;
@@ -31,7 +30,7 @@ public final class CreateUserCommandHandler extends DefaultEventCommandHandler<C
 	@Override
 	protected ImmutableList<EventCandidate<?>> decision(CommandContext context, CreateUserCommand command) {
 		
-		StreamId id = this.aig.generate();
+		String id = this.aig.generate();
 		
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("generate ({})", id);
