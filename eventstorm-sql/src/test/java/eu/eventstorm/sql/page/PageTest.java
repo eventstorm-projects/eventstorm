@@ -135,7 +135,7 @@ class PageTest {
 		  
 		  try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
 			  
-			  PageRequest pageable = PageRequest.of(0, 10).withFilter(eq(AirportDescriptor.TYPE), (ps,index) -> {ps.setString(index,"small_airport"); return index+1;}).build();
+			  PageRequest pageable = PageRequest.of(0, 10).withFilter("temp", "eq", "fake", eq(AirportDescriptor.TYPE), (ps,index) -> {ps.setString(index,"small_airport"); return index+1;}).build();
 			  Page<Airport> page = this.repo.findAll(pageable);
 			  assertEquals(34475, page.getTotalElements());
 			  
@@ -157,7 +157,7 @@ class PageTest {
 			  tx.rollback();
 		  }
 		  
-		  Page<Airport> page = transactionTemplate.page(() -> this.repo.findAll( PageRequest.of(0, 10).withFilter(eq(AirportDescriptor.TYPE, "small_airport")).build()));
+		  Page<Airport> page = transactionTemplate.page(() -> this.repo.findAll( PageRequest.of(0, 10).withFilter("type", "eq", "small_airport",eq(AirportDescriptor.TYPE, "small_airport"), null).build()));
 		  assertEquals(34475, page.getTotalElements());
 		  List<Airport> content;
 		  try (Stream<Airport> stream = page.getContent()) {
@@ -178,7 +178,7 @@ class PageTest {
 		  }
 		  
 		  try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
-			  page = transactionTemplate.page(() -> this.repo.findAll( PageRequest.of(0, 10).withFilter(eq(AirportDescriptor.TYPE, "small_airport")).build()));
+			  page = transactionTemplate.page(() -> this.repo.findAll( PageRequest.of(0, 10).withFilter("type", "eq", "small_airport",eq(AirportDescriptor.TYPE, "small_airport"), null).build()));
 			  assertEquals(34475, page.getTotalElements());
 			  try (Stream<Airport> stream = page.getContent()) {
 				  content = stream.collect(toImmutableList());  
@@ -202,7 +202,7 @@ class PageTest {
 		  
 		  try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
 			  page = transactionTemplate.page(() -> this.repo.findAll( PageRequest.of(0, 10)
-					  .withFilter(eq(AirportDescriptor.TYPE, "small_airport"))
+					  .withFilter("type", "eq", "small_airport",eq(AirportDescriptor.TYPE, "small_airport"), null)
 					  .withOrder(Order.desc(AirportDescriptor.ID))
 					  .build()));
 			  
@@ -229,7 +229,7 @@ class PageTest {
 
 		  
 		  try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
-			  assertThrows(TransactionException.class, () -> transactionTemplate.page(() -> this.repo.findAll(PageRequest.of(0, 10).withFilter(eq(AirportDescriptor.TYPE, "small_airport")).build())));
+			  assertThrows(TransactionException.class, () -> transactionTemplate.page(() -> this.repo.findAll(PageRequest.of(0, 10).withFilter("type", "eq", "small_airport",eq(AirportDescriptor.TYPE, "small_airport"), null).build())));
 			  tx.rollback();
 		  }
 	}

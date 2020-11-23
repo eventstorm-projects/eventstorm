@@ -1,6 +1,6 @@
 package eu.eventstorm.sql.page;
 
-import com.google.common.collect.ImmutableList;
+import java.util.List;
 
 import eu.eventstorm.sql.builder.Order;
 import eu.eventstorm.util.Strings;
@@ -18,7 +18,7 @@ public interface PageRequest {
 
 	Filters getFilters();
 
-	ImmutableList<Order> getOrders();
+	List<Order> getOrders();
 
 	PageRequest next();
 

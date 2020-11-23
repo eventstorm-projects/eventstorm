@@ -1,6 +1,7 @@
 package eu.eventstorm.sql.page;
 
-import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
+import java.util.List;
 
 import eu.eventstorm.sql.builder.Order;
 import eu.eventstorm.sql.expression.Expression;
@@ -13,8 +14,8 @@ public final class PageRequestBuilder {
 	private final String query;
 	private final int offset;
 	private final int size;
-	private final ImmutableList.Builder<Filter> filters = ImmutableList.builder();
-	private final ImmutableList.Builder<Order> orders = ImmutableList.builder();
+	private final List<Filter> filters = new ArrayList<>(4);
+	private final List<Order> orders = new ArrayList<>(4);
 	
 	PageRequestBuilder(String query, int offset, int size) {
 		this.query = query;
@@ -23,19 +24,14 @@ public final class PageRequestBuilder {
 	}
 	  
 	public PageRequest build() {
-		return new PageableRequestImpl(query, offset, size, new FiltersImpl(filters.build()), orders.build());
+		return new PageableRequestImpl(query, offset, size, new FiltersImpl(filters), orders);
 	}
 
-	public PageRequestBuilder withFilter(Expression expression, PreparedStatementIndexSetter psis) {
-		filters.add(new FilterImpl(expression, psis));
+	public PageRequestBuilder withFilter(String property, String operator, String value, Expression expression, PreparedStatementIndexSetter psis) {
+		filters.add(new FilterImpl(property, operator, value, expression, psis));
 		return this;
 	}
 	
-	public PageRequestBuilder withFilter(Expression expression) {
-		filters.add(new FilterImpl(expression));
-		return this;
-	}
-
 	public PageRequestBuilder withOrder(Order order) {
 		orders.add(order);
 		return this;

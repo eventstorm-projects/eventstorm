@@ -1,6 +1,6 @@
 package eu.eventstorm.sql.page;
 
-import com.google.common.collect.ImmutableList;
+import java.util.List;
 
 import eu.eventstorm.sql.builder.Order;
 import eu.eventstorm.util.Strings;
@@ -15,9 +15,9 @@ final class PageableRequestImpl implements PageRequest {
     private final int offset;
     private final int size;
     private final Filters filters;
-    private final ImmutableList<Order> orders;
+    private final List<Order> orders;
 
-	PageableRequestImpl(String query, int offset, int size, Filters filters, ImmutableList<Order> orders) {
+	PageableRequestImpl(String query, int offset, int size, Filters filters, List<Order> orders) {
 		this.query = query;
         this.offset = offset;
         this.size = size;
@@ -41,7 +41,7 @@ final class PageableRequestImpl implements PageRequest {
 	}
 
 	@Override
-	public ImmutableList<Order> getOrders() {
+	public List<Order> getOrders() {
 		return this.orders;
 	}
 

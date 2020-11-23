@@ -133,7 +133,7 @@ public final class PageRequests {
 					throw new PageRequestException(PageRequestException.Type.INVALID_OP, ImmutableMap.of("op",op));
 				}
 				
-				builder.withFilter(ef.apply(column, fic), ef.getPreparedStatementIndexSetter(queryDescriptor, property, fic));
+				builder.withFilter(property, op, fic.value().getText(), ef.apply(column, fic), ef.getPreparedStatementIndexSetter(queryDescriptor, property, fic));
 			}
 		}
 		

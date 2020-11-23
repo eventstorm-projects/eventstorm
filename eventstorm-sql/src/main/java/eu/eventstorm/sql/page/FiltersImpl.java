@@ -1,6 +1,7 @@
 package eu.eventstorm.sql.page;
 
-import static com.google.common.collect.ImmutableList.toImmutableList;
+import java.util.List;
+import java.util.function.Consumer;
 
 import com.google.common.collect.ImmutableList;
 
@@ -14,31 +15,33 @@ import eu.eventstorm.util.ToStringBuilder;
  */
 final class FiltersImpl implements Filters{
 	
-	private final ImmutableList<Filter> list;
+	private final List<Filter> filters;
 
-	public FiltersImpl(ImmutableList<Filter> list) {
-		this.list = list;
+	public FiltersImpl(List<Filter> filters) {
+		this.filters = filters;
 	}
 
 	@Override
 	public ImmutableList<Expression> toExpressions() {
-		return this.list.stream().map(Filter::getExpression).collect(toImmutableList());
+		ImmutableList.Builder<Expression> builder = ImmutableList.builder();
+		this.filters.forEach(f -> builder.add(f.getExpression()));
+		return builder.build();
 	}
 
 	@Override
 	public int size() {
-		return list.size();
+		return filters.size();
 	}
 
 	@Override
 	public PreparedStatementSetter composeWith(SqlQueryPageable query, PreparedStatementSetter pss) {
-		if (list.isEmpty()) {
+		if (filters.isEmpty()) {
 			return pss;
 		}
 		return ps -> {
 			pss.set(ps);
 			int i = query.getIndex();
-			for (Filter filter : list) {
+			for (Filter filter : filters) {
 				PreparedStatementIndexSetter psis = filter.getPreparedStatementIndexSetter();
 				if (psis != null) {
 					i = psis.set(ps, i);
@@ -50,8 +53,18 @@ final class FiltersImpl implements Filters{
 	@Override
 	public String toString() {
 		return new ToStringBuilder(false)
-				.append("list", this.list)
+				.append("filters", this.filters)
 				.toString();
+	}
+
+	@Override
+	public void forEach(Consumer<Filter> consumer) {
+		this.filters.forEach(consumer);
+	}
+	
+	@Override
+	public void add(String property, String operator, String value, Expression expression, PreparedStatementIndexSetter psis) {
+		this.filters.add(new FilterImpl(property, operator, value, expression, psis));
 	}
 
 }
