@@ -15,7 +15,6 @@ import com.google.protobuf.util.JsonFormat;
 
 import eu.eventstorm.eventstore.StreamManager;
 import eu.eventstorm.eventstore.ex.UserCreatedEventPayload;
-import eu.eventstorm.eventstore.ex.UserCreatedEventPayloadOuterClass;
 
 @SpringBootTest(classes = ApiRestControllerConfigurationTest.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient

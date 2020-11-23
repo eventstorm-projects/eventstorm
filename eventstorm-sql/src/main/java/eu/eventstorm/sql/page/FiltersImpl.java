@@ -24,7 +24,7 @@ final class FiltersImpl implements Filters{
 	@Override
 	public ImmutableList<Expression> toExpressions() {
 		ImmutableList.Builder<Expression> builder = ImmutableList.builder();
-		this.filters.forEach(f -> builder.add(f.getExpression()));
+		this.filters.forEach(f -> builder.add(f.getEvalutor().getExpression()));
 		return builder.build();
 	}
 
@@ -42,10 +42,11 @@ final class FiltersImpl implements Filters{
 			pss.set(ps);
 			int i = query.getIndex();
 			for (Filter filter : filters) {
-				PreparedStatementIndexSetter psis = filter.getPreparedStatementIndexSetter();
-				if (psis != null) {
-					i = psis.set(ps, i);
-				}
+				i = filter.getEvalutor().apply(ps, i);
+//				PreparedStatementIndexSetter psis = filter.getPreparedStatementIndexSetter();
+//				if (psis != null) {
+//					i = psis.set(ps, i);
+//				}
 			}
 		};
 	}
@@ -63,8 +64,8 @@ final class FiltersImpl implements Filters{
 	}
 	
 	@Override
-	public void add(String property, String operator, String value, Expression expression, PreparedStatementIndexSetter psis) {
-		this.filters.add(new FilterImpl(property, operator, value, expression, psis));
+	public void add(String property, String operator, String value, FilterEvaluator evalutor) { //;Expression expression, List<String> values, PreparedStatementIndexSetter psis) {
+		this.filters.add(new FilterImpl(property, operator, value, evalutor)); //expression, values, psis));
 	}
 
 }

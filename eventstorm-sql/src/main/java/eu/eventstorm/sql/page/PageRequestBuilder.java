@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import eu.eventstorm.sql.builder.Order;
-import eu.eventstorm.sql.expression.Expression;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -27,8 +26,8 @@ public final class PageRequestBuilder {
 		return new PageableRequestImpl(query, offset, size, new FiltersImpl(filters), orders);
 	}
 
-	public PageRequestBuilder withFilter(String property, String operator, String value, Expression expression, PreparedStatementIndexSetter psis) {
-		filters.add(new FilterImpl(property, operator, value, expression, psis));
+	public PageRequestBuilder withFilter(String property, String operator, String value, FilterEvaluator evalutor) { //Expression expression, List<String> values, PreparedStatementIndexSetter psis) {
+		filters.add(new FilterImpl(property, operator, value, evalutor)); //expression, values, psis));
 		return this;
 	}
 	

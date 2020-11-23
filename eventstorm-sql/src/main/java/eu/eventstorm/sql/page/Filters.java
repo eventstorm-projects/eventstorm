@@ -21,6 +21,6 @@ public interface Filters {
 	
 	void forEach(Consumer<Filter> consumer);
 	
-	void add(String property, String operator, String value, Expression expression, PreparedStatementIndexSetter psis);
-
+	void add(String property, String operator, String value, FilterEvaluator evalutor);
+	 
 }

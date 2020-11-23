@@ -16,8 +16,8 @@ import com.google.common.collect.ImmutableMap;
 import eu.eventsotrm.core.apt.SourceCode;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
-import eu.eventstorm.cqrs.SqlQueryDescriptor;
 import eu.eventstorm.cqrs.QueryDescriptors;
+import eu.eventstorm.cqrs.SqlQueryDescriptor;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>

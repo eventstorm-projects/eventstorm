@@ -1,5 +1,8 @@
 package eu.eventstorm.cqrs.util;
 
+import static com.google.common.collect.ImmutableList.of;
+
+import java.util.List;
 import java.util.function.Function;
 
 import org.antlr.v4.runtime.BaseErrorListener;
@@ -23,10 +26,12 @@ import eu.eventstorm.cqrs.query.PageableParser.RequestContext;
 import eu.eventstorm.cqrs.query.PageableParser.SingleValueContext;
 import eu.eventstorm.cqrs.query.PageableParser.SortContext;
 import eu.eventstorm.cqrs.query.PageableParser.SortItemContext;
+import eu.eventstorm.cqrs.query.PageableParser.ValueContext;
 import eu.eventstorm.sql.builder.Order;
 import eu.eventstorm.sql.desc.SqlColumn;
 import eu.eventstorm.sql.expression.Expression;
 import eu.eventstorm.sql.expression.Expressions;
+import eu.eventstorm.sql.page.DefaultFilterEvaluator;
 import eu.eventstorm.sql.page.PageRequest;
 import eu.eventstorm.sql.page.PageRequestBuilder;
 import eu.eventstorm.sql.page.PreparedStatementIndexSetter;
@@ -133,7 +138,13 @@ public final class PageRequests {
 					throw new PageRequestException(PageRequestException.Type.INVALID_OP, ImmutableMap.of("op",op));
 				}
 				
-				builder.withFilter(property, op, fic.value().getText(), ef.apply(column, fic), ef.getPreparedStatementIndexSetter(queryDescriptor, property, fic));
+				builder.withFilter(property, op, fic.value().getText(), new DefaultFilterEvaluator(
+						// extract SQL Column
+						ef.apply(column, fic), 
+						// extract Raw Values
+						getRawValues(fic.value()), 
+						// build the preparedStatementIndexSetter
+						ef.getPreparedStatementIndexSetter(queryDescriptor, property, fic)));
 			}
 		}
 		
@@ -216,6 +227,7 @@ public final class PageRequests {
 	private static String value(FilterItemContext fic) {
 		return value(fic.value().singleValue());
 	}
+	
 	private static String value(SingleValueContext svc) {
 		if (svc != null) {
 			if (svc.integer() != null) {
@@ -226,4 +238,17 @@ public final class PageRequests {
 		}
 		return null;
 	}
+	
+	private static List<String> getRawValues(ValueContext vc) {
+		if (vc.singleValue() != null) {
+			return of(value(vc.singleValue()));
+		} else {
+			ImmutableList.Builder<String> builder = ImmutableList.builder();
+			for (SingleValueContext svc : vc.multipleValue().singleValue()) {
+				builder.add(value(svc));
+			}
+			return builder.build();
+		}
+	}
+	
 }

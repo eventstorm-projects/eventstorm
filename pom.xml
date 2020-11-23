@@ -30,7 +30,7 @@
 		<org.apache.logging.log4j.version>2.13.3</org.apache.logging.log4j.version>
 
 		<com.google.guava.version>30.0-jre</com.google.guava.version>
-		<com.google.protobuf.version>3.13.0</com.google.protobuf.version>
+		<com.google.protobuf.version>3.14.0</com.google.protobuf.version>
 
 		<com.fasterxml.jackson.core.version>2.11.3</com.fasterxml.jackson.core.version>
 		<io.zipkin.brave.version>5.12.7</io.zipkin.brave.version>
