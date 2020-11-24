@@ -25,7 +25,7 @@ public interface DatabaseExecution {
 
 	void setEvent(String event);
 
-	@Column(value = "name", length = 255)
+	@Column(value = "name", length = 128)
 	String getName();
 
 	void setName(String value);
