@@ -1,9 +1,14 @@
 package eu.eventstorm.batch.db;
 
 import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import eu.eventstorm.batch.BatchJobContext;
 import eu.eventstorm.batch.BatchResource;
@@ -16,6 +21,8 @@ import eu.eventstorm.sql.util.TransactionTemplate;
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 final class DatabaseBatchJobContext implements BatchJobContext {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseBatchJobContext.class);
 
 	private final DatabaseExecution databaseExecution;
 	private final TransactionTemplate transactionTemplate;
@@ -41,6 +48,17 @@ final class DatabaseBatchJobContext implements BatchJobContext {
 	@Override
 	public void setStatus(BatchStatus status) {
 		this.databaseExecution.setStatus((byte)status.ordinal()); 
+	}
+	
+	@Override
+	public void setException(Throwable ex) {
+		
+		LOGGER.info("Batch failed", ex);
+		
+		StringWriter sw = new StringWriter();
+		PrintWriter pw = new PrintWriter(sw);
+		ex.printStackTrace(pw);
+		this.databaseExecution.getLog().asMap().put("exception",  sw.toString());
 	}
 
 	@Override
@@ -73,7 +91,5 @@ final class DatabaseBatchJobContext implements BatchJobContext {
 		}
 		
 	}
-
-	
 
 }

@@ -39,7 +39,7 @@ public final class BatchExecutor {
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("onFailure");
 			}
-			
+			context.setException(ex);
 			context.setEndedAt(Instant.now());
 			context.setStatus(BatchStatus.FAILED);
 		});

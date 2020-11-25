@@ -14,8 +14,12 @@ public interface BatchJobContext {
 
 	void setStatus(BatchStatus status);
 	
+	void setException(Throwable ex);
+	
 	BatchJobCreated getBatchJobCreated();
 	
 	BatchResource getResource(String uuid);
+
+	
 
 }

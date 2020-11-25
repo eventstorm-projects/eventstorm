@@ -122,6 +122,12 @@ public final class InMemoryBatch implements Batch {
 		public BatchResource getResource(String uuid) {
 			return null;
 		}
+
+		@Override
+		public void setException(Throwable ex) {
+			// TODO Auto-generated method stub
+			
+		}
 		
 	}
 }
