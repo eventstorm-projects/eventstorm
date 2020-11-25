@@ -79,10 +79,12 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 		newSpan.tag("thread", Thread.currentThread().getName());
 		try (Tracer.SpanInScope ws = this.tracer.withSpanInScope(newSpan.start())) {
 			try (Transaction tx = this.transactionManager.newTransactionReadOnly()) {
-				// validate the command
-				validate(context, command);
-				
-				tx.rollback();
+				try {
+					// validate the command
+					validate(context, command);
+				} finally {
+					tx.rollback();	
+				}
 			}	
 		} finally {
 			newSpan.finish();
