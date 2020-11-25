@@ -243,19 +243,26 @@ public final class ToStringBuilder {
 		if (map == null) {
 			insertNullValue();
 		} else {
-			this.value[idx++] = '[';
+			addChar('[');
 			for (Object keyMap : map.keySet()) {
-				this.value[idx++] = '{';
+				addChar('{');
 				insertValue(getChars(keyMap.toString()));
 				this.value[idx-1] = ':';
 				insertValue(getChars(String.valueOf(map.get(keyMap))));
 				this.value[idx-1] = '}';
-				this.value[idx++] = ',';
+				addChar(',');
 			}
 			this.value[idx-1] = ']';
-			this.value[idx++] = ',';
+			addChar(',');
 		}
 		return this;
+	}
+	
+	private void addChar(char c) {
+		if (idx+1 > this.value.length) {
+			expandCapacity(idx+1);
+		}
+		this.value[idx++] = c;
 	}
 
 	/** {@inheritDoc} */
