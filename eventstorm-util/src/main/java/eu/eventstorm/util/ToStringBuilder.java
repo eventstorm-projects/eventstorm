@@ -219,10 +219,10 @@ public final class ToStringBuilder {
 		if (value == null) {
 			insertNullValue();
 		} else {
-			this.value[idx++] = '[';
+			addChar('[');			
 			values.forEach(this::insertValue);
 			this.value[idx-1] = ']';
-			this.value[idx++] = ',';
+			addChar('[');
 		}
 		return this;
 	}
