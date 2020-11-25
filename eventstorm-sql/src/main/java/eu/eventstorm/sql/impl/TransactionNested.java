@@ -2,12 +2,17 @@ package eu.eventstorm.sql.impl;
 
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import eu.eventstorm.sql.SqlQuery;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 final class TransactionNested implements TransactionSupport {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TransactionNested.class);
 
 	private final AbstractTransaction main;
     private final TransactionSupport parent;
@@ -32,11 +37,17 @@ final class TransactionNested implements TransactionSupport {
 
     @Override
     public void commit() {
+    	if (LOGGER.isDebugEnabled()) {
+    		LOGGER.debug("commit() in nested : skip");
+    	}
         // skip
     }
 
     @Override
     public void rollback() {
+    	if (LOGGER.isDebugEnabled()) {
+    		LOGGER.debug("rollback() in nested : skip");
+    	}
         // skip
     }
 

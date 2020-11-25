@@ -33,10 +33,16 @@ final class TransactionHolder implements AutoCloseable {
 	}
 
 	void set(TransactionSupport tx) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("set({},{})", Thread.currentThread().getId(), tx);
+		}
 		this.holder.put(Long.valueOf(Thread.currentThread().getId()), tx);
 	}
 
 	void remove() {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("remove({})", Thread.currentThread().getId());
+		}
 		this.holder.remove(Long.valueOf(Thread.currentThread().getId()));
 	}
 

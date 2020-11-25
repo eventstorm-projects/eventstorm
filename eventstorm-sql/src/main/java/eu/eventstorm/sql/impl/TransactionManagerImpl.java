@@ -90,6 +90,10 @@ public final class TransactionManagerImpl implements TransactionManager {
         }
         TransactionSupport tx = this.transactions.get();
         
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("current Transaction ({})", tx);
+        }
+        
 		if (tx != null) {
 
 			if (TransactionDefinition.ISOLATED_READ_WRITE == definition) {
@@ -111,7 +115,6 @@ public final class TransactionManagerImpl implements TransactionManager {
 				tx = new TransactionReadWrite(this, doBegin(definition));
 				break;
 			}
-			
 		}
         
         this.transactions.set(tx);

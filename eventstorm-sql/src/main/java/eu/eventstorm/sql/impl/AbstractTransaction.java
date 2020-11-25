@@ -122,6 +122,10 @@ abstract class AbstractTransaction implements TransactionSupport {
 
 	@Override
 	public final void rollback() {
+		
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("rollback()");
+		}
         
         try {
             if (!this.active) {
