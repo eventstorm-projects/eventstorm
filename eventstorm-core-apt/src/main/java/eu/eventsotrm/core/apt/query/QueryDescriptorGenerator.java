@@ -127,15 +127,15 @@ public final class QueryDescriptorGenerator {
 		for (QueryPropertyDescriptor property :  ed.properties()) {
 			String type = Helper.getReturnType(property.getter());
 			if (Helper.isInteger(type)) {
-				writer.write("            .put(\"" + property.name() + "\", val -> (ps,index) -> { ps.setInt(index, Integer.valueOf(val)); return 1; })");
+				writer.write("            .put(\"" + property.name() + "\", val -> (ps,index) -> { ps.setInt(index, Integer.valueOf(val)); return index + 1; })");
 			} else if (Helper.isLong(type)) {
-				writer.write("            .put(\"" + property.name() + "\", val -> (ps,index) -> { ps.setLong(index, Long.valueOf(val)); return 1; })");
+				writer.write("            .put(\"" + property.name() + "\", val -> (ps,index) -> { ps.setLong(index, Long.valueOf(val)); return index + 1; })");
 			} else if (Helper.isBoolean(type)) {
-				writer.write("            .put(\"" + property.name() + "\", val -> (ps,index) -> { ps.setBoolean(index, Boolean.valueOf(val)); return 1; })");
+				writer.write("            .put(\"" + property.name() + "\", val -> (ps,index) -> { ps.setBoolean(index, Boolean.valueOf(val)); return index + 1; })");
 			} else if (Helper.isString(type)) {
-				writer.write("            .put(\"" + property.name() + "\", val -> (ps,index) -> { ps.setString(index, val); return 1; })");
+				writer.write("            .put(\"" + property.name() + "\", val -> (ps,index) -> { ps.setString(index, val); return index + 1; })");
 			} else if (Timestamp.class.getName().equals(type)) {
-				writer.write("            .put(\"" + property.name() + "\", val -> (ps,index) -> { ps.setTimestamp(index, "+ Dates.class.getName()+".convertTimestamp(val)); return 1; })");
+				writer.write("            .put(\"" + property.name() + "\", val -> (ps,index) -> { ps.setTimestamp(index, "+ Dates.class.getName()+".convertTimestamp(val)); return index + 1; })");
 			}
 			writeNewLine(writer);
 		}
