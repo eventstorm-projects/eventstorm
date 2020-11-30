@@ -219,10 +219,9 @@ public final class ToStringBuilder {
 		if (value == null) {
 			insertNullValue();
 		} else {
-			this.value[idx++] = '[';
+			addChar('[');			
 			values.forEach(this::insertValue);
 			this.value[idx-1] = ']';
-			this.value[idx++] = ',';
 		}
 		return this;
 	}
@@ -243,19 +242,26 @@ public final class ToStringBuilder {
 		if (map == null) {
 			insertNullValue();
 		} else {
-			this.value[idx++] = '[';
+			addChar('[');
 			for (Object keyMap : map.keySet()) {
-				this.value[idx++] = '{';
+				addChar('{');
 				insertValue(getChars(keyMap.toString()));
 				this.value[idx-1] = ':';
 				insertValue(getChars(String.valueOf(map.get(keyMap))));
 				this.value[idx-1] = '}';
-				this.value[idx++] = ',';
+				addChar(',');
 			}
 			this.value[idx-1] = ']';
-			this.value[idx++] = ',';
+			addChar(',');
 		}
 		return this;
+	}
+	
+	private void addChar(char c) {
+		if (idx+1 > this.value.length) {
+			expandCapacity(idx+1);
+		}
+		this.value[idx++] = c;
 	}
 
 	/** {@inheritDoc} */
@@ -277,7 +283,7 @@ public final class ToStringBuilder {
 	}
 
 	private void expandCapacity(int minimumCapacity) {
-		int newCapacity = (this.value.length + 1) << 1;
+		int newCapacity = this.value.length << 1;
 		if (newCapacity < 0) {
 			newCapacity = Integer.MAX_VALUE;
 		} else if (minimumCapacity > newCapacity) {
