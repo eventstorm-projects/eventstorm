@@ -12,13 +12,13 @@ public abstract class EventstormException extends RuntimeException {
 	private final transient ImmutableMap<String, Object> values;
 
 	public EventstormException(EventstormExceptionType type, ImmutableMap<String, Object> values) {
-		super(build(type, values, null));
+		super();
 		this.type = type;
 		this.values = values;
 	}
 
 	public EventstormException(EventstormExceptionType type, ImmutableMap<String, Object> values, Throwable cause) {
-		super(build(type, values, cause), cause);
+		super(cause);
 		this.type = type;
 		this.values = values;
 	}
@@ -29,6 +29,12 @@ public abstract class EventstormException extends RuntimeException {
 
 	public final ImmutableMap<String, Object> getValues() {
 		return values;
+	}
+
+	
+	@Override
+	public String getMessage() {
+		return build(type, this.values, getCause());
 	}
 
 	private static String build(EventstormExceptionType type, ImmutableMap<String, Object> params, Throwable cause) {

@@ -222,7 +222,6 @@ public final class ToStringBuilder {
 			addChar('[');			
 			values.forEach(this::insertValue);
 			this.value[idx-1] = ']';
-			addChar('[');
 		}
 		return this;
 	}
@@ -284,7 +283,7 @@ public final class ToStringBuilder {
 	}
 
 	private void expandCapacity(int minimumCapacity) {
-		int newCapacity = (this.value.length + 1) << 1;
+		int newCapacity = this.value.length << 1;
 		if (newCapacity < 0) {
 			newCapacity = Integer.MAX_VALUE;
 		} else if (minimumCapacity > newCapacity) {
