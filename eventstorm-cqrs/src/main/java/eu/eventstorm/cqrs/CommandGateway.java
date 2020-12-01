@@ -22,7 +22,7 @@ public final class CommandGateway {
 				// retrieve command handler associated
 				.flatMap(c -> Mono.justOrEmpty(registry.<T,E>get(c)))
 				// if no command handler => error
-				.switchIfEmpty(Mono.error(new CommandGatewayException(CommandGatewayException.Type.NOT_FOUND, of("command", command))))
+				.switchIfEmpty(Mono.error(() -> new CommandGatewayException(CommandGatewayException.Type.NOT_FOUND, of("command", command))))
 				// handle the Command
 				.flatMapMany(ch -> ch.handle(context, command))
 				;
