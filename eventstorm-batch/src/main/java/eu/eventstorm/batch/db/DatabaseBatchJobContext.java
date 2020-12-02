@@ -6,6 +6,7 @@ import java.io.StringWriter;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -77,6 +78,11 @@ final class DatabaseBatchJobContext implements BatchJobContext {
 
 	@Override
 	public void log(String key, Map<String, Object> value) {
+		this.databaseExecution.getLog().asMap().put(key, value);
+	}
+	
+	@Override
+	public void log(String key, List<Object> value) {
 		this.databaseExecution.getLog().asMap().put(key, value);
 	}
 

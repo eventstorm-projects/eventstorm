@@ -1,6 +1,7 @@
 package eu.eventstorm.batch;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 
 import eu.eventstorm.cqrs.batch.BatchJobCreated;
@@ -20,6 +21,8 @@ public interface BatchJobContext {
 	void log(String key, String value);
 	
 	void log(String key, Map<String, Object> value);
+	
+	void log(String key, List<Object> value);
 	
 	BatchJobCreated getBatchJobCreated();
 	
