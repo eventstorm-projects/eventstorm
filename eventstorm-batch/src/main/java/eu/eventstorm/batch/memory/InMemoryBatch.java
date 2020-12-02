@@ -4,6 +4,7 @@ import static java.util.UUID.randomUUID;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.util.Map;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 import org.slf4j.Logger;
@@ -125,8 +126,14 @@ public final class InMemoryBatch implements Batch {
 
 		@Override
 		public void setException(Throwable ex) {
-			// TODO Auto-generated method stub
-			
+		}
+
+		@Override
+		public void log(String key, String value) {
+		}
+
+		@Override
+		public void log(String key, Map<String, Object> value) {
 		}
 		
 	}

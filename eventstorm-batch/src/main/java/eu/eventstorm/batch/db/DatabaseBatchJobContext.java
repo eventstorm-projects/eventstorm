@@ -6,6 +6,7 @@ import java.io.StringWriter;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,9 +53,7 @@ final class DatabaseBatchJobContext implements BatchJobContext {
 	
 	@Override
 	public void setException(Throwable ex) {
-		
 		LOGGER.info("Batch failed", ex);
-		
 		StringWriter sw = new StringWriter();
 		PrintWriter pw = new PrintWriter(sw);
 		ex.printStackTrace(pw);
@@ -69,6 +68,16 @@ final class DatabaseBatchJobContext implements BatchJobContext {
 	@Override
 	public BatchResource getResource(String uuid) {
 		return new DatabaseBatchResourceWrapper(uuid);
+	}
+
+	@Override
+	public void log(String key, String value) {
+		this.databaseExecution.getLog().asMap().put(key, value);
+	}
+
+	@Override
+	public void log(String key, Map<String, Object> value) {
+		this.databaseExecution.getLog().asMap().put(key, value);
 	}
 
 	private final class DatabaseBatchResourceWrapper implements BatchResource {

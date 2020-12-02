@@ -36,7 +36,7 @@
 		<io.zipkin.brave.version>5.12.7</io.zipkin.brave.version>
 		<org.antlr.version>4.8-1</org.antlr.version>
 		<javax.servlet.version>4.0.1</javax.servlet.version>
-		<org.owasp.encoder.version>1.2.2</org.owasp.encoder.version>
+		<org.owasp.encoder.version>1.2.3</org.owasp.encoder.version>
 		<io.swagger.core.v3.version>2.1.5</io.swagger.core.v3.version>
 
 		<org.springframework.boot.version>2.3.6.RELEASE</org.springframework.boot.version>
