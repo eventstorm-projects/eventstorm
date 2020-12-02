@@ -7,6 +7,7 @@ import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.ResolverStyle;
@@ -27,6 +28,8 @@ public final class Dates {
 
 	public static final DateTimeFormatter RFC3339 = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss[.SSS]XXX")
 	            .withResolverStyle(ResolverStyle.LENIENT);
+	
+	public static final ZoneId UTC = ZoneId.of("UTC");
 
 	private Dates() {
 	}
