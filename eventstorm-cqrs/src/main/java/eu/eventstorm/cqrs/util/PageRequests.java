@@ -35,6 +35,7 @@ import eu.eventstorm.sql.page.DefaultFilterEvaluator;
 import eu.eventstorm.sql.page.PageRequest;
 import eu.eventstorm.sql.page.PageRequestBuilder;
 import eu.eventstorm.sql.page.PreparedStatementIndexSetter;
+import eu.eventstorm.util.Strings;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -70,6 +71,10 @@ public final class PageRequests {
 		
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("parseQuery [{}] -> [{}]", query, queryDescriptor);
+		}
+		
+		if (Strings.isEmpty(query)) {
+			throw new PageRequestException(PageRequestException.Type.EMPTY, ImmutableMap.of());
 		}
 		
 		RequestContext ctx = parse(query); 

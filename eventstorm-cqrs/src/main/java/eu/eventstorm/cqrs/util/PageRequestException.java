@@ -12,7 +12,7 @@ import eu.eventstorm.core.EventstormExceptionType;
 public final class PageRequestException extends EventstormException {
 
 	public enum Type implements EventstormExceptionType {
-		PARSING, INVALID_OP
+		EMPTY, PARSING, INVALID_OP
 	}
 	
 	public PageRequestException(EventstormExceptionType type, ImmutableMap<String, Object> values) {
