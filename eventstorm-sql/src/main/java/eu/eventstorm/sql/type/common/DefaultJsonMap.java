@@ -4,7 +4,7 @@ import static com.google.common.collect.ImmutableMap.of;
 import static eu.eventstorm.sql.type.SqlTypeException.PARAM_CONTENT_OBJECT;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -22,11 +22,11 @@ public final class DefaultJsonMap implements Json, JsonMap{
 	private final Map<String, Object> map;
 	
 	public DefaultJsonMap() {
-		this.map = new HashMap<>();
+		this.map = new LinkedHashMap<>();
 	}
 	
 	public DefaultJsonMap(Map<String, ?> map) {
-		this.map = new HashMap<>();
+		this.map = new LinkedHashMap<>();
 		map.forEach((key, value) -> {
 			this.map.put(key, value);
 		});
