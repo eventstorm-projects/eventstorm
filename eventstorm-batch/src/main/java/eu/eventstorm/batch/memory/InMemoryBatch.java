@@ -130,7 +130,7 @@ public final class InMemoryBatch implements Batch {
 		}
 
 		@Override
-		public void log(String key, String value) {
+		public void log(String key, Object value) {
 		}
 
 		@Override

@@ -72,7 +72,7 @@ final class DatabaseBatchJobContext implements BatchJobContext {
 	}
 
 	@Override
-	public void log(String key, String value) {
+	public void log(String key, Object value) {
 		this.databaseExecution.getLog().asMap().put(key, value);
 	}
 

@@ -18,7 +18,7 @@ public interface BatchJobContext {
 	
 	void setException(Throwable ex);
 	
-	void log(String key, String value);
+	void log(String key, Object value);
 	
 	void log(String key, Map<String, Object> value);
 	
