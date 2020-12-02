@@ -74,7 +74,7 @@ public final class DatabaseBatch implements Batch {
 				.withUuid(candidate.getStreamId())
 				.withStartedAt(Timestamp.from(Instant.now()))
 				.withCreatedBy(candidate.getMessage().getCreatedBy())
-				.withLog(Jsons.createList())
+				.withLog(Jsons.createMap())
 				.build();
 			
 		this.template.executeWithReadWrite(() -> repository.insert(batchExecution));
