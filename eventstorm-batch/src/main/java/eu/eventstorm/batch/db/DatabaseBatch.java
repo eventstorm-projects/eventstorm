@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.util.concurrent.ListenableFutureCallback;
 
+import com.google.common.base.Throwables;
 import com.google.protobuf.Any;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.TypeRegistry;
@@ -112,7 +113,8 @@ public final class DatabaseBatch implements Batch {
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("onFailure()", ex);
 			}
-			//context.getBatchExecution().setLog(json);
+			context.log("onFailure.message", ex.getMessage());
+			context.log("onFailure.exception", Throwables.getStackTraceAsString(ex));
 			template.executeWithReadWrite(() -> repository.update(context.getDatabaseExecution()));
 		}
 	}
@@ -124,4 +126,5 @@ public final class DatabaseBatch implements Batch {
 			throw new IllegalStateException(cause);
 		}
 	}
+	
 }
