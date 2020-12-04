@@ -24,6 +24,7 @@ import eu.eventstorm.eventbus.EventBus;
 import eu.eventstorm.eventstore.StreamDefinition;
 import eu.eventstorm.eventstore.StreamManager;
 import eu.eventstorm.eventstore.db.LocalDatabaseEventStore;
+import eu.eventstorm.sql.EventstormRepositoryException;
 import eu.eventstorm.sql.Transaction;
 import eu.eventstorm.sql.TransactionManager;
 import eu.eventstorm.util.tuple.Tuple2;
@@ -92,14 +93,26 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 		
 		return Mono.just(Tuples.of(context, command))
 				.publishOn(eventLoop.get(command))
-				.map(this::storeAndEvolution)
+				.map(tuple -> storeAndEvolution(tuple, 0))
 				.publishOn(eventLoop.post())
 				.doOnNext(this::postStoreAndEvolution)
 				.doOnNext(eventBus::publish)
 				.flatMapMany(Flux::fromIterable);
 	}
 
-	private ImmutableList<Event> storeAndEvolution(Tuple2<CommandContext, T> tuple) {
+	private ImmutableList<Event> storeAndEvolution(Tuple2<CommandContext, T> tuple, int retry) {
+		try {
+			return doStoreAndEvolution(tuple);
+		} catch (EventstormRepositoryException cause) {
+			LOGGER.info("storeAndEvolution -> retry [{}]", retry);
+			if (retry > 9) {
+				throw cause;
+			}
+			return storeAndEvolution(tuple, retry + 1);
+		}
+	}
+	
+	private ImmutableList<Event> doStoreAndEvolution(Tuple2<CommandContext, T> tuple) {
 		ImmutableList<Event> events;
 		String name = Thread.currentThread().getName();
 		try (Transaction tx = this.transactionManager.newTransactionReadWrite()) {
