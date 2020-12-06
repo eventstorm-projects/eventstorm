@@ -30,7 +30,7 @@ class DatabaseBatchTest {
 	
 
 	@Test
-	void testPushOK() {
+	void testPushOK() throws InterruptedException {
 		
 		BatchJobCreated bjc = BatchJobCreated.newBuilder()
 				.setName("junit-name")
@@ -38,6 +38,8 @@ class DatabaseBatchTest {
 				.build();
 		
 		batch.push(new EventCandidate<BatchJobCreated>("junit-stream", "123", bjc));
+		
+		Thread.sleep(1000);
 		
 		new TransactionTemplate(database.transactionManager()).executeWithReadOnly(() -> {
 			DatabaseExecutionRepository repo = new DatabaseExecutionRepository(database);
