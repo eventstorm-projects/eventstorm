@@ -18,6 +18,7 @@ import eu.eventsotrm.core.apt.model.QueryDescriptor;
 import eu.eventsotrm.core.apt.model.QueryPropertyDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
+import eu.eventsotrm.sql.apt.util.AliasGenerator;
 import eu.eventstorm.annotation.CqrsQueryDatabaseProperty;
 import eu.eventstorm.annotation.CqrsQueryDatabaseView;
 import eu.eventstorm.sql.Descriptor;
@@ -118,7 +119,7 @@ public final class QueryDatabaseDescriptorGenerator {
 		writer.write("(\"");
 		writer.write(descriptor.element().getAnnotation(CqrsQueryDatabaseView.class).view().value());
 		writer.write("\", \"");
-		//writer.write(generateAlias(properties));
+		writer.write(AliasGenerator.generate());
 		writer.write("\");");
 		writeNewLine(writer);
 	}

@@ -17,6 +17,7 @@ import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventsotrm.sql.apt.model.PojoDescriptor;
 import eu.eventsotrm.sql.apt.model.PojoPropertyDescriptor;
+import eu.eventsotrm.sql.apt.util.AliasGenerator;
 import eu.eventstorm.sql.Descriptor;
 import eu.eventstorm.sql.annotation.Column;
 import eu.eventstorm.sql.annotation.JoinColumn;
@@ -42,8 +43,6 @@ final class PojoDescriptorGenerator implements Generator {
 
 	private final Logger logger;
 	
-	private static String alias = null;
-
 	PojoDescriptorGenerator() {
 		logger = LoggerFactory.getInstance().getLogger(PojoImplementationGenerator.class);
 	}
@@ -134,7 +133,7 @@ final class PojoDescriptorGenerator implements Generator {
 		}
 
 		writer.write("\", \"");
-		writer.write(generateAlias());
+		writer.write(AliasGenerator.generate());
 		writer.write("\");");
 		writeNewLine(writer);
 	}
@@ -411,37 +410,4 @@ final class PojoDescriptorGenerator implements Generator {
 
 	}
 
-	private static String generateAlias() {
-
-		
-		if (alias == null) {
-			alias = "a";
-			return alias;
-		}
-
-		else if ("z".equals(alias)) {
-			alias = "aa";
-			return alias;
-		}
-
-		else if ("zz".equals(alias)) {
-			alias = "aaa";
-			return alias;
-		}
-
-		else if ("zzz".equals(alias)) {
-			alias = "aaa";
-			return alias;
-		}
-
-		StringBuilder builder = new StringBuilder();
-
-		if (alias.length() > 1) {
-			builder.append(alias.substring(0, alias.length() - 2));
-		}
-		builder.append((char) (alias.charAt(alias.length() - 1) + 1));
-
-		alias = builder.toString();
-		return alias;
-	}
 }
