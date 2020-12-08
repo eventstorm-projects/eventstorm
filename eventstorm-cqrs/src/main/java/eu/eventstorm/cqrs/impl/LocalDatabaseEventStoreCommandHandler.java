@@ -107,8 +107,9 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 			LOGGER.info("storeAndEvolution -> retry [{}]", retry);
 			if (retry > 9) {
 				throw cause;
+			} else {
+				return storeAndEvolution(tuple, retry + 1);	
 			}
-			return storeAndEvolution(tuple, retry + 1);
 		}
 	}
 	
