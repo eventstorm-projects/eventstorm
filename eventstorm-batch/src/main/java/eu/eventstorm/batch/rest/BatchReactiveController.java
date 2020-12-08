@@ -23,10 +23,9 @@ import reactor.core.publisher.Mono;
 public final class BatchReactiveController {
 
 	private final DatabaseExecutionRepository databaseExecutionRepository;
-	
 	private final TransactionTemplate transactionTemplate;
-	
 	private final ObjectMapper objectMapper;
+	
 	public BatchReactiveController(Database database) {
 		this.databaseExecutionRepository = new DatabaseExecutionRepository(database);
 		this.objectMapper = new ObjectMapper();
@@ -34,8 +33,11 @@ public final class BatchReactiveController {
 	}
 
 	@GetMapping(path = "${eu.eventstorm.batch.context-path:}/{uuid}")
-	public Mono<DatabaseExecution> upload(@PathVariable("uuid") String uuid) throws IOException {
+	public Mono<DatabaseExecution> getExecution(@PathVariable("uuid") String uuid) throws IOException {
 
+		DatabaseExecution de = transactionTemplate.executeWithReadOnly(() -> databaseExecutionRepository.findById(uuid));
+		
+		
 		return Mono.empty();
 
 	}

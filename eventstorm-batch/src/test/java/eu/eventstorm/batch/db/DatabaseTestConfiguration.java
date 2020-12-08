@@ -64,4 +64,17 @@ public class DatabaseTestConfiguration {
 		return TypeRegistry.getEmptyTypeRegistry();
 	}
 	
+	@Bean("junit-name") 
+	eu.eventstorm.batch.BatchJob batchJob() {
+		return context -> {
+		};
+	}
+	
+	@Bean("junit-failed") 
+	eu.eventstorm.batch.BatchJob batchJobFailed() {
+		return context -> {
+			throw new RuntimeException();
+		};
+	}
+	
 }
