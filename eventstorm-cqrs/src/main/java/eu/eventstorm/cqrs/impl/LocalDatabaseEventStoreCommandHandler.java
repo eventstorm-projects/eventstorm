@@ -143,7 +143,7 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 			span.tag("thread", name);
 			try (Tracer.SpanInScope ws = this.tracer.withSpanInScope(span.start())) {
 				// apply the evolution function (state,Event) => State
-				evolution(events);
+				events.forEach(evolutionHandlers::on);
 			} finally {
 				span.finish();
 			}
@@ -197,13 +197,6 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 		return builder.build();
 	}
 
-	private void evolution(ImmutableList<Event> events) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("evolution [{}]", events);
-		}
-		events.forEach(evolutionHandlers::on);
-	}
-	
 	private void postStoreAndEvolution(ImmutableList<Event> events) {
 		Span span = this.tracer.nextSpan().name("postStoreAndEvolution");
 		span.tag("thread",  Thread.currentThread().getName());
