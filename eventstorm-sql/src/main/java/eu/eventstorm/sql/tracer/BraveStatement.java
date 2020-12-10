@@ -67,14 +67,7 @@ class BraveStatement implements Statement {
 
 	@Override
 	public final void close() throws SQLException {
-		try (TransactionSpan span = tracer.span("close")) {
-			try {
-				this.ps.close();
-			} catch (SQLException cause) {
-				span.exception(cause);
-				throw cause;
-			}
-		}
+		this.ps.close();
 	}
 
 	@Override
