@@ -26,6 +26,7 @@ import eu.eventstorm.cloudevents.CloudEvents;
 import eu.eventstorm.core.Event;
 import eu.eventstorm.cqrs.CommandGateway;
 import eu.eventstorm.cqrs.context.ReactiveCommandContext;
+import reactor.util.function.Tuples;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -203,19 +204,19 @@ public final class CommandRestControllerImplementationGenerator {
 		writer.write(" command) {");
 		writeNewLine(writer);
 		writeNewLine(writer);
-		writer.write("        return Mono.just(command)");
+		writer.write("        return Mono.just("+ Tuples.class.getName() + ".of(new ReactiveCommandContext(exchange), command))");
 		//writeNewLine(writer);
 		//writer.write("            .subscribeOn(scheduler__" + rcd.getRestController().eventLoop() + ")");
 		writeNewLine(writer);
-		writer.write("            .log(LOGGER, Level.FINEST, false, SignalType.ON_NEXT)");
+		writer.write("            .log(LOGGER, Level.INFO, false, SignalType.ON_NEXT)");
 		writeNewLine(writer);
 		if (Void.class.getName().equals(returnType)) {
-			writer.write("            .flatMapMany(c -> gateway.<"+rcd.element().toString() + ","+ Event.class.getName() + ">dispatch(new ReactiveCommandContext(exchange), c))");
+			writer.write("            .flatMapMany(tuple -> gateway.<"+rcd.element().toString() + ","+ Event.class.getName() + ">dispatch(tuple.getT1(), tuple.getT2()))");
 			writeNewLine(writer);
 			writer.write("            .map(CloudEvents::to);");
 			writeNewLine(writer);			
 		} else {
-			writer.write("            .flatMapMany(c -> gateway.dispatch(new ReactiveCommandContext(exchange), c));");
+			writer.write("            .flatMapMany(tuple -> gateway.dispatch(tuple.getT1(), tuple.getT2()));");
 			writeNewLine(writer);
 		}
 

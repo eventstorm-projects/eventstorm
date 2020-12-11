@@ -101,27 +101,33 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 	}
 
 	private ImmutableList<Event> storeAndEvolution(Tuple2<CommandContext, T> tuple, int retry) {
-		try {
-			return doStoreAndEvolution(tuple);
+		String name = Thread.currentThread().getName();
+		Span span = this.tracer.nextSpan().name("eventstore");
+		span.tag("thread", name);
+		
+	    try (Tracer.SpanInScope ws = this.tracer.withSpanInScope(span.start())) {
+	    	return doStoreAndEvolution(tuple);
 		} catch (EventstormRepositoryException cause) {
 			LOGGER.info("storeAndEvolution -> retry [{}]", retry);
+			span.tag("retry", String.valueOf(retry));
+			span.error(cause);
 			if (retry > 9) {
 				throw cause;
 			} else {
 				return storeAndEvolution(tuple, retry + 1);	
 			}
+		} finally {
+			span.finish();
 		}
+		
 	}
 	
 	private ImmutableList<Event> doStoreAndEvolution(Tuple2<CommandContext, T> tuple) {
 		ImmutableList<Event> events;
-		String name = Thread.currentThread().getName();
 		try (Transaction tx = this.transactionManager.newTransactionReadWrite()) {
 			
 			ImmutableList<EventCandidate<?>> candidates;
-			
 			Span span = this.tracer.nextSpan().name("decision");
-			span.tag("thread", name);
 			try (Tracer.SpanInScope ws = this.tracer.withSpanInScope(span.start())) {
 				// apply the decision function (state,command) => events
 				candidates = decision(tuple.getT1(), tuple.getT2());
@@ -130,7 +136,6 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 			}
 			
 			span = this.tracer.nextSpan().name("store");
-			span.tag("thread", name);
 			try (Tracer.SpanInScope ws = this.tracer.withSpanInScope(span.start())) {
 				// save the to the eventStore
 				events = store(candidates);
@@ -138,9 +143,7 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 				span.finish();
 			}
 			
-			
 			span = this.tracer.nextSpan().name("evolution");
-			span.tag("thread", name);
 			try (Tracer.SpanInScope ws = this.tracer.withSpanInScope(span.start())) {
 				// apply the evolution function (state,Event) => State
 				events.forEach(evolutionHandlers::on);

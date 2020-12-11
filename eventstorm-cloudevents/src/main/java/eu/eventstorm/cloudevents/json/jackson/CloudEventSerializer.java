@@ -1,6 +1,7 @@
 package eu.eventstorm.cloudevents.json.jackson;
 
 import java.io.IOException;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,7 @@ import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.Message;
 import com.google.protobuf.MessageOrBuilder;
+import com.google.protobuf.Parser;
 import com.google.protobuf.TypeRegistry;
 import com.google.protobuf.util.JsonFormat;
 
@@ -30,10 +32,13 @@ final class CloudEventSerializer extends StdSerializer<CloudEvent> {
 	
 	private transient final JsonFormat.Printer printer;
 	
+	private final ConcurrentHashMap<String, Parser<DynamicMessage>> descriptors;
+	
 	CloudEventSerializer(TypeRegistry registry) {
 		super(CloudEvent.class, false);
 		this.registry = registry;
 		this.printer = JsonFormat.printer().usingTypeRegistry(registry).omittingInsignificantWhitespace().includingDefaultValueFields();
+		this.descriptors = new ConcurrentHashMap<>();
 	}
 
 	@Override
@@ -64,13 +69,18 @@ final class CloudEventSerializer extends StdSerializer<CloudEvent> {
 		
 		if (value.data() instanceof Any) {
 			Any any = (Any) value.data();
-			Descriptor descriptor = registry.getDescriptorForTypeUrl(any.getTypeUrl());
-			
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("debug [{}] -> [{}] ", any, descriptor);
+			Parser<DynamicMessage> parser = this.descriptors.get(any.getTypeUrl());
+			if (parser == null) {
+				Descriptor descriptor = registry.getDescriptorForTypeUrl(any.getTypeUrl());
+				
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("debug [{}] -> [{}] ", any, descriptor);
+				}
+				
+				parser = DynamicMessage.getDefaultInstance(descriptor).getParserForType();
+				this.descriptors.put(any.getTypeUrl(), parser);
 			}
-			
-			Message message = DynamicMessage.getDefaultInstance(descriptor).getParserForType().parseFrom(any.getValue());
+			Message message = parser.parseFrom(any.getValue());
 			gen.writeRaw(printer.print(message));
 		} else {
 			gen.writeRaw(printer.print((MessageOrBuilder) value.data()));
