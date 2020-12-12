@@ -94,7 +94,8 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 		return Mono.just(Tuples.of(context, command))
 				.publishOn(eventLoop.get(command))
 				.map(tuple -> storeAndEvolution(tuple, 0))
-				.publishOn(eventLoop.post())
+				//.publishOn(eventLoop.post())
+				.toProcessor()
 				.doOnNext(this::postStoreAndEvolution)
 				.doOnNext(eventBus::publish)
 				.flatMapMany(Flux::fromIterable);
