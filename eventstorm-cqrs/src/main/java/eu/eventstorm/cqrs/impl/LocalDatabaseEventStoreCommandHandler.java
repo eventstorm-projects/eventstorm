@@ -96,7 +96,7 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 				.map(tuple -> storeAndEvolution(tuple, 0))
 				.publishOn(eventLoop.post())
 				.map(events -> { postStoreAndEvolution(events); return events; })
-				.flatMapMany(events -> { eventBus.publish(events); return Flux.fromIterable(events); })
+				.flatMapMany(events -> { publish(events); return Flux.fromIterable(events); })
 				;
 	}
 
@@ -205,6 +205,16 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 		span.tag("thread",  Thread.currentThread().getName());
 		try (Tracer.SpanInScope ws = this.tracer.withSpanInScope(span.start())) {
 			doPostStoreAndEvolution(events);
+		} finally {
+			span.finish();
+		}
+	}
+	
+	private void publish(ImmutableList<Event> events) {
+		Span span = this.tracer.nextSpan().name("publish");
+		span.tag("thread",  Thread.currentThread().getName());
+		try (Tracer.SpanInScope ws = this.tracer.withSpanInScope(span.start())) {
+			eventBus.publish(events);
 		} finally {
 			span.finish();
 		}
