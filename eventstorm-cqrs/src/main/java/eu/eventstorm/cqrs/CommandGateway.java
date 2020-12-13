@@ -29,7 +29,9 @@ public final class CommandGateway {
 			if (handler == null) {
 				throw new CommandGatewayException(CommandGatewayException.Type.NOT_FOUND, ImmutableMap.of("command", command));
 			}
-	    }
+	    } finally {
+			span.finish();
+		}
 	    return handler.handle(ctx, command);
     }
 
