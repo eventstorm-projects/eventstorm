@@ -6,6 +6,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
+import brave.Tracer;
+import brave.Tracing;
+import brave.sampler.Sampler;
 import eu.eventstorm.cqrs.Command;
 import eu.eventstorm.cqrs.CommandGateway;
 import eu.eventstorm.cqrs.CommandHandler;
@@ -52,7 +55,7 @@ class Ex001Configuration {
 	CommandGateway gateway(EventStoreClient eventStoreClient, EvolutionHandlers evolutionHandlers, List<CommandHandler<? extends Command, ?>> commands) {
 		CommandHandlerRegistry.Builder registry = CommandHandlerRegistry.newBuilder();
 		commands.forEach(registry::add);
-		return new CommandGateway(registry.build());
+		return new CommandGateway(registry.build(), Tracing.newBuilder().sampler(Sampler.ALWAYS_SAMPLE).build().tracer());
 	}
 	
 	@Bean

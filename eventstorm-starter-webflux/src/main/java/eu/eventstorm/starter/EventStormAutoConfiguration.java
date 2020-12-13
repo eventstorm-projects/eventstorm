@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import com.fasterxml.jackson.databind.Module;
 import com.google.protobuf.TypeRegistry;
 
+import brave.Tracer;
 import eu.eventstorm.cloudevents.json.jackson.CloudEventsModule;
 import eu.eventstorm.cqrs.CommandGateway;
 import eu.eventstorm.cqrs.CommandHandler;
@@ -48,10 +49,10 @@ public class EventStormAutoConfiguration {
 	}
 
 	@Bean
-	CommandGateway commandGateway(List<CommandHandler<?, ?>> handlers) {
+	CommandGateway commandGateway(List<CommandHandler<?, ?>> handlers, Tracer tracer) {
 		CommandHandlerRegistry.Builder builder = CommandHandlerRegistry.newBuilder();
 		handlers.forEach(builder::add);
-		return new CommandGateway(builder.build());
+		return new CommandGateway(builder.build(), tracer);
 	}
 
 	@Bean
@@ -64,12 +65,6 @@ public class EventStormAutoConfiguration {
 	@Bean
 	CommandValidationRestControllerAdvice commandValidationRestControllerAdvice() {
 	    return new CommandValidationRestControllerAdvice();
-	}
-	
-	@ConditionalOnMissingBean(name = "event_store_scheduler")
-	@Bean("event_store_scheduler")
-	Scheduler eventStoreScheduler() {
-		return Schedulers.newSingle("event-loop");
 	}
 	
 	@ConditionalOnMissingBean
