@@ -49,10 +49,10 @@ public class EventStormAutoConfiguration {
 	}
 
 	@Bean
-	CommandGateway commandGateway(List<CommandHandler<?, ?>> handlers, Tracer tracer) {
+	CommandGateway commandGateway(List<CommandHandler<?, ?>> handlers) {
 		CommandHandlerRegistry.Builder builder = CommandHandlerRegistry.newBuilder();
 		handlers.forEach(builder::add);
-		return new CommandGateway(builder.build(), tracer);
+		return new CommandGateway(builder.build());
 	}
 
 	@Bean

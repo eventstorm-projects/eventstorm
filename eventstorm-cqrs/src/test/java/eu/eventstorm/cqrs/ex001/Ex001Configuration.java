@@ -55,7 +55,7 @@ class Ex001Configuration {
 	CommandGateway gateway(EventStoreClient eventStoreClient, EvolutionHandlers evolutionHandlers, List<CommandHandler<? extends Command, ?>> commands) {
 		CommandHandlerRegistry.Builder registry = CommandHandlerRegistry.newBuilder();
 		commands.forEach(registry::add);
-		return new CommandGateway(registry.build(), Tracing.newBuilder().sampler(Sampler.ALWAYS_SAMPLE).build().tracer());
+		return new CommandGateway(registry.build());
 	}
 	
 	@Bean
