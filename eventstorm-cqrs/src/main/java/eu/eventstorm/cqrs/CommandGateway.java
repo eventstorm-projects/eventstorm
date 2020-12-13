@@ -21,15 +21,16 @@ public final class CommandGateway {
     }
 
 	public <T extends Command, E> Flux<E> dispatch(CommandContext ctx, T command) {
+		CommandHandler<T,E> handler;
 		Span span = this.tracer.nextSpan().name("dispatch");
 	    try (Tracer.SpanInScope ws = this.tracer.withSpanInScope(span.start())) {
-	    	CommandHandler<T,E> handler = registry.<T,E>get(command);
+	    	handler = registry.<T,E>get(command);
 			// if no command handler => error
 			if (handler == null) {
 				throw new CommandGatewayException(CommandGatewayException.Type.NOT_FOUND, ImmutableMap.of("command", command));
 			}
-			return handler.handle(ctx, command);	
 	    }
+	    return handler.handle(ctx, command);
     }
 
 }
