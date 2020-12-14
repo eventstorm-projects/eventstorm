@@ -239,14 +239,21 @@ final class PojoImplementationGenerator implements Generator {
 
             writer.write("        return ");
             int number = descriptor.ids().size();
-            for (int i = 0 ; i < number ; i++) {
-                writeEqualsPojoPropertyDescriptor(writer, descriptor.ids().get(i));
-                if (i + 1 < number) {
-                    writer.write(" && ");
-                    writeNewLine(writer);
-                    writer.write("           ");
-                }
+            if (number > 0) {
+            	for (int i = 0 ; i < number ; i++) {
+                    writeEqualsPojoPropertyDescriptor(writer, descriptor.ids().get(i));
+                    if (i + 1 < number) {
+                        writer.write(" && ");
+                        writeNewLine(writer);
+                        writer.write("           ");
+                    }
+                }	
+            } else {
+            	writer.write(" this == other");
+            	writeNewLine(writer);
+                writer.write("           ");
             }
+            
 
             writer.write(";");
             writeNewLine(writer);

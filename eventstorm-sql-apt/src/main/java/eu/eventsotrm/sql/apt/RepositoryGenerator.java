@@ -361,6 +361,10 @@ final class RepositoryGenerator implements Generator {
     	if (!checkCUD(descriptor)) {
     		return;
     	}
+    	
+    	if (descriptor.ids().size() == 0) {
+    		return;
+    	}
 
         writer.write("        this.update = update(TABLE, COLUMNS, IDS).build();");
         writeNewLine(writer);
@@ -471,6 +475,10 @@ final class RepositoryGenerator implements Generator {
     	if (!checkCUD(descriptor)) {
     		return;
     	}
+    	
+    	if (descriptor.ids().size() == 0) {
+    		return;
+    	}
 
         writeNewLine(writer);
 		writer.write("    public final ");
@@ -536,10 +544,6 @@ final class RepositoryGenerator implements Generator {
     		return false;
     	}
     	
-    	if (descriptor.ids().size() == 0) {
-    		return false;
-    	}
-
     	return true;
     }
 
@@ -604,6 +608,10 @@ final class RepositoryGenerator implements Generator {
     	if (!checkCUD(descriptor)) {
     		return;
     	}
+    	
+    	if (descriptor.ids().size() == 0) {
+    		return;
+    	}
 
         writeNewLine(writer);
         writer.write("    public final void delete(");
@@ -635,6 +643,10 @@ final class RepositoryGenerator implements Generator {
     private static void generateMethodUpdate(Writer writer, PojoDescriptor descriptor) throws IOException {
 
     	if (!checkCUD(descriptor)) {
+    		return;
+    	}
+    	
+    	if (descriptor.ids().size() == 0) {
     		return;
     	}
 
