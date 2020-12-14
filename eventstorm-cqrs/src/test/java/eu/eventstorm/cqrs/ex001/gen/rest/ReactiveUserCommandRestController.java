@@ -25,13 +25,13 @@ public final class ReactiveUserCommandRestController {
 	}
 
 	@PostMapping(name = "reactive/user/create")
-	public Flux<Event> createUserCommand(ServerWebExchange exchange, CreateUserCommand command) {
+	public Flux<Event> createUserCommand(ServerWebExchange request, CreateUserCommand command) {
 
 		if (LOGGER.isTraceEnabled()) {
 			LOGGER.trace("createUserCommand (reactive/user/create) : [{}]", command);
 		}
 		
-		return Mono.empty().flatMapMany(emtpy -> gateway.dispatch(new ReactiveCommandContext(exchange), command));
+		return Mono.empty().flatMapMany(emtpy -> gateway.dispatch(new ReactiveCommandContext(request), command));
 	}
 
 }

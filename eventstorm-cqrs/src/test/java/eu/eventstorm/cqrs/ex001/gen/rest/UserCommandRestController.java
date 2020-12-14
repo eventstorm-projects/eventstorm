@@ -24,12 +24,12 @@ public final class UserCommandRestController {
 	}
 
 	@PostMapping(name = "command/user/create")
-	public void createUserCommand(ServerWebExchange exchange, CreateUserCommand command) {
+	public void createUserCommand(ServerWebExchange request, CreateUserCommand command) {
 
 		if (LOGGER.isTraceEnabled()) {
 			LOGGER.trace("createUserCommand (command/user/create) : [{}]", command);
 		}
-		gateway.dispatch(new ReactiveCommandContext(exchange), command).collect(ImmutableList.toImmutableList());
+		gateway.dispatch(new ReactiveCommandContext(request), command).collect(ImmutableList.toImmutableList());
 	}
 
 }

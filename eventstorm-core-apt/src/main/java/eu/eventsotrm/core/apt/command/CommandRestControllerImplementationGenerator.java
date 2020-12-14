@@ -6,14 +6,13 @@ import static eu.eventsotrm.sql.apt.Helper.writePackage;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.concurrent.Executor;
-import java.util.stream.Stream;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.type.MirroredTypeException;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.JavaFileObject;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 
 import eu.eventsotrm.core.apt.SourceCode;
@@ -26,7 +25,6 @@ import eu.eventstorm.cloudevents.CloudEvents;
 import eu.eventstorm.core.Event;
 import eu.eventstorm.cqrs.CommandGateway;
 import eu.eventstorm.cqrs.context.ReactiveCommandContext;
-import reactor.util.function.Tuples;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -78,21 +76,13 @@ public final class CommandRestControllerImplementationGenerator {
 		writePackage(writer, javaPackage);
 		writeNewLine(writer);
 
-
-        writer.write("import java.util.logging.Level;");
+        writer.write("import static org.springframework.core.io.buffer.DataBufferUtils.join;");
         writeNewLine(writer);
 		
-        writer.write("import " + Stream.class.getName() +";");
-        writeNewLine(writer);
-        writer.write("import " + Executor.class.getName() + ";");
-        writeNewLine(writer);
-        
 		writer.write("import org.springframework.web.bind.annotation.RequestBody;");
 		writeNewLine(writer);
 		writer.write("import org.springframework.web.bind.annotation.RestController;");		
 		writeNewLine(writer);
-		writer.write("import org.springframework.beans.factory.annotation.Qualifier;");       
-        writeNewLine(writer);
         writer.write("import org.springframework.web.server.ServerWebExchange;");       
         writeNewLine(writer);
         
@@ -136,6 +126,11 @@ public final class CommandRestControllerImplementationGenerator {
 		writer.write(" gateway;");
 		writeNewLine(writer);
 		
+		writer.write("    private final ");
+		writer.write(ObjectMapper.class.getName());
+		writer.write(" mapper;");
+		writeNewLine(writer);
+		
 		writeNewLine(writer);
 	}
 
@@ -145,10 +140,12 @@ public final class CommandRestControllerImplementationGenerator {
 		writer.write(desc.get(0).getRestController().name());
 		writer.write("(");
 		writer.write(CommandGateway.class.getName());
-		writer.write(" gateway) {");
+		writer.write(" gateway, "+ ObjectMapper.class.getName() +" mapper) {");
 		
 		writeNewLine(writer);
 		writer.write("        this.gateway = gateway;");
+		writeNewLine(writer);
+		writer.write("        this.mapper = mapper;");
 		writeNewLine(writer);
 		
 		writer.write("    }");
@@ -196,23 +193,36 @@ public final class CommandRestControllerImplementationGenerator {
 		String returnType = getReturnTypeClassname(rcd);
 		
 		if (Void.class.getName().equals(returnType)) {
-			writer.write("    public Flux<CloudEvent> on(ServerWebExchange exchange, @RequestBody ");	
+			writer.write("    public Flux<CloudEvent> on"+  rcd.element().getSimpleName() +"(ServerWebExchange exchange) {");	
 		} else {
-			writer.write("    public Flux<" + returnType + "> on(ServerWebExchange exchange, @RequestBody ");
+			writer.write("    public Flux<" + returnType + "> on" + rcd.element().getSimpleName() + "(ServerWebExchange exchange) {");
 		}
-		writer.write(rcd.element().toString());
-		writer.write(" command) {");
 		writeNewLine(writer);
+		
+		writer.write("        return join(exchange.getRequest().getBody(), -1)");
 		writeNewLine(writer);
-		writer.write("        return Mono.just("+ Tuples.class.getName() + ".of(new ReactiveCommandContext(exchange), command))");
+		writer.write("            .map(buffer -> {");
+		writeNewLine(writer);
+		writer.write("                try (java.io.InputStream is = buffer.asInputStream(true)) {");
+		writeNewLine(writer);
+		writer.write("                    return mapper.readValue(is, " + rcd.element().toString() + ".class);");
+		writeNewLine(writer);
+		writer.write("                } catch (java.io.IOException cause) {");
+		writeNewLine(writer);
+		//writer.write("                   throw new " + rcd.element().toString() +"Exception(cause);");
+		writer.write("                   throw new RuntimeException(cause);");
+		writeNewLine(writer);
+		writer.write("                }");
+		writeNewLine(writer);
+		writer.write("            })");
 		writeNewLine(writer);
 		if (Void.class.getName().equals(returnType)) {
-			writer.write("            .flatMapMany(tuple -> gateway.<"+rcd.element().toString() + ","+ Event.class.getName() + ">dispatch(tuple.getT1(), tuple.getT2()))");
+			writer.write("            .flatMapMany(command -> gateway.<"+rcd.element().toString() + ","+ Event.class.getName() + ">dispatch(new ReactiveCommandContext(exchange), command))");
 			writeNewLine(writer);
 			writer.write("            .map(CloudEvents::to);");
 			writeNewLine(writer);			
 		} else {
-			writer.write("            .flatMapMany(tuple -> gateway.dispatch(tuple.getT1(), tuple.getT2()));");
+			writer.write("            .flatMapMany(command -> gateway.dispatch(new ReactiveCommandContext(exchange), command));");
 			writeNewLine(writer);
 		}
 
