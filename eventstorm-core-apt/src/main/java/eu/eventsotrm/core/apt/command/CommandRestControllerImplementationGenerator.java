@@ -26,7 +26,6 @@ import eu.eventstorm.cloudevents.CloudEvents;
 import eu.eventstorm.core.Event;
 import eu.eventstorm.cqrs.CommandGateway;
 import eu.eventstorm.cqrs.context.ReactiveCommandContext;
-import reactor.core.scheduler.Schedulers;
 import reactor.util.function.Tuples;
 
 /**
@@ -207,8 +206,6 @@ public final class CommandRestControllerImplementationGenerator {
 		writeNewLine(writer);
 		writer.write("        return Mono.just("+ Tuples.class.getName() + ".of(new ReactiveCommandContext(exchange), command))");
 		writeNewLine(writer);
-		writer.write("            .publishOn(" + Schedulers.class.getName()+".elastic())");
-		writeNewLine(writer); 
 		if (Void.class.getName().equals(returnType)) {
 			writer.write("            .flatMapMany(tuple -> gateway.<"+rcd.element().toString() + ","+ Event.class.getName() + ">dispatch(tuple.getT1(), tuple.getT2()))");
 			writeNewLine(writer);
