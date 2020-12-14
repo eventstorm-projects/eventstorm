@@ -113,14 +113,6 @@ public final class CommandRestControllerImplementationGenerator {
 	}
 
 	private void writeVariables(Writer writer, String name) throws IOException {
-
-		writer.write("    private static final reactor.util.Logger LOGGER = reactor.util.Loggers");
-		writer.write(".getLogger(");
-		writer.write(name);
-		writer.write(".class);");
-		writeNewLine(writer);
-		writeNewLine(writer);
-
 		writer.write("    private final ");
 		writer.write(CommandGateway.class.getName());
 		writer.write(" gateway;");
@@ -201,11 +193,11 @@ public final class CommandRestControllerImplementationGenerator {
 		
 		writer.write("        return join(exchange.getRequest().getBody(), -1)");
 		writeNewLine(writer);
-		writer.write("            .map(buffer -> {");
+		writer.write("            .flatMap(buffer -> {");
 		writeNewLine(writer);
 		writer.write("                try (java.io.InputStream is = buffer.asInputStream(true)) {");
 		writeNewLine(writer);
-		writer.write("                    return mapper.readValue(is, " + rcd.element().toString() + ".class);");
+		writer.write("                    return Mono.just(mapper.readValue(is, " + rcd.element().toString() + ".class));");
 		writeNewLine(writer);
 		writer.write("                } catch (java.io.IOException cause) {");
 		writeNewLine(writer);
