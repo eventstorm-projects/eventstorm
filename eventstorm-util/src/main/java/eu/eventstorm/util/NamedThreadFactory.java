@@ -20,7 +20,7 @@ public final class NamedThreadFactory implements ThreadFactory {
 
     @Override
     public Thread newThread(Runnable runnable) {
-        return new Thread(threadGroup, runnable , name + '_' +count++);
+        return new Thread(threadGroup, runnable , name + '-' +count++);
     }
 
 }
