@@ -42,6 +42,7 @@ public class DatabaseTestConfiguration {
 		return new TransactionManagerImpl(dataSource, configuration);
 	}
 	
+	@Profile("database")
 	@Bean
 	CreatedByExtractor createdByExtractor() {
 		return request -> "junit";

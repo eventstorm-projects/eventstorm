@@ -1,13 +1,12 @@
 package eu.eventstorm.batch.rest;
 
 import java.io.IOException;
-
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.ZeroCopyHttpOutputMessage;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -23,7 +22,7 @@ import reactor.core.publisher.Mono;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-@ConditionalOnProperty(prefix = "eu.eventstorm.batch", name = "type", havingValue = "MEMORY")
+@Conditional(FileResourceReactiveControllerCondition.class)
 @RestController
 public final class FileResourceReactiveController {
 

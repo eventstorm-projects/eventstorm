@@ -3,6 +3,7 @@ eu:
     batch:
       type: database
       resource:
+        rest-enabled: true
         context-path: db
         
 spring:
