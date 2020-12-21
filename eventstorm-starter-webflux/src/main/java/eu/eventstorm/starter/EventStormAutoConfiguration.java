@@ -2,6 +2,8 @@ package eu.eventstorm.starter;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -11,8 +13,8 @@ import org.springframework.context.annotation.Configuration;
 import com.fasterxml.jackson.databind.Module;
 import com.google.protobuf.TypeRegistry;
 
-import brave.Tracer;
 import eu.eventstorm.cloudevents.json.jackson.CloudEventsModule;
+import eu.eventstorm.core.descriptor.DescriptorModule;
 import eu.eventstorm.cqrs.CommandGateway;
 import eu.eventstorm.cqrs.CommandHandler;
 import eu.eventstorm.cqrs.CommandHandlerRegistry;
@@ -22,8 +24,6 @@ import eu.eventstorm.cqrs.web.PageModule;
 import eu.eventstorm.eventbus.EventBus;
 import eu.eventstorm.eventbus.NoEventBus;
 import eu.eventstorm.problem.ProblemModule;
-import reactor.core.scheduler.Scheduler;
-import reactor.core.scheduler.Schedulers;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -42,6 +42,17 @@ public class EventStormAutoConfiguration {
 		return new PageModule();
 	}
 
+    @Bean
+    TypeRegistry typeRegistry(List<DescriptorModule> descriptorModules) {
+    	Logger logger = LoggerFactory.getLogger(EventStormAutoConfiguration.class);
+    	TypeRegistry.Builder builder = TypeRegistry.newBuilder();
+    	descriptorModules.forEach(dm -> {
+    		logger.info("append DescriptorModule[{}]", dm);
+    		dm.appendTo(builder);	
+    	});
+    	return builder.build();
+    }
+	
 	@ConditionalOnBean(TypeRegistry.class)
 	@Bean
 	Module cloudEventsModule(TypeRegistry registry) {

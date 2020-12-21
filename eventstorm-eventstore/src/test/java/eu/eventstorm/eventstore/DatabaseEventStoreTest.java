@@ -33,7 +33,7 @@ class DatabaseEventStoreTest extends EventStoreTest {
 	private Database db;
 
 	@BeforeEach
-	void init() {
+	void init() throws Exception{
 		HikariConfig config = new HikariConfig();
 		config.setJdbcUrl("jdbc:h2:mem:test;DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1");
 		config.setUsername("sa");
@@ -45,9 +45,7 @@ class DatabaseEventStoreTest extends EventStoreTest {
 			try (InputStream inputStream = DatabaseEventStoreTest.class.getResourceAsStream("/db/migration/eventstore/h2/V1.0.0__init-schema.sql")) {
 				RunScript.execute(conn, new InputStreamReader(inputStream));
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		} 
 		
 		db = DatabaseBuilder.from(Dialect.Name.H2)
 				.withTransactionManager(new TransactionManagerImpl(ds))

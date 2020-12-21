@@ -13,7 +13,7 @@ import eu.eventstorm.sql.type.Json;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-@Table(value = "batch_resource", flywayRef = @FlywayRef(version = "1.0.0"))
+@Table(value = "batch_resource")
 public interface DatabaseResource {
 
 	@PrimaryKey(value = "id", length = 36)

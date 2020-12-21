@@ -21,7 +21,7 @@ final class InMemoryStreamDefinition implements StreamDefinition {
 
 	private final String name;
 	
-	private final ImmutableMap<String, InMemoryStreamEventDefinition> mapByEventPayloadType;
+	private final ImmutableMap<String, InMemoryStreamEventDefinition<?>> mapByEventPayloadType;
 //	private final ImmutableMap<String, InMemoryStreamEvantPayloadDefinition<?>> mapByEventPayloadClass;
 //	private final ConcurrentHashMap<String, InMemoryStreamEvantPayloadDefinition<?>> cache;
 //	
@@ -61,10 +61,10 @@ final class InMemoryStreamDefinition implements StreamDefinition {
 
 	@Override
 	public <T extends AbstractMessage> StreamEventDefinition getStreamEventDefinition(String event) {
-		StreamEventDefinition def = (StreamEventDefinition)mapByEventPayloadType.get(event);
+		StreamEventDefinition def = mapByEventPayloadType.get(event);
 
 		if (def == null) {
-			throw new StreamDefinitionException(StreamDefinitionException.Type.NVALID_STREAM_EVENT_TYPE, of(STREAM_EVENT_TYPE, event));
+			throw new StreamDefinitionException(StreamDefinitionException.Type.INVALID_STREAM_EVENT_TYPE, of(STREAM_EVENT_TYPE, event));
 		}
 
 		return def;

@@ -14,4 +14,4 @@ spring:
   flyway:
     ## table: refe_schema_history
     locations:
-    - classpath:db/migration/h2
+    - classpath:db/migration/batch/h2

@@ -73,7 +73,7 @@ public class DatabaseTestConfiguration {
 	@Bean("junit-failed") 
 	eu.eventstorm.batch.BatchJob batchJobFailed() {
 		return context -> {
-			throw new RuntimeException();
+			throw new RuntimeException("test batch failed");
 		};
 	}
 	

@@ -8,15 +8,18 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
+import com.google.common.collect.ImmutableList;
 import com.google.protobuf.TypeRegistry;
 import com.google.protobuf.util.JsonFormat;
 
 import eu.eventstorm.batch.config.BatchProperties;
 import eu.eventstorm.batch.config.ResourceProperties;
-import eu.eventstorm.batch.db.DatabaseExecutionRepository;
 import eu.eventstorm.batch.db.DatabaseBatch;
+import eu.eventstorm.batch.db.DatabaseExecutionRepository;
 import eu.eventstorm.batch.json.BatchModule;
 import eu.eventstorm.batch.memory.InMemoryBatch;
+import eu.eventstorm.core.descriptor.DescriptorModule;
+import eu.eventstorm.cqrs.batch.BatchJobCreated;
 import eu.eventstorm.sql.Database;
 
 /**
@@ -30,6 +33,11 @@ public class BatchAutoConfiguration {
 	@Bean
 	BatchModule batchModule() {
 		return new BatchModule();
+	}
+	
+	@Bean
+	DescriptorModule batchDescriptorModule() {
+		return new DescriptorModule(ImmutableList.of(BatchJobCreated.getDescriptor()));
 	}
 	
 	@ConditionalOnBean(TypeRegistry.class)

@@ -67,7 +67,9 @@ abstract class AbstractTransaction implements TransactionSupport {
 		try {
 
 			if (active) {
-				LOGGER.info("call close() on a active transaction -> rollback");
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("call close() on a active transaction -> rollback");
+				}
 				try {
 					rollback();
 				} catch (TransactionException ex) {

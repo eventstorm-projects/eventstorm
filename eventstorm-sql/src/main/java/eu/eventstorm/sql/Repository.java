@@ -2,11 +2,7 @@ package eu.eventstorm.sql;
 
 import static com.google.common.collect.ImmutableMap.of;
 import static eu.eventstorm.sql.EventstormRepositoryException.PARAM_POJO;
-import static eu.eventstorm.sql.EventstormRepositoryException.PARAM_SIZE;
 import static eu.eventstorm.sql.EventstormRepositoryException.PARAM_SQL;
-import static eu.eventstorm.sql.EventstormRepositoryException.Type.BATCH_ADD;
-import static eu.eventstorm.sql.EventstormRepositoryException.Type.BATCH_EXECUTE_QUERY;
-import static eu.eventstorm.sql.EventstormRepositoryException.Type.BATCH_RESULT;
 import static eu.eventstorm.sql.EventstormRepositoryException.Type.DELETE_EXECUTE_QUERY;
 import static eu.eventstorm.sql.EventstormRepositoryException.Type.DELETE_PREPARED_STATEMENT_SETTER;
 import static eu.eventstorm.sql.EventstormRepositoryException.Type.INSERT_EXECUTE_QUERY;
@@ -55,6 +51,8 @@ import eu.eventstorm.sql.expression.AggregateFunction;
 import eu.eventstorm.sql.expression.Expression;
 import eu.eventstorm.sql.expression.Expressions;
 import eu.eventstorm.sql.id.Identifier;
+import eu.eventstorm.sql.impl.BatchInsert;
+import eu.eventstorm.sql.impl.BatchInsertWithSequence;
 import eu.eventstorm.sql.impl.TransactionContext;
 import eu.eventstorm.sql.impl.TransactionQueryContext;
 import eu.eventstorm.sql.jdbc.Batch;
@@ -281,11 +279,11 @@ public abstract class Repository {
     }
 
     protected final <E> Batch<E> batch(SqlQuery query, InsertMapper<E> im) {
-        return new BatchImpl<>(query, im);
+        return new BatchInsert<>(database, query, im);
     }
     
     protected final <E,T> Batch<E> batch(SqlQuery query, InsertMapper<E> im, Identifier<T> identifier, BiConsumer<E, T> identifierSetter) {
-        return new BatchSequenceImpl<>(query, im, identifier, identifierSetter);
+        return new BatchInsertWithSequence<>(database, query, im, identifier, identifierSetter);
     }
 
 	protected final <T> Stream<T> stream(SqlQuery query, PreparedStatementSetter pss, ResultSetMapper<T> mapper) {
@@ -392,82 +390,4 @@ public abstract class Repository {
 		
 	}
 
-	private class BatchSequenceImpl<E,T> extends BatchImpl<E> {
-	    
-	    private final Identifier<T> identifier;
-	    private final BiConsumer<E, T> identifierSetter;
-	    
-	    private BatchSequenceImpl(SqlQuery query, InsertMapper<E> im, Identifier<T> identifier, BiConsumer<E, T> identifierSetter) {
-	        super(query, im);
-	        this.identifier = identifier;
-	        this.identifierSetter = identifierSetter;
-	    }
-
-        @Override
-        public void add(E pojo) {
-            this.identifierSetter.accept(pojo, this.identifier.next());
-            super.add(pojo);
-        }
-	    
-	}
-
-    private class BatchImpl<E> implements Batch<E> {
-
-        private final SqlQuery query;
-        private final TransactionQueryContext tqc;
-        private final InsertMapper<E> im;
-        private int count;
-
-        private BatchImpl(SqlQuery query, InsertMapper<E> im) {
-            this.query = query;
-            this.tqc = database.transactionManager().context().write(query);
-            this.im = im;
-        }
-
-		@Override
-		public void close() {
-            try {
-                doClose();
-            } finally {
-                tqc.close();
-            }
-
-		}
-
-		@Override
-		public void add(E pojo) {
-            try {
-                im.insert(database.dialect(), tqc.preparedStatement(), pojo);
-            } catch (SQLException cause) {
-                throw tqc.exception(new EventstormRepositoryException(INSERT_MAPPER, of(PARAM_SQL, query, PARAM_POJO, pojo), cause));
-            }
-
-            try {
-                tqc.preparedStatement().addBatch();
-            } catch (SQLException cause) {
-                throw tqc.exception(new EventstormRepositoryException(BATCH_ADD, of(PARAM_SQL, query, PARAM_POJO, pojo), cause));
-            }
-            count++;
-        }
-
-        private void doClose() {
-            int[] vals;
-
-			try {
-				vals = tqc.preparedStatement().executeBatch();
-			} catch (SQLException cause) {
-				throw tqc.exception(new EventstormRepositoryException(BATCH_EXECUTE_QUERY, of(PARAM_SQL, query), cause));
-			}
-
-			if (vals.length != count) {
-				throw tqc.exception(new EventstormRepositoryException(BATCH_RESULT, of(PARAM_SQL, query, PARAM_SIZE, vals.length)));
-			}
-			for (int i = 0; i < vals.length; i++) {
-				if (vals[i] != 1) {
-					throw tqc.exception(new EventstormRepositoryException(BATCH_RESULT, of(PARAM_SQL, query, "item", i, "return", vals[i])));
-				}
-			}
-		}
-
-    }
 }

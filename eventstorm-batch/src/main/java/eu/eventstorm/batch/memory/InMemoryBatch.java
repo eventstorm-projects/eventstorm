@@ -59,7 +59,7 @@ public final class InMemoryBatch implements Batch {
 				.setData(Any.pack(candidate.getMessage(),candidate.getStream()))
 			.build();	
 		
-		InMemoryBatchJobContext context = new InMemoryBatchJobContext();
+		InMemoryBatchJobContext context = new InMemoryBatchJobContext(candidate.getMessage());
 		
 		batchExecutor.submit(batchJob, context).addCallback(new InMemoryListenableFutureCallback<>(context));				
 						
@@ -102,8 +102,13 @@ public final class InMemoryBatch implements Batch {
 	
 	private static final class InMemoryBatchJobContext implements BatchJobContext {
 		
+		private final BatchJobCreated batchJobCreated;
 		private Instant endedAt;
 		private BatchStatus batchStatus;
+		
+		private InMemoryBatchJobContext(BatchJobCreated batchJobCreated) {
+			this.batchJobCreated = batchJobCreated;
+		}
 		
 		@Override
 		public void setEndedAt(Instant endedAt) {
@@ -117,7 +122,7 @@ public final class InMemoryBatch implements Batch {
 
 		@Override
 		public BatchJobCreated getBatchJobCreated() {
-			return null;
+			return this.batchJobCreated;
 		}
 
 		@Override
@@ -127,18 +132,22 @@ public final class InMemoryBatch implements Batch {
 
 		@Override
 		public void setException(Throwable ex) {
+			LOGGER.error("InMemoryBatchJobContext.setException", ex);
 		}
 
 		@Override
 		public void log(String key, Object value) {
+			LOGGER.info("info({},{})", key, value);
 		}
 
 		@Override
 		public void log(String key, Map<String, Object> value) {
+			LOGGER.info("info({},{})", key, value);
 		}
 
 		@Override
 		public void log(String key, List<Object> value) {
+			LOGGER.info("info({},{})", key, value);
 		}
 		
 	}

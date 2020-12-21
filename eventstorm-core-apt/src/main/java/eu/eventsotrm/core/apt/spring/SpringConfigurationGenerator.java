@@ -6,19 +6,17 @@ import static eu.eventsotrm.sql.apt.Helper.writePackage;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Optional;
+import java.util.List;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.type.TypeMirror;
 import javax.tools.JavaFileObject;
 
 import eu.eventsotrm.core.apt.SourceCode;
 import eu.eventsotrm.core.apt.model.ProtobufMessage;
-import eu.eventsotrm.sql.apt.Helper;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.cqrs.QueryDescriptors;
@@ -146,46 +144,31 @@ public final class SpringConfigurationGenerator {
 		writeNewLine(writer);
 		writer.write("    @Bean");
 		writeNewLine(writer);
-		writer.write("    TypeRegistry typeRegistry() {");
+		writer.write("    eu.eventstorm.core.descriptor.DescriptorModule descriptorModule() {");
 		writeNewLine(writer);
-		writer.write("        return TypeRegistry.newBuilder()");
+		writer.write("        return new eu.eventstorm.core.descriptor.DescriptorModule(com.google.common.collect.ImmutableList.of(");
 		writeNewLine(writer);
+		
+		
+		List<String> names = new ArrayList<>();
+		
 		sourceCode.forEventEvolution(ee -> {
-			try {
-				for (String stream : ee.getMessages().keySet()) {
-					for (ProtobufMessage message : ee.getMessages().get(stream)) {
-						writer.write("                .add(" + message.getName() + ".getDescriptor())");
-						writeNewLine(writer);
-					}	
-				}
-				
-			} catch (IOException cause) {
-				logger.error("Exception for [" + ee + "] -> [" + cause.getMessage() + "]", cause);
+			for (String stream : ee.getMessages().keySet()) {
+				for (ProtobufMessage message : ee.getMessages().get(stream)) {
+					names.add(message.getName());
+				}	
 			}
 		});
 		
-		AtomicBoolean atomicBoolean = new AtomicBoolean(false);
-		sourceCode.forEachCommand(cd -> {
-			
-			if (atomicBoolean.get()) {
-				return;
+		for (int i = 0; i < names.size() ; i++) {
+			writer.write("                " + names.get(i)+ ".getDescriptor()");
+			if (i + 1 < names.size()) {
+				writer.write(",");
 			}
-			Optional<? extends TypeMirror> op = Helper.getTypes().directSupertypes(cd.element().asType()).stream()
-				.filter(t -> "eu.eventstorm.cqrs.BatchCommand".equals(t.toString()))
-				.findFirst();
-			if (op.isPresent()) {
-				try {
-					writer.write("                .add(eu.eventstorm.cqrs.batch.BatchJobCreated.getDescriptor())");
-					writeNewLine(writer);
-				} catch (IOException cause) {
-					logger.error("Exception for [" + cd + "] -> [" + cause.getMessage() + "]", cause);
-				}
-				atomicBoolean.set(true);
-			}
-			
-		});
+			writeNewLine(writer);
+		}
 		
-		writer.write("                .build();");
+		writer.write("                ));");
 		writeNewLine(writer);
 		writer.write("    }");
 	    writeNewLine(writer);
@@ -228,6 +211,7 @@ public final class SpringConfigurationGenerator {
         				writeNewLine(writer);
         				
         			}
+        			
         			writer.write("            .and()");
         			writeNewLine(writer);
         		}
@@ -261,8 +245,6 @@ public final class SpringConfigurationGenerator {
 			}
         });
         
-        writeNewLine(writer);
-        writer.write("import com.google.protobuf.TypeRegistry;");
         writeNewLine(writer);
         writer.write("import " + StreamManager.class.getName() + ";");
 		writeNewLine(writer);

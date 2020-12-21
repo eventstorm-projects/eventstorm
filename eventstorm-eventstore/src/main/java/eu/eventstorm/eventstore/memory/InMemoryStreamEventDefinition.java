@@ -8,7 +8,6 @@ import org.springframework.core.io.buffer.DataBuffer;
 import com.google.protobuf.AbstractMessage;
 import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.InvalidProtocolBufferException;
-import com.google.protobuf.Message.Builder;
 import com.google.protobuf.Message;
 import com.google.protobuf.Parser;
 import com.google.protobuf.util.JsonFormat;

@@ -95,7 +95,7 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 				.publishOn(eventLoop.get(command))
 				.map(tuple -> storeAndEvolution(tuple, 0))
 				.publishOn(eventLoop.post())
-				.map(events -> { postStoreAndEvolution(events); return events; })
+				.map(events -> { postStoreAndEvolution(context, events); return events; })
 				.flatMapMany(events -> { publish(events); return Flux.fromIterable(events); })
 				;
 	}
@@ -200,11 +200,11 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 		return builder.build();
 	}
 
-	private void postStoreAndEvolution(ImmutableList<Event> events) {
+	private void postStoreAndEvolution(CommandContext context, ImmutableList<Event> events) {
 		Span span = this.tracer.nextSpan().name("postStoreAndEvolution");
 		span.tag("thread",  Thread.currentThread().getName());
 		try (Tracer.SpanInScope ws = this.tracer.withSpanInScope(span.start())) {
-			doPostStoreAndEvolution(events);
+			doPostStoreAndEvolution(context, events);
 		} finally {
 			span.finish();
 		}
@@ -220,7 +220,7 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 		}
 	}
 	
-	protected void doPostStoreAndEvolution(ImmutableList<Event> events) {
+	protected void doPostStoreAndEvolution(CommandContext context, ImmutableList<Event> events) {
 	}
 
 	protected ImmutableList<ConstraintViolation> consistencyValidation(CommandContext context, T command) {

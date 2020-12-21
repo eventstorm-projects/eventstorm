@@ -15,7 +15,7 @@ import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 @Retention(RUNTIME)
 public @interface CqrsConfiguration {
 
-	OpenAPIDefinition openAPIDefinition();
+	OpenAPIDefinition openAPIDefinition() default @OpenAPIDefinition;
 	
 	/**
 	 * to generate SpringConfiguration, Streams, ...
@@ -28,4 +28,5 @@ public @interface CqrsConfiguration {
 	 */
 	String evolutionDataTypeBaseUrl() default "";
 	
+
 }

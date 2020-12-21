@@ -19,7 +19,7 @@ abstract class EventStoreTest {
 	private EventStore eventStore;
 	
 	@BeforeEach
-	void init() {
+	void init() throws Exception {
 		eventStore = initEventStore();
 	}
 	
