@@ -4,7 +4,7 @@ import com.google.protobuf.Message;
 
 import eu.eventstorm.core.Event;
 import eu.eventstorm.eventstore.EventStoreProperties;
-import eu.eventstorm.eventstore.StreamEventDefinition;
+import eu.eventstorm.eventstore.StreamManager;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Transaction;
 
@@ -15,23 +15,18 @@ public final class DatabaseEventStore extends LocalDatabaseEventStore {
 
 	private final Database database;
 	
-	public DatabaseEventStore(Database database, EventStoreProperties eventStoreProperties) {
-		super(database, eventStoreProperties);
+	public DatabaseEventStore(Database database, EventStoreProperties eventStoreProperties, StreamManager streamManager) {
+		super(database, eventStoreProperties, streamManager);
 		this.database = database;
 	}
 
 	@Override
-	public Event appendToStream(StreamEventDefinition sepd, String streamId, String correlation, Message message) {
-
+	public Event appendToStream(String stream, String streamId, String correlation, Message message) {
 		Event event;
-		
 		try (Transaction transaction = database.transactionManager().newTransactionReadWrite()) {
-			
-			event = super.appendToStream(sepd, streamId, correlation, message);
-			
+			event = super.appendToStream(stream, streamId, correlation, message);
 			transaction.commit();
 		};
-		
 		return event; 
 	}
 

@@ -11,9 +11,9 @@ import eu.eventstorm.core.Event;
  */
 public interface EventStore {
 
-	Event appendToStream(StreamEventDefinition sepd, String streamId, String correlation, Message message);
+	Event appendToStream(String stream, String streamId, String correlation, Message message);
 	
-	Stream<Event> readStream(StreamDefinition definition, String streamId);
+	Stream<Event> readStream(String stream, String streamId);
 
 	Statistics stat(String stream);
 

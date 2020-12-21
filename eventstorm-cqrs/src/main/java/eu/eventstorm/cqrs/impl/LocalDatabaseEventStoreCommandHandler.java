@@ -21,8 +21,6 @@ import eu.eventstorm.cqrs.event.EvolutionHandlers;
 import eu.eventstorm.cqrs.validation.CommandValidationException;
 import eu.eventstorm.cqrs.validation.Validator;
 import eu.eventstorm.eventbus.EventBus;
-import eu.eventstorm.eventstore.StreamDefinition;
-import eu.eventstorm.eventstore.StreamManager;
 import eu.eventstorm.eventstore.db.LocalDatabaseEventStore;
 import eu.eventstorm.sql.EventstormRepositoryException;
 import eu.eventstorm.sql.Transaction;
@@ -48,9 +46,6 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 	
 	@Autowired
 	private TransactionManager transactionManager;
-	
-	@Autowired
-	private StreamManager streamManager;
 	
 	@Autowired
 	private EvolutionHandlers evolutionHandlers;
@@ -180,18 +175,8 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 		String correlation = candidates.size() > 1 ? UUID.randomUUID().toString() : null;
 		ImmutableList.Builder<Event> builder = ImmutableList.builder();
 		candidates.forEach(candidate -> {
-			StreamDefinition sd = streamManager.getDefinition(candidate.getStream());
-					
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Stream definition for [{}] -> [{}]", candidate.getStream(), sd);
-			}
-					
-			if (sd == null) {
-				throw new IllegalStateException("No defintion found for stream [" + candidate.getStream() + "]");
-			}
-					
 			builder.add(this.eventStore.appendToStream(
-					sd.getStreamEventDefinition(candidate.getMessage().getClass().getSimpleName()), 
+					candidate.getStream(), 
 					candidate.getStreamId(), 
 					correlation, 
 					candidate.getMessage())

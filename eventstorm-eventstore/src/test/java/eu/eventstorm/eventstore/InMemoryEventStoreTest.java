@@ -8,7 +8,7 @@ import eu.eventstorm.eventstore.memory.InMemoryEventStore;
 class InMemoryEventStoreTest extends EventStoreTest {
 
 	@Override
-	protected EventStore initEventStore() {
+	protected EventStore initEventStore(StreamManager streamManager) {
 		return new InMemoryEventStore(new EventStoreProperties());
 	}
 }

@@ -20,8 +20,6 @@ import eu.eventstorm.eventstore.EventStore;
 import eu.eventstorm.eventstore.EventStoreException;
 import eu.eventstorm.eventstore.EventStoreProperties;
 import eu.eventstorm.eventstore.Statistics;
-import eu.eventstorm.eventstore.StreamDefinition;
-import eu.eventstorm.eventstore.StreamEventDefinition;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -41,12 +39,12 @@ public final class InMemoryEventStore implements EventStore {
 	}
 
 	@Override
-	public Stream<Event> readStream(StreamDefinition definition, String streamId) {
+	public Stream<Event> readStream(String streamName, String streamId) {
 	
-		Map<String, List<Event>> stream = map.get(definition.getName());
+		Map<String, List<Event>> stream = map.get(streamName);
 
 		if (stream == null) {
-			throw new EventStoreException(EventStoreException.Type.STREAM_NOT_FOUND, ImmutableMap.of("stream", definition.getName()));
+			throw new EventStoreException(EventStoreException.Type.STREAM_NOT_FOUND, ImmutableMap.of("stream", streamName));
 		}
 
 		List<Event> events = stream.get(streamId);
@@ -59,18 +57,18 @@ public final class InMemoryEventStore implements EventStore {
 	}
 	 
 	@Override
-	public Event appendToStream(StreamEventDefinition sepd, String streamId, String correlation, Message message) {
+	public Event appendToStream(String stream, String streamId, String correlation, Message message) {
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("store to [{}] with Id [{}]", sepd, streamId);
+			LOGGER.debug("store to [{}] with Id [{}]", stream, streamId);
 		}
 
-		Map<String, List<Event>> mapType = this.map.get(sepd.getStream());
+		Map<String, List<Event>> mapType = this.map.get(stream);
 		
 		int revision = 1;
 		
 		if (mapType == null) {
 			mapType = new HashMap<>();
-			map.put(sepd.getStream(), mapType);
+			map.put(stream, mapType);
 		} 
 		
 		List<Event> events = mapType.get(streamId);
@@ -84,11 +82,11 @@ public final class InMemoryEventStore implements EventStore {
 		// @formatter:off
 		Event event = Event.newBuilder()
 				.setStreamId(streamId)
-				.setStream(sepd.getStream())
+				.setStream(stream)
 				.setTimestamp(OffsetDateTime.now().toString())
 				.setRevision(revision)
 				.setCorrelation(correlation)
-				.setData(Any.pack(message,this.eventStoreProperties.getEventDataTypeUrl() + "/" + sepd.getStream() + "/"))
+				.setData(Any.pack(message,this.eventStoreProperties.getEventDataTypeUrl() + "/" + stream + "/"))
 				.build();
 		// @formatter:on
 

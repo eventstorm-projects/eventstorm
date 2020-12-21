@@ -17,7 +17,7 @@ import eu.eventstorm.eventstore.EventStore;
 import eu.eventstorm.eventstore.EventStoreProperties;
 import eu.eventstorm.eventstore.Statistics;
 import eu.eventstorm.eventstore.StreamDefinition;
-import eu.eventstorm.eventstore.StreamEventDefinition;
+import eu.eventstorm.eventstore.StreamManager;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Dialect;
 import eu.eventstorm.sql.jdbc.ResultSetMapper;
@@ -36,14 +36,17 @@ public class LocalDatabaseEventStore implements EventStore {
 	
 	private final TransactionTemplate template;
 	
-	public LocalDatabaseEventStore(Database database, EventStoreProperties eventStoreProperties) {
+	private final StreamManager streamManager;
+	
+	public LocalDatabaseEventStore(Database database, EventStoreProperties eventStoreProperties, StreamManager streamManager) {
 		this.eventStoreProperties = eventStoreProperties;
 		this.databaseRepository = new DatabaseRepository(database);
 		this.template = new TransactionTemplate(database.transactionManager());
+		this.streamManager = streamManager;
 	}
 
 	@Override
-	public Event appendToStream(StreamEventDefinition sepd, String streamId, String correlation, Message message) {
+	public Event appendToStream(String stream, String streamId, String correlation, Message message) {
 		
 		OffsetDateTime time = OffsetDateTime.now();
 
@@ -55,15 +58,15 @@ public class LocalDatabaseEventStore implements EventStore {
 			return null;
 		}
 		
-		int revision = this.databaseRepository.lastRevision(sepd.getStream(), streamId);
+		int revision = this.databaseRepository.lastRevision(stream, streamId);
 
 		DatabaseEventBuilder builder = new DatabaseEventBuilder()
 						.withStreamId(streamId)
-						.withStream(sepd.getStream())
+						.withStream(stream)
 				        .withTime(Timestamp.from(time.toInstant()))
 				        .withPayload(json)
 				        .withRevision(revision + 1)
-				        .withEventType(sepd.getEventType());
+				        .withEventType(message.getClass().getSimpleName());
 				        
 		if (correlation != null) {
 			builder.withCorrelation(correlation.toString());
@@ -74,18 +77,19 @@ public class LocalDatabaseEventStore implements EventStore {
 		// @formatter:off
 		return Event.newBuilder()
 					.setStreamId(streamId)
-					.setStream(sepd.getStream())
+					.setStream(stream)
 					.setTimestamp(time.toString())
 					.setRevision(revision + 1)
-					.setData(Any.pack(message,this.eventStoreProperties.getEventDataTypeUrl() + "/" + sepd.getStream() + "/"))
+					.setData(Any.pack(message,this.eventStoreProperties.getEventDataTypeUrl() + "/" + stream + "/"))
 					.build();
 		// @formatter:off
 	}
 
 	@Override
-	public Stream<Event> readStream(StreamDefinition definition, String streamId) {
+	public Stream<Event> readStream(String stream, String streamId) {
+		StreamDefinition definition = streamManager.getDefinition(stream);
 		return template.stream(() -> 
-		this.databaseRepository.findAllByStreamAndStreamId(definition.getName(), streamId,  new EventResultSetMapper(streamId, definition)));
+		this.databaseRepository.findAllByStreamAndStreamId(stream, streamId,  new EventResultSetMapper(streamId, definition)));
 
 	}
 

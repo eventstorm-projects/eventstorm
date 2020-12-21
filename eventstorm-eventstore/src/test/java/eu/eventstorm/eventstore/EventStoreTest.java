@@ -20,11 +20,6 @@ abstract class EventStoreTest {
 	
 	@BeforeEach
 	void init() throws Exception {
-		eventStore = initEventStore();
-	}
-	
-	@Test
-	void testAppend() throws Exception {
 		
 		StreamManager manager = new InMemoryStreamManagerBuilder()
 				.withDefinition("user")
@@ -32,14 +27,20 @@ abstract class EventStoreTest {
 			.and()
 			.build();
 		
-		eventStore.appendToStream(manager.getDefinition("user").getStreamEventDefinition(UserCreatedEventPayload.class.getSimpleName()), 
+		eventStore = initEventStore(manager);
+	}
+	
+	@Test
+	void testAppend() throws Exception {
+		
+		eventStore.appendToStream("user", 
 				"1", UUID.randomUUID().toString(),  UserCreatedEventPayload.newBuilder()
 					.setAge(39)
 					.setName("ja")
 					.setEmail("gmail")
 					.build());
 
-		try (Stream<Event> stream = eventStore.readStream(manager.getDefinition("user"), "1")) {
+		try (Stream<Event> stream = eventStore.readStream("user", "1")) {
 			Optional<Event> op = stream.findFirst();
 			assertTrue(op.isPresent());
 			
@@ -66,6 +67,6 @@ abstract class EventStoreTest {
 //		assertEquals(EventStoreException.Type.FAILED_TO_SERILIAZE_PAYLOAD, ese.getType());
 //	}
 	
-	protected abstract EventStore initEventStore();
+	protected abstract EventStore initEventStore(StreamManager manager);
 
 }

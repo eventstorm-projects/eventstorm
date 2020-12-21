@@ -57,7 +57,7 @@ public final class ApiRestController {
 		return Mono.just(Tuples.of(sepd, streamId))
 				.zipWith(DataBufferUtils.join(request.getBody()).map(buffer -> sepd.parse(buffer)))
 				.publishOn(scheduler)
-				.map(tuple -> eventStore.appendToStream(tuple.getT1().getT1(), tuple.getT1().getT2(), UUID.randomUUID().toString(), tuple.getT2()));
+				.map(tuple -> eventStore.appendToStream(tuple.getT1().getT1().getStream(), tuple.getT1().getT2(), UUID.randomUUID().toString(), tuple.getT2()));
 		// @formatter:on
 
 	}
@@ -74,7 +74,7 @@ public final class ApiRestController {
 		// @formatter:off
 		return Mono.just(Tuples.of(definition, streamId))
 				//.publishOn(scheduler)
-		        .flatMapMany(tuple -> Flux.fromStream(eventStore.readStream(tuple.getT1(), tuple.getT2())));
+		        .flatMapMany(tuple -> Flux.fromStream(eventStore.readStream(tuple.getT1().getName(), tuple.getT2())));
 		// @formatter:on
 	}
 
