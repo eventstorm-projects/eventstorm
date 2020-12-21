@@ -14,8 +14,11 @@ class FileResourceReactiveControllerCondition implements Condition {
 	@Override
 	public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
 
-		 String value = context.getEnvironment().getProperty("eu.eventstorm.batch.resource.restEnabled");
-		 if (!Strings.isEmpty(value) && !"true".equalsIgnoreCase(value)) {
+		 String value = context.getEnvironment().getProperty("eu.eventstorm.batch.resource.rest-enabled");
+		 if (Strings.isEmpty(value)) {
+			 return false;
+		 }
+		 if (!"true".equalsIgnoreCase(value)) {
 			 return false;
 		 }
 		

@@ -11,7 +11,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "eu.eventstorm.batch.resource")
 public class ResourceProperties {
 
-	private boolean restEnabled = true;
+	private boolean restEnabled = false;
 	private String contextPath;
 	private String temporaryDirectory = System.getProperty("java.io.tmpdir") + File.separator + "batch";
 

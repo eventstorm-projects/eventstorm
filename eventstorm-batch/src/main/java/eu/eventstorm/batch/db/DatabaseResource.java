@@ -5,7 +5,6 @@ import java.sql.Timestamp;
 
 import eu.eventstorm.sql.annotation.Column;
 import eu.eventstorm.sql.annotation.CreateTimestamp;
-import eu.eventstorm.sql.annotation.FlywayRef;
 import eu.eventstorm.sql.annotation.PrimaryKey;
 import eu.eventstorm.sql.annotation.Table;
 import eu.eventstorm.sql.type.Json;
