@@ -3,6 +3,8 @@ package eu.eventstorm.eventstore.memory;
 import java.io.IOException;
 import java.util.function.Supplier;
 
+import com.google.common.collect.ImmutableMap;
+import eu.eventstorm.eventstore.EventStoreException;
 import org.springframework.core.io.buffer.DataBuffer;
 
 import com.google.protobuf.AbstractMessage;
@@ -42,9 +44,9 @@ final class InMemoryStreamEventDefinition<T extends AbstractMessage> implements 
 	public Message parse(DataBuffer buffer) {
 		try {
 			return  this.parser.parseFrom(buffer.asByteBuffer());
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
+		} catch (IOException cause) {
+			throw new EventStoreException(EventStoreException.Type.FAILED_TO_DESERIALIZE, ImmutableMap.of("stream", stream,
+					"definition", this), cause);
 		}
 	}
 	
@@ -60,9 +62,9 @@ final class InMemoryStreamEventDefinition<T extends AbstractMessage> implements 
 		Message.Builder builder = supplier.get();
 		try {
 			this.jsonParser.merge(json, builder);
-		} catch (InvalidProtocolBufferException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (InvalidProtocolBufferException cause) {
+			throw new EventStoreException(EventStoreException.Type.FAILED_TO_DESERIALIZE, ImmutableMap.of("stream", stream,
+					"definition", this), cause);
 		}
 		return builder.build();
 	}

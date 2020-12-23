@@ -8,13 +8,12 @@ import eu.eventstorm.core.EventstormExceptionType;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-@SuppressWarnings("serial")
 public final class EventStoreException extends EventstormException {
 
 	public static final String PARAM_STREAM = "stream";
 	
 	public enum Type implements EventstormExceptionType {
-		STREAM_NOT_FOUND, STREAM_EVENT_PAYLOAD_NOT_FOUND, FAILED_TO_SERILIAZE_PAYLOAD
+		STREAM_NOT_FOUND, STREAM_EVENT_PAYLOAD_NOT_FOUND, FAILED_TO_SERIALIZE, FAILED_TO_DESERIALIZE
 	}
 	
 	public EventStoreException(EventstormExceptionType type, ImmutableMap<String, Object> values) {

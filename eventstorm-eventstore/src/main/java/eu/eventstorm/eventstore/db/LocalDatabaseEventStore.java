@@ -7,26 +7,27 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.stream.Stream;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.protobuf.Any;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 import com.google.protobuf.util.JsonFormat;
 
 import eu.eventstorm.core.Event;
-import eu.eventstorm.eventstore.EventStore;
-import eu.eventstorm.eventstore.EventStoreProperties;
-import eu.eventstorm.eventstore.Statistics;
-import eu.eventstorm.eventstore.StreamDefinition;
-import eu.eventstorm.eventstore.StreamManager;
+import eu.eventstorm.eventstore.*;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Dialect;
 import eu.eventstorm.sql.jdbc.ResultSetMapper;
 import eu.eventstorm.sql.util.TransactionTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 public class LocalDatabaseEventStore implements EventStore {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(LocalDatabaseEventStore.class);
 
 	private static final JsonFormat.Printer PRINTER = JsonFormat.printer().omittingInsignificantWhitespace().includingDefaultValueFields();
 	
@@ -53,9 +54,9 @@ public class LocalDatabaseEventStore implements EventStore {
 		String json;
 		try {
 			json = PRINTER.print(message);
-		} catch (InvalidProtocolBufferException e1) {
-			e1.printStackTrace();
-			return null;
+		} catch (InvalidProtocolBufferException cause) {
+			throw new EventStoreException(EventStoreException.Type.FAILED_TO_SERIALIZE, ImmutableMap.of("stream", stream,
+					"streamId", streamId, "message", message), cause);
 		}
 		
 		int revision = this.databaseRepository.lastRevision(stream, streamId);
@@ -69,7 +70,7 @@ public class LocalDatabaseEventStore implements EventStore {
 				        .withEventType(message.getClass().getSimpleName());
 				        
 		if (correlation != null) {
-			builder.withCorrelation(correlation.toString());
+			builder.withCorrelation(correlation);
 		}
 			
 		this.databaseRepository.insert(builder.build());
@@ -184,7 +185,7 @@ public class LocalDatabaseEventStore implements EventStore {
 		public Event map(Dialect dialect, ResultSet rs) throws SQLException {
 			Message message = definition.getStreamEventDefinition(rs.getString(4)).jsonParse(rs.getString(3));
 			// @formatter:off
-			Event event = Event.newBuilder()
+			return Event.newBuilder()
 					.setStreamId(streamId)
 					.setStream(definition.getName())
 					//.setTimestamp(OffsetDateTime.ofInstant(rs.getTimestamp(DatabaseEventDescriptor.INDEX__TIME).toInstant(), ZONE_ID).toString())
@@ -192,7 +193,6 @@ public class LocalDatabaseEventStore implements EventStore {
 					.setData(Any.pack(message,"event"))
 					.build();
 			// @formatter:on
-			return event;
 		}
 	}
 //

@@ -29,13 +29,13 @@ public final class FileResource {
 		if (!Files.exists(path)) {
 			try {
 				Files.createDirectories(path);
-			} catch (IOException e) {
-				e.printStackTrace();
+			} catch (IOException cause) {
+				LOGGER.warn("Failed to create directory [" + path + "]", cause);
 			}
 		}
 	}
 
-	public Path touch(String uuid) throws IOException {
+	public Path touch(String uuid) {
 		
 		Path file = Paths.get(properties.getTemporaryDirectory(), uuid);
 		
