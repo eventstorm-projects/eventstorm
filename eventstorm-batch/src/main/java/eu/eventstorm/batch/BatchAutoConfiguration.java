@@ -18,7 +18,7 @@ import eu.eventstorm.batch.db.DatabaseBatch;
 import eu.eventstorm.batch.db.DatabaseExecutionRepository;
 import eu.eventstorm.batch.json.BatchModule;
 import eu.eventstorm.batch.memory.InMemoryBatch;
-import eu.eventstorm.core.descriptor.DescriptorModule;
+import eu.eventstorm.core.protobuf.DescriptorModule;
 import eu.eventstorm.cqrs.batch.BatchJobCreated;
 import eu.eventstorm.sql.Database;
 
@@ -37,7 +37,7 @@ public class BatchAutoConfiguration {
 	
 	@Bean
 	DescriptorModule batchDescriptorModule() {
-		return new DescriptorModule(ImmutableList.of(BatchJobCreated.getDescriptor()));
+		return new DescriptorModule("eventstorm-batch", ImmutableList.of(BatchJobCreated.getDescriptor()));
 	}
 	
 	@ConditionalOnBean(TypeRegistry.class)

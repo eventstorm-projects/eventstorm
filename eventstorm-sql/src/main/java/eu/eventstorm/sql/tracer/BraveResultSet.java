@@ -24,6 +24,9 @@ import java.util.Map;
 
 final class BraveResultSet implements ResultSet {
 
+	public static final String GET_BINARY_RESULT = ")->[...]";
+	public static final String UPDATE_BINARY= ",...)";
+
 	private final ResultSet resultSet;
 	private final TransactionSpan span;
 
@@ -118,7 +121,7 @@ final class BraveResultSet implements ResultSet {
 
 	@Override
 	public byte[] getBytes(int columnIndex) throws SQLException {
-		this.span.annotate("getBytes(" + columnIndex + ")->[...]");
+		this.span.annotate("getBytes(" + columnIndex + GET_BINARY_RESULT);
 		return this.resultSet.getBytes(columnIndex);
 	}
 
@@ -146,7 +149,7 @@ final class BraveResultSet implements ResultSet {
 	@Override
 	public InputStream getAsciiStream(int columnIndex) throws SQLException {
 		InputStream result = this.resultSet.getAsciiStream(columnIndex);
-		this.span.annotate("getAsciiStream(" + columnIndex + ")->[...]");
+		this.span.annotate("getAsciiStream(" + columnIndex + GET_BINARY_RESULT);
 		return result;
 	}
 
@@ -154,14 +157,14 @@ final class BraveResultSet implements ResultSet {
 	@Override
 	public InputStream getUnicodeStream(int columnIndex) throws SQLException {
 		InputStream result = this.resultSet.getUnicodeStream(columnIndex);
-		this.span.annotate("getUnicodeStream(" + columnIndex + ")->[...]");
+		this.span.annotate("getUnicodeStream(" + columnIndex + GET_BINARY_RESULT);
 		return result;
 	}
 
 	@Override
 	public InputStream getBinaryStream(int columnIndex) throws SQLException {
 		InputStream result = this.resultSet.getBinaryStream(columnIndex);
-		this.span.annotate("getBinaryStream(" + columnIndex + ")->[...]");
+		this.span.annotate("getBinaryStream(" + columnIndex + GET_BINARY_RESULT);
 		return result;
 	}
 
@@ -232,7 +235,7 @@ final class BraveResultSet implements ResultSet {
 	@Override
 	public byte[] getBytes(String columnLabel) throws SQLException {
 		byte[] result = this.resultSet.getBytes(columnLabel);
-		this.span.annotate("getBytes(" + columnLabel + ")->[...]");
+		this.span.annotate("getBytes(" + columnLabel + GET_BINARY_RESULT);
 		return result;
 	}
 
@@ -260,7 +263,7 @@ final class BraveResultSet implements ResultSet {
 	@Override
 	public InputStream getAsciiStream(String columnLabel) throws SQLException {
 		InputStream result = this.resultSet.getAsciiStream(columnLabel);
-		this.span.annotate("getAsciiStream(" + columnLabel + ")->[...]");
+		this.span.annotate("getAsciiStream(" + columnLabel + GET_BINARY_RESULT);
 		return result;
 	}
 
@@ -268,14 +271,14 @@ final class BraveResultSet implements ResultSet {
 	@Override
 	public InputStream getUnicodeStream(String columnLabel) throws SQLException {
 		InputStream result = this.resultSet.getUnicodeStream(columnLabel);
-		this.span.annotate("getUnicodeStream(" + columnLabel + ")->[...]");
+		this.span.annotate("getUnicodeStream(" + columnLabel + GET_BINARY_RESULT);
 		return result;
 	}
 
 	@Override
 	public InputStream getBinaryStream(String columnLabel) throws SQLException {
 		InputStream result = this.resultSet.getBinaryStream(columnLabel);
-		this.span.annotate("getBinaryStream(" + columnLabel + ")->[...]");
+		this.span.annotate("getBinaryStream(" + columnLabel + GET_BINARY_RESULT);
 		return result;
 	}
 
@@ -321,7 +324,7 @@ final class BraveResultSet implements ResultSet {
 	@Override
 	public Reader getCharacterStream(int columnIndex) throws SQLException {
 		Reader result = this.resultSet.getCharacterStream(columnIndex);
-		this.span.annotate("getCharacterStream(" + columnIndex + ")->[...]");
+		this.span.annotate("getCharacterStream(" + columnIndex + GET_BINARY_RESULT);
 		return result;
 	}
 
@@ -513,7 +516,7 @@ final class BraveResultSet implements ResultSet {
 
 	@Override
 	public void updateBytes(int columnIndex, byte[] x) throws SQLException {
-		this.span.annotate("updateBytes(" + columnIndex + ",...)");
+		this.span.annotate("updateBytes(" + columnIndex + UPDATE_BINARY);
 		this.resultSet.updateBytes(columnIndex, x);
 	}
 
@@ -737,21 +740,21 @@ final class BraveResultSet implements ResultSet {
 	@Override
 	public Blob getBlob(int columnIndex) throws SQLException {
 		Blob result = this.resultSet.getBlob(columnIndex);
-		this.span.annotate("getBlob(" + columnIndex + ")->[...]");
+		this.span.annotate("getBlob(" + columnIndex + GET_BINARY_RESULT);
 		return result;
 	}
 
 	@Override
 	public Clob getClob(int columnIndex) throws SQLException {
 		Clob result = this.resultSet.getClob(columnIndex);
-		this.span.annotate("getClob(" + columnIndex + ")->[...]");
+		this.span.annotate("getClob(" + columnIndex + GET_BINARY_RESULT);
 		return result;
 	}
 
 	@Override
 	public Array getArray(int columnIndex) throws SQLException {
 		Array result = this.resultSet.getArray(columnIndex);
-		this.span.annotate("getArray(" + columnIndex + ")->[...]");
+		this.span.annotate("getArray(" + columnIndex + GET_BINARY_RESULT);
 		return result;
 	}
 
@@ -772,21 +775,21 @@ final class BraveResultSet implements ResultSet {
 	@Override
 	public Blob getBlob(String columnLabel) throws SQLException {
 		Blob result = this.resultSet.getBlob(columnLabel);
-		this.span.annotate("getBlob(" + columnLabel + ")->[...]");
+		this.span.annotate("getBlob(" + columnLabel + GET_BINARY_RESULT);
 		return result;
 	}
 
 	@Override
 	public Clob getClob(String columnLabel) throws SQLException {
 		Clob result = this.resultSet.getClob(columnLabel);
-		this.span.annotate("getClob(" + columnLabel + ")->[...]");
+		this.span.annotate("getClob(" + columnLabel + GET_BINARY_RESULT);
 		return result;
 	}
 
 	@Override
 	public Array getArray(String columnLabel) throws SQLException {
 		Array result = this.resultSet.getArray(columnLabel);
-		this.span.annotate("getArray(" + columnLabel + ")->[...]");
+		this.span.annotate("getArray(" + columnLabel + GET_BINARY_RESULT);
 		return result;
 	}
 
@@ -866,31 +869,31 @@ final class BraveResultSet implements ResultSet {
 
 	@Override
 	public void updateBlob(String columnLabel, Blob x) throws SQLException {
-		this.span.annotate("updateBlob(" + columnLabel + ",...)");
+		this.span.annotate("updateBlob(" + columnLabel + UPDATE_BINARY);
 		this.resultSet.updateBlob(columnLabel, x);
 	}
 
 	@Override
 	public void updateClob(int columnIndex, Clob x) throws SQLException {
-		this.span.annotate("updateClob(" + columnIndex + ",...)");
+		this.span.annotate("updateClob(" + columnIndex + UPDATE_BINARY);
 		this.resultSet.updateClob(columnIndex, x);
 	}
 
 	@Override
 	public void updateClob(String columnLabel, Clob x) throws SQLException {
-		this.span.annotate("updateClob(" + columnLabel + ",...)");
+		this.span.annotate("updateClob(" + columnLabel + UPDATE_BINARY);
 		this.resultSet.updateClob(columnLabel, x);
 	}
 
 	@Override
 	public void updateArray(int columnIndex, Array x) throws SQLException {
-		this.span.annotate("updateArray(" + columnIndex + ",...)");
+		this.span.annotate("updateArray(" + columnIndex + UPDATE_BINARY);
 		this.resultSet.updateArray(columnIndex, x);
 	}
 
 	@Override
 	public void updateArray(String columnLabel, Array x) throws SQLException {
-		this.span.annotate("updateArray(" + columnLabel + ",...)");
+		this.span.annotate("updateArray(" + columnLabel + UPDATE_BINARY);
 		this.resultSet.updateArray(columnLabel, x);
 	}
 
@@ -944,53 +947,53 @@ final class BraveResultSet implements ResultSet {
 
 	@Override
 	public void updateNClob(int columnIndex, NClob x) throws SQLException {
-		this.span.annotate("updateNClob(" + columnIndex + ",...)");
+		this.span.annotate("updateNClob(" + columnIndex + UPDATE_BINARY);
 		this.resultSet.updateNClob(columnIndex, x);
 	}
 
 	@Override
 	public void updateNClob(String columnLabel, NClob x) throws SQLException {
-		this.span.annotate("updateNClob(" + columnLabel + ",...)");
+		this.span.annotate("updateNClob(" + columnLabel + UPDATE_BINARY);
 		this.resultSet.updateNClob(columnLabel, x);
 	}
 
 	@Override
 	public NClob getNClob(int columnIndex) throws SQLException {
 		NClob result = this.resultSet.getNClob(columnIndex);
-		this.span.annotate("getNClob(" + columnIndex + ")->[...]");
+		this.span.annotate("getNClob(" + columnIndex + GET_BINARY_RESULT);
 		return result;
 	}
 
 	@Override
 	public NClob getNClob(String columnLabel) throws SQLException {
 		NClob result = this.resultSet.getNClob(columnLabel);
-		this.span.annotate("getNClob(" + columnLabel + ")->[...]");
+		this.span.annotate("getNClob(" + columnLabel + GET_BINARY_RESULT);
 		return result;
 	}
 
 	@Override
 	public SQLXML getSQLXML(int columnIndex) throws SQLException {
 		SQLXML result = this.resultSet.getSQLXML(columnIndex);
-		this.span.annotate("getSQLXML(" + columnIndex + ")->[...]");
+		this.span.annotate("getSQLXML(" + columnIndex + GET_BINARY_RESULT);
 		return result;
 	}
 
 	@Override
 	public SQLXML getSQLXML(String columnLabel) throws SQLException {
 		SQLXML result = this.resultSet.getSQLXML(columnLabel);
-		this.span.annotate("getSQLXML(" + columnLabel + ")->[...]");
+		this.span.annotate("getSQLXML(" + columnLabel + GET_BINARY_RESULT);
 		return result;
 	}
 
 	@Override
 	public void updateSQLXML(int columnIndex, SQLXML x) throws SQLException {
-		this.span.annotate("updateSQLXML(" + columnIndex + ",...)");
+		this.span.annotate("updateSQLXML(" + columnIndex + UPDATE_BINARY);
 		this.resultSet.updateSQLXML(columnIndex, x);
 	}
 
 	@Override
 	public void updateSQLXML(String columnLabel, SQLXML x) throws SQLException {
-		this.span.annotate("updateSQLXML(" + columnLabel + ",...)");
+		this.span.annotate("updateSQLXML(" + columnLabel + UPDATE_BINARY);
 		this.resultSet.updateSQLXML(columnLabel, x);
 	}
 
@@ -1011,14 +1014,14 @@ final class BraveResultSet implements ResultSet {
 	@Override
 	public Reader getNCharacterStream(int columnIndex) throws SQLException {
 		Reader result = this.resultSet.getNCharacterStream(columnIndex);
-		this.span.annotate("getNCharacterStream(" + columnIndex + ")->[...]");
+		this.span.annotate("getNCharacterStream(" + columnIndex + GET_BINARY_RESULT);
 		return result;
 	}
 
 	@Override
 	public Reader getNCharacterStream(String columnLabel) throws SQLException {
 		Reader result = this.resultSet.getNCharacterStream(columnLabel);
-		this.span.annotate("getNCharacterStream(" + columnLabel + ")->[...]");
+		this.span.annotate("getNCharacterStream(" + columnLabel + GET_BINARY_RESULT);
 		return result;
 	}
 
@@ -1109,19 +1112,19 @@ final class BraveResultSet implements ResultSet {
 
 	@Override
 	public void updateNCharacterStream(int columnIndex, Reader x) throws SQLException {
-		this.span.annotate("updateNCharacterStream(" + columnIndex + ",...)");
+		this.span.annotate("updateNCharacterStream(" + columnIndex + UPDATE_BINARY);
 		this.resultSet.updateNCharacterStream(columnIndex, x);
 	}
 
 	@Override
 	public void updateNCharacterStream(String columnLabel, Reader x) throws SQLException {
-		this.span.annotate("updateNCharacterStream(" + columnLabel + ",...)");
+		this.span.annotate("updateNCharacterStream(" + columnLabel + UPDATE_BINARY);
 		this.resultSet.updateNCharacterStream(columnLabel, x);
 	}
 
 	@Override
 	public void updateAsciiStream(int columnIndex, InputStream x) throws SQLException {
-		this.span.annotate("updateAsciiStream(" + columnIndex + ",...)");
+		this.span.annotate("updateAsciiStream(" + columnIndex + UPDATE_BINARY);
 		this.resultSet.updateAsciiStream(columnIndex, x);
 	}
 

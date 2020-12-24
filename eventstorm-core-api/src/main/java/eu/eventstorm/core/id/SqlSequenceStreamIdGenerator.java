@@ -10,7 +10,7 @@ abstract class SqlSequenceStreamIdGenerator<T> implements StreamIdGenerator {
 
     final SequenceGenerator<T> sequenceGenerator;
     
-	public SqlSequenceStreamIdGenerator(SequenceGenerator<T> sequenceGenerator) {
+	protected SqlSequenceStreamIdGenerator(SequenceGenerator<T> sequenceGenerator) {
         this.sequenceGenerator = sequenceGenerator;
     }
 

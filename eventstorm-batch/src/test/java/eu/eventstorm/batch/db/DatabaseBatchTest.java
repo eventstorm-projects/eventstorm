@@ -2,8 +2,10 @@ package eu.eventstorm.batch.db;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import eu.eventstorm.test.LoggerInstancePostProcessor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -17,6 +19,7 @@ import eu.eventstorm.cqrs.batch.BatchJobCreated;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.util.TransactionTemplate;
 
+@ExtendWith(LoggerInstancePostProcessor.class)
 @ActiveProfiles("database")
 @SpringBootTest(classes = { DatabaseTestConfiguration.class}, webEnvironment = WebEnvironment.RANDOM_PORT)
 @Import(BatchAutoConfiguration.class)

@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.Module;
 import com.google.protobuf.TypeRegistry;
 
 import eu.eventstorm.cloudevents.json.jackson.CloudEventsModule;
-import eu.eventstorm.core.descriptor.DescriptorModule;
+import eu.eventstorm.core.protobuf.DescriptorModule;
 import eu.eventstorm.cqrs.CommandGateway;
 import eu.eventstorm.cqrs.CommandHandler;
 import eu.eventstorm.cqrs.CommandHandlerRegistry;

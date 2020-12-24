@@ -28,11 +28,11 @@ final class CloudEventSerializer extends StdSerializer<CloudEvent> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(CloudEventSerializer.class);
 	
-	private transient final TypeRegistry registry;
+	private final transient TypeRegistry registry;
 	
-	private transient final JsonFormat.Printer printer;
+	private final transient JsonFormat.Printer printer;
 	
-	private final ConcurrentHashMap<String, Parser<DynamicMessage>> descriptors;
+	private final transient ConcurrentHashMap<String, Parser<DynamicMessage>> descriptors;
 	
 	CloudEventSerializer(TypeRegistry registry) {
 		super(CloudEvent.class, false);

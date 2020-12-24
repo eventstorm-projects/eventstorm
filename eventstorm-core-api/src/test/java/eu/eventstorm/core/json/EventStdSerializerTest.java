@@ -2,6 +2,7 @@ package eu.eventstorm.core.json;
 
 import java.time.OffsetDateTime;
 
+import eu.eventstorm.test.LoggerInstancePostProcessor;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,7 +11,9 @@ import com.google.protobuf.TypeRegistry;
 
 import eu.eventstorm.core.Event;
 import eu.eventstorm.core.test.RegisteredTest;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+@ExtendWith(LoggerInstancePostProcessor.class)
 class EventStdSerializerTest {
 
 	@Test

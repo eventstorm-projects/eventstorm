@@ -5,7 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.io.IOException;
 import java.util.Map;
 
+import eu.eventstorm.test.LoggerInstancePostProcessor;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -18,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.eventstorm.batch.file.FileResource;
 
+@ExtendWith(LoggerInstancePostProcessor.class)
 @ActiveProfiles("file")
 @SpringBootTest(classes = FileTestConfiguration.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 class FileResourceReactiveControllerTest {

@@ -2,10 +2,13 @@ package eu.eventstorm.core.id;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import eu.eventstorm.test.LoggerInstancePostProcessor;
 import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableMap;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+@ExtendWith(LoggerInstancePostProcessor.class)
 class StreamIdGeneratorManagerTest {
 
 	@Test
