@@ -40,8 +40,8 @@ class DatabaseBatchTest {
 				.setCreatedBy("junit")
 				.build();
 		
-		batch.push(new EventCandidate<BatchJobCreated>("junit-stream", "123", bjc));
-		
+		batch.push(new EventCandidate<>("junit-stream", "123", bjc));
+
 		Thread.sleep(1000);
 		
 		new TransactionTemplate(database.transactionManager()).executeWithReadOnly(() -> {
@@ -60,7 +60,7 @@ class DatabaseBatchTest {
 				.setCreatedBy("junit")
 				.build();
 		
-		batch.push(new EventCandidate<BatchJobCreated>("junit-stream", "345", bjc));
+		batch.push(new EventCandidate<>("junit-stream", "345", bjc));
 		
 		
 	}

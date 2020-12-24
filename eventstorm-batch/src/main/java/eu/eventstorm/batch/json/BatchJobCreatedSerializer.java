@@ -14,7 +14,7 @@ import eu.eventstorm.cqrs.batch.BatchJobCreated;
  */
 final class BatchJobCreatedSerializer extends StdSerializer<BatchJobCreated> {
 
-	private transient final JsonFormat.Printer printer;
+	private final transient JsonFormat.Printer printer;
 	
 	BatchJobCreatedSerializer() {
 		super(BatchJobCreated.class, false);

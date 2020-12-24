@@ -144,9 +144,9 @@ public final class SpringConfigurationGenerator {
 		writeNewLine(writer);
 		writer.write("    @Bean");
 		writeNewLine(writer);
-		writer.write("    eu.eventstorm.core.descriptor.DescriptorModule descriptorModule() {");
+		writer.write("    eu.eventstorm.core.protobuf.DescriptorModule descriptorModule() {");
 		writeNewLine(writer);
-		writer.write("        return new eu.eventstorm.core.descriptor.DescriptorModule(com.google.common.collect.ImmutableList.of(");
+		writer.write("        return new eu.eventstorm.core.protobuf.DescriptorModule(\"\", com.google.common.collect.ImmutableList.of(");
 		writeNewLine(writer);
 		
 		
@@ -207,7 +207,7 @@ public final class SpringConfigurationGenerator {
         			writeNewLine(writer);
         			for (ProtobufMessage message : ee.getMessages().get(stream)) {
         				writer.write("                .withPayload(" + message.getName() + ".class, " +  message.getName()+".getDescriptor(), " +
-        						message.getName()+".parser(), () -> " +  message.getName() + ".newBuilder())");
+        						message.getName()+".parser(), " +  message.getName() + "::newBuilder)");
         				writeNewLine(writer);
         				
         			}

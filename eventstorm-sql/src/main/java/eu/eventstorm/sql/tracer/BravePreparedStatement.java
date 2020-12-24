@@ -24,11 +24,6 @@ import java.util.Calendar;
 
 final class BravePreparedStatement extends BraveStatement implements PreparedStatement {
 
-	public static final String TAG_SQL = "sql";
-	public static final String TAG_AUTO_GENERATE_KEYS = "autoGenerateKeys";
-	public static final String TAG_COLUMN_INDEXES = "columnIndexes";
-	public static final String TAG_COLUMN_NAMES = "columnNames";
-
 	private final PreparedStatement ps;
 
 	BravePreparedStatement(PreparedStatement ps, BraveTracer tracer) {
@@ -49,104 +44,104 @@ final class BravePreparedStatement extends BraveStatement implements PreparedSta
 
 	@Override
 	public void setNull(int parameterIndex, int sqlType) throws SQLException {
-		annotate(parameterIndex + "->(setNull)->[" + sqlType + "]");
+		annotate("setNull(" + parameterIndex + "," + sqlType + ")");
 		this.ps.setNull(parameterIndex, sqlType);
 	}
 
 	@Override
 	public void setBoolean(int parameterIndex, boolean x) throws SQLException {
-		annotate(parameterIndex + "->(setBoolean)->[" + x + "]");
+		annotate("setBoolean(" + parameterIndex + "," + x + ")");
 		this.ps.setBoolean(parameterIndex, x);
 	}
 
 	@Override
 	public void setByte(int parameterIndex, byte x) throws SQLException {
-		annotate(parameterIndex + "->(setByte)->[" + x + "]");
+		annotate("setByte(" + parameterIndex + "," + x + ")");
 		this.ps.setByte(parameterIndex, x);
 	}
 
 	@Override
 	public void setShort(int parameterIndex, short x) throws SQLException {
-		annotate(parameterIndex + "->(setShort)->[" + x + "]");
+		annotate("setShort(" + parameterIndex + "," + x + ")");
 		this.ps.setShort(parameterIndex, x);
 	}
 
 	@Override
 	public void setInt(int parameterIndex, int x) throws SQLException {
-		annotate(parameterIndex + "->(setInt)->[" + x + "]");
+		annotate("setInt(" + parameterIndex + "," + x + ")");
 		this.ps.setInt(parameterIndex, x);
 	}
 
 	@Override
 	public void setLong(int parameterIndex, long x) throws SQLException {
-		annotate(parameterIndex + "->(setLong)->[" + x + "]");
+		annotate("setLong(" + parameterIndex + "," + x + ")");
 		this.ps.setLong(parameterIndex, x);
 	}
 
 	@Override
 	public void setFloat(int parameterIndex, float x) throws SQLException {
-		annotate(parameterIndex + "->(setFloat)->[" + x + "]");
+		annotate("setFloat(" + parameterIndex + "," + x + ")");
 		this.ps.setFloat(parameterIndex, x);
 	}
 
 	@Override
 	public void setDouble(int parameterIndex, double x) throws SQLException {
-		annotate(parameterIndex + "->(setDouble)->[" + x + "]");
+		annotate("setDouble(" + parameterIndex + "," + x + ")");
 		this.ps.setDouble(parameterIndex, x);
 	}
 
 	@Override
 	public void setBigDecimal(int parameterIndex, BigDecimal x) throws SQLException {
-		annotate(parameterIndex + "->(setBigDecimal)->[" + x + "]");
+		annotate("setBigDecimal(" + parameterIndex + "," + x + ")");
 		this.ps.setBigDecimal(parameterIndex, x);
 	}
 
 	@Override
 	public void setString(int parameterIndex, String x) throws SQLException {
-		annotate(parameterIndex + "->(setString)->[" + x + "]");
+		annotate("setString(" + parameterIndex + "," + x + ")");
 		this.ps.setString(parameterIndex, x);
 	}
 
 	@Override
 	public void setBytes(int parameterIndex, byte[] x) throws SQLException {
-		annotate(parameterIndex + "->(setBytes)->[...]");
+		annotate("setBytes(" + parameterIndex + ",...)");
 		this.ps.setBytes(parameterIndex, x);
 	}
 
 	@Override
 	public void setDate(int parameterIndex, Date x) throws SQLException {
-		annotate(parameterIndex + "->(setDate)->[" + x + "]");
+		annotate("setDate(" + parameterIndex + "," + x + ")");
 		this.ps.setDate(parameterIndex, x);
 	}
 
 	@Override
 	public void setTime(int parameterIndex, Time x) throws SQLException {
-		annotate(parameterIndex + "->(setTime)->[" + x + "]");
+		annotate("setTime(" + parameterIndex + "," + x + ")");
 		this.ps.setTime(parameterIndex, x);
 	}
 
 	@Override
 	public void setTimestamp(int parameterIndex, Timestamp x) throws SQLException {
-		annotate(parameterIndex + "->(setTimestamp)->[" + x + "]");
+		annotate("setTimestamp(" + parameterIndex + "," + x + ")");
 		this.ps.setTimestamp(parameterIndex, x);
 	}
 
 	@Override
 	public void setAsciiStream(int parameterIndex, InputStream x, int length) throws SQLException {
-		annotate(parameterIndex + "->(setAsciiStream," + length + ")->[...]");
+		annotate("setAsciiStream(" + parameterIndex + ",...," + length + ")");
 		this.ps.setAsciiStream(parameterIndex, x, length);
 	}
 
 	@SuppressWarnings("deprecation")
 	@Override
 	public void setUnicodeStream(int parameterIndex, InputStream x, int length) throws SQLException {
-		annotate(parameterIndex + "->(setUnicodeStream," + length + ")->[...]");
+		annotate("setUnicodeStream(" + parameterIndex + ",...," + length + ")");
 		this.ps.setUnicodeStream(parameterIndex, x, length);
 	}
 
 	@Override
 	public void setBinaryStream(int parameterIndex, InputStream x, int length) throws SQLException {
-		annotate(parameterIndex + "->(setBinaryStream," + length + ")->[...]");
+		annotate("setBinaryStream(" + parameterIndex + ",...," + length + ")");
 		this.ps.setBinaryStream(parameterIndex, x, length);
 	}
 
@@ -157,13 +152,13 @@ final class BravePreparedStatement extends BraveStatement implements PreparedSta
 
 	@Override
 	public void setObject(int parameterIndex, Object x, int targetSqlType) throws SQLException {
-		annotate(parameterIndex + "->(setObject," + parameterIndex + ")->[" + x + "]");
+		annotate("setObject(" + parameterIndex + ",...," + targetSqlType + ")");
 		this.ps.setObject(parameterIndex, x, targetSqlType);
 	}
 
 	@Override
 	public void setObject(int parameterIndex, Object x) throws SQLException {
-		annotate(parameterIndex + "->(setObject)->[" + x + "]");
+		annotate("setObject(" + parameterIndex + "," + x + ")");
 		this.ps.setObject(parameterIndex, x);
 	}
 
@@ -179,31 +174,31 @@ final class BravePreparedStatement extends BraveStatement implements PreparedSta
 
 	@Override
 	public void setCharacterStream(int parameterIndex, Reader reader, int length) throws SQLException {
-		annotate(parameterIndex + "->(setTimestamp)->[...]");
+		annotate("setCharacterStream(" + parameterIndex + ",...," + length + ")");
 		this.ps.setCharacterStream(parameterIndex, reader, length);
 	}
 
 	@Override
 	public void setRef(int parameterIndex, Ref x) throws SQLException {
-		annotate(parameterIndex + "->(setRef)->[" + x + "]");
+		annotate("setRef(" + parameterIndex + "," + x + ")");
 		this.ps.setRef(parameterIndex, x);
 	}
 
 	@Override
 	public void setBlob(int parameterIndex, Blob x) throws SQLException {
-		annotate(parameterIndex + "->(setBlob)->[...]");
+		annotate("setCharacterStream(" + parameterIndex + ",...)");
 		this.ps.setBlob(parameterIndex, x);
 	}
 
 	@Override
 	public void setClob(int parameterIndex, Clob x) throws SQLException {
-		annotate(parameterIndex + "->(setClob)->[...]");
+		annotate("setCharacterStream(" + parameterIndex + ",...)");
 		this.ps.setClob(parameterIndex, x);
 	}
 
 	@Override
 	public void setArray(int parameterIndex, Array x) throws SQLException {
-		annotate(parameterIndex + "->(setArray)->[...]");
+		annotate("setCharacterStream(" + parameterIndex + ",...)");
 		this.ps.setArray(parameterIndex, x);
 	}
 
@@ -214,31 +209,31 @@ final class BravePreparedStatement extends BraveStatement implements PreparedSta
 
 	@Override
 	public void setDate(int parameterIndex, Date x, Calendar cal) throws SQLException {
-		annotate(parameterIndex + "->(setDate," + cal + ")->[" + x + "]");
+		annotate("setDate(" + parameterIndex + "," + x + "," + cal +")");
 		this.ps.setDate(parameterIndex, x, cal);
 	}
 
 	@Override
 	public void setTime(int parameterIndex, Time x, Calendar cal) throws SQLException {
-		annotate(parameterIndex + "->(setTime," + cal + ")->[" + x + "]");
+		annotate("setTime(" + parameterIndex + "," + x + "," + cal +")");
 		this.ps.setTime(parameterIndex, x, cal);
 	}
 
 	@Override
 	public void setTimestamp(int parameterIndex, Timestamp x, Calendar cal) throws SQLException {
-		annotate(parameterIndex + "->(setTimestamp," + cal + ")->[" + x + "]");
+		annotate("setTimestamp(" + parameterIndex + "," + x + "," + cal +")");
 		this.ps.setTimestamp(parameterIndex, x, cal);
 	}
 
 	@Override
 	public void setNull(int parameterIndex, int sqlType, String typeName) throws SQLException {
-		annotate(parameterIndex + "->(setNull," + sqlType + "," + typeName + ")");
+		annotate("setNull(" + parameterIndex + "," + sqlType + "," + typeName +")");
 		this.ps.setNull(parameterIndex, sqlType, typeName);
 	}
 
 	@Override
 	public void setURL(int parameterIndex, URL x) throws SQLException {
-		annotate(parameterIndex + "->(setURL)->[" + x + "]");
+		annotate("setURL(" + parameterIndex + "," + x + ")");
 		this.ps.setURL(parameterIndex, x);
 	}
 
@@ -249,127 +244,127 @@ final class BravePreparedStatement extends BraveStatement implements PreparedSta
 
 	@Override
 	public void setRowId(int parameterIndex, RowId x) throws SQLException {
-		annotate(parameterIndex + "->(setRowId)->[" + x + "]");
+		annotate("setRowId(" + parameterIndex + "," + x + ")");
 		this.ps.setRowId(parameterIndex, x);
 	}
 
 	@Override
 	public void setNString(int parameterIndex, String x) throws SQLException {
-		annotate(parameterIndex + "->(setNString)->[" + x + "]");
+		annotate("setNString(" + parameterIndex + "," + x + ")");
 		this.ps.setNString(parameterIndex, x);
 	}
 
 	@Override
 	public void setNCharacterStream(int parameterIndex, Reader value, long length) throws SQLException {
-		annotate(parameterIndex + "->(setNCharacterStream," + length + ")->[...]");
+		annotate("setNCharacterStream(" + parameterIndex + ",...,"+ length +")");
 		this.ps.setNCharacterStream(parameterIndex, value, length);
 	}
 
 	@Override
 	public void setNClob(int parameterIndex, NClob value) throws SQLException {
-		annotate(parameterIndex + "->(setNClob)->[...]");
+		annotate("setNClob(" + parameterIndex + ",...)");
 		this.ps.setNClob(parameterIndex, value);
 	}
 
 	@Override
 	public void setClob(int parameterIndex, Reader reader, long length) throws SQLException {
-		annotate(parameterIndex + "->(setClob," + length + ")->[...]");
+		annotate("setClob(" + parameterIndex + ",...,"+ length +")");
 		this.ps.setClob(parameterIndex, reader, length);
 	}
 
 	@Override
 	public void setBlob(int parameterIndex, InputStream inputStream, long length) throws SQLException {
-		annotate(parameterIndex + "->(setBlob," + length + ")->[...]");
+		annotate("setBlob(" + parameterIndex + ",...,"+ length +")");
 		this.ps.setBlob(parameterIndex, inputStream, length);
 	}
 
 	@Override
 	public void setNClob(int parameterIndex, Reader reader, long length) throws SQLException {
-		annotate(parameterIndex + "->(setNClob," + length + ")->[...]");
+		annotate("setBlob(" + parameterIndex + ",...,"+ length +")");
 		this.ps.setNClob(parameterIndex, reader, length);
 	}
 
 	@Override
 	public void setSQLXML(int parameterIndex, SQLXML x) throws SQLException {
-		annotate(parameterIndex + "->(setRef)->[" + x + "]");
+		annotate("setSQLXML(" + parameterIndex + "," + x + ")");
 		this.ps.setSQLXML(parameterIndex, x);
 	}
 
 	@Override
 	public void setObject(int parameterIndex, Object x, int targetSqlType, int scaleOrLength) throws SQLException {
-		annotate(parameterIndex + "->(setNClob," + targetSqlType + "," + scaleOrLength + ")->[" + x + "]");
+		annotate("setObject(" + parameterIndex + ",...,"+ targetSqlType + ","+ scaleOrLength +")");
 		this.ps.setObject(parameterIndex, x, targetSqlType, scaleOrLength);
 	}
 
 	@Override
 	public void setAsciiStream(int parameterIndex, InputStream x, long length) throws SQLException {
-		annotate(parameterIndex + "->(setAsciiStream," + length + ")->[...]");
+		annotate("setAsciiStream(" + parameterIndex + ",...,"+ length +")");
 		this.ps.setAsciiStream(parameterIndex, x, length);
 	}
 
 	@Override
 	public void setBinaryStream(int parameterIndex, InputStream x, long length) throws SQLException {
-		annotate(parameterIndex + "->(setBinaryStream," + length + ")->[...]");
+		annotate("setBinaryStream(" + parameterIndex + ",...,"+ length +")");
 		this.ps.setBinaryStream(parameterIndex, x, length);
 	}
 
 	@Override
 	public void setCharacterStream(int parameterIndex, Reader reader, long length) throws SQLException {
-		annotate(parameterIndex + "->(setCharacterStream," + length + ")->[...]");
+		annotate("setCharacterStream(" + parameterIndex + ",...,"+ length +")");
 		this.ps.setCharacterStream(parameterIndex, reader, length);
 	}
 
 	@Override
 	public void setAsciiStream(int parameterIndex, InputStream x) throws SQLException {
-		annotate(parameterIndex + "->(setAsciiStream)->[...]");
+		annotate("setAsciiStream(" + parameterIndex + ",...)");
 		this.ps.setAsciiStream(parameterIndex, x);
 	}
 
 	@Override
 	public void setBinaryStream(int parameterIndex, InputStream x) throws SQLException {
-		annotate(parameterIndex + "->(setBinaryStream)->[...]");
+		annotate("setBinaryStream(" + parameterIndex + ",...)");
 		this.ps.setBinaryStream(parameterIndex, x);
 	}
 
 	@Override
 	public void setCharacterStream(int parameterIndex, Reader reader) throws SQLException {
-		annotate(parameterIndex + "->(setCharacterStream)->[...]");
+		annotate("setCharacterStream(" + parameterIndex + ",...)");
 		this.ps.setCharacterStream(parameterIndex, reader);
 	}
 
 	@Override
 	public void setNCharacterStream(int parameterIndex, Reader value) throws SQLException {
-		annotate(parameterIndex + "->(setNCharacterStream)->[...]");
+		annotate("setNCharacterStream(" + parameterIndex + ",...)");
 		this.ps.setNCharacterStream(parameterIndex, value);
 	}
 
 	@Override
 	public void setClob(int parameterIndex, Reader reader) throws SQLException {
-		annotate(parameterIndex + "->(setClob)->[...]");
+		annotate("setClob(" + parameterIndex + ",...)");
 		this.ps.setClob(parameterIndex, reader);
 	}
 
 	@Override
 	public void setBlob(int parameterIndex, InputStream inputStream) throws SQLException {
-		annotate(parameterIndex + "->(setBlob)->[...]");
+		annotate("setBlob(" + parameterIndex + ",...)");
 		this.ps.setBlob(parameterIndex, inputStream);
 	}
 
 	@Override
 	public void setNClob(int parameterIndex, Reader reader) throws SQLException {
-		annotate(parameterIndex + "->(setNClob)->[...]");
+		annotate("setNClob(" + parameterIndex + ",...)");
 		this.ps.setNClob(parameterIndex, reader);
 	}
 
 	@Override
 	public void setObject(int parameterIndex, Object x, SQLType targetSqlType) throws SQLException {
-		annotate(parameterIndex + "->(setObject," + targetSqlType + ")->[" + x + "]");
+		annotate("setObject(" + parameterIndex + ",...," + targetSqlType +")");
 		this.ps.setObject(parameterIndex, x, targetSqlType);
 	}
 
 	@Override
 	public void setObject(int parameterIndex, Object x, SQLType targetSqlType, int scaleOrLength) throws SQLException {
-		annotate(parameterIndex + "->(setObject," + targetSqlType + "," + scaleOrLength + ")->[" + x + "]");
+		annotate("setObject(" + parameterIndex + ",...," + targetSqlType + ","+ scaleOrLength+")");
 		this.ps.setObject(parameterIndex, x, targetSqlType, scaleOrLength);
 	}
 

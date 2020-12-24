@@ -59,7 +59,7 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 	@Autowired
 	private Tracer tracer;
 	
-	public LocalDatabaseEventStoreCommandHandler(Class<T> type, Validator<T> validator) {
+	protected LocalDatabaseEventStoreCommandHandler(Class<T> type, Validator<T> validator) {
 		this.type = type;
 		this.validator = validator;
 	}
@@ -174,14 +174,12 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 		
 		String correlation = candidates.size() > 1 ? UUID.randomUUID().toString() : null;
 		ImmutableList.Builder<Event> builder = ImmutableList.builder();
-		candidates.forEach(candidate -> {
-			builder.add(this.eventStore.appendToStream(
-					candidate.getStream(), 
-					candidate.getStreamId(), 
-					correlation, 
-					candidate.getMessage())
-				);
-		});
+		candidates.forEach(candidate -> builder.add(this.eventStore.appendToStream(
+				candidate.getStream(),
+				candidate.getStreamId(),
+				correlation,
+				candidate.getMessage())
+			));
 		return builder.build();
 	}
 
