@@ -55,56 +55,56 @@ final class BraveResultSet implements ResultSet {
 	@Override
 	public String getString(int columnIndex) throws SQLException {
 		String result = this.resultSet.getString(columnIndex);
-		this.span.annotate(columnIndex + "->(String)->[" + result + "]");
+		this.span.annotate("getString(" + columnIndex + ")->[" + result + "]");
 		return result;
 	}
 
 	@Override
 	public boolean getBoolean(int columnIndex) throws SQLException {
 		boolean result = this.resultSet.getBoolean(columnIndex);
-		this.span.annotate(columnIndex + "->(boolean)->[" + result + "]");
+		this.span.annotate("getBoolean(" + columnIndex + ")->[" + result + "]");
 		return result;
 	}
 
 	@Override
 	public byte getByte(int columnIndex) throws SQLException {
 		byte result = this.resultSet.getByte(columnIndex);
-		this.span.annotate(columnIndex + "->(byte)->[" + result + "]");
+		this.span.annotate("getByte(" + columnIndex + ")->[" + result + "]");
 		return result;
 	}
 
 	@Override
 	public short getShort(int columnIndex) throws SQLException {
 		short result = this.resultSet.getShort(columnIndex);
-		this.span.annotate(columnIndex + "->(short)->[" + result + "]");
+		this.span.annotate("getShort("+ columnIndex + ")->[" + result + "]");
 		return result;
 	}
 
 	@Override
 	public int getInt(int columnIndex) throws SQLException {
 		int result = this.resultSet.getInt(columnIndex);
-		this.span.annotate(columnIndex + "->(int)->[" + result + "]");
+		this.span.annotate("getInt(" + columnIndex + ")->[" + result + "]");
 		return result;
 	}
 
 	@Override
 	public long getLong(int columnIndex) throws SQLException {
 		long result = this.resultSet.getLong(columnIndex);
-		this.span.annotate(columnIndex + "->(long)->[" + result + "]");
+		this.span.annotate("getLong(" + columnIndex + ")->[" + result + "]");
 		return result;
 	}
 
 	@Override
 	public float getFloat(int columnIndex) throws SQLException {
 		float result = this.resultSet.getFloat(columnIndex);
-		this.span.annotate(columnIndex + "->(float)->[" + result + "]");
+		this.span.annotate("getFloat(" + columnIndex + ")->[" + result + "]");
 		return result;
 	}
 
 	@Override
 	public double getDouble(int columnIndex) throws SQLException {
 		double result = this.resultSet.getDouble(columnIndex);
-		this.span.annotate(columnIndex + "->(double)->[" + result + "]");
+		this.span.annotate("getDouble(" + columnIndex + ")->[" + result + "]");
 		return result;
 	}
 
@@ -112,42 +112,41 @@ final class BraveResultSet implements ResultSet {
 	@Override
 	public BigDecimal getBigDecimal(int columnIndex, int scale) throws SQLException {
 		BigDecimal result = this.resultSet.getBigDecimal(columnIndex, scale);
-		this.span.annotate(columnIndex + "->(BigDecimal," + scale + ")->[" + result + "]");
+		this.span.annotate("getBigDecimal(" + columnIndex + "," + scale + ")->[" + result + "]");
 		return result;
 	}
 
 	@Override
 	public byte[] getBytes(int columnIndex) throws SQLException {
-		byte[] result = this.resultSet.getBytes(columnIndex);
-		this.span.annotate(columnIndex + "->(byte[])->[" + result + "]");
-		return result;
+		this.span.annotate("getBytes(" + columnIndex + ")->[...]");
+		return this.resultSet.getBytes(columnIndex);
 	}
 
 	@Override
 	public Date getDate(int columnIndex) throws SQLException {
 		Date result = this.resultSet.getDate(columnIndex);
-		this.span.annotate(columnIndex + "->(Date)->[" + result + "]");
+		this.span.annotate("getDate(" + columnIndex + ")->[" + result + "]");
 		return result;
 	}
 
 	@Override
 	public Time getTime(int columnIndex) throws SQLException {
 		Time result = this.resultSet.getTime(columnIndex);
-		this.span.annotate(columnIndex + "->(Time)->[" + result + "]");
+		this.span.annotate("getTime(" + columnIndex + ")->[" + result + "]");
 		return result;
 	}
 
 	@Override
 	public Timestamp getTimestamp(int columnIndex) throws SQLException {
 		Timestamp result = this.resultSet.getTimestamp(columnIndex);
-		this.span.annotate(columnIndex + "->(Timestamp)->[" + result + "]");
+		this.span.annotate("getTimestamp(" + columnIndex + ")->[" + result + "]");
 		return result;
 	}
 
 	@Override
 	public InputStream getAsciiStream(int columnIndex) throws SQLException {
 		InputStream result = this.resultSet.getAsciiStream(columnIndex);
-		this.span.annotate(columnIndex + "->(AsciiStream)->[...]");
+		this.span.annotate("getAsciiStream(" + columnIndex + ")->[...]");
 		return result;
 	}
 
@@ -155,70 +154,70 @@ final class BraveResultSet implements ResultSet {
 	@Override
 	public InputStream getUnicodeStream(int columnIndex) throws SQLException {
 		InputStream result = this.resultSet.getUnicodeStream(columnIndex);
-		this.span.annotate(columnIndex + "->(UnicodeStream)->[...]");
+		this.span.annotate("getUnicodeStream(" + columnIndex + ")->[...]");
 		return result;
 	}
 
 	@Override
 	public InputStream getBinaryStream(int columnIndex) throws SQLException {
 		InputStream result = this.resultSet.getBinaryStream(columnIndex);
-		this.span.annotate(columnIndex + "->(BinaryStream)->[...]");
+		this.span.annotate("getBinaryStream(" + columnIndex + ")->[...]");
 		return result;
 	}
 
 	@Override
 	public String getString(String columnLabel) throws SQLException {
 		String result = this.resultSet.getString(columnLabel);
-		this.span.annotate(columnLabel + "->(String)->[" + result + "]");
+		this.span.annotate("getString(" + columnLabel + ")->[" + result + "]");
 		return result;
 	}
 
 	@Override
 	public boolean getBoolean(String columnLabel) throws SQLException {
 		boolean result = this.resultSet.getBoolean(columnLabel);
-		this.span.annotate(columnLabel + "->(boolean)->[" + result + "]");
+		this.span.annotate("getBoolean(" + columnLabel + ")->[" + result + "]");
 		return result;
 	}
 
 	@Override
 	public byte getByte(String columnLabel) throws SQLException {
 		byte result = this.resultSet.getByte(columnLabel);
-		this.span.annotate(columnLabel + "->(byte)->[" + result + "]");
+		this.span.annotate("getByte(" + columnLabel + ")->[" + result + "]");
 		return result;
 	}
 
 	@Override
 	public short getShort(String columnLabel) throws SQLException {
 		short result = this.resultSet.getShort(columnLabel);
-		this.span.annotate(columnLabel + "->(short)->[" + result + "]");
+		this.span.annotate("getShort(" + columnLabel + ")->[" + result + "]");
 		return result;
 	}
 
 	@Override
 	public int getInt(String columnLabel) throws SQLException {
 		int result = this.resultSet.getInt(columnLabel);
-		this.span.annotate(columnLabel + "->(int)->[" + result + "]");
+		this.span.annotate("getInt(" + columnLabel + ")->[" + result + "]");
 		return result;
 	}
 
 	@Override
 	public long getLong(String columnLabel) throws SQLException {
 		long result = this.resultSet.getLong(columnLabel);
-		this.span.annotate(columnLabel + "->(long)->[" + result + "]");
+		this.span.annotate("getLong(" + columnLabel + ")->[" + result + "]");
 		return result;
 	}
 
 	@Override
 	public float getFloat(String columnLabel) throws SQLException {
 		float result = this.resultSet.getFloat(columnLabel);
-		this.span.annotate(columnLabel + "->(float)->[" + result + "]");
+		this.span.annotate("getFloat(" + columnLabel + ")->[" + result + "]");
 		return result;
 	}
 
 	@Override
 	public double getDouble(String columnLabel) throws SQLException {
 		double result = this.resultSet.getDouble(columnLabel);
-		this.span.annotate(columnLabel + "->(double)->[" + result + "]");
+		this.span.annotate("getDouble(" + columnLabel + ")->[" + result + "]");
 		return result;
 	}
 
@@ -226,42 +225,42 @@ final class BraveResultSet implements ResultSet {
 	@Override
 	public BigDecimal getBigDecimal(String columnLabel, int scale) throws SQLException {
 		BigDecimal result = this.resultSet.getBigDecimal(columnLabel, scale);
-		this.span.annotate(columnLabel + "->(BigDecimal," + scale + ")->[" + result + "]");
+		this.span.annotate("getBigDecimal(" + columnLabel + "," + scale + ")->[" + result + "]");
 		return result;
 	}
 
 	@Override
 	public byte[] getBytes(String columnLabel) throws SQLException {
 		byte[] result = this.resultSet.getBytes(columnLabel);
-		this.span.annotate(columnLabel + "->(byte[])->[" + result + "]");
+		this.span.annotate("getBytes(" + columnLabel + ")->[...]");
 		return result;
 	}
 
 	@Override
 	public Date getDate(String columnLabel) throws SQLException {
 		Date result = this.resultSet.getDate(columnLabel);
-		this.span.annotate(columnLabel + "->(Date)->[" + result + "]");
+		this.span.annotate("getDate(" + columnLabel + ")->[" + result + "]");
 		return result;
 	}
 
 	@Override
 	public Time getTime(String columnLabel) throws SQLException {
 		Time result = this.resultSet.getTime(columnLabel);
-		this.span.annotate(columnLabel + "->(Time)->[" + result + "]");
+		this.span.annotate("getTime(" + columnLabel + ")->[" + result + "]");
 		return result;
 	}
 
 	@Override
 	public Timestamp getTimestamp(String columnLabel) throws SQLException {
 		Timestamp result = this.resultSet.getTimestamp(columnLabel);
-		this.span.annotate(columnLabel + "->(Timestamp)->[" + result + "]");
+		this.span.annotate("getTimestamp(" + columnLabel + ")->[" + result + "]");
 		return result;
 	}
 
 	@Override
 	public InputStream getAsciiStream(String columnLabel) throws SQLException {
 		InputStream result = this.resultSet.getAsciiStream(columnLabel);
-		this.span.annotate(columnLabel + "->(AsciiStream)->[" + result + "]");
+		this.span.annotate("getAsciiStream(" + columnLabel + ")->[...]");
 		return result;
 	}
 
@@ -269,14 +268,14 @@ final class BraveResultSet implements ResultSet {
 	@Override
 	public InputStream getUnicodeStream(String columnLabel) throws SQLException {
 		InputStream result = this.resultSet.getUnicodeStream(columnLabel);
-		this.span.annotate(columnLabel + "->(UnicodeStream)->[" + result + "]");
+		this.span.annotate("getUnicodeStream(" + columnLabel + ")->[...]");
 		return result;
 	}
 
 	@Override
 	public InputStream getBinaryStream(String columnLabel) throws SQLException {
 		InputStream result = this.resultSet.getBinaryStream(columnLabel);
-		this.span.annotate(columnLabel + "->(BinaryStream)->[" + result + "]");
+		this.span.annotate("getBinaryStream(" + columnLabel + ")->[...]");
 		return result;
 	}
 
@@ -303,14 +302,14 @@ final class BraveResultSet implements ResultSet {
 	@Override
 	public Object getObject(int columnIndex) throws SQLException {
 		Object result = this.resultSet.getObject(columnIndex);
-		this.span.annotate(columnIndex + "->(Object)->[" + result + "]");
+		this.span.annotate("getObject(" + columnIndex + ")->[" + result + "]");
 		return result;
 	}
 
 	@Override
 	public Object getObject(String columnLabel) throws SQLException {
 		Object result = this.resultSet.getObject(columnLabel);
-		this.span.annotate(columnLabel + "->(Object)->[" + result + "]");
+		this.span.annotate("getObject(" + columnLabel + ")->[" + result + "]");
 		return result;
 	}
 
@@ -322,28 +321,28 @@ final class BraveResultSet implements ResultSet {
 	@Override
 	public Reader getCharacterStream(int columnIndex) throws SQLException {
 		Reader result = this.resultSet.getCharacterStream(columnIndex);
-		this.span.annotate(columnIndex + "->(CharacterStream)->[...]");
+		this.span.annotate("getCharacterStream(" + columnIndex + ")->[...]");
 		return result;
 	}
 
 	@Override
 	public Reader getCharacterStream(String columnLabel) throws SQLException {
 		Reader result = this.resultSet.getCharacterStream(columnLabel);
-		this.span.annotate(columnLabel + "->(Reader)->[" + result + "]");
+		this.span.annotate("getCharacterStream(" +columnLabel + ")->[" + result + "]");
 		return result;
 	}
 
 	@Override
 	public BigDecimal getBigDecimal(int columnIndex) throws SQLException {
 		BigDecimal result = this.resultSet.getBigDecimal(columnIndex);
-		this.span.annotate(columnIndex + "->(BigDecimal)->[" + result + "]");
+		this.span.annotate("getBigDecimal(" + columnIndex + ")->[" + result + "]");
 		return result;
 	}
 
 	@Override
 	public BigDecimal getBigDecimal(String columnLabel) throws SQLException {
 		BigDecimal result = this.resultSet.getBigDecimal(columnLabel);
-		this.span.annotate(columnLabel + "->(BigDecimal)->[" + result + "]");
+		this.span.annotate("getBigDecimal(" + columnLabel + ")->[" + result + "]");
 		return result;
 	}
 
@@ -454,230 +453,230 @@ final class BraveResultSet implements ResultSet {
 
 	@Override
 	public void updateNull(int columnIndex) throws SQLException {
-		this.span.annotate(columnIndex + "->(updateNull)");
+		this.span.annotate("updateNull(" + columnIndex + ")");
 		this.resultSet.updateNull(columnIndex);
 	}
 
 	@Override
 	public void updateBoolean(int columnIndex, boolean x) throws SQLException {
-		this.span.annotate(columnIndex + "->(updateBoolean)->[" + x + "]");
+		this.span.annotate("updateBoolean(" + columnIndex + "," + x + ")");
 		this.resultSet.updateBoolean(columnIndex, x);
 	}
 
 	@Override
 	public void updateByte(int columnIndex, byte x) throws SQLException {
-		this.span.annotate(columnIndex + "->(updateByte)->[" + x + "]");
+		this.span.annotate("updateByte(" + columnIndex + "," + x + ")");
 		this.resultSet.updateByte(columnIndex, x);
 	}
 
 	@Override
 	public void updateShort(int columnIndex, short x) throws SQLException {
-		this.span.annotate(columnIndex + "->(updateShort)->[" + x + "]");
+		this.span.annotate("updateShort(" + columnIndex + "," + x + ")");
 		this.resultSet.updateShort(columnIndex, x);
 	}
 
 	@Override
 	public void updateInt(int columnIndex, int x) throws SQLException {
-		this.span.annotate(columnIndex + "->(updateInt)->[" + x + "]");
+		this.span.annotate("updateInt(" + columnIndex + "," + x + ")");
 		this.resultSet.updateInt(columnIndex, x);
 	}
 
 	@Override
 	public void updateLong(int columnIndex, long x) throws SQLException {
-		this.span.annotate(columnIndex + "->(updateLong)->[" + x + "]");
+		this.span.annotate("updateLong(" + columnIndex + "," + x + ")");
 		this.resultSet.updateLong(columnIndex, x);
 	}
 
 	@Override
 	public void updateFloat(int columnIndex, float x) throws SQLException {
-		this.span.annotate(columnIndex + "->(updateFloat)->[" + x + "]");
+		this.span.annotate("updateFloat(" + columnIndex + "," + x + ")");
 		this.resultSet.updateFloat(columnIndex, x);
 	}
 
 	@Override
 	public void updateDouble(int columnIndex, double x) throws SQLException {
-		this.span.annotate(columnIndex + "->(updateDouble)->[" + x + "]");
+		this.span.annotate("updateDouble(" + columnIndex + "," + x + ")");
 		this.resultSet.updateDouble(columnIndex, x);
 	}
 
 	@Override
 	public void updateBigDecimal(int columnIndex, BigDecimal x) throws SQLException {
-		this.span.annotate(columnIndex + "->(updateBigDecimal)->[" + x + "]");
+		this.span.annotate("updateBigDecimal(" + columnIndex + "," + x + ")");
 		this.resultSet.updateBigDecimal(columnIndex, x);
 	}
 
 	@Override
 	public void updateString(int columnIndex, String x) throws SQLException {
-		this.span.annotate(columnIndex + "->(updateString)->[" + x + "]");
+		this.span.annotate("updateString(" + columnIndex + "," + x + ")");
 		this.resultSet.updateString(columnIndex, x);
 	}
 
 	@Override
 	public void updateBytes(int columnIndex, byte[] x) throws SQLException {
-		this.span.annotate(columnIndex + "->(updateBytes)->[" + x + "]");
+		this.span.annotate("updateBytes(" + columnIndex + ",...)");
 		this.resultSet.updateBytes(columnIndex, x);
 	}
 
 	@Override
 	public void updateDate(int columnIndex, Date x) throws SQLException {
-		this.span.annotate(columnIndex + "->(updateDate)->[" + x + "]");
+		this.span.annotate("updateDate(" + columnIndex + "," + x + ")");
 		this.resultSet.updateDate(columnIndex, x);
 	}
 
 	@Override
 	public void updateTime(int columnIndex, Time x) throws SQLException {
-		this.span.annotate(columnIndex + "->(updateTime)->[" + x + "]");
+		this.span.annotate("updateTime(" + columnIndex + "," + x + ")");
 		this.resultSet.updateTime(columnIndex, x);
 	}
 
 	@Override
 	public void updateTimestamp(int columnIndex, Timestamp x) throws SQLException {
-		this.span.annotate(columnIndex + "->(updateTimestamp)->[" + x + "]");
+		this.span.annotate("updateTimestamp(" + columnIndex + "," + x + ")");
 		this.resultSet.updateTimestamp(columnIndex, x);
 	}
 
 	@Override
 	public void updateAsciiStream(int columnIndex, InputStream x, int length) throws SQLException {
-		this.span.annotate(columnIndex + "->(updateAsciiStream," + length + ")->[...]");
+		this.span.annotate("updateAsciiStream(" + columnIndex + ",...," + length + ")");
 		this.resultSet.updateAsciiStream(columnIndex, x, length);
 	}
 
 	@Override
 	public void updateBinaryStream(int columnIndex, InputStream x, int length) throws SQLException {
-		this.span.annotate(columnIndex + "->(updateBinaryStream," + length + ")->[...]");
+		this.span.annotate("updateBinaryStream(" + columnIndex + ",...," + length + ")");
 		this.resultSet.updateBinaryStream(columnIndex, x, length);
 	}
 
 	@Override
 	public void updateCharacterStream(int columnIndex, Reader x, int length) throws SQLException {
-		this.span.annotate(columnIndex + "->(updateCharacterStream," + length + ")->[...]");
+		this.span.annotate("updateCharacterStream(" + columnIndex + ",...," + length + ")");
 		this.resultSet.updateCharacterStream(columnIndex, x, length);
 	}
 
 	@Override
 	public void updateObject(int columnIndex, Object x, int scaleOrLength) throws SQLException {
-		this.span.annotate(columnIndex + "->(updateObject," + scaleOrLength + ")->[...]");
+		this.span.annotate("updateObject(" + columnIndex + "," + x + "," + scaleOrLength + ")");
 		this.resultSet.updateObject(columnIndex, x, scaleOrLength);
 	}
 
 	@Override
 	public void updateObject(int columnIndex, Object x) throws SQLException {
-		this.span.annotate(columnIndex + "->(updateObject)->[" + x + "]");
+		this.span.annotate("updateObject(" + columnIndex + "," + x + ")");
 		this.resultSet.updateObject(columnIndex, x);
 	}
 
 	@Override
 	public void updateNull(String columnLabel) throws SQLException {
-		this.span.annotate(columnLabel + "->(updateNull)");
+		this.span.annotate("updateNull(" + columnLabel + ")");
 		this.resultSet.updateNull(columnLabel);
 	}
 
 	@Override
 	public void updateBoolean(String columnLabel, boolean x) throws SQLException {
-		this.span.annotate(columnLabel + "->(updateBoolean)->[" + x + "]");
+		this.span.annotate("updateBoolean(" + columnLabel + "," + x + "]");
 		this.resultSet.updateBoolean(columnLabel, x);
 	}
 
 	@Override
 	public void updateByte(String columnLabel, byte x) throws SQLException {
-		this.span.annotate(columnLabel + "->(updateByte)->[" + x + "]");
+		this.span.annotate("updateByte(" + columnLabel + "," + x + "]");
 		this.resultSet.updateByte(columnLabel, x);
 	}
 
 	@Override
 	public void updateShort(String columnLabel, short x) throws SQLException {
-		this.span.annotate(columnLabel + "->(updateShort)->[" + x + "]");
+		this.span.annotate("updateShort(" + columnLabel + "," + x + "]");
 		this.resultSet.updateShort(columnLabel, x);
 	}
 
 	@Override
 	public void updateInt(String columnLabel, int x) throws SQLException {
-		this.span.annotate(columnLabel + "->(updateInt)->[" + x + "]");
+		this.span.annotate("updateInt(" + columnLabel + "," + x + "]");
 		this.resultSet.updateInt(columnLabel, x);
 	}
 
 	@Override
 	public void updateLong(String columnLabel, long x) throws SQLException {
-		this.span.annotate(columnLabel + "->(updateLong)->[" + x + "]");
+		this.span.annotate("updateLong(" + columnLabel + "," + x + "]");
 		this.resultSet.updateLong(columnLabel, x);
 	}
 
 	@Override
 	public void updateFloat(String columnLabel, float x) throws SQLException {
-		this.span.annotate(columnLabel + "->(updateFloat)->[" + x + "]");
+		this.span.annotate("updateFloat(" + columnLabel + "," + x + "]");
 		this.resultSet.updateFloat(columnLabel, x);
 	}
 
 	@Override
 	public void updateDouble(String columnLabel, double x) throws SQLException {
-		this.span.annotate(columnLabel + "->(updateDouble)->[" + x + "]");
+		this.span.annotate("updateDouble(" + columnLabel + "," + x + "]");
 		this.resultSet.updateDouble(columnLabel, x);
 	}
 
 	@Override
 	public void updateBigDecimal(String columnLabel, BigDecimal x) throws SQLException {
-		this.span.annotate(columnLabel + "->(updateBigDecimal)->[" + x + "]");
+		this.span.annotate("updateBigDecimal(" + columnLabel + "," + x + "]");
 		this.resultSet.updateBigDecimal(columnLabel, x);
 
 	}
 
 	@Override
 	public void updateString(String columnLabel, String x) throws SQLException {
-		this.span.annotate(columnLabel + "->(updateString)->[" + x + "]");
+		this.span.annotate("updateString(" + columnLabel + "," + x + "]");
 		this.resultSet.updateString(columnLabel, x);
 	}
 
 	@Override
 	public void updateBytes(String columnLabel, byte[] x) throws SQLException {
-		this.span.annotate(columnLabel + "->(updateBytes)->[" + x + "]");
+		this.span.annotate("updateBigDecimal(" + columnLabel + ",...]");
 		this.resultSet.updateBytes(columnLabel, x);
 	}
 
 	@Override
 	public void updateDate(String columnLabel, Date x) throws SQLException {
-		this.span.annotate(columnLabel + "->(updateDate)->[" + x + "]");
+		this.span.annotate("updateDate(" + columnLabel + "," + x + "]");
 		this.resultSet.updateDate(columnLabel, x);
 	}
 
 	@Override
 	public void updateTime(String columnLabel, Time x) throws SQLException {
-		this.span.annotate(columnLabel + "->(updateTime)->[" + x + "]");
+		this.span.annotate("updateTime(" + columnLabel + "," + x + "]");
 		this.resultSet.updateTime(columnLabel, x);
 	}
 
 	@Override
 	public void updateTimestamp(String columnLabel, Timestamp x) throws SQLException {
-		this.span.annotate(columnLabel + "->(updateTimestamp)->[" + x + "]");
+		this.span.annotate("updateTimestamp(" + columnLabel + "," + x + "]");
 		this.resultSet.updateTimestamp(columnLabel, x);
 	}
 
 	@Override
 	public void updateAsciiStream(String columnLabel, InputStream x, int length) throws SQLException {
-		this.span.annotate(columnLabel + "->(updateAsciiStream," + length + ")->[...]");
+		this.span.annotate("updateAsciiStream(" + columnLabel + ",...," + length + "]");
 		this.resultSet.updateAsciiStream(columnLabel, x, length);
 	}
 
 	@Override
 	public void updateBinaryStream(String columnLabel, InputStream x, int length) throws SQLException {
-		this.span.annotate(columnLabel + "->(updateBinaryStream," + length + ")->[...]");
+		this.span.annotate("updateBinaryStream(" + columnLabel + ",...," + length + "]");
 		this.resultSet.updateBinaryStream(columnLabel, x, length);
 	}
 
 	@Override
 	public void updateCharacterStream(String columnLabel, Reader reader, int length) throws SQLException {
-		this.span.annotate(columnLabel + "->(updateCharacterStream," + length + ")->[...]");
+		this.span.annotate("updateCharacterStream(" + columnLabel + ",...," + length + "]");
 		this.resultSet.updateCharacterStream(columnLabel, reader, length);
 	}
 
 	@Override
 	public void updateObject(String columnLabel, Object x, int scaleOrLength) throws SQLException {
-		this.span.annotate(columnLabel + "->(updateObject," + scaleOrLength + ")->[" + x + "]");
+		this.span.annotate("updateObject(" + columnLabel + "," + x + "," + scaleOrLength + ")");
 		this.resultSet.updateObject(columnLabel, x, scaleOrLength);
 	}
 
 	@Override
 	public void updateObject(String columnLabel, Object x) throws SQLException {
-		this.span.annotate(columnLabel + "->(updateObject)->[" + x + "]");
+		this.span.annotate("updateObject(" + columnLabel + "," + x + "]");
 		this.resultSet.updateObject(columnLabel, x);
 	}
 
@@ -724,200 +723,200 @@ final class BraveResultSet implements ResultSet {
 	@Override
 	public Object getObject(int columnIndex, Map<String, Class<?>> map) throws SQLException {
 		Object result = this.resultSet.getObject(columnIndex, map);
-		this.span.annotate(columnIndex + "->(Object, " + map + ")->[" + result + "]");
+		this.span.annotate("getObject(" + columnIndex + ", " + map + ")->[" + result + "]");
 		return result;
 	}
 
 	@Override
 	public Ref getRef(int columnIndex) throws SQLException {
 		Ref result = this.resultSet.getRef(columnIndex);
-		this.span.annotate(columnIndex + "->(Ref)->[" + result + "]");
+		this.span.annotate("getRef(" + columnIndex + ")->[" + result + "]");
 		return result;
 	}
 
 	@Override
 	public Blob getBlob(int columnIndex) throws SQLException {
 		Blob result = this.resultSet.getBlob(columnIndex);
-		this.span.annotate(columnIndex + "->(Blob)->[...]");
+		this.span.annotate("getBlob(" + columnIndex + ")->[...]");
 		return result;
 	}
 
 	@Override
 	public Clob getClob(int columnIndex) throws SQLException {
 		Clob result = this.resultSet.getClob(columnIndex);
-		this.span.annotate(columnIndex + "->(Clob)->[...]");
+		this.span.annotate("getClob(" + columnIndex + ")->[...]");
 		return result;
 	}
 
 	@Override
 	public Array getArray(int columnIndex) throws SQLException {
 		Array result = this.resultSet.getArray(columnIndex);
-		this.span.annotate(columnIndex + "->(Array)->[" + result + "]");
+		this.span.annotate("getArray(" + columnIndex + ")->[...]");
 		return result;
 	}
 
 	@Override
 	public Object getObject(String columnLabel, Map<String, Class<?>> map) throws SQLException {
 		Object result = this.resultSet.getObject(columnLabel, map);
-		this.span.annotate(columnLabel + "->(Object, " + map + ")->[" + result + "]");
+		this.span.annotate("getObject(" + columnLabel + ", " + map + ")->[" + result + "]");
 		return result;
 	}
 
 	@Override
 	public Ref getRef(String columnLabel) throws SQLException {
 		Ref result = this.resultSet.getRef(columnLabel);
-		this.span.annotate(columnLabel + "->(Ref)->[" + result + "]");
+		this.span.annotate("getRef(" + columnLabel + ")->[" + result + "]");
 		return result;
 	}
 
 	@Override
 	public Blob getBlob(String columnLabel) throws SQLException {
 		Blob result = this.resultSet.getBlob(columnLabel);
-		this.span.annotate(columnLabel + "->(Blob)->[" + result + "]");
+		this.span.annotate("getBlob(" + columnLabel + ")->[...]");
 		return result;
 	}
 
 	@Override
 	public Clob getClob(String columnLabel) throws SQLException {
 		Clob result = this.resultSet.getClob(columnLabel);
-		this.span.annotate(columnLabel + "->(Clob)->[" + result + "]");
+		this.span.annotate("getClob(" + columnLabel + ")->[...]");
 		return result;
 	}
 
 	@Override
 	public Array getArray(String columnLabel) throws SQLException {
 		Array result = this.resultSet.getArray(columnLabel);
-		this.span.annotate(columnLabel + "->(Array)->[" + result + "]");
+		this.span.annotate("getArray(" + columnLabel + ")->[...]");
 		return result;
 	}
 
 	@Override
 	public Date getDate(int columnIndex, Calendar cal) throws SQLException {
 		Date result = this.resultSet.getDate(columnIndex, cal);
-		this.span.annotate(columnIndex + "->(Date," + cal + ")->[" + result + "]");
+		this.span.annotate("getDate(" + columnIndex + "," + cal + ")->[" + result + "]");
 		return result;
 	}
 
 	@Override
 	public Date getDate(String columnLabel, Calendar cal) throws SQLException {
 		Date result = this.resultSet.getDate(columnLabel, cal);
-		this.span.annotate(columnLabel + "->(Date," + cal + ")->[" + result + "]");
+		this.span.annotate("getDate(" + columnLabel + "," + cal + ")->[" + result + "]");
 		return result;
 	}
 
 	@Override
 	public Time getTime(int columnIndex, Calendar cal) throws SQLException {
 		Time result = this.resultSet.getTime(columnIndex, cal);
-		this.span.annotate(columnIndex + "->(Time," + cal + ")->[" + result + "]");
+		this.span.annotate("getTime(" + columnIndex + "," + cal + ")->[" + result + "]");
 		return result;
 	}
 
 	@Override
 	public Time getTime(String columnLabel, Calendar cal) throws SQLException {
 		Time result = this.resultSet.getTime(columnLabel, cal);
-		this.span.annotate(columnLabel + "->(Time," + cal + ")->[" + result + "]");
+		this.span.annotate("getTime(" + columnLabel + "," + cal + ")->[" + result + "]");
 		return result;
 	}
 
 	@Override
 	public Timestamp getTimestamp(int columnIndex, Calendar cal) throws SQLException {
 		Timestamp result = this.resultSet.getTimestamp(columnIndex, cal);
-		this.span.annotate(columnIndex + "->(Timestamp," + cal + ")->[" + result + "]");
+		this.span.annotate("getTimestamp(" + columnIndex + "," + cal + ")->[" + result + "]");
 		return result;
 	}
 
 	@Override
 	public Timestamp getTimestamp(String columnLabel, Calendar cal) throws SQLException {
 		Timestamp result = this.resultSet.getTimestamp(columnLabel, cal);
-		this.span.annotate(columnLabel + "->(Timestamp," + cal + ")->[" + result + "]");
+		this.span.annotate("getTimestamp(" + columnLabel + "," + cal + ")->[" + result + "]");
 		return result;
 	}
 
 	@Override
 	public URL getURL(int columnIndex) throws SQLException {
 		URL result = this.resultSet.getURL(columnIndex);
-		this.span.annotate(columnIndex + "->(String)->[" + result + "]");
+		this.span.annotate("getURL(" + columnIndex + ")->[" + result + "]");
 		return result;
 	}
 
 	@Override
 	public URL getURL(String columnLabel) throws SQLException {
 		URL result = this.resultSet.getURL(columnLabel);
-		this.span.annotate(columnLabel + "->(URL)->[" + result + "]");
+		this.span.annotate("getURL(" + columnLabel + ")->[" + result + "]");
 		return result;
 	}
 
 	@Override
 	public void updateRef(int columnIndex, Ref x) throws SQLException {
-		this.span.annotate(columnIndex + "->(updateRef)->[" + x + "]");
+		this.span.annotate("updateRef(" + columnIndex + "," + x + ")");
 		this.resultSet.updateRef(columnIndex, x);
 	}
 
 	@Override
 	public void updateRef(String columnLabel, Ref x) throws SQLException {
-		this.span.annotate(columnLabel + "->(updateRef)->[" + x + "]");
+		this.span.annotate("updateRef(" + columnLabel + "," + x + ")");
 		this.resultSet.updateRef(columnLabel, x);
 	}
 
 	@Override
 	public void updateBlob(int columnIndex, Blob x) throws SQLException {
-		this.span.annotate(columnIndex + "->(updateBlob)->[" + x + "]");
+		this.span.annotate("updateBlob(" + columnIndex + "," + x + ")");
 		this.resultSet.updateBlob(columnIndex, x);
 	}
 
 	@Override
 	public void updateBlob(String columnLabel, Blob x) throws SQLException {
-		this.span.annotate(columnLabel + "->(updateBlob)->[" + x + "]");
+		this.span.annotate("updateBlob(" + columnLabel + ",...)");
 		this.resultSet.updateBlob(columnLabel, x);
 	}
 
 	@Override
 	public void updateClob(int columnIndex, Clob x) throws SQLException {
-		this.span.annotate(columnIndex + "->(updateClob)->[" + x + "]");
+		this.span.annotate("updateClob(" + columnIndex + ",...)");
 		this.resultSet.updateClob(columnIndex, x);
 	}
 
 	@Override
 	public void updateClob(String columnLabel, Clob x) throws SQLException {
-		this.span.annotate(columnLabel + "->(updateClob)->[" + x + "]");
+		this.span.annotate("updateClob(" + columnLabel + ",...)");
 		this.resultSet.updateClob(columnLabel, x);
 	}
 
 	@Override
 	public void updateArray(int columnIndex, Array x) throws SQLException {
-		this.span.annotate(columnIndex + "->(updateArray)->[" + x + "]");
+		this.span.annotate("updateArray(" + columnIndex + ",...)");
 		this.resultSet.updateArray(columnIndex, x);
 	}
 
 	@Override
 	public void updateArray(String columnLabel, Array x) throws SQLException {
-		this.span.annotate(columnLabel + "->(updateArray)->[" + x + "]");
+		this.span.annotate("updateArray(" + columnLabel + ",...)");
 		this.resultSet.updateArray(columnLabel, x);
 	}
 
 	@Override
 	public RowId getRowId(int columnIndex) throws SQLException {
 		RowId result = this.resultSet.getRowId(columnIndex);
-		this.span.annotate(columnIndex + "->(RowId)->[" + result + "]");
+		this.span.annotate("getRowId(" + columnIndex + ")->[" + result + "]");
 		return result;
 	}
 
 	@Override
 	public RowId getRowId(String columnLabel) throws SQLException {
 		RowId result = this.resultSet.getRowId(columnLabel);
-		this.span.annotate(columnLabel + "->(RowId)->[" + result + "]");
+		this.span.annotate("getRowId(" + columnLabel + ")->[" + result + "]");
 		return result;
 	}
 
 	@Override
 	public void updateRowId(int columnIndex, RowId x) throws SQLException {
-		this.span.annotate(columnIndex + "->(updateRowId)->[" + x + "]");
+		this.span.annotate("updateRowId(" + columnIndex + ","+ x + ")");
 		this.resultSet.updateRowId(columnIndex, x);
 	}
 
 	@Override
 	public void updateRowId(String columnLabel, RowId x) throws SQLException {
-		this.span.annotate(columnLabel + "->(updateRowId)->[" + x + "]");
+		this.span.annotate("updateRowId(" + columnLabel + ","+ x + ")");
 		this.resultSet.updateRowId(columnLabel, x);
 	}
 
@@ -933,196 +932,196 @@ final class BraveResultSet implements ResultSet {
 
 	@Override
 	public void updateNString(int columnIndex, String x) throws SQLException {
-		this.span.annotate(columnIndex + "->(updateNString)->[" + x + "]");
+		this.span.annotate("updateNString(" + columnIndex + ","+ x + ")");
 		this.resultSet.updateNString(columnIndex, x);
 	}
 
 	@Override
 	public void updateNString(String columnLabel, String x) throws SQLException {
-		this.span.annotate(columnLabel + "->(updateArray)->[" + x + "]");
+		this.span.annotate("updateNString(" + columnLabel + ","+ x + ")");
 		this.resultSet.updateNString(columnLabel, x);
 	}
 
 	@Override
 	public void updateNClob(int columnIndex, NClob x) throws SQLException {
-		this.span.annotate(columnIndex + "->(updateNClob)->[" + x + "]");
+		this.span.annotate("updateNClob(" + columnIndex + ",...)");
 		this.resultSet.updateNClob(columnIndex, x);
 	}
 
 	@Override
 	public void updateNClob(String columnLabel, NClob x) throws SQLException {
-		this.span.annotate(columnLabel + "->(updateNClob)->[" + x + "]");
+		this.span.annotate("updateNClob(" + columnLabel + ",...)");
 		this.resultSet.updateNClob(columnLabel, x);
 	}
 
 	@Override
 	public NClob getNClob(int columnIndex) throws SQLException {
 		NClob result = this.resultSet.getNClob(columnIndex);
-		this.span.annotate(columnIndex + "->(NClob)->[...]");
+		this.span.annotate("getNClob(" + columnIndex + ")->[...]");
 		return result;
 	}
 
 	@Override
 	public NClob getNClob(String columnLabel) throws SQLException {
 		NClob result = this.resultSet.getNClob(columnLabel);
-		this.span.annotate(columnLabel + "->(NClob)->[...]");
+		this.span.annotate("getNClob(" + columnLabel + ")->[...]");
 		return result;
 	}
 
 	@Override
 	public SQLXML getSQLXML(int columnIndex) throws SQLException {
 		SQLXML result = this.resultSet.getSQLXML(columnIndex);
-		this.span.annotate(columnIndex + "->(SQLXML)->[" + result + "]");
+		this.span.annotate("getSQLXML(" + columnIndex + ")->[...]");
 		return result;
 	}
 
 	@Override
 	public SQLXML getSQLXML(String columnLabel) throws SQLException {
 		SQLXML result = this.resultSet.getSQLXML(columnLabel);
-		this.span.annotate(columnLabel + "->(SQLXML)->[" + result + "]");
+		this.span.annotate("getSQLXML(" + columnLabel + ")->[...]");
 		return result;
 	}
 
 	@Override
 	public void updateSQLXML(int columnIndex, SQLXML x) throws SQLException {
-		this.span.annotate(columnIndex + "->(updateSQLXML)->[" + x + "]");
+		this.span.annotate("updateSQLXML(" + columnIndex + ",...)");
 		this.resultSet.updateSQLXML(columnIndex, x);
 	}
 
 	@Override
 	public void updateSQLXML(String columnLabel, SQLXML x) throws SQLException {
-		this.span.annotate(columnLabel + "->(updateSQLXML)->[" + x + "]");
+		this.span.annotate("updateSQLXML(" + columnLabel + ",...)");
 		this.resultSet.updateSQLXML(columnLabel, x);
 	}
 
 	@Override
 	public String getNString(int columnIndex) throws SQLException {
 		String result = this.resultSet.getNString(columnIndex);
-		this.span.annotate(columnIndex + "->(NString)->[" + result + "]");
+		this.span.annotate("getNString(" + columnIndex + ")->[" + result + "]");
 		return result;
 	}
 
 	@Override
 	public String getNString(String columnLabel) throws SQLException {
 		String result = this.resultSet.getNString(columnLabel);
-		this.span.annotate(columnLabel + "->(NString)->[" + result + "]");
+		this.span.annotate("getNString(" + columnLabel + ")->[" + result + "]");
 		return result;
 	}
 
 	@Override
 	public Reader getNCharacterStream(int columnIndex) throws SQLException {
 		Reader result = this.resultSet.getNCharacterStream(columnIndex);
-		this.span.annotate(columnIndex + "->(NCharacterStream)->[...]");
+		this.span.annotate("getNCharacterStream(" + columnIndex + ")->[...]");
 		return result;
 	}
 
 	@Override
 	public Reader getNCharacterStream(String columnLabel) throws SQLException {
 		Reader result = this.resultSet.getNCharacterStream(columnLabel);
-		this.span.annotate(columnLabel + "->(NCharacterStream)->[...]");
+		this.span.annotate("getNCharacterStream(" + columnLabel + ")->[...]");
 		return result;
 	}
 
 	@Override
 	public void updateNCharacterStream(int columnIndex, Reader x, long length) throws SQLException {
-		this.span.annotate(columnIndex + "->(updateNCharacterStream," + length + ")->[" + x + "]");
+		this.span.annotate("updateNCharacterStream(" + columnIndex + ",...," + length+")");
 		this.resultSet.updateNCharacterStream(columnIndex, x, length);
 	}
 
 	@Override
 	public void updateNCharacterStream(String columnLabel, Reader x, long length) throws SQLException {
-		this.span.annotate(columnLabel + "->(updateNCharacterStream," + length + ")->[" + x + "]");
+		this.span.annotate("updateNCharacterStream(" + columnLabel + ",...," + length+")");
 		this.resultSet.updateNCharacterStream(columnLabel, x, length);
 	}
 
 	@Override
 	public void updateAsciiStream(int columnIndex, InputStream x, long length) throws SQLException {
-		this.span.annotate(columnIndex + "->(updateAsciiStream," + length + ")->[" + x + "]");
+		this.span.annotate("updateAsciiStream(" + columnIndex + ",...," + length+")");
 		this.resultSet.updateAsciiStream(columnIndex, x, length);
 	}
 
 	@Override
 	public void updateBinaryStream(int columnIndex, InputStream x, long length) throws SQLException {
-		this.span.annotate(columnIndex + "->(updateBinaryStream," + length + ")->[" + x + "]");
+		this.span.annotate("updateBinaryStream(" + columnIndex + ",...," + length+")");
 		this.resultSet.updateBinaryStream(columnIndex, x, length);
 	}
 
 	@Override
 	public void updateCharacterStream(int columnIndex, Reader x, long length) throws SQLException {
-		this.span.annotate(columnIndex + "->(updateCharacterStream," + length + ")->[" + x + "]");
+		this.span.annotate("updateCharacterStream(" + columnIndex + ",...," + length+")");
 		this.resultSet.updateCharacterStream(columnIndex, x, length);
 	}
 
 	@Override
 	public void updateAsciiStream(String columnLabel, InputStream x, long length) throws SQLException {
-		this.span.annotate(columnLabel + "->(updateAsciiStream," + length + ")->[" + x + "]");
+		this.span.annotate("updateAsciiStream(" + columnLabel + ",...," + length+")");
 		this.resultSet.updateAsciiStream(columnLabel, x, length);
 
 	}
 
 	@Override
 	public void updateBinaryStream(String columnLabel, InputStream x, long length) throws SQLException {
-		this.span.annotate(columnLabel + "->(updateBinaryStream," + length + ")->[" + x + "]");
+		this.span.annotate("updateBinaryStream(" + columnLabel + ",...," + length+")");
 		this.resultSet.updateBinaryStream(columnLabel, x, length);
 	}
 
 	@Override
 	public void updateCharacterStream(String columnLabel, Reader x, long length) throws SQLException {
-		this.span.annotate(columnLabel + "->(updateCharacterStream," + length + ")->[" + x + "]");
+		this.span.annotate("updateCharacterStream(" + columnLabel + ",...," + length+")");
 		this.resultSet.updateCharacterStream(columnLabel, x, length);
 	}
 
 	@Override
 	public void updateBlob(int columnIndex, InputStream x, long length) throws SQLException {
-		this.span.annotate(columnIndex + "->(updateBlob," + length + ")->[" + x + "]");
+		this.span.annotate("updateBlob(" + columnIndex + ",...," + length+")");
 		this.resultSet.updateBlob(columnIndex, x, length);
 	}
 
 	@Override
 	public void updateBlob(String columnLabel, InputStream x, long length) throws SQLException {
-		this.span.annotate(columnLabel + "->(updateBlob," + length + ")->[" + x + "]");
+		this.span.annotate("updateBlob(" + columnLabel + ",...," + length+")");
 		this.resultSet.updateBlob(columnLabel, x, length);
 	}
 
 	@Override
 	public void updateClob(int columnIndex, Reader x, long length) throws SQLException {
-		this.span.annotate(columnIndex + "->(updateClob," + length + ")->[" + x + "]");
+		this.span.annotate("updateClob(" + columnIndex + ",...," + length+")");
 		this.resultSet.updateClob(columnIndex, x, length);
 	}
 
 	@Override
 	public void updateClob(String columnLabel, Reader x, long length) throws SQLException {
-		this.span.annotate(columnLabel + "->(updateClob," + length + ")->[" + x + "]");
+		this.span.annotate("updateClob(" + columnLabel + ",...," + length+")");
 		this.resultSet.updateClob(columnLabel, x, length);
 	}
 
 	@Override
 	public void updateNClob(int columnIndex, Reader x, long length) throws SQLException {
-		this.span.annotate(columnIndex + "->(updateNClob," + length + ")->[" + x + "]");
+		this.span.annotate("updateNClob(" + columnIndex + ",...," + length+")");
 		this.resultSet.updateNClob(columnIndex, x, length);
 	}
 
 	@Override
 	public void updateNClob(String columnLabel, Reader x, long length) throws SQLException {
-		this.span.annotate(columnLabel + "->(updateNClob," + length + ")->[" + x + "]");
+		this.span.annotate("updateNClob(" + columnLabel + ",...," + length+")");
 		this.resultSet.updateNClob(columnLabel, x, length);
 	}
 
 	@Override
 	public void updateNCharacterStream(int columnIndex, Reader x) throws SQLException {
-		this.span.annotate(columnIndex + "->(updateNCharacterStream)->[" + x + "]");
+		this.span.annotate("updateNCharacterStream(" + columnIndex + ",...)");
 		this.resultSet.updateNCharacterStream(columnIndex, x);
 	}
 
 	@Override
 	public void updateNCharacterStream(String columnLabel, Reader x) throws SQLException {
-		this.span.annotate(columnLabel + "->(updateNCharacterStream)->[" + x + "]");
+		this.span.annotate("updateNCharacterStream(" + columnLabel + ",...)");
 		this.resultSet.updateNCharacterStream(columnLabel, x);
 	}
 
 	@Override
 	public void updateAsciiStream(int columnIndex, InputStream x) throws SQLException {
-		this.span.annotate(columnIndex + "->(updateAsciiStream)->[" + x + "]");
+		this.span.annotate("updateAsciiStream(" + columnIndex + ",...)");
 		this.resultSet.updateAsciiStream(columnIndex, x);
 	}
 

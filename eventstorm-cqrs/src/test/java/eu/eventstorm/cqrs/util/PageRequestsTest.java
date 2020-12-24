@@ -81,7 +81,10 @@ class PageRequestsTest {
 		PageRequestException pre = assertThrows(PageRequestException.class, () -> PageRequests.parse("range=012&filter=", Mockito.mock(SqlQueryDescriptor.class)));
 		assertEquals("no viable alternative at input 'range=012&'", pre.getValues().get("input"));
 		assertEquals(9, pre.getValues().get("offset"));
-		
+
+		pre = assertThrows(PageRequestException.class, () -> PageRequests.parse("", Mockito.mock(SqlQueryDescriptor.class)));
+		assertEquals(PageRequestException.Type.EMPTY, pre.getType());
+
 		pre = assertThrows(PageRequestException.class, () -> PageRequests.parse("range=0-12&filter=", Mockito.mock(SqlQueryDescriptor.class)));
 		assertEquals("no viable alternative at input 'range=0-12&filter='", pre.getValues().get("input"));
 		assertEquals(18, pre.getValues().get("offset"));

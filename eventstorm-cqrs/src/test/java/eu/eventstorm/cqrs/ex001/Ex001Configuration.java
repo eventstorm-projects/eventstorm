@@ -6,9 +6,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
-import brave.Tracer;
-import brave.Tracing;
-import brave.sampler.Sampler;
 import eu.eventstorm.cqrs.Command;
 import eu.eventstorm.cqrs.CommandGateway;
 import eu.eventstorm.cqrs.CommandHandler;
@@ -34,7 +31,7 @@ class Ex001Configuration {
 	StreamManager streamManager() {
 		return new InMemoryStreamManagerBuilder()
 			.withDefinition("user")
-				.withPayload(UserCreatedEventPayload.class, UserCreatedEventPayload.getDescriptor(), UserCreatedEventPayload.parser(), () -> UserCreatedEventPayload.newBuilder())
+				.withPayload(UserCreatedEventPayload.class, UserCreatedEventPayload.getDescriptor(), UserCreatedEventPayload.parser(), UserCreatedEventPayload::newBuilder)
 			.and()
 			.build();
 	}

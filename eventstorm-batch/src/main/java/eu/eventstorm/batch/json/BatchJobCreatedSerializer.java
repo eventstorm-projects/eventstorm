@@ -12,10 +12,9 @@ import eu.eventstorm.cqrs.batch.BatchJobCreated;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-@SuppressWarnings({ "serial" })
 final class BatchJobCreatedSerializer extends StdSerializer<BatchJobCreated> {
 
-	private final JsonFormat.Printer printer;
+	private transient final JsonFormat.Printer printer;
 	
 	BatchJobCreatedSerializer() {
 		super(BatchJobCreated.class, false);
