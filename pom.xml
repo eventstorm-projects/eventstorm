@@ -118,6 +118,12 @@
 				<scope>provided</scope>
 			</dependency>
 
+			<dependency>
+				<groupId>jakarta.annotation</groupId>
+				<artifactId>jakarta.annotation-api</artifactId>
+				<version>${jakarta.annotation.version}</version>
+			</dependency>
+
 			<!-- testing -->
 			<dependency>
 				<groupId>org.junit</groupId>
@@ -221,12 +227,6 @@
 				<groupId>org.antlr</groupId>
 				<artifactId>antlr4</artifactId>
 				<version>${org.antlr.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>jakarta.annotation</groupId>
-				<artifactId>jakarta.annotation-api</artifactId>
-				<version>${jakarta.annotation.version}</version>
 			</dependency>
 
 		</dependencies>
