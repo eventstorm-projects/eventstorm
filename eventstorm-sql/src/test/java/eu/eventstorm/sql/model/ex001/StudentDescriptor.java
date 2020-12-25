@@ -1,6 +1,6 @@
 package eu.eventstorm.sql.model.ex001;
 
-import javax.annotation.Generated;
+import jakarta.annotation.Generated;
 
 @Generated("eu.eventsotrm.sql.apt.PojoDescriptorGenerator")
 public final class StudentDescriptor implements eu.eventstorm.sql.Descriptor {

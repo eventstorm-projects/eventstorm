@@ -1,6 +1,6 @@
 package eu.eventstorm.sql.model.airport;
 
-import javax.annotation.Generated;
+import jakarta.annotation.Generated;
 
 @Generated("eu.eventsotrm.sql.apt.PojoDescriptorGenerator")
 public final class AirportDescriptor implements eu.eventstorm.sql.Descriptor {
