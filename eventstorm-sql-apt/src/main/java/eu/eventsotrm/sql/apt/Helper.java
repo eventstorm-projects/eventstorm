@@ -122,7 +122,7 @@ public final class Helper {
 
 	public static void writeGenerated(Writer writer, String clazz) throws IOException {
 		writeNewLine(writer);
-		writer.write("import javax.annotation.Generated;");
+		writer.write("import javax.annotation.processing.Generated;");
 		writeNewLine(writer);
 		writeNewLine(writer);
 

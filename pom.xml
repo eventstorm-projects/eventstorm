@@ -41,6 +41,8 @@
 		<org.springframework.boot.version>2.3.7.RELEASE</org.springframework.boot.version>
 		<org.springframework.version>5.2.12.RELEASE</org.springframework.version>
 
+		<jakarta.annotation.version>2.0.0</jakarta.annotation.version>
+
 		<org.junit.jupiter.version>5.7.0</org.junit.jupiter.version>
 		<com.h2database.version>1.4.200</com.h2database.version>
 		<org.mockito.version>3.6.28</org.mockito.version>
@@ -219,6 +221,12 @@
 				<groupId>org.antlr</groupId>
 				<artifactId>antlr4</artifactId>
 				<version>${org.antlr.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>jakarta.annotation</groupId>
+				<artifactId>jakarta.annotation-api</artifactId>
+				<version>${jakarta.annotation.version}</version>
 			</dependency>
 
 		</dependencies>

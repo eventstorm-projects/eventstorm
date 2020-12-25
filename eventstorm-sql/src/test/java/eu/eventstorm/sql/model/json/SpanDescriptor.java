@@ -1,6 +1,6 @@
 package eu.eventstorm.sql.model.json;
 
-import javax.annotation.Generated;
+import javax.annotation.processing.Generated;
 
 @Generated("eu.eventsotrm.sql.apt.PojoDescriptorGenerator")
 public final class SpanDescriptor implements eu.eventstorm.sql.Descriptor {
