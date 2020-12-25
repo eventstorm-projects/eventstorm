@@ -19,7 +19,7 @@ class NamedThreadFactoryTest {
 		CountDownLatch countDown = new CountDownLatch(1);
 		
 		es.execute(() -> {
-			assertEquals("junit_1", Thread.currentThread().getName());
+			assertEquals("junit-1", Thread.currentThread().getName());
 			countDown.countDown();
 		});
 		

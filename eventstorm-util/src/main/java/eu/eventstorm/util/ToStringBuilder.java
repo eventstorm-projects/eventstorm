@@ -18,7 +18,7 @@ public final class ToStringBuilder {
     /**
 	 * Default size for the buffer.
 	 */
-	private static final int DEFAULT = 2048;
+	private static final int DEFAULT = 1024;
 
 	/**
 	 * char buffer for a null object.
@@ -208,7 +208,7 @@ public final class ToStringBuilder {
 	 * Append.
 	 *
 	 * @param key the key
-	 * @param value the value
+	 * @param values the value
 	 * @return the to string builder
 	 */
 	public ToStringBuilder append(String key, List<?> values) {
@@ -457,10 +457,10 @@ public final class ToStringBuilder {
 	        for (int i = 0; ; i++) {
 
 	        	if (a[i] instanceof Number) {
-	        		b.append(String.valueOf(a[i]));
+	        		b.append(a[i]);
 	        	} else {
 	        		b.append('"');
-	        		b.append(String.valueOf(a[i]));
+	        		b.append(a[i]);
 	        		b.append('"');
 	        	}
 	            if (i == iMax) {

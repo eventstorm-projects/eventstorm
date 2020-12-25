@@ -65,6 +65,10 @@ public final class UnsafeHelper {
 		return UNSAFE.ARRAY_CHAR_BASE_OFFSET;
 	}
 
+	public static int arrayByteBaseOffset() {
+		return UNSAFE.ARRAY_BYTE_BASE_OFFSET;
+	}
+
 	public static Unsafe getUnsafe() {
 		return UNSAFE;
 	}
