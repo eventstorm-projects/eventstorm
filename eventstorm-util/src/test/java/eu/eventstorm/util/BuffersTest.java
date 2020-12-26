@@ -1,9 +1,6 @@
 package eu.eventstorm.util;
 
 import static eu.eventstorm.test.Tests.assertUtilClassIsWellDefined;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.nio.ByteBuffer;
 
 import org.junit.jupiter.api.Test;
 
@@ -12,12 +9,11 @@ import org.junit.jupiter.api.Test;
  */
 class BuffersTest {
 
-	@SuppressWarnings("restriction")
-	@Test
+/*	@Test
 	void testClean() {
 
-		//jdk.internal.misc.SharedSecrets.getJavaNioAccess().getDirectBufferPool()
-       /* sun.misc.JavaNioAccess.BufferPool pool = sun.misc.SharedSecrets.getJavaNioAccess().getDirectBufferPool();
+		/*jdk.internal.misc.SharedSecrets.getJavaNioAccess().getDirectBufferPool()
+        sun.misc.JavaNioAccess.BufferPool pool = sun.misc.SharedSecrets.getJavaNioAccess().getDirectBufferPool();
 
         long start = pool.getMemoryUsed();
 
@@ -27,9 +23,9 @@ class BuffersTest {
 
         Buffers.releaseDirectByteBuffer(buffer);
 
-        assertEquals(start, pool.getMemoryUsed());*/
+        assertEquals(start, pool.getMemoryUsed());
 
-	}
+	}*/
 
 	@Test
 	void testWellFormed() throws Exception {

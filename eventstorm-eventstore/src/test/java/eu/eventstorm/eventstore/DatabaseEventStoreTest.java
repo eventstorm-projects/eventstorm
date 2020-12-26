@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import com.google.protobuf.Message;
 import org.h2.tools.RunScript;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +23,10 @@ import eu.eventstorm.sql.Dialect;
 import eu.eventstorm.sql.impl.DatabaseBuilder;
 import eu.eventstorm.sql.impl.TransactionManagerImpl;
 import eu.eventstorm.test.LoggerInstancePostProcessor;
+import org.mockito.Mockito;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -110,10 +115,13 @@ class DatabaseEventStoreTest extends EventStoreTest {
 				.withDefinition("user")
 				.and()
 				.build();
-		
+
+		Message message = Mockito.mock(Message.class);
+		Mockito.when(message.getDescriptorForType()).thenThrow(new RuntimeException("BAD"));
+
 		EventStore eventStore = new DatabaseEventStore(db, new EventStoreProperties(), null);
-		//EventStoreException ese = assertThrows(EventStoreException.class , () -> eventStore.appendToStream(manager.getDefinition("user"), "1", new BadEventPayload()));
-		//assertEquals(EventStoreException.Type.FAILED_TO_SERILIAZE_PAYLOAD, ese.getType());
+		EventStoreException ese = assertThrows(EventStoreException.class , () -> eventStore.appendToStream("user", "1", null, message));
+		assertEquals(EventStoreException.Type.FAILED_TO_SERIALIZE, ese.getType());
 	}
 
 	@Override

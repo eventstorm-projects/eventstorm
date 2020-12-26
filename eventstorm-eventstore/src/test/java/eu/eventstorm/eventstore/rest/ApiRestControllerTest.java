@@ -11,12 +11,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 
-import com.google.protobuf.util.JsonFormat;
-
 import eu.eventstorm.eventstore.StreamManager;
 import eu.eventstorm.eventstore.ex.UserCreatedEventPayload;
 
-@SpringBootTest(classes = ApiRestControllerConfigurationTest.class, webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = ApiRestControllerTestConfiguration.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
 class ApiRestControllerTest {
 

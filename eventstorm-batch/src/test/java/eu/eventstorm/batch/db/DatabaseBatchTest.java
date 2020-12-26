@@ -1,5 +1,6 @@
 package eu.eventstorm.batch.db;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import eu.eventstorm.test.LoggerInstancePostProcessor;
@@ -48,12 +49,12 @@ class DatabaseBatchTest {
 			DatabaseExecutionRepository repo = new DatabaseExecutionRepository(database);
 			DatabaseExecution dbe = repo.findById("123");
 			assertNotNull(dbe);
-			Assertions.assertEquals((byte)BatchStatus.COMPLETED.ordinal(), dbe.getStatus());
+			assertEquals((byte)BatchStatus.COMPLETED.ordinal(), dbe.getStatus());
 		});
 	}
 	
 	@Test
-	void testPushAndProcessFailed() {
+	void testPushAndProcessFailed() throws InterruptedException {
 		
 		BatchJobCreated bjc = BatchJobCreated.newBuilder()
 				.setName("junit-failed")
@@ -61,7 +62,15 @@ class DatabaseBatchTest {
 				.build();
 		
 		batch.push(new EventCandidate<>("junit-stream", "345", bjc));
-		
-		
+
+		Thread.sleep(200);
+
+		new TransactionTemplate(database.transactionManager()).executeWithReadOnly(() -> {
+			DatabaseExecutionRepository repo = new DatabaseExecutionRepository(database);
+			DatabaseExecution dbe = repo.findById("345");
+			assertNotNull(dbe);
+			assertEquals((byte)BatchStatus.FAILED.ordinal(), dbe.getStatus());
+		});
+
 	}
 }

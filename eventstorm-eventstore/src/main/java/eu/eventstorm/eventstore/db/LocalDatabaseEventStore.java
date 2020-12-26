@@ -54,7 +54,7 @@ public class LocalDatabaseEventStore implements EventStore {
 		String json;
 		try {
 			json = PRINTER.print(message);
-		} catch (InvalidProtocolBufferException cause) {
+		} catch (Exception cause) {
 			throw new EventStoreException(EventStoreException.Type.FAILED_TO_SERIALIZE, ImmutableMap.of("stream", stream,
 					"streamId", streamId, "message", message), cause);
 		}

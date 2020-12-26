@@ -6,8 +6,10 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.List;
 
+import eu.eventstorm.test.LoggerInstancePostProcessor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -18,6 +20,7 @@ import com.google.protobuf.TypeRegistry;
 
 import eu.eventstorm.cloudevents.json.jackson.CloudEventsModule;
 
+@ExtendWith(LoggerInstancePostProcessor.class)
 class CloudEventsModuleTest {
 
 	private ObjectMapper objectMapper;

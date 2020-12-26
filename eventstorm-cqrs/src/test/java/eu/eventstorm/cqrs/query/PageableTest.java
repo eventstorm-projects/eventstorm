@@ -3,13 +3,16 @@ package eu.eventstorm.cqrs.query;
 import static eu.eventstorm.cqrs.util.PageRequests.unwrap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import eu.eventstorm.test.LoggerInstancePostProcessor;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.junit.jupiter.api.Test;
 
 import eu.eventstorm.cqrs.query.PageableParser.FilterItemContext;
 import eu.eventstorm.cqrs.query.PageableParser.RequestContext;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+@ExtendWith(LoggerInstancePostProcessor.class)
 class PageableTest {
 
 	@Test
@@ -22,41 +25,33 @@ class PageableTest {
 		RequestContext ctx =parser.request();
 		
 		System.out.println(ctx);
-		System.out.println(ctx.getText());
-		System.out.println(ctx.getStart());
-		
-		
-		System.out.println(ctx.range().getText());
-		System.out.println(ctx.filter().getText());
-		System.out.println(ctx.filter().filterContent());
-		System.out.println(ctx.filter().filterContent().getText());
-		System.out.println(ctx.filter().filterContent().filterItem().size());
-		
-		System.out.println(ctx.sort().getText());
-		
-		System.out.println(ctx.sort().sortContent());
-		System.out.println(ctx.sort().sortContent().getText());
-		System.out.println(ctx.sort().sortContent().sortItem());
-		System.out.println(ctx.sort().sortContent().sortItem().size());
-		
-		System.out.println(ctx.sort().sortContent().sortItem(0));
-		System.out.println(ctx.sort().sortContent().sortItem(0).getText());
-		System.out.println(ctx.sort().sortContent().sortItem(0).sortAsc());
-		System.out.println(ctx.sort().sortContent().sortItem(0).sortDesc());
-		System.out.println(ctx.sort().sortContent().sortItem(0).IDENTIFIER());
-		
-		//System.out.println(ctx.sort().sortList().getText());
-		//System.out.println(ctx.sort().sortList().sortItem().getText());
-		//System.out.println(ctx.sort().sortList().sortList().getText());
-		
+
+		assertEquals("range=0-49&filter=type[eq]'value',type2[eq]'value2'&sort=+code,-toto,+titi", ctx.getText());
+		assertEquals("range=0-49", ctx.range().getText());
+		assertEquals("filter=type[eq]'value',type2[eq]'value2'", ctx.filter().getText());
+		assertEquals("sort=+code,-toto,+titi", ctx.sort().getText());
+
+		//filter
+		assertEquals("type[eq]'value',type2[eq]'value2'", ctx.filter().filterContent().getText());
+		assertEquals(2, ctx.filter().filterContent().filterItem().size());
+		assertEquals("type[eq]'value'", ctx.filter().filterContent().filterItem(0).getText());
+		assertEquals("type2[eq]'value2'", ctx.filter().filterContent().filterItem(1).getText());
+
+		//sort
+		assertEquals("+code,-toto,+titi", ctx.sort().sortContent().getText());
+		assertEquals(3, ctx.sort().sortContent().sortItem().size());
+		assertEquals("+code", ctx.sort().sortContent().sortItem(0).getText());
+		assertEquals("-toto", ctx.sort().sortContent().sortItem(1).getText());
+		assertEquals("+titi", ctx.sort().sortContent().sortItem(2).getText());
+
 		lexer = new PageableLexer(CharStreams.fromString("range=0-9&sort=-code,+titi"));
 		tokens = new CommonTokenStream(lexer);
 		parser = new PageableParser(tokens);
 		ctx = parser.request();
-		
-		System.out.println(ctx.sort());
-		System.out.println(ctx.range());
-		System.out.println(ctx.filter());
+
+		assertEquals("range=0-9", ctx.range().getText());
+		assertEquals("sort=-code,+titi", ctx.sort().getText());
+
 	}
 	
 	@Test
