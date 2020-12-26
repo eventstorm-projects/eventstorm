@@ -165,14 +165,14 @@ public final class PageRequests {
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("found range() -> [{}]", rangeContext.getText());
 			}
-			rangeStart = Integer.valueOf(rangeContext.rangeContent().rangeStart().integer().getText());
-			rangeEnd = Integer.valueOf(rangeContext.rangeContent().rangeEnd().integer().getText());
+			rangeStart = Integer.parseInt(rangeContext.rangeContent().rangeStart().integer().getText());
+			rangeEnd = Integer.parseInt(rangeContext.rangeContent().rangeEnd().integer().getText());
 		}
 		
 		return PageRequest.of(query, rangeStart , rangeEnd - rangeStart + 1);
 	}
 	
-	private static interface ExpressionFunction {
+	private interface ExpressionFunction {
 
 		Expression apply(SqlColumn column, FilterItemContext fic);
 		
@@ -241,7 +241,7 @@ public final class PageRequests {
 				return PageRequests.unwrap(svc.STRING().getText());
 			}
 		}
-		return null;
+		return Strings.EMPTY;
 	}
 	
 	private static List<String> getRawValues(ValueContext vc) {

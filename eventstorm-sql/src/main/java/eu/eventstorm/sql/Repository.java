@@ -79,7 +79,7 @@ public abstract class Repository {
 
 	private final Database database;
 
-	public Repository(Database database) {
+	protected Repository(Database database) {
 		this.database = database;
 	}
 
@@ -190,7 +190,7 @@ public abstract class Repository {
 	}
 
 
-	protected final <E> void executeUpdate(SqlQuery query, SimpleUpdateMapper sum) {
+	protected final void executeUpdate(SqlQuery query, SimpleUpdateMapper sum) {
 		
 		try (TransactionQueryContext tqc = database.transactionManager().context().write(query)) {
 			
@@ -351,7 +351,7 @@ public abstract class Repository {
 		}, false);
 		
 
-		stream.onClose(() -> {
+		return stream.onClose(() -> {
 			if (LOGGER.isTraceEnabled()) {
 				LOGGER.trace("stream.onClose() [{}]", tqc);
 			}
@@ -363,8 +363,7 @@ public abstract class Repository {
 				tqc.close();
 			}
 		});
-		
-		return stream;
+
     }
 
 	protected final <T> Page<T> executeSelectPage(SqlQueryPageable query, ResultSetMapper<T> mapper, PageRequest pageRequest) {

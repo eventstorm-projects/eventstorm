@@ -26,8 +26,8 @@ public final class PageRequestBuilder {
 		return new PageableRequestImpl(query, offset, size, new FiltersImpl(filters), orders);
 	}
 
-	public PageRequestBuilder withFilter(String property, String operator, String value, FilterEvaluator evalutor) { //Expression expression, List<String> values, PreparedStatementIndexSetter psis) {
-		filters.add(new FilterImpl(property, operator, value, evalutor)); //expression, values, psis));
+	public PageRequestBuilder withFilter(String property, String operator, String value, FilterEvaluator evaluator) {
+		filters.add(new FilterImpl(property, operator, value, evaluator));
 		return this;
 	}
 	

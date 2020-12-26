@@ -137,17 +137,17 @@ public final class InMemoryBatch implements Batch {
 
 		@Override
 		public void log(String key, Object value) {
-			LOGGER.info("info({},{})", key, value);
+			LOGGER.info("info (key={},object{})", key, value);
 		}
 
 		@Override
 		public void log(String key, Map<String, Object> value) {
-			LOGGER.info("info({},{})", key, value);
+			LOGGER.info("info(key={},map={})", key, value);
 		}
 
 		@Override
 		public void log(String key, List<Object> value) {
-			LOGGER.info("info({},{})", key, value);
+			LOGGER.info("info(key={},list={})", key, value);
 		}
 		
 	}

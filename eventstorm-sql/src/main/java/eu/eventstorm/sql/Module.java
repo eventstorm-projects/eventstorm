@@ -20,23 +20,23 @@ public abstract class Module {
     /**
      * Name of this catalog.
      */
-    private String catalog;
+    private final String catalog;
     
     /**
      * Name of this prefix for all tables.
      */
-    private String prefix;
+    private final String prefix;
 
     /**
      * All Sql Tables for this modules
      */
     private final ImmutableList<Descriptor> descriptors;
 
-    public Module(String name, String catalog, Descriptor... descriptors) {
+    protected Module(String name, String catalog, Descriptor... descriptors) {
         this(name, catalog, "" , descriptors);
     }
-    
-    public Module(String name, String catalog, String prefix, Descriptor... descriptors) {
+
+    protected Module(String name, String catalog, String prefix, Descriptor... descriptors) {
         this.name = name;
         this.catalog = catalog;
         this.prefix = prefix;

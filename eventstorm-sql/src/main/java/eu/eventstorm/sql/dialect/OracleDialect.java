@@ -118,6 +118,7 @@ final class OracleDialect extends AbstractDialect {
 
 	@Override
 	public void init() {
+    	// nothing to init -> skip.
 	}
 
 }

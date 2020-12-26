@@ -117,15 +117,6 @@ public final class TransactionTemplate {
 		page.getContent().onClose(new OnCloseRunnable(tx));
 		return page;
 	}
-	
-	public void executeWithReadOnlySql(String sql) {
-		try (Transaction tx = transactionManager.newTransactionReadOnly()) {
-			try {
-			} finally {
-				tx.rollback();
-			}
-		}
-	}
 
 	public <T> Flux<T> flux(TransactionCallback<Stream<T>> callback) {
 

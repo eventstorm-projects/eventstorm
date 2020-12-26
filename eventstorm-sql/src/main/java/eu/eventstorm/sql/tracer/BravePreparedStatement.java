@@ -190,19 +190,19 @@ final class BravePreparedStatement extends BraveStatement implements PreparedSta
 
 	@Override
 	public void setBlob(int parameterIndex, Blob x) throws SQLException {
-		annotate("setCharacterStream(" + parameterIndex + SET_BINARY);
+		annotate("setBlob(" + parameterIndex + SET_BINARY);
 		this.ps.setBlob(parameterIndex, x);
 	}
 
 	@Override
 	public void setClob(int parameterIndex, Clob x) throws SQLException {
-		annotate("setCharacterStream(" + parameterIndex + SET_BINARY);
+		annotate("setClob(" + parameterIndex + SET_BINARY);
 		this.ps.setClob(parameterIndex, x);
 	}
 
 	@Override
 	public void setArray(int parameterIndex, Array x) throws SQLException {
-		annotate("setCharacterStream(" + parameterIndex + SET_BINARY);
+		annotate("setArray(" + parameterIndex + SET_BINARY);
 		this.ps.setArray(parameterIndex, x);
 	}
 
@@ -284,7 +284,7 @@ final class BravePreparedStatement extends BraveStatement implements PreparedSta
 
 	@Override
 	public void setNClob(int parameterIndex, Reader reader, long length) throws SQLException {
-		annotate("setBlob(" + parameterIndex + SET_BINARY_3+ length +")");
+		annotate("setNClob(" + parameterIndex + SET_BINARY_3+ length +")");
 		this.ps.setNClob(parameterIndex, reader, length);
 	}
 

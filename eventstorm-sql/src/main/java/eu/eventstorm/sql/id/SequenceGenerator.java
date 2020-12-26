@@ -25,7 +25,7 @@ public abstract class SequenceGenerator<T> implements Identifier<T> {
 
 	private final SqlQuery sequence;
 
-	public SequenceGenerator(Database database, SqlSequence sequence) {
+	protected SequenceGenerator(Database database, SqlSequence sequence) {
 		this.database = database;
 		String sql = database.dialect().nextVal(sequence);
 		this.sequence = new SqlQueryImpl(sql);

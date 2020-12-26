@@ -5,19 +5,18 @@ import com.google.common.collect.ImmutableMap;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-@SuppressWarnings("serial")
 public abstract class EventstormSqlException extends RuntimeException {
 
 	private final transient EventstormSqlExceptionType type;
 	private final transient ImmutableMap<String, Object> values;
 
-	public EventstormSqlException(EventstormSqlExceptionType type, ImmutableMap<String, Object> values) {
+	protected EventstormSqlException(EventstormSqlExceptionType type, ImmutableMap<String, Object> values) {
 		super(build(type, values, null));
 		this.type = type;
 		this.values = values;
 	}
 
-	public EventstormSqlException(EventstormSqlExceptionType type, ImmutableMap<String, Object> values, Throwable cause) {
+	protected EventstormSqlException(EventstormSqlExceptionType type, ImmutableMap<String, Object> values, Throwable cause) {
 		super(build(type, values, cause), cause);
 		this.type = type;
 		this.values = values;
