@@ -1,12 +1,11 @@
 package eu.eventstorm.cqrs.impl;
 
-import brave.Tracer;
-import brave.Tracing;
-import brave.sampler.Sampler;
+
 import eu.eventstorm.cqrs.EventLoop;
 import eu.eventstorm.cqrs.event.EvolutionHandlers;
-import eu.eventstorm.cqrs.ex001.gen.evolution.UserEvolutionHandler;
 import eu.eventstorm.cqrs.impl.LocalDatabaseEventStoreCommandHandlerTest.TestLocalDatabaseEventStoreCommandHandler;
+import eu.eventstorm.cqrs.tracer.NoOpTracer;
+import eu.eventstorm.cqrs.tracer.Tracer;
 import eu.eventstorm.eventbus.EventBus;
 import eu.eventstorm.eventbus.NoEventBus;
 import eu.eventstorm.eventstore.EventStoreProperties;
@@ -80,6 +79,6 @@ class LocalDatabaseEventStoreCommandHandlerConfiguration {
 
     @Bean
     Tracer tracer() {
-        return Tracing.newBuilder().sampler(Sampler.ALWAYS_SAMPLE).addSpanHandler(ZipkinSpanHandler.create(new LoggingBraveReporter())).build().tracer();
+        return NoOpTracer.INSTANCE;
     }
 }

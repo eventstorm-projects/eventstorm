@@ -2,14 +2,14 @@ package eu.eventstorm.cqrs.impl;
 
 import java.util.UUID;
 
+import eu.eventstorm.cqrs.tracer.Span;
+import eu.eventstorm.cqrs.tracer.Tracer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.ImmutableList;
 
-import brave.Span;
-import brave.Tracer;
 import eu.eventstorm.core.Event;
 import eu.eventstorm.core.EventCandidate;
 import eu.eventstorm.core.validation.ConstraintViolation;
@@ -70,10 +70,7 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 	}
 
 	public final Flux<Event> handle(CommandContext context, T command) {
-		
-		Span newSpan = this.tracer.nextSpan().name("validate");
-		newSpan.tag("thread", Thread.currentThread().getName());
-		try (Tracer.SpanInScope ws = this.tracer.withSpanInScope(newSpan.start())) {
+		try (Span ignored = this.tracer.start("validate")) {
 			try (Transaction tx = this.transactionManager.newTransactionReadOnly()) {
 				try {
 					// validate the command
@@ -82,8 +79,6 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 					tx.rollback();	
 				}
 			}	
-		} finally {
-			newSpan.finish();
 		}
 		
 		return Mono.just(Tuples.of(context, command))
@@ -96,25 +91,16 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 	}
 
 	private ImmutableList<Event> storeAndEvolution(Tuple2<CommandContext, T> tuple, int retry) {
-		String name = Thread.currentThread().getName();
-		Span span = this.tracer.nextSpan().name("eventstore");
-		span.tag("thread", name);
-		
-	    try (Tracer.SpanInScope ws = this.tracer.withSpanInScope(span.start())) {
+		try (Span ignored = this.tracer.start("storeAndEvolution")) {
 	    	return doStoreAndEvolution(tuple);
 		} catch (EventstormRepositoryException cause) {
 			LOGGER.info("storeAndEvolution -> retry [{}]", retry);
-			span.tag("retry", String.valueOf(retry));
-			span.error(cause);
 			if (retry > 9) {
 				throw cause;
 			} else {
 				return storeAndEvolution(tuple, retry + 1);	
 			}
-		} finally {
-			span.finish();
 		}
-		
 	}
 	
 	private ImmutableList<Event> doStoreAndEvolution(Tuple2<CommandContext, T> tuple) {
@@ -122,28 +108,19 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 		try (Transaction tx = this.transactionManager.newTransactionReadWrite()) {
 			
 			ImmutableList<EventCandidate<?>> candidates;
-			Span span = this.tracer.nextSpan().name("decision");
-			try (Tracer.SpanInScope ws = this.tracer.withSpanInScope(span.start())) {
+			try (Span ignored = this.tracer.start("decision")) {
 				// apply the decision function (state,command) => events
 				candidates = decision(tuple.getT1(), tuple.getT2());
-			} finally {
-				span.finish();
 			}
-			
-			span = this.tracer.nextSpan().name("store");
-			try (Tracer.SpanInScope ws = this.tracer.withSpanInScope(span.start())) {
+
+			try (Span ignored = this.tracer.start("store")) {
 				// save the to the eventStore
 				events = store(candidates);
-			} finally {
-				span.finish();
 			}
-			
-			span = this.tracer.nextSpan().name("evolution");
-			try (Tracer.SpanInScope ws = this.tracer.withSpanInScope(span.start())) {
+
+			try (Span ignored = this.tracer.start("evolution")) {
 				// apply the evolution function (state,Event) => State
 				events.forEach(evolutionHandlers::on);
-			} finally {
-				span.finish();
 			}
 			
 			tx.commit();
@@ -184,22 +161,14 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 	}
 
 	private void postStoreAndEvolution(CommandContext context, ImmutableList<Event> events) {
-		Span span = this.tracer.nextSpan().name("postStoreAndEvolution");
-		span.tag("thread",  Thread.currentThread().getName());
-		try (Tracer.SpanInScope ws = this.tracer.withSpanInScope(span.start())) {
+		try (Span ignored = this.tracer.start("postStoreAndEvolution")) {
 			doPostStoreAndEvolution(context, events);
-		} finally {
-			span.finish();
 		}
 	}
 	
 	private void publish(ImmutableList<Event> events) {
-		Span span = this.tracer.nextSpan().name("publish");
-		span.tag("thread",  Thread.currentThread().getName());
-		try (Tracer.SpanInScope ws = this.tracer.withSpanInScope(span.start())) {
+		try (Span ignored = this.tracer.start("publish")) {
 			eventBus.publish(events);
-		} finally {
-			span.finish();
 		}
 	}
 	

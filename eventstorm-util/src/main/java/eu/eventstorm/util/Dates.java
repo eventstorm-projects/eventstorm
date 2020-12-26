@@ -35,11 +35,9 @@ public final class Dates {
 	}
 
 	public static LocalDate parseLocalDate(String localDate) {
-		
-		if (Strings.isEmpty(localDate)) {
-			throw new DateTimeException("The String is null or empty");
-		}
-		
+
+		checkNotEmpty(localDate);
+
 		if (localDate.length() != 10) {
 			throw new DateTimeException("Invalid LocalDate size (" + localDate.length() + ") [" + localDate + "]");
 		}
@@ -54,13 +52,11 @@ public final class Dates {
 	    		parsePositiveInt(chars, 5, 7), parsePositiveInt(chars, 8, 10));
 		
 	}
-	
+
 	public static LocalTime parseLocalTime(String localTime) {
-		
-		if (Strings.isEmpty(localTime)) {
-			throw new DateTimeException("The String is null or empty");
-		}
-		
+
+		checkNotEmpty(localTime);
+
 		if (localTime.length() != 8) {
 			throw new DateTimeException("Invalid LocalTime size (" + localTime.length() + ") [" + localTime + "]");
 		}
@@ -78,10 +74,8 @@ public final class Dates {
 	
 	public static OffsetDateTime parseOffsetDateTime(String offsetDateTime) {
 
-		if (Strings.isEmpty(offsetDateTime)) {
-			throw new DateTimeException("The String is null or empty");
-		}
-		
+		checkNotEmpty(offsetDateTime);
+
 		char[] chars = offsetDateTime.toCharArray();
 
 		// year
@@ -252,6 +246,12 @@ public final class Dates {
 	private static void assertCharacter(char[] chars, int offset, char expected) {
 		if (chars[offset] != expected) {
 			throw new DateTimeException("Expected character [" + expected + "] at position " + (offset + 1) + " [" + new String(chars) + "]");
+		}
+	}
+
+	private static void checkNotEmpty(String localDate) {
+		if (Strings.isEmpty(localDate)) {
+			throw new DateTimeException("The String is null or empty");
 		}
 	}
 }
