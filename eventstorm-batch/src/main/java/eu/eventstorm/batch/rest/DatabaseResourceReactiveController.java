@@ -57,7 +57,7 @@ public final class DatabaseResourceReactiveController {
 	}
 
 	@PostMapping(path = "${eu.eventstorm.batch.resource.context-path:}/upload")
-	public Mono<UploadResponse> upload(ServerHttpRequest serverRequest) throws IOException {
+	public Mono<UploadResponse> upload(ServerHttpRequest serverRequest) {
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("upload");
@@ -69,19 +69,17 @@ public final class DatabaseResourceReactiveController {
 		return DataBufferUtils.write(serverRequest.getBody(), baos)
 				.map(DataBufferUtils::release)
 				.reduce((l, r) -> l && r)
-				.doOnNext(t -> {
-					this.transactionTemplate.executeWithReadWrite(() -> {
-						Json meta = getMeta(serverRequest);
-						DatabaseResource br = new DatabaseResourceBuilder()
-								.withId(streamId)
-								.withMeta(meta)
-								.withContent(Blobs.newBlob(baos))
-								.withCreatedBy(createdByExtractor.extract(serverRequest))
-								.build();
-						databaseResourceRepository.insert(br);
-						return null;
-					});
-				})
+				.doOnNext(t -> this.transactionTemplate.executeWithReadWrite(() -> {
+					Json meta = getMeta(serverRequest);
+					DatabaseResource br = new DatabaseResourceBuilder()
+							.withId(streamId)
+							.withMeta(meta)
+							.withContent(Blobs.newBlob(baos))
+							.withCreatedBy(createdByExtractor.extract(serverRequest))
+							.build();
+					databaseResourceRepository.insert(br);
+					return null;
+				}))
 				.map(result -> new UploadResponse(streamId));
 	}
 	
@@ -95,14 +93,12 @@ public final class DatabaseResourceReactiveController {
 		ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
 		serverRequest.getQueryParams().forEach((k,v) -> builder.put(k, v.get(0)));
 		
-		return this.transactionTemplate.flux(() -> databaseResourceRepository.findByMeta(builder.build(), (dialect, rs) -> {
-			return new DatabaseResourceQuery(rs.getString(1), rs.getString(2), rs.getString(3), rs.getTimestamp(4));
-		}));
+		return this.transactionTemplate.flux(() -> databaseResourceRepository.findByMeta(builder.build(), (dialect, rs) -> new DatabaseResourceQuery(rs.getString(1), rs.getString(2), rs.getString(3), rs.getTimestamp(4))));
 
 	}
 	
 	@GetMapping(path = "${eu.eventstorm.batch.resource.context-path:}/download/{uuid}")
-	public Mono<Void> download(@PathVariable("uuid") String uuid, ServerHttpResponse response) throws IOException {
+	public Mono<Void> download(@PathVariable("uuid") String uuid, ServerHttpResponse response) {
 
 		Publisher<? extends DataBuffer> body = Mono
 				.fromSupplier(() -> this.transactionTemplate.executeWithReadOnly(() ->  databaseResourceRepository.findById(uuid)))

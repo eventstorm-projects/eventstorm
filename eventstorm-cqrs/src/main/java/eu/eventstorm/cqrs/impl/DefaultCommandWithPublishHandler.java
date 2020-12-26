@@ -17,7 +17,7 @@ public abstract class DefaultCommandWithPublishHandler<T extends Command> extend
 	@Autowired
 	private EventBus eventBus;
 	
-	public DefaultCommandWithPublishHandler(Class<T> type, Validator<T> validator) {
+	protected DefaultCommandWithPublishHandler(Class<T> type, Validator<T> validator) {
 		super(type, validator);
 	}
 

@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
-import org.checkerframework.checker.units.qual.m;
 import org.h2.jdbcx.JdbcConnectionPool;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -86,7 +85,7 @@ class RepositoryTest {
 	}
 
 	@Test
-	void testExecuteInsertSelect() throws SQLException {
+	void testExecuteInsertSelect() {
 
 		InsertBuilder insertBuilder = repo.insert(StudentDescriptor.TABLE, StudentDescriptor.IDS, StudentDescriptor.COLUMNS);
 		Student student = new StudentImpl();
@@ -168,7 +167,7 @@ class RepositoryTest {
 	}
 
 	@Test
-	void testStream() throws SQLException {
+	void testStream() {
 
 		SqlQuery insert = repo.insert(StudentDescriptor.TABLE, StudentDescriptor.IDS, StudentDescriptor.COLUMNS).build();
 		Student student = new StudentImpl();
@@ -222,9 +221,7 @@ class RepositoryTest {
 		student.setCode("Code1");
 		student.setCreatedAt(new Timestamp(System.currentTimeMillis()));
 		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
-			EventstormRepositoryException ex = assertThrows(EventstormRepositoryException.class, () -> repo.executeInsert(insertBuilder.build(), (dial, ps, pojo) -> {
-				ps.setString(100, "hello");
-			}, student));
+			EventstormRepositoryException ex = assertThrows(EventstormRepositoryException.class, () -> repo.executeInsert(insertBuilder.build(), (dial, ps, pojo) -> ps.setString(100, "hello"), student));
 			assertEquals(EventstormRepositoryException.Type.INSERT_MAPPER, ex.getType());
 			tx.rollback();
 		}
@@ -235,9 +232,7 @@ class RepositoryTest {
 	void testDeleteException() {
 		SqlQuery delete = repo.delete(StudentDescriptor.TABLE).where(eq(StudentDescriptor.ID)).build();
 		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
-			EventstormRepositoryException ex = assertThrows(EventstormRepositoryException.class, () -> repo.executeDelete(delete, (ps) -> {
-				ps.setString(100, "hello");
-			}));
+			EventstormRepositoryException ex = assertThrows(EventstormRepositoryException.class, () -> repo.executeDelete(delete, (ps) -> ps.setString(100, "hello")));
 			assertEquals(EventstormRepositoryException.Type.DELETE_PREPARED_STATEMENT_SETTER, ex.getType());
 
 			assertEquals(0, repo.executeDelete(delete, ps -> ps.setInt(1, 1)));
@@ -248,7 +243,7 @@ class RepositoryTest {
 
 
 	@Test
-	void testBatch() throws SQLException {
+	void testBatch() {
 
 		SqlQuery insert = repo.insert(StudentDescriptor.TABLE, StudentDescriptor.IDS, StudentDescriptor.COLUMNS).build();
 
@@ -294,14 +289,14 @@ class RepositoryTest {
 	
 	
 	@Test
-	void testBatchWithIdentifierGenerator() throws SQLException {
+	void testBatchWithIdentifierGenerator() {
 
 		SqlQuery insert = repo.insert(StudentDescriptor.TABLE, StudentDescriptor.IDS, StudentDescriptor.COLUMNS).build();
 
 		AtomicInteger atomicInteger = new AtomicInteger(1);
 
 		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
-            try (Batch<Student> batch = repo.batch(insert, STUDENT, () ->  atomicInteger.getAndIncrement(), (pojo , id) -> pojo.setId(id))) {
+            try (Batch<Student> batch = repo.batch(insert, STUDENT, atomicInteger::getAndIncrement, Student::setId)) {
                 for (int i = 1 ; i < 101 ; i ++) {
                     Student student = new StudentImpl();
 			        student.setCreatedAt(new Timestamp(System.currentTimeMillis()));

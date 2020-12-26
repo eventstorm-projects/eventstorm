@@ -33,7 +33,7 @@ public final class BatchReactiveController {
 	}
 
 	@GetMapping(path = "${eu.eventstorm.batch.context-path:}/{uuid}")
-	public Mono<DatabaseExecution> getExecution(@PathVariable("uuid") String uuid) throws IOException {
+	public Mono<DatabaseExecution> getExecution(@PathVariable("uuid") String uuid)  {
 
 		DatabaseExecution de = transactionTemplate.executeWithReadOnly(() -> databaseExecutionRepository.findById(uuid));
 		

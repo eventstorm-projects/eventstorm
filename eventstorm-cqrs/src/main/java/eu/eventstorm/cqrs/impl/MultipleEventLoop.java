@@ -18,7 +18,7 @@ final class MultipleEventLoop implements EventLoop {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MultipleEventLoop.class);
 			
-	private final ConcurrentHashMap<String, Scheduler> cache = new ConcurrentHashMap<String, Scheduler>();
+	private final ConcurrentHashMap<String, Scheduler> cache = new ConcurrentHashMap<>();
 
 	private final ImmutableMap<String, Scheduler> others;
 	

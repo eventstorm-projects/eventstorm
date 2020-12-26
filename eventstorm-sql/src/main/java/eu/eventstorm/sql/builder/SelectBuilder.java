@@ -129,7 +129,7 @@ public final class SelectBuilder extends AbstractBuilder {
 
 		
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("SQL Pageable Count [{}]", builder.toString());
+			LOGGER.debug("SQL Pageable Count [{}]", builder);
 		}
 
 		return new SqlQueryImpl(builder.toString());
@@ -158,8 +158,6 @@ public final class SelectBuilder extends AbstractBuilder {
 
 	SqlQueryImpl buildPageable(PageRequest pageRequest) {
 
-//    	Module module = this.database().getModule(table);
-//    	module.getDescriptor(table).ids();
 		StringBuilder builder = new StringBuilder(1024);
 		appendSelect(builder);
 		appendFrom(builder);

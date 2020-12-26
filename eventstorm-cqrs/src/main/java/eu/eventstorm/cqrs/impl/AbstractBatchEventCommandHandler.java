@@ -17,7 +17,7 @@ public abstract class AbstractBatchEventCommandHandler<C extends BatchCommand> i
 
 	private final Batch batch;
 
-	public AbstractBatchEventCommandHandler(Class<C> type, Batch batch) {
+	protected AbstractBatchEventCommandHandler(Class<C> type, Batch batch) {
 		this.type = type;
 		this.batch = batch;
 	}
@@ -36,7 +36,7 @@ public abstract class AbstractBatchEventCommandHandler<C extends BatchCommand> i
 				// apply the decision function (state,command) => events
 				.map(t -> decision(t.getT1(), t.getT2()))
 				// push the candidate to the batch
-				.map(candidate -> this.batch.push(candidate))
+				.map(this.batch::push)
 				// to flux
 				.flux();
 				

@@ -9,7 +9,6 @@ import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.protobuf.Any;
-import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 import com.google.protobuf.util.JsonFormat;
 
@@ -19,15 +18,11 @@ import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Dialect;
 import eu.eventstorm.sql.jdbc.ResultSetMapper;
 import eu.eventstorm.sql.util.TransactionTemplate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 public class LocalDatabaseEventStore implements EventStore {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(LocalDatabaseEventStore.class);
 
 	private static final JsonFormat.Printer PRINTER = JsonFormat.printer().omittingInsignificantWhitespace().includingDefaultValueFields();
 	
@@ -90,7 +85,7 @@ public class LocalDatabaseEventStore implements EventStore {
 	public Stream<Event> readStream(String stream, String streamId) {
 		StreamDefinition definition = streamManager.getDefinition(stream);
 		return template.stream(() -> 
-		this.databaseRepository.findAllByStreamAndStreamId(stream, streamId,  new EventResultSetMapper(streamId, definition)));
+		this.databaseRepository.findAllByStreamAndStreamId(stream, streamId, new EventResultSetMapper(streamId, definition)));
 
 	}
 
@@ -171,7 +166,7 @@ public class LocalDatabaseEventStore implements EventStore {
 //
 	private static final ZoneId ZONE_ID = ZoneId.of("UTC");
 
-	private final class EventResultSetMapper implements ResultSetMapper<Event> {
+	private static final class EventResultSetMapper implements ResultSetMapper<Event> {
 		
 		private final StreamDefinition definition;
 		private final String streamId;

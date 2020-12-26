@@ -129,7 +129,7 @@ abstract class AbstractTransaction implements TransactionSupport {
 			LOGGER.debug("rollback()");
 		}
         
-        try (TransactionSpan span = this.tracer.span("rollback")) {
+        try (TransactionSpan ignored = this.tracer.span("rollback")) {
             if (!this.active) {
                 throw new TransactionException(NOT_ACTIVE, this);
             }
@@ -151,7 +151,7 @@ abstract class AbstractTransaction implements TransactionSupport {
 	@Override
 	public final void commit() {
         
-        try (TransactionSpan span = this.tracer.span("commit")) {
+        try (TransactionSpan ignored = this.tracer.span("commit")) {
           if (!this.active) {
                 throw new TransactionException(NOT_ACTIVE, this);
             }
@@ -209,10 +209,6 @@ abstract class AbstractTransaction implements TransactionSupport {
 			cache.put(query.sql(), ps);
 		}
 		return new TransactionQueryContextImpl(ps, query, this.transactionManager.getConfiguration());
-	}
-
-	protected final void deactivate() {
-		this.active = false;
 	}
 
 	@Override

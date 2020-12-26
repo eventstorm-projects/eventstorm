@@ -1,7 +1,7 @@
 	package eu.eventstorm.cqrs.validation;
 
 import static com.google.common.collect.ImmutableList.of;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -20,41 +20,41 @@ class PropertyValidatorsTest {
 
 	@Test
 	void testIsEmpty() {
-		Builder<ConstraintViolation> builder = ImmutableList.<ConstraintViolation>builder();
+		Builder<ConstraintViolation> builder = ImmutableList.builder();
 		PropertyValidators.notEmpty().validate(of("fake"), null, builder);
-		assertTrue(builder.build().size() == 1);
+		assertEquals(1, builder.build().size());
 		
-		builder = ImmutableList.<ConstraintViolation>builder();
+		builder = ImmutableList.builder();
 		PropertyValidators.notEmpty().validate(of("fake"), "", builder);
-		assertTrue(builder.build().size() == 1);
+		assertEquals(1, builder.build().size());
 		
-		builder = ImmutableList.<ConstraintViolation>builder();
+		builder = ImmutableList.builder();
 		PropertyValidators.notEmpty().validate(of("fake"), "VAL", builder);
-		assertTrue(builder.build().size() == 0);
+		assertEquals(0, builder.build().size());
 		
-		builder = ImmutableList.<ConstraintViolation>builder();
+		builder = ImmutableList.builder();
 		PropertyValidators.listNotEmpty().validate(of("fake"), null, builder);
-		assertTrue(builder.build().size() == 1);
+		assertEquals(1, builder.build().size());
 		
-		builder = ImmutableList.<ConstraintViolation>builder();
+		builder = ImmutableList.builder();
 		PropertyValidators.listNotEmpty().validate(of("fake"), new ArrayList<>(), builder);
-		assertTrue(builder.build().size() == 1);
+		assertEquals(1, builder.build().size());
 		
-		builder = ImmutableList.<ConstraintViolation>builder();
+		builder = ImmutableList.builder();
 		PropertyValidators.listNotEmpty().validate(of("fake"), ImmutableList.of("test"), builder);
-		assertTrue(builder.build().size() == 0);
+		assertEquals(0, builder.build().size());
 	}
 	
 	@Test
 	void testIsNull() {
 		
-		Builder<ConstraintViolation> builder = ImmutableList.<ConstraintViolation>builder();
+		Builder<ConstraintViolation> builder = ImmutableList.builder();
 		PropertyValidators.notNull().validate(of("fake"), null, builder);
-		assertTrue(builder.build().size() == 1);
+		assertEquals(1, builder.build().size());
 		
-		builder = ImmutableList.<ConstraintViolation>builder();
+		builder = ImmutableList.builder();
 		PropertyValidators.notNull().validate(of("fake"), LocalDate.now(), builder);
-		assertTrue(builder.build().size() == 0);
+		assertEquals(0, builder.build().size());
 		
 	}
 }

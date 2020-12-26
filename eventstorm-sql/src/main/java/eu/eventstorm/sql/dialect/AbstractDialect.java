@@ -21,7 +21,7 @@ abstract class AbstractDialect implements Dialect {
 
 	private final Database database;
 
-	public AbstractDialect(Database database) {
+	protected AbstractDialect(Database database) {
 		this.database = database;
 	}
 

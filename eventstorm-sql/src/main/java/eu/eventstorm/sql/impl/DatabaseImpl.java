@@ -155,7 +155,7 @@ final class DatabaseImpl implements Database {
 			}
 			builder.append("\n--------------------------------------------------------------------------------");
 
-			LOGGER.info("init database :{}", builder.toString());
+			LOGGER.info("init database :{}", builder);
 
 		}
 	}

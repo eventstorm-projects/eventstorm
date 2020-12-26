@@ -24,11 +24,11 @@ abstract class SimpleExpression<T> implements Expression {
      */
     private final T value;
 
-    public SimpleExpression(SqlColumn column, String operation) {
+    protected SimpleExpression(SqlColumn column, String operation) {
         this(column, operation, null);
     }
 
-    public SimpleExpression(SqlColumn column, String operation, T value) {
+    protected SimpleExpression(SqlColumn column, String operation, T value) {
         this.operation = operation;
         this.column = column;
         this.value = value;

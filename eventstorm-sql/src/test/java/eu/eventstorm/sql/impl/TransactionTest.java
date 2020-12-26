@@ -134,14 +134,10 @@ class TransactionTest {
 	void readTest() {
 
 		try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
-
-			assertEquals(true, tx.isReadOnly());
-			assertThrows(TransactionException.class, () -> tx.commit());
+			assertTrue(tx.isReadOnly());
+			assertThrows(TransactionException.class, tx::commit);
 			assertThrows(TransactionException.class, () -> ((TransactionReadOnly) tx).write(new SqlQueryImpl("XXX")));
 			assertThrows(TransactionException.class, () -> ((TransactionReadOnly) tx).writeAutoIncrement(new SqlQueryImpl("XXX")));
-			// assertThrows(EventstormTransactionException.class, () ->
-			// ((TransactionReadOnly)tx).innerTransaction(new
-			// TransactionDefinitionReadWrite()));
 
 		}
 	}
@@ -151,7 +147,7 @@ class TransactionTest {
 
 		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
 
-			assertEquals(false, tx.isReadOnly());
+			assertFalse(tx.isReadOnly());
 
 			try (TransactionNested tn = (TransactionNested) ((TransactionReadWrite) tx).innerTransaction(TransactionDefinition.READ_WRITE)) {
 				tn.rollback();
@@ -253,7 +249,7 @@ class TransactionTest {
 			try (Transaction tx2 = db.transactionManager().newTransactionReadOnly()) {
 				assertTrue(tx2 instanceof TransactionNested);
 				assertTrue(tx2.isReadOnly());
-				assertFalse(tx2.equals(null));
+				assertNotEquals(tx2, null);
 
 				assertThrows(TransactionException.class, () -> ((TransactionContext)tx2).write(new SqlQueryImpl("Fake")));
 				assertThrows(TransactionException.class, () -> ((TransactionContext)tx2).writeAutoIncrement(new SqlQueryImpl("Fake")));

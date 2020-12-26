@@ -23,11 +23,11 @@ public abstract class SqlColumn {
      */
     private final String alias;
 
-    public SqlColumn(SqlTable table, String name) {
+    protected SqlColumn(SqlTable table, String name) {
         this(table, name, Strings.EMPTY);
     }
-    
-    public SqlColumn(SqlTable table, String name, String alias) {
+
+    protected SqlColumn(SqlTable table, String name, String alias) {
         this.table = table;
         this.name = name;
         this.alias = alias;

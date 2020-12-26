@@ -26,7 +26,7 @@ public final class BatchExecutor {
 
 		ListenableFuture<?> future = this.threadPoolTaskScheduler.submitListenable(() -> batchJob.execute(context));
 		
-		future.addCallback((result) -> {
+		future.addCallback(result -> {
 			
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("onSuccess");
@@ -34,7 +34,7 @@ public final class BatchExecutor {
 			
 			context.setEndedAt(Instant.now());
 			context.setStatus(BatchStatus.COMPLETED);
-		}, (ex) -> {
+		}, ex -> {
 			
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("onFailure");

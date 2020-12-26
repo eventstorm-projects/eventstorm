@@ -15,12 +15,10 @@ import eu.eventstorm.sql.Dialect;
 import eu.eventstorm.sql.TransactionManager;
 import eu.eventstorm.sql.impl.DatabaseBuilder;
 import eu.eventstorm.sql.impl.TransactionManagerImpl;
-import eu.eventstorm.sql.tracer.LoggingBraveReporter;
 import org.h2.jdbcx.JdbcConnectionPool;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import reactor.core.scheduler.Schedulers;
-import zipkin2.reporter.brave.ZipkinSpanHandler;
 
 import javax.sql.DataSource;
 

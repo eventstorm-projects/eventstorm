@@ -26,7 +26,7 @@ public final class DatabaseEventStore extends LocalDatabaseEventStore {
 		try (Transaction transaction = database.transactionManager().newTransactionReadWrite()) {
 			event = super.appendToStream(stream, streamId, correlation, message);
 			transaction.commit();
-		};
+		}
 		return event; 
 	}
 

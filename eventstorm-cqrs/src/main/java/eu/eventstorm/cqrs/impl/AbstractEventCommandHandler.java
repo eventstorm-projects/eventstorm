@@ -37,11 +37,11 @@ abstract class AbstractEventCommandHandler<T extends Command> implements Command
 			// publish on event lopp before store
 			.publishOn(eventLoop.get(command))
 			// save the to the eventStore
-			.map( candidates -> store(candidates))
+			.map(this::store)
 			// apply the evolution function (state,Event) => State
-			.doOnSuccess(events -> evolution(events))
+			.doOnSuccess(this::evolution)
 			// publish events
-			.doOnSuccess(events -> publish(events))
+			.doOnSuccess(this::publish)
 			.flatMapMany(Flux::fromIterable);
 		
 	}

@@ -37,19 +37,19 @@ public final class EvolutionHandlers implements EvolutionHandler {
 
 	public static class Builder {
 
-		private final ImmutableList.Builder<EvolutionHandler> builder;
+		private final ImmutableList.Builder<EvolutionHandler> handlers;
 
 		private Builder() {
-			this.builder = ImmutableList.builder();
+			this.handlers = ImmutableList.builder();
 		}
 
 		public Builder add(EvolutionHandler evolutionHandler) {
-			this.builder.add(evolutionHandler);
+			this.handlers.add(evolutionHandler);
 			return this;
 		}
 
 		public EvolutionHandlers build() {
-			return new EvolutionHandlers(builder.build());
+			return new EvolutionHandlers(handlers.build());
 		}
 
 	}

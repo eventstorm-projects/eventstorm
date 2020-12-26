@@ -5,19 +5,18 @@ import com.google.common.collect.ImmutableMap;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-@SuppressWarnings("serial")
 public abstract class EventstormException extends RuntimeException {
 
 	private final transient EventstormExceptionType type;
 	private final transient ImmutableMap<String, Object> values;
 
-	public EventstormException(EventstormExceptionType type, ImmutableMap<String, Object> values) {
+	protected EventstormException(EventstormExceptionType type, ImmutableMap<String, Object> values) {
 		super();
 		this.type = type;
 		this.values = values;
 	}
 
-	public EventstormException(EventstormExceptionType type, ImmutableMap<String, Object> values, Throwable cause) {
+	protected EventstormException(EventstormExceptionType type, ImmutableMap<String, Object> values, Throwable cause) {
 		super(cause);
 		this.type = type;
 		this.values = values;
@@ -31,7 +30,6 @@ public abstract class EventstormException extends RuntimeException {
 		return values;
 	}
 
-	
 	@Override
 	public String getMessage() {
 		return build(type, this.values, getCause());
@@ -43,7 +41,7 @@ public abstract class EventstormException extends RuntimeException {
 		if (params != null && params.size() > 0) {
 			builder.append(", params:{");
 			params.forEach((key, value) -> builder.append("[").append(key).append("]=[")
-					.append(String.valueOf(value)).append("] "));
+					.append(value).append("] "));
 			builder.deleteCharAt(builder.length() -1);
 			builder.append("}");
 		}

@@ -35,7 +35,7 @@ public abstract class DefaultEventCommandHandler<T extends Command> extends Abst
 	
 	private final Validator<T> validator;
 	
-	public DefaultEventCommandHandler(Class<T> type, Validator<T> validator) {
+	protected DefaultEventCommandHandler(Class<T> type, Validator<T> validator) {
 		this.type = type;
 		this.validator = validator;
 	}
