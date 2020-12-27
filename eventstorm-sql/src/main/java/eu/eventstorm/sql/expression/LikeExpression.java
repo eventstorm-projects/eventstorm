@@ -28,4 +28,9 @@ final class LikeExpression implements Expression {
     	return builder.toString();
     }
 
+    @Override
+    public String toString() {
+        return build(null, false);
+    }
+
 }

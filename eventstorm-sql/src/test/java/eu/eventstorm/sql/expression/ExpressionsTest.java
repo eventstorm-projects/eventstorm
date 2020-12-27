@@ -149,6 +149,30 @@ class ExpressionsTest {
     }
 
     @Test
+    void testIn() {
+
+        SqlColumn number = new SqlSingleColumn(table, "number", false, true, true);
+
+        assertEquals("a.number IN (?)", Expressions.in(number, 1).build(dialect, true));
+        assertEquals("number IN (?)", Expressions.in(number, 1).build(dialect, false));
+        assertEquals("a.number IN (?,?,?)", Expressions.in(number, 3).build(dialect, true));
+        assertEquals("number IN (?,?,?)", Expressions.in(number, 3).build(dialect, false));
+        assertEquals("number IN (?,?,?)", Expressions.in(number, 3).toString());
+
+    }
+
+    @Test
+    void testLike() {
+
+        SqlColumn number = new SqlSingleColumn(table, "number", false, true, true);
+
+        assertEquals("a.number LIKE ?", Expressions.like(number).build(dialect, true));
+        assertEquals("number LIKE ?", Expressions.like(number).build(dialect, false));
+        assertEquals("number LIKE ?", Expressions.like(number).toString());
+
+    }
+
+    @Test
     void testAnd() {
         SqlColumn number = new SqlSingleColumn(table, "number", false, true, true);
         assertEquals("(a.number=123 AND a.number=124)", and(eq(number, 123),eq(number, 124)).build(dialect, true));
