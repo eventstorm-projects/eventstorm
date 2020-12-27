@@ -21,9 +21,7 @@ public class ValidationException extends RuntimeException{
 	private static String build(ImmutableList<ConstraintViolation> constraintViolations) {
 		StringBuilder builder = new StringBuilder();
 		builder.append("Validation Exception : ").append(constraintViolations.size());
-		constraintViolations.forEach(v -> {
-			builder.append("\n\t").append(v.getProperties()).append(" -> " ).append(v.getCause());
-		});
+		constraintViolations.forEach(v -> builder.append("\n\t").append(v.getProperties()).append(" -> " ).append(v.getCause()));
 		return builder.toString();
 	}
 }

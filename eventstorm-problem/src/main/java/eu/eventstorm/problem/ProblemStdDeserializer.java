@@ -21,10 +21,10 @@ final class ProblemStdDeserializer extends StdDeserializer<Problem> {
 	private static final Map<String, BiConsumer<ProblemBuilder, String>> READER = ImmutableMap.<String, BiConsumer<ProblemBuilder, String>>builder()
 			.put("type", (builder, value) -> builder.withType(URI.create(value)))
 			.put("instance", (builder, value) -> builder.withInstance(URI.create(value)))
-			.put("title", (builder, value) -> builder.withTitle(value))
-			.put("detail", (builder, value) -> builder.withDetail(value))
-			.put("traceId", (builder, value) -> builder.withTraceId(value))
-			.put("status", (builder, value) -> builder.withStatus(Integer.valueOf(value)))
+			.put("title", ProblemBuilder::withTitle)
+			.put("detail", ProblemBuilder::withDetail)
+			.put("traceId", ProblemBuilder::withTraceId)
+			.put("status", (builder, value) -> builder.withStatus(Integer.parseInt(value)))
 			.put("timestamp", (builder, value) -> builder.withTimestamp(DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(value, OffsetDateTime::from)))
 			.build();
 	
