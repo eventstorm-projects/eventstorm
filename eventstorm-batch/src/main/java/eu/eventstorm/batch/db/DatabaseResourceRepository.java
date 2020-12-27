@@ -8,6 +8,7 @@ import static eu.eventstorm.batch.db.DatabaseResourceDescriptor.TABLE;
 import static eu.eventstorm.sql.expression.Expressions.and;
 import static eu.eventstorm.sql.expression.Expressions.eqJson;
 
+import java.util.Map;
 import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableMap;
@@ -36,9 +37,9 @@ public final class DatabaseResourceRepository extends AbstractDatabaseResourceRe
 		}
 		return stream(selectBuilder.build(), ps -> {
 			int index = 1;
-			for (String key : meta.keySet()) {
-				ps.setString(index++, key);
-				ps.setString(index++, meta.get(key));
+			for (Map.Entry<String,String> entry : meta.entrySet()) {
+				ps.setString(index++, entry.getKey());
+				ps.setString(index++, entry.getValue());
 			}
 		}, mapper);
 	}

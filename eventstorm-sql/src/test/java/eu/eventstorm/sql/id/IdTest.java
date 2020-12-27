@@ -3,7 +3,6 @@ package eu.eventstorm.sql.id;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.io.IOException;
 import java.sql.SQLException;
 
 import javax.sql.DataSource;
@@ -50,7 +49,7 @@ class IdTest {
 	}
 
 	@Test
-	void simpleTest() throws IOException {
+	void simpleTest() {
 		
 		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
 			SequenceGenerator<Integer> sequenceGenerator = new SequenceGenerator4Integer(db, new SqlSequence("sequence_001"));
@@ -62,6 +61,8 @@ class IdTest {
 			
 			IdentifierException ie = assertThrows(IdentifierException.class, () -> new SequenceGenerator4Integer(db, new SqlSequence("sequence_002")).next());
 			assertEquals(IdentifierException.Type.SEQUENCE_EXECUTE_QUERY, ie.getType());
+
+			tx.commit();
 		}
 		
 		

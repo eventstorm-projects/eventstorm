@@ -1,5 +1,6 @@
 package eu.eventstorm.util;
 
+import javax.annotation.Nonnull;
 import java.util.concurrent.ThreadFactory;
 
 /**
@@ -19,7 +20,7 @@ public final class NamedThreadFactory implements ThreadFactory {
     }
 
     @Override
-    public Thread newThread(Runnable runnable) {
+    public Thread newThread(@Nonnull Runnable runnable) {
         return new Thread(threadGroup, runnable , name + '-' +count++);
     }
 

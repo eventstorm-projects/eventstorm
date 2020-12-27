@@ -22,7 +22,7 @@ public final class CsvColumnConverters {
     		if (Strings.isEmpty(value)) {
     			return null;
     		}
-    		return Integer.valueOf(value);
+    		return Integer.parseInt(value);
     };
 
     public static Function<byte[], LocalDate> date(DateTimeFormatter formatter) {

@@ -14,7 +14,7 @@ import eu.eventstorm.core.Event;
 @SuppressWarnings("serial")
 public final class EventStdSerializer extends StdSerializer<Event> {
 
-	private final Printer printer;
+	private final transient Printer printer;
 	
 	EventStdSerializer(TypeRegistry typeRegistry) {
 		super(Event.class, false);

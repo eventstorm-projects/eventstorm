@@ -13,12 +13,12 @@ import java.sql.SQLException;
 public abstract class AbstractClob implements Clob {
 
 	@Override
-	public long length() throws SQLException {
+	public long length() {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public void truncate(long len) throws SQLException {
+	public void truncate(long len) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -27,27 +27,27 @@ public abstract class AbstractClob implements Clob {
 	}
 
 	@Override
-	public String getSubString(long pos, int length) throws SQLException {
+	public String getSubString(long pos, int length) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Reader getCharacterStream() throws SQLException {
+	public Reader getCharacterStream() {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public InputStream getAsciiStream() throws SQLException {
+	public InputStream getAsciiStream() {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public long position(String searchstr, long start) throws SQLException {
+	public long position(String searchstr, long start) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public long position(Clob searchstr, long start) throws SQLException {
+	public long position(Clob searchstr, long start) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -57,22 +57,22 @@ public abstract class AbstractClob implements Clob {
 	}
 
 	@Override
-	public int setString(long pos, String str, int offset, int len) throws SQLException {
+	public int setString(long pos, String str, int offset, int len) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public OutputStream setAsciiStream(long pos) throws SQLException {
+	public OutputStream setAsciiStream(long pos) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Writer setCharacterStream(long pos) throws SQLException {
+	public Writer setCharacterStream(long pos) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Reader getCharacterStream(long pos, long length) throws SQLException {
+	public Reader getCharacterStream(long pos, long length) {
 		throw new UnsupportedOperationException();
 	}
 

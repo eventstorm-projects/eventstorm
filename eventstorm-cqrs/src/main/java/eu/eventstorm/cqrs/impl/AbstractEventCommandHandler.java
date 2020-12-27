@@ -30,10 +30,10 @@ abstract class AbstractEventCommandHandler<T extends Command> implements Command
 				validate(tuple.getT1(), tuple.getT2());
 				return tuple;
 			})
-			.map( tuple -> {
-				// apply the decision function (state,command) => events
-				return decision(context, command);
-			})
+			.map( tuple ->
+					// apply the decision function (state,command) => events
+					decision(context, command)
+			)
 			// publish on event lopp before store
 			.publishOn(eventLoop.get(command))
 			// save the to the eventStore

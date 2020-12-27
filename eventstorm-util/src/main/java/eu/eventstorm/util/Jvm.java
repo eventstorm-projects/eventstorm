@@ -27,11 +27,9 @@ public final class Jvm {
 	private static int getVersion() {
 		try {
 			final Method method = Runtime.class.getDeclaredMethod("version");
-			if (method != null) {
-				Object version = method.invoke(Runtime.getRuntime());
-				Class<?> clz = Class.forName("java.lang.Runtime$Version");
-				return (Integer) clz.getDeclaredMethod("major").invoke(version);
-			}
+			Object version = method.invoke(Runtime.getRuntime());
+			Class<?> clz = Class.forName("java.lang.Runtime$Version");
+			return (Integer) clz.getDeclaredMethod("major").invoke(version);
 		} catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException
 				| ClassNotFoundException e) {
 			// ignore and fall exception

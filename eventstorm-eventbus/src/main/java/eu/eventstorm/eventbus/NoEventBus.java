@@ -11,6 +11,7 @@ public final class NoEventBus implements EventBus {
 
 	@Override
 	public void publish(ImmutableList<Event> events) {
+		// empty => skip.
 	}
 
 }

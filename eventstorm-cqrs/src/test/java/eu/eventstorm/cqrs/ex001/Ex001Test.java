@@ -42,7 +42,7 @@ class Ex001Test {
 		command.setEmail("jm@mail.org");
 
 		ImmutableList.Builder<Event> builder = ImmutableList.builder();
-		gateway.<CreateUserCommand,Event>dispatch(new DefaultCommandContext(), command).doOnNext(event -> builder.add(event)).blockLast();
+		gateway.<CreateUserCommand,Event>dispatch(new DefaultCommandContext(), command).doOnNext(builder::add).blockLast();
 		
 		assertEquals(1, eventStoreClient.readStream("user", "1").count());
 		Event event = eventStoreClient.readStream("user", "1").findFirst().get();
@@ -74,7 +74,7 @@ class Ex001Test {
 
 		ImmutableList.Builder<Event> builder = ImmutableList.builder();
 		
-		CommandValidationException cve = assertThrows(CommandValidationException.class, () -> gateway.<CreateUserCommand, Event>dispatch(new DefaultCommandContext(),command).doOnNext(event -> builder.add(event)).blockLast());
+		CommandValidationException cve = assertThrows(CommandValidationException.class, () -> gateway.<CreateUserCommand, Event>dispatch(new DefaultCommandContext(),command).doOnNext(builder::add).blockLast());
 		assertEquals(command, cve.getCommand());
 		assertEquals("mail", cve.getConstraintViolations().get(0).getProperties().get(0));
 	}

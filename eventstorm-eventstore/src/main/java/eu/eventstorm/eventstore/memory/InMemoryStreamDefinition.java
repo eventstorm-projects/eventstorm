@@ -8,7 +8,6 @@ import static java.util.function.Function.identity;
 import java.util.List;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.protobuf.AbstractMessage;
 
 import eu.eventstorm.eventstore.StreamDefinition;
 import eu.eventstorm.eventstore.StreamDefinitionException;

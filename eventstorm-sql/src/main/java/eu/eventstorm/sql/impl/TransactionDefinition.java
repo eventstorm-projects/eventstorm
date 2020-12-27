@@ -9,7 +9,7 @@ enum TransactionDefinition {
 	
 	private final boolean isReadOnly;
 	
-    private TransactionDefinition(boolean isReadOnly) {
+    TransactionDefinition(boolean isReadOnly) {
 		this.isReadOnly = isReadOnly;
 	}
 

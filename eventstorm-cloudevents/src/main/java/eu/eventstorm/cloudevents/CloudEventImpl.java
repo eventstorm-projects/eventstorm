@@ -11,7 +11,7 @@ final class CloudEventImpl implements CloudEvent {
 
 	private final String aggregateId;
 
-	private final String aggreateType;
+	private final String aggregateType;
 
 	private final String timestamp;
 
@@ -23,11 +23,11 @@ final class CloudEventImpl implements CloudEvent {
 	
 	private final Object payload;
 
-	public CloudEventImpl(String specVersion, String aggregateId, String aggreateType, String timestamp, int version, String subject,
+	public CloudEventImpl(String specVersion, String aggregateId, String aggregateType, String timestamp, int version, String subject,
 			String dataContentType, Object payload) {
 		this.specVersion = specVersion;
 		this.aggregateId = aggregateId;
-		this.aggreateType = aggreateType;
+		this.aggregateType = aggregateType;
 		this.timestamp = timestamp;
 		this.subject = subject;
 		this.version = version;
@@ -52,7 +52,7 @@ final class CloudEventImpl implements CloudEvent {
 
 	@Override
 	public String type() {
-		return this.aggreateType;
+		return this.aggregateType;
 	}
 
 	@Override
@@ -86,7 +86,7 @@ final class CloudEventImpl implements CloudEvent {
 		return new ToStringBuilder(true)
 				.append("specVersion", specVersion)
 				.append("aggregateId", aggregateId)
-				.append("aggregateType", aggreateType)
+				.append("aggregateType", aggregateType)
 				.append("version", version)
 		        .append("timestamp", timestamp)
 		        .append("subject", subject)

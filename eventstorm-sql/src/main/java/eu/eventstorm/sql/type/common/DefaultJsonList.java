@@ -26,7 +26,7 @@ public final class DefaultJsonList implements Json, JsonList{
 	
 	public DefaultJsonList(List<?> list) {
 		this.list = new ArrayList<>(list.size());
-		list.forEach(value -> this.list.add(value));
+		this.list.addAll(list);
 	}
 	
 	@Override

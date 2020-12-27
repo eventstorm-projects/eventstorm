@@ -13,12 +13,12 @@ public final class Lobs {
 	public static Clob newClob(String value) {
 		return new AbstractClob() {
 			@Override
-			public Reader getCharacterStream() throws SQLException {
+			public Reader getCharacterStream() {
 				return new StringReader(value);
 			}
 
 			@Override
-			public long length() throws SQLException {
+			public long length() {
 				return value.length();
 			}
 		};

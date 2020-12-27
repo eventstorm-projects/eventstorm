@@ -38,13 +38,12 @@ public final class Maths {
 	public static int unsignedDiv10(int number) {
 		int q;
 		int r;
-		int n = number;
-		q = (n >> 1) + (n >> 2);
+		q = (number >> 1) + (number >> 2);
 		q = q + (q >> 4);
 		q = q + (q >> 8);
 		q = q + (q >> 16);
 		q = q >> 3;
-		r = n - ((q << 3) + (q << 1));
+		r = number - ((q << 3) + (q << 1));
 		return q + ((r + 6) >> 4);
 	}
 

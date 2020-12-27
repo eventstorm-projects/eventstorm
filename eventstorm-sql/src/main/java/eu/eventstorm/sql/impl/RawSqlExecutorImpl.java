@@ -23,8 +23,8 @@ final class RawSqlExecutorImpl implements RawSqlExecutor {
 	public void execute(String ... sql) throws SQLException {
 		try (Connection conn = dataSource.getConnection()) {
 			try (Statement statement = conn.createStatement()) {
-				for (int i = 0 ; i < sql.length ; i++) {
-					statement.execute(sql[i]);	
+				for (String s : sql) {
+					statement.execute(s);
 				}
 			}
 		}
@@ -33,8 +33,8 @@ final class RawSqlExecutorImpl implements RawSqlExecutor {
 	@Override
 	public void call(String...sql) throws SQLException {
 		try (Connection conn = dataSource.getConnection()) {
-			for (int i = 0 ; i < sql.length ; i++) {
-				try (CallableStatement statement = conn.prepareCall(sql[i])) {
+			for (String s : sql) {
+				try (CallableStatement statement = conn.prepareCall(s)) {
 					statement.execute();
 				}
 			}

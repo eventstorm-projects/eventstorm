@@ -26,32 +26,32 @@ public abstract class AbstractBlob implements Blob {
 	}
 
 	@Override
-	public long position(byte[] pattern, long start) throws SQLException {
+	public long position(byte[] pattern, long start) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public long position(Blob pattern, long start) throws SQLException {
+	public long position(Blob pattern, long start) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public int setBytes(long pos, byte[] bytes) throws SQLException {
+	public int setBytes(long pos, byte[] bytes) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public int setBytes(long pos, byte[] bytes, int offset, int len) throws SQLException {
+	public int setBytes(long pos, byte[] bytes, int offset, int len) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public OutputStream setBinaryStream(long pos) throws SQLException {
+	public OutputStream setBinaryStream(long pos) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public void truncate(long len) throws SQLException {
+	public void truncate(long len) {
 		throw new UnsupportedOperationException();
 	}
 

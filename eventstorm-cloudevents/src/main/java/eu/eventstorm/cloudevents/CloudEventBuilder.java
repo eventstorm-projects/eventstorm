@@ -9,7 +9,7 @@ public final class CloudEventBuilder {
 
     private String specVersion;
     private String aggregateId;
-    private String aggreateType;
+    private String aggregateType;
     private String subject;
     private int version;
     private Object payload;
@@ -20,7 +20,7 @@ public final class CloudEventBuilder {
     	if (Strings.isEmpty(specVersion)) {
     		this.specVersion = "1.0";
     	}
-        return new CloudEventImpl(specVersion, aggregateId, aggreateType, timestamp, version, subject, dataContentType, payload);
+        return new CloudEventImpl(specVersion, aggregateId, aggregateType, timestamp, version, subject, dataContentType, payload);
     }
 
     public CloudEventBuilder withSpecVersion(String specVersion) {
@@ -33,8 +33,8 @@ public final class CloudEventBuilder {
         return this;
     }
     
-    public CloudEventBuilder withAggregateType(String aggreateType) {
-        this.aggreateType = aggreateType;
+    public CloudEventBuilder withAggregateType(String aggregateType) {
+        this.aggregateType = aggregateType;
         return this;
     }
     

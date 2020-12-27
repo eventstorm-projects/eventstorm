@@ -59,10 +59,10 @@ public final class DeleteBuilder extends AbstractBuilder {
     public SqlQuery build() {
     	StringBuilder builder = new StringBuilder(2048);
     	builder.append("DELETE FROM ");
-    	builder.append(table(this.table,  this.joins.size() > 0));
+    	builder.append(table(this.table,  !this.joins.isEmpty()));
     	appendJoins(builder);
     	builder.append(" WHERE ");
-    	builder.append(where.build(database.dialect(), this.joins.size() > 0));
+    	builder.append(where.build(database.dialect(), !this.joins.isEmpty()));
         
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("SQL [{}]", builder);

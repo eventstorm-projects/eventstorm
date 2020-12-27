@@ -21,8 +21,8 @@ public final class DatabaseBuilder {
 	private final Dialect.Name dialect;
 	private TransactionManager transactionManager;
 	private JsonMapper jsonMapper;
-	private ImmutableList.Builder<Module> modules = ImmutableList.builder();
-	private ImmutableList.Builder<DatabaseExternalConfig> externals = ImmutableList.builder();
+	private final ImmutableList.Builder<Module> modules = ImmutableList.builder();
+	private final ImmutableList.Builder<DatabaseExternalConfig> externals = ImmutableList.builder();
 
 	private DatabaseBuilder(Dialect.Name dialect) {
 		this.dialect = dialect;

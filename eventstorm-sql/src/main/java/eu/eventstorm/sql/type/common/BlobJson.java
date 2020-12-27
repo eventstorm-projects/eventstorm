@@ -49,7 +49,7 @@ public final class BlobJson extends DefaultBlob implements Json {
             
         }
         if (adaptee instanceof JsonMap) {
-            return JsonMap.class.cast(adaptee);
+            return (JsonMap) adaptee;
         }
 		throw new SqlTypeException(SqlTypeException.Type.AS_MAP_INVALID, of(PARAM_ADAPTEE, adaptee));
 	}
@@ -68,7 +68,7 @@ public final class BlobJson extends DefaultBlob implements Json {
             }
         }
         if (adaptee instanceof JsonList) {
-            return JsonList.class.cast(adaptee);
+            return (JsonList) adaptee;
         }
 		throw new SqlTypeException(SqlTypeException.Type.AS_LIST_INVALID, of(PARAM_ADAPTEE, adaptee));
 	}

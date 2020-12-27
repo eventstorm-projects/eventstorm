@@ -17,7 +17,7 @@ import eu.eventstorm.sql.type.SqlTypeException;
  */
 public final class BlobJsonMap extends BlobJsonAdaptee implements JsonMap {
 
-	private Map<String, Object> map;
+	private final Map<String, Object> map;
 
     public BlobJsonMap(Map<String, Object> map) {
         setModified();

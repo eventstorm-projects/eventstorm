@@ -27,9 +27,7 @@ public final class DefaultJsonMap implements Json, JsonMap{
 	
 	public DefaultJsonMap(Map<String, ?> map) {
 		this.map = new LinkedHashMap<>();
-		map.forEach((key, value) -> {
-			this.map.put(key, value);
-		});
+		map.forEach(this.map::put);
 	}
 	
 	@Override
@@ -49,7 +47,7 @@ public final class DefaultJsonMap implements Json, JsonMap{
 
 	@Override
 	public Object remove(String key) {
-		return this.remove(key);
+		return this.map.remove(key);
 	}
 
 	@Override

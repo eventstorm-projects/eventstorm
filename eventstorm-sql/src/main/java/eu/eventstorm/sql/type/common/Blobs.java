@@ -18,11 +18,11 @@ public final class Blobs {
 	public static Blob newBlob(FastByteArrayOutputStream baos) {
 		return new AbstractBlob() {
 			@Override
-			public InputStream getBinaryStream() throws SQLException {
+			public InputStream getBinaryStream() {
 				return baos.toInputStream();
 			}
 			@Override
-			public long length() throws SQLException {
+			public long length() {
 				return baos.size();
 			}
 		};

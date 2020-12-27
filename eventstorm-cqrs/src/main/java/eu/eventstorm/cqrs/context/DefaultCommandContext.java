@@ -13,7 +13,7 @@ public class DefaultCommandContext implements CommandContext {
 	private final Map<String, Object> props;
 	
 	public DefaultCommandContext() {
-		this.props = new HashMap<String, Object>();
+		this.props = new HashMap<>();
 	}
 	
 	@Override

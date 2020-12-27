@@ -14,7 +14,7 @@ import eu.eventstorm.sql.type.SqlTypeException;
  */
 public final class BlobJsonList extends BlobJsonAdaptee implements JsonList {
 
-	private List<Object> list;
+	private final List<Object> list;
 
     public BlobJsonList(List<Object> list) {
         setModified();

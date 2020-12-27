@@ -55,7 +55,7 @@ public final class ApiRestController {
 
 		// @formatter:off
 		return Mono.just(Tuples.of(sepd, streamId))
-				.zipWith(DataBufferUtils.join(request.getBody()).map(buffer -> sepd.parse(buffer)))
+				.zipWith(DataBufferUtils.join(request.getBody()).map(sepd::parse))
 				.publishOn(scheduler)
 				.map(tuple -> eventStore.appendToStream(tuple.getT1().getT1().getStream(), tuple.getT1().getT2(), UUID.randomUUID().toString(), tuple.getT2()));
 		// @formatter:on

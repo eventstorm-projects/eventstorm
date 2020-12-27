@@ -11,6 +11,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
+
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
@@ -29,21 +31,21 @@ final class TransactionHolder implements AutoCloseable {
 	}
 
 	TransactionSupport get() {
-		return this.holder.get(Long.valueOf(Thread.currentThread().getId()));
+		return this.holder.get(Thread.currentThread().getId());
 	}
 
 	void set(TransactionSupport tx) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("set({},{})", Thread.currentThread().getId(), tx);
 		}
-		this.holder.put(Long.valueOf(Thread.currentThread().getId()), tx);
+		this.holder.put(Thread.currentThread().getId(), tx);
 	}
 
 	void remove() {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("remove({})", Thread.currentThread().getId());
 		}
-		this.holder.remove(Long.valueOf(Thread.currentThread().getId()));
+		this.holder.remove(Thread.currentThread().getId());
 	}
 
 	private final class CleanerCommand implements Runnable {
@@ -116,7 +118,7 @@ final class TransactionHolder implements AutoCloseable {
 			namePrefix = "tx-cleaner-" + POOL.getAndIncrement() + "-";
 		}
 
-		public Thread newThread(Runnable r) {
+		public Thread newThread(@Nonnull Runnable r) {
 			Thread t = new Thread(group, r, namePrefix + threadNumber.getAndIncrement(), 0);
 			if (t.isDaemon()) {
 				t.setDaemon(false);

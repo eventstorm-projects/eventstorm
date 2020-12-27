@@ -1,6 +1,5 @@
 package eu.eventstorm.batch.rest;
 
-import java.io.IOException;
 import java.util.Map;
 
 import org.reactivestreams.Publisher;
@@ -84,7 +83,7 @@ public final class DatabaseResourceReactiveController {
 	}
 	
 	@GetMapping(path = "${eu.eventstorm.batch.resource.context-path:}/list")
-	public Flux<DatabaseResourceQuery> list(ServerHttpRequest serverRequest) throws IOException {
+	public Flux<DatabaseResourceQuery> list(ServerHttpRequest serverRequest) {
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("list for [{}]", serverRequest.getQueryParams());
