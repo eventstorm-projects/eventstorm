@@ -3,7 +3,9 @@ package eu.eventstorm.sql.type.common;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.InputStream;
+import java.io.Reader;
 import java.sql.Blob;
+import java.sql.Clob;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,11 +17,11 @@ import eu.eventstorm.util.FastByteArrayOutputStream;
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 @ExtendWith(LoggerInstancePostProcessor.class)
-class BlobsTest {
+class LobsTest {
 
 	@Test
-	void simpleTest() throws Exception {
-		Blob blob = Blobs.newBlob("helloWorld".getBytes());
+	void testBlob() throws Exception {
+		Blob blob = Lobs.newBlob("helloWorld".getBytes());
 		
 		try (InputStream is = blob.getBinaryStream()) {
 			byte[] content = new byte[10];
@@ -28,12 +30,24 @@ class BlobsTest {
 			assertEquals(-1, is.read());
 		}
 	}
+
+	@Test
+	void testClob() throws Exception {
+		Clob clob = Lobs.newClob("helloWorld");
+
+		try (Reader reader = clob.getCharacterStream()) {
+			char[] content = new char[10];
+			reader.read(content);
+			assertEquals("helloWorld", new String(content));
+			assertEquals(-1, reader.read());
+		}
+	}
 	
 	@Test
 	void testWithInputStream() throws Exception {
 		FastByteArrayOutputStream baos = new FastByteArrayOutputStream(16);
 		baos.write("This is a test with a long string, This is a test with a second long string.".getBytes());
-		Blob blob = Blobs.newBlob(baos);
+		Blob blob = Lobs.newBlob(baos);
 		
 		try (InputStream is = blob.getBinaryStream()) {
 			byte[] content = new byte[76];
@@ -42,4 +56,5 @@ class BlobsTest {
 			assertEquals(-1, is.read());
 		}
 	}
+
 }

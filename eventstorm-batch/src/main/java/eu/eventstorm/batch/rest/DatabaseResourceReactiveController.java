@@ -2,6 +2,7 @@ package eu.eventstorm.batch.rest;
 
 import java.util.Map;
 
+import eu.eventstorm.sql.type.common.Lobs;
 import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,7 +74,7 @@ public final class DatabaseResourceReactiveController {
 					DatabaseResource br = new DatabaseResourceBuilder()
 							.withId(streamId)
 							.withMeta(meta)
-							.withContent(Blobs.newBlob(baos))
+							.withContent(Lobs.newBlob(baos))
 							.withCreatedBy(createdByExtractor.extract(serverRequest))
 							.build();
 					databaseResourceRepository.insert(br);

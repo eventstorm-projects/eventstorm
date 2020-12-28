@@ -43,7 +43,7 @@ public abstract class Module {
         this.descriptors = ImmutableList.copyOf(descriptors);
     }
 
-    public Module(String name, Descriptor... descriptors) {
+    protected Module(String name, Descriptor... descriptors) {
         this(name, null, descriptors);
     }
 
