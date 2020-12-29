@@ -27,7 +27,6 @@ import eu.eventstorm.core.id.StreamIdGenerator;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.type.Json;
 import eu.eventstorm.sql.type.Jsons;
-import eu.eventstorm.sql.type.common.Blobs;
 import eu.eventstorm.sql.util.TransactionTemplate;
 import eu.eventstorm.util.FastByteArrayOutputStream;
 import reactor.core.publisher.Flux;
