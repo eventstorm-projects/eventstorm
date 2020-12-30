@@ -19,15 +19,17 @@ public final class ResultSetMappers {
 	}
 	
 	public static final ResultSetMapper<Long> LONG = (dialect, rs) ->  rs.getLong(1);
-	
+	public static final ResultSetMapper<Integer> INTEGER = (dialect, rs) -> rs.getInt(1);
+	public static final ResultSetMapper<Short> SHORT = (dialect, rs) -> rs.getShort(1);
+	public static final ResultSetMapper<Byte> BYTE = (dialect, rs) -> rs.getByte(1);
+	public static final ResultSetMapper<String> STRING = (dialect, rs) ->  rs.getString(1);
+
 	public static final ResultSetMapper<Long> SINGLE_LONG = (dialect, rs) -> {
 		long value = rs.getLong(1);
 		checkOnlyOneResult(rs, value);
 		return value;
 	};
 
-	public static final ResultSetMapper<Integer> INTEGER = (dialect, rs) -> rs.getInt(1);
-	
 	public static final ResultSetMapper<Integer> SINGLE_INTEGER = (dialect, rs) -> {
 		int value = rs.getInt(1);
 		checkOnlyOneResult(rs, value);
@@ -39,7 +41,6 @@ public final class ResultSetMappers {
 		if (rs.wasNull()) {
 			return null;
 		}
-		checkOnlyOneResult(rs, value);
 		return value;
 	};
 	
@@ -48,12 +49,25 @@ public final class ResultSetMappers {
 		if (rs.wasNull()) {
 			return null;
 		}
-		checkOnlyOneResult(rs, value);
 		return value;
 	};
-	
-	public static final ResultSetMapper<String> STRING = (dialect, rs) ->  rs.getString(1);
-	
+
+	public static final ResultSetMapper<Short> SHORT_NULLABLE = (dialect, rs) -> {
+		short value = rs.getShort(1);
+		if (rs.wasNull()) {
+			return null;
+		}
+		return value;
+	};
+
+	public static final ResultSetMapper<Byte> BYTE_NULLABLE = (dialect, rs) -> {
+		byte value = rs.getByte(1);
+		if (rs.wasNull()) {
+			return null;
+		}
+		return value;
+	};
+
 	public static final ResultSetMapper<String> SINGLE_STRING = (dialect, rs) -> {
 		String value = rs.getString(1);
 		checkOnlyOneResult(rs, value);
@@ -65,7 +79,6 @@ public final class ResultSetMappers {
 		if (rs.wasNull()) {
 			return null;
 		}
-		checkOnlyOneResult(rs, value);
 		return value;
 	};
 	

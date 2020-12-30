@@ -63,11 +63,46 @@ class ResultSetMappersTest {
 		when(rs.getInt(1)).thenReturn(123456);
 		when(rs.next()).thenReturn(false);
 		assertEquals(123456, ResultSetMappers.INTEGER.map(dialect, rs));
+		assertEquals(123456, ResultSetMappers.INTEGER_NULLABLE.map(dialect, rs));
+
+		when(rs.wasNull()).thenReturn(true);
+		assertEquals(null, ResultSetMappers.INTEGER_NULLABLE.map(dialect, rs));
 
 		reset(rs);
 		when(rs.getInt(1)).thenReturn(123456);
 		when(rs.next()).thenReturn(true);
 		assertEquals(123456, ResultSetMappers.INTEGER.map(dialect, rs));
+	}
+
+	@Test
+	void shortTest() throws SQLException {
+
+		Dialect dialect = mock(Dialect.class);
+		ResultSet rs = mock(ResultSet.class);
+
+		when(rs.getShort(1)).thenReturn((short) 1234);
+		when(rs.next()).thenReturn(false);
+		assertEquals((short)1234, ResultSetMappers.SHORT.map(dialect, rs));
+		assertEquals((short)1234, ResultSetMappers.SHORT_NULLABLE.map(dialect, rs));
+
+		when(rs.wasNull()).thenReturn(true);
+		assertEquals(null, ResultSetMappers.SHORT_NULLABLE.map(dialect, rs));
+	}
+
+	@Test
+	void byteTest() throws SQLException {
+
+		Dialect dialect = mock(Dialect.class);
+		ResultSet rs = mock(ResultSet.class);
+
+		when(rs.getByte(1)).thenReturn((byte) 123);
+		when(rs.next()).thenReturn(false);
+		assertEquals((byte) 123, ResultSetMappers.BYTE.map(dialect, rs));
+		assertEquals((byte) 123, ResultSetMappers.BYTE_NULLABLE.map(dialect, rs));
+
+		when(rs.wasNull()).thenReturn(true);
+		assertEquals(null, ResultSetMappers.BYTE_NULLABLE.map(dialect, rs));
+
 	}
 	
 	@Test
