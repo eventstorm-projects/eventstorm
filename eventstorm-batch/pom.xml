@@ -18,6 +18,12 @@
 		</dependency>
 
 		<dependency>
+			<groupId>eu.eventstorm</groupId>
+			<artifactId>eventstorm-problem</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-webflux</artifactId>
 		</dependency>

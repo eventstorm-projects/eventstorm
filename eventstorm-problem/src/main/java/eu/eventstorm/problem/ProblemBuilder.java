@@ -38,6 +38,7 @@ public final class ProblemBuilder {
 	}
 
 	public ProblemBuilder withReactiveRequest(org.springframework.http.server.reactive.ServerHttpRequest req) {
+		this.instance = req.getURI();
 		return this;
 	}
 	

@@ -9,13 +9,13 @@ import eu.eventstorm.util.FastByteArrayInputStream;
  */
 class DefaultBlob extends AbstractBlob {
 
-	static final byte[] EMTPY = new byte[0];
+	static final byte[] EMPTY = new byte[0];
 
 	private byte[] buf;
 
 	public DefaultBlob(byte[] buf) {
 		if (buf == null) {
-			this.buf = EMTPY;
+			this.buf = EMPTY;
 		} else {
 			this.buf = buf.clone();
 		}

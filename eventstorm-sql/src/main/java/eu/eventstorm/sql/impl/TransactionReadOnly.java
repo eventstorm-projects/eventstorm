@@ -19,11 +19,6 @@ class TransactionReadOnly extends AbstractTransaction {
 	}
 
 	@Override
-	protected void doCommit() {
-		throw new TransactionException(TransactionException.Type.READ_ONLY);
-	}
-
-	@Override
 	public TransactionQueryContext write(SqlQuery query) {
 		throw new TransactionException(TransactionException.Type.READ_ONLY);
 	}

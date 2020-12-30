@@ -29,7 +29,7 @@ public final class BlobJson extends DefaultBlob implements Json {
     }
 
     public BlobJson(JsonMapper mapper,BlobJsonAdaptee adaptee) {
-        super(DefaultBlob.EMTPY);
+        super(DefaultBlob.EMPTY);
         this.adaptee = adaptee;
         this.mapper = mapper;
     }

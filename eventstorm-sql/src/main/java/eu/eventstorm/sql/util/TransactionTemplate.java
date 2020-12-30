@@ -56,7 +56,7 @@ public final class TransactionTemplate {
 			try {
 				returnValue = callback.doInTransaction();
 			} finally {
-				tx.rollback();
+				tx.commit();
 			}
 		}
 		return returnValue;
@@ -67,7 +67,7 @@ public final class TransactionTemplate {
 			try {
 				callback.doInTransaction();
 			} finally {
-				tx.rollback();
+				tx.commit();
 			}
 		}
 	}

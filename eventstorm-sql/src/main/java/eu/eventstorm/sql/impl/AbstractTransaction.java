@@ -150,13 +150,12 @@ abstract class AbstractTransaction implements TransactionSupport {
 
 	@Override
 	public final void commit() {
-        
+		if (!this.active) {
+			throw new TransactionException(NOT_ACTIVE, this);
+		}
         try (TransactionSpan ignored = this.tracer.span("commit")) {
-          if (!this.active) {
-                throw new TransactionException(NOT_ACTIVE, this);
-            }
             try {
-                doCommit();
+                this.connection.commit();
             } catch (SQLException cause) {
                 throw new TransactionException(COMMIT, this, null, cause);
             } finally {
@@ -168,9 +167,7 @@ abstract class AbstractTransaction implements TransactionSupport {
         }
 	}
 
-	protected abstract void doCommit() throws SQLException;
-
-	protected void afterCommit() {		
+	protected void afterCommit() {
     }
     
     protected void afterRollback() {		

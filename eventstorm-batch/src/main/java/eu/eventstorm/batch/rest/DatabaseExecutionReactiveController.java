@@ -1,13 +1,10 @@
 package eu.eventstorm.batch.rest;
 
-import java.io.IOException;
-
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import eu.eventstorm.sql.page.PageRequest;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.eventstorm.batch.db.DatabaseExecution;
 import eu.eventstorm.batch.db.DatabaseExecutionRepository;
@@ -15,31 +12,29 @@ import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.util.TransactionTemplate;
 import reactor.core.publisher.Mono;
 
+import static reactor.core.publisher.Mono.error;
+import static reactor.core.publisher.Mono.justOrEmpty;
+
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-@ConditionalOnProperty(prefix = "eu.eventstorm.batch", name = "type", havingValue = "DATABASE")
+@Conditional(DatabaseResourceReactiveControllerCondition.class)
 @RestController
-public final class BatchReactiveController {
+public final class DatabaseExecutionReactiveController {
 
 	private final DatabaseExecutionRepository databaseExecutionRepository;
 	private final TransactionTemplate transactionTemplate;
-	private final ObjectMapper objectMapper;
 	
-	public BatchReactiveController(Database database) {
+	public DatabaseExecutionReactiveController(Database database) {
 		this.databaseExecutionRepository = new DatabaseExecutionRepository(database);
-		this.objectMapper = new ObjectMapper();
 		this.transactionTemplate = new TransactionTemplate(database.transactionManager());
 	}
 
-	@GetMapping(path = "${eu.eventstorm.batch.context-path:}/{uuid}")
+	@GetMapping(path = "${eu.eventstorm.batch.resource.context-path:}/{uuid}")
 	public Mono<DatabaseExecution> getExecution(@PathVariable("uuid") String uuid)  {
-
-		DatabaseExecution de = transactionTemplate.executeWithReadOnly(() -> databaseExecutionRepository.findById(uuid));
-		
-		
-		return Mono.empty();
-
+		return Mono.just(uuid)
+				.flatMap(u -> justOrEmpty(transactionTemplate.executeWithReadOnly(() -> databaseExecutionRepository.findById(u))))
+				.switchIfEmpty(error(() -> new DatabaseExecutionNotFoundException(uuid)));
 	}
-	
+
 }

@@ -41,13 +41,13 @@ class DatabaseBatchTest {
 				.setCreatedBy("junit")
 				.build();
 		
-		batch.push(new EventCandidate<>("junit-stream", "123", bjc));
+		batch.push(new EventCandidate<>("junit-stream", "999", bjc));
 
-		Thread.sleep(1000);
+		Thread.sleep(200);
 		
 		new TransactionTemplate(database.transactionManager()).executeWithReadOnly(() -> {
 			DatabaseExecutionRepository repo = new DatabaseExecutionRepository(database);
-			DatabaseExecution dbe = repo.findById("123");
+			DatabaseExecution dbe = repo.findById("999");
 			assertNotNull(dbe);
 			assertEquals((byte)BatchStatus.COMPLETED.ordinal(), dbe.getStatus());
 		});

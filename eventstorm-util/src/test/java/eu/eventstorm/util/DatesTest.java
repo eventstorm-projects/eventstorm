@@ -4,11 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.time.DateTimeException;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
+import java.time.*;
 
 import org.junit.jupiter.api.Test;
 
@@ -173,6 +169,13 @@ class DatesTest {
 	void testFormatOffsetDateTime() {
 		OffsetDateTime odt = Dates.parseOffsetDateTime("2011-03-11T18:35:23.123Z");
 		assertEquals("2011-03-11T18:35:23.123Z", Dates.format(odt));
-		assertNull(Dates.format(null));
+		assertNull(Dates.format((OffsetDateTime) null));
+	}
+
+	@Test
+	void testFormatLocalDateTime() {
+		LocalDateTime ldt = LocalDateTime.parse("2011-03-11T18:35:23.123");
+		assertEquals("2011-03-11T18:35:23.123+01:00", Dates.format(ldt));
+		assertNull(Dates.format((LocalDateTime) null));
 	}
 }

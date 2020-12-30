@@ -4,14 +4,12 @@ import java.sql.SQLException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
+import eu.eventstorm.util.NamedThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -26,7 +24,7 @@ final class TransactionHolder implements AutoCloseable {
 
 	TransactionHolder() {
 		this.holder = new ConcurrentHashMap<>();
-		ses = Executors.newScheduledThreadPool(1, new DefaultThreadFactory());
+		ses = Executors.newScheduledThreadPool(1, new NamedThreadFactory("tx-cleaner-"));
 		ses.scheduleAtFixedRate(new CleanerCommand(), 0, 1, TimeUnit.SECONDS);
 	}
 
@@ -54,7 +52,7 @@ final class TransactionHolder implements AutoCloseable {
 		public void run() {
 
 			if (LOGGER.isTraceEnabled()) {
-				LOGGER.trace("Start Transaction Holder Cleaner on [{}]", holder.size());
+				LOGGER.trace("Start Transaction Holder Cleaner on [{}] transaction(s)", holder.size());
 			}
 			holder.forEach((th, tx) -> {
 				if (tx.isMain()) {
@@ -71,7 +69,6 @@ final class TransactionHolder implements AutoCloseable {
 						}
 						holder.remove(th);
 					}
-
 				} else {
 					// check inner transaction ...
 				}
@@ -103,30 +100,4 @@ final class TransactionHolder implements AutoCloseable {
 		}
 	}
 
-	/**
-	 * The default thread factory
-	 */
-	static class DefaultThreadFactory implements ThreadFactory {
-		private static final AtomicInteger POOL = new AtomicInteger(1);
-		private final ThreadGroup group;
-		private final AtomicInteger threadNumber = new AtomicInteger(1);
-		private final String namePrefix;
-
-		DefaultThreadFactory() {
-			SecurityManager s = System.getSecurityManager();
-			group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
-			namePrefix = "tx-cleaner-" + POOL.getAndIncrement() + "-";
-		}
-
-		public Thread newThread(@Nonnull Runnable r) {
-			Thread t = new Thread(group, r, namePrefix + threadNumber.getAndIncrement(), 0);
-			if (t.isDaemon()) {
-				t.setDaemon(false);
-			}
-			if (t.getPriority() != Thread.NORM_PRIORITY) {
-				t.setPriority(Thread.NORM_PRIORITY);
-			}
-			return t;
-		}
-	}
 }

@@ -31,11 +31,6 @@ class TransactionReadWrite extends AbstractTransaction {
     }
 
     @Override
-    protected final void doCommit() throws SQLException {
-        getConnection().commit();
-    }
-
-    @Override
     public final TransactionQueryContext write(SqlQuery query) {
         return preparedStatement(query, this.writes, Statement.NO_GENERATED_KEYS);
     }

@@ -3,12 +3,7 @@ package eu.eventstorm.util;
 import static eu.eventstorm.util.Ascii.digit;
 import static eu.eventstorm.util.Ascii.isDigit;
 
-import java.time.DateTimeException;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.ResolverStyle;
 
@@ -151,6 +146,13 @@ public final class Dates {
 			return null;
 		}
 		return RFC3339.format(odt);
+	}
+
+	public static String format(LocalDateTime ldt) {
+		if (ldt == null) {
+			return null;
+		}
+		return RFC3339.format(ldt.atZone(ZoneId.systemDefault()));
 	}
 
 	private static OffsetDateTime seconds(int year, int month, int day, int hour, int minute, char[] chars) {

@@ -135,7 +135,6 @@ class TransactionTest {
 
 		try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
 			assertTrue(tx.isReadOnly());
-			assertThrows(TransactionException.class, tx::commit);
 			assertThrows(TransactionException.class, () -> ((TransactionReadOnly) tx).write(new SqlQueryImpl("XXX")));
 			assertThrows(TransactionException.class, () -> ((TransactionReadOnly) tx).writeAutoIncrement(new SqlQueryImpl("XXX")));
 

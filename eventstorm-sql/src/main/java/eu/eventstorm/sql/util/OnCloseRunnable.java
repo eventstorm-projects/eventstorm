@@ -31,7 +31,7 @@ final class OnCloseRunnable implements Runnable {
 		}
 		enable = false;
 		try {
-			tx.rollback();
+			tx.commit();
 		} finally {
 			tx.close();
 		}
