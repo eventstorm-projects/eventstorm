@@ -34,32 +34,32 @@ class DatesTest {
 	void testOffsetDateTime() {
 		OffsetDateTime odt = Dates.parseOffsetDateTime("2011-03-11T18:35Z");
 		assertEquals(2011, odt.getYear());
-		assertEquals(03, odt.getMonthValue());
+		assertEquals(3, odt.getMonthValue());
 		assertEquals(11, odt.getDayOfMonth());
 		assertEquals(18, odt.getHour());
 		assertEquals(35, odt.getMinute());
-		assertEquals(00, odt.getSecond());
-		assertEquals(00, odt.getNano());
+		assertEquals(0, odt.getSecond());
+		assertEquals(0, odt.getNano());
 		assertEquals(ZoneOffset.UTC, odt.getOffset());
 		
 		odt = Dates.parseOffsetDateTime("2011-03-11T18:35+02:00");
 		assertEquals(2011, odt.getYear());
-		assertEquals(03, odt.getMonthValue());
+		assertEquals(3, odt.getMonthValue());
 		assertEquals(11, odt.getDayOfMonth());
 		assertEquals(18, odt.getHour());
 		assertEquals(35, odt.getMinute());
-		assertEquals(00, odt.getSecond());
-		assertEquals(00, odt.getNano());
+		assertEquals(0, odt.getSecond());
+		assertEquals(0, odt.getNano());
 		assertEquals(ZoneOffset.ofHoursMinutes(2, 0), odt.getOffset());
 		
 		odt = Dates.parseOffsetDateTime("2011-03-11T18:35-11:30");
 		assertEquals(2011, odt.getYear());
-		assertEquals(03, odt.getMonthValue());
+		assertEquals(3, odt.getMonthValue());
 		assertEquals(11, odt.getDayOfMonth());
 		assertEquals(18, odt.getHour());
 		assertEquals(35, odt.getMinute());
-		assertEquals(00, odt.getSecond());
-		assertEquals(00, odt.getNano());
+		assertEquals(0, odt.getSecond());
+		assertEquals(0, odt.getNano());
 		assertEquals(ZoneOffset.ofHoursMinutes(-11, -30), odt.getOffset());
 		
 		Dates.parseOffsetDateTime("2011-03-11T18:35+00:00");
@@ -72,17 +72,17 @@ class DatesTest {
 	void testOffsetDateTimeSecond() {
 		OffsetDateTime odt = Dates.parseOffsetDateTime("2011-03-11T18:35:23Z");
 		assertEquals(2011, odt.getYear());
-		assertEquals(03, odt.getMonthValue());
+		assertEquals(3, odt.getMonthValue());
 		assertEquals(11, odt.getDayOfMonth());
 		assertEquals(18, odt.getHour());
 		assertEquals(35, odt.getMinute());
 		assertEquals(23, odt.getSecond());
-		assertEquals(00, odt.getNano());
+		assertEquals(0, odt.getNano());
 		assertEquals(ZoneOffset.UTC, odt.getOffset());
 		
 		odt = Dates.parseOffsetDateTime("2011-03-11T18:35:23+04:15");
 		assertEquals(2011, odt.getYear());
-		assertEquals(03, odt.getMonthValue());
+		assertEquals(3, odt.getMonthValue());
 		assertEquals(11, odt.getDayOfMonth());
 		assertEquals(18, odt.getHour());
 		assertEquals(35, odt.getMinute());
@@ -91,7 +91,7 @@ class DatesTest {
 		
 		odt = Dates.parseOffsetDateTime("2011-03-11T18:35:23-04:15");
 		assertEquals(2011, odt.getYear());
-		assertEquals(03, odt.getMonthValue());
+		assertEquals(3, odt.getMonthValue());
 		assertEquals(11, odt.getDayOfMonth());
 		assertEquals(18, odt.getHour());
 		assertEquals(35, odt.getMinute());
@@ -122,7 +122,7 @@ class DatesTest {
 	void testOffsetDateTimeSecondMili() {
 		OffsetDateTime odt = Dates.parseOffsetDateTime("2011-03-11T18:35:23.123Z");
 		assertEquals(2011, odt.getYear());
-		assertEquals(03, odt.getMonthValue());
+		assertEquals(3, odt.getMonthValue());
 		assertEquals(11, odt.getDayOfMonth());
 		assertEquals(18, odt.getHour());
 		assertEquals(35, odt.getMinute());
@@ -135,7 +135,7 @@ class DatesTest {
 	void testLocalDate() {
 		LocalDate ld = Dates.parseLocalDate("2011-03-11");
 		assertEquals(2011, ld.getYear());
-		assertEquals(03, ld.getMonthValue());
+		assertEquals(3, ld.getMonthValue());
 		assertEquals(11, ld.getDayOfMonth());
 		
 		
