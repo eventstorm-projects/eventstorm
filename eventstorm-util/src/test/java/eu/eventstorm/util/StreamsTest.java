@@ -5,9 +5,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -39,4 +37,23 @@ class StreamsTest {
 		
 	}
 
+	@Test
+	void testCopyStream() throws IOException {
+
+		FastByteArrayInputStream in = new FastByteArrayInputStream("Hello World !!!".getBytes());
+		FastByteArrayOutputStream os = new FastByteArrayOutputStream(4);
+
+		Streams.copy(in, os);
+		Assertions.assertEquals("Hello World !!!", new String(os.getByteArray()));
+	}
+
+	@Test
+	void testCopyReaderWriter() throws IOException {
+
+		Reader reader = new StringReader("Hello World !!!");
+		Writer writer = new StringWriter();
+
+		Streams.copy(reader, writer);
+		Assertions.assertEquals("Hello World !!!", writer.toString());
+	}
 }

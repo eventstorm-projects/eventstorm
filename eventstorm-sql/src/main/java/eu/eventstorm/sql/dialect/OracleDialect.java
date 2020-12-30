@@ -1,8 +1,6 @@
 package eu.eventstorm.sql.dialect;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.sql.Blob;
 import java.sql.Clob;
@@ -98,9 +96,9 @@ final class OracleDialect extends AbstractDialect {
 		Clob oracleClob;
 		if (clob instanceof AbstractClob) {
 			oracleClob = ps.getConnection().createClob();
-			try (InputStream is = clob.getAsciiStream()) {
-				try (OutputStream os = oracleClob.setAsciiStream(1)) {
-					Streams.copy(is, os);	
+			try (Reader reader = clob.getCharacterStream()) {
+				try (Writer writer = oracleClob.setCharacterStream(1)) {
+					Streams.copy(reader, writer);
 				}
 			} catch (IOException cause) {
 				throw new IllegalStateException(cause);

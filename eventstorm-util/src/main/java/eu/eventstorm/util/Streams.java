@@ -3,6 +3,8 @@ package eu.eventstorm.util;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Reader;
+import java.io.Writer;
 
 import javax.annotation.Nullable;
 
@@ -39,6 +41,18 @@ public final class Streams {
 		}
 		out.flush();
 		return byteCount;
+	}
+
+	public static int copy(Reader in, Writer out) throws IOException {
+		int charCount = 0;
+		char[] buffer = new char[BUFFER_SIZE];
+		int charsRead = -1;
+		while ((charsRead = in.read(buffer)) != -1) {
+			out.write(buffer, 0, charsRead);
+			charCount += charsRead;
+		}
+		out.flush();
+		return charCount;
 	}
 	
 }
