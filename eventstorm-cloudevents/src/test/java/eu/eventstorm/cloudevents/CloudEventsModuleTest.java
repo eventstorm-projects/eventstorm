@@ -35,7 +35,7 @@ class CloudEventsModuleTest {
 	}
 	
 	@Test
-	void testSerDeser() throws IOException, Exception {
+	void testSerDeser() throws Exception {
 		
 		CloudEvent event = new CloudEventBuilder()
 				.withAggregateId("1")
@@ -55,7 +55,7 @@ class CloudEventsModuleTest {
 	}
 	
 	@Test
-	void testSerDeserAny() throws IOException, Exception {
+	void testSerDeserAny() throws Exception {
 		
 		CloudEvent event = new CloudEventBuilder()
 				.withAggregateId("1")
@@ -75,7 +75,7 @@ class CloudEventsModuleTest {
 	}
 	
 	@Test
-	void testSerDeserList() throws IOException, Exception {
+	void testSerDeserList() throws Exception {
 		
 		CloudEvent event = new CloudEventBuilder()
 				.withAggregateId("1")

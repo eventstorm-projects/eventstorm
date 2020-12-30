@@ -10,6 +10,8 @@ import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
+import java.util.stream.Stream;
 
 import org.h2.jdbcx.JdbcConnectionPool;
 import org.h2.tools.RunScript;
@@ -27,6 +29,7 @@ import eu.eventstorm.sql.model.ex001.AbstractStudentRepository;
 import eu.eventstorm.sql.model.ex001.Student;
 import eu.eventstorm.sql.model.ex001.StudentImpl;
 import eu.eventstorm.test.LoggerInstancePostProcessor;
+import reactor.core.publisher.Flux;
 
 @ExtendWith(LoggerInstancePostProcessor.class)
 class TransactionTemplateTest {
@@ -81,9 +84,60 @@ class TransactionTemplateTest {
        
         template.executeWithReadWrite(() -> this.repository.insert(student));
         
-        
         Student fresh = template.executeWithReadOnly(() -> repository.findById(1));
         assertNotNull(fresh);
+
+		template.executeWithReadOnly(() -> {
+			Student inside = template.executeWithReadOnly(() -> repository.findById(1));
+			assertNotNull(inside);
+		});
+
+	}
+
+	@Test
+	void streamTest() {
+
+		Student student = new StudentImpl();
+		student.setId(2);
+		student.setAge(37);
+		student.setCode("Code2");
+
+
+		template.executeWithReadWrite(() -> this.repository.insert(student));
+
+		try(Stream<Student> students = template.stream(() -> repository.findAll())) {
+			assertEquals(1, students.count());
+		}
+
+		Assertions.assertThrows(RuntimeException.class, () -> template.stream(() -> {
+			throw new RuntimeException();
+		}));
+
+	}
+
+	@Test
+	void FluxTest() {
+
+		Student student = new StudentImpl();
+		student.setId(1);
+		student.setAge(37);
+		student.setCode("Code1");
+
+		Student s2 = new StudentImpl();
+		s2.setId(2);
+		s2.setAge(37);
+		s2.setCode("Code2");
+
+		template.executeWithReadWrite(() -> {
+			this.repository.insert(student);
+			this.repository.insert(s2);
+		});
+
+		Flux<Student> students = template.flux(() -> repository.findAll());
+		List<Integer> collect = students.map(Student::getId).collectList().block();
+
+		assertEquals(1, collect.get(0));
+		assertEquals(2, collect.get(1));
 
 	}
 	
@@ -95,8 +149,7 @@ class TransactionTemplateTest {
 		student.setAge(37);
 		student.setCode("Code1");
 
-		Assertions.assertThrows(RuntimeException.class,
-				() -> template.executeWithReadWrite(() -> {
+		Assertions.assertThrows(RuntimeException.class, () -> template.executeWithReadWrite(() -> {
 					repository.insert(student);
 					throw new RuntimeException();
 				}));
@@ -105,6 +158,13 @@ class TransactionTemplateTest {
 
 		Assertions.assertThrows(RuntimeException.class, () -> template.executeWithReadOnly(() -> {
 			throw new RuntimeException();
+		}));
+
+		Assertions.assertThrows(RuntimeException.class, () -> template.executeWithReadWrite(new TransactionCallbackVoid() {
+			@Override
+			public void doInTransaction() {
+				throw new RuntimeException();
+			}
 		}));
 
 	}
