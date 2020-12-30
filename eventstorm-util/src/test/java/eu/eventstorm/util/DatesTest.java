@@ -175,7 +175,7 @@ class DatesTest {
 	@Test
 	void testFormatLocalDateTime() {
 		LocalDateTime ldt = LocalDateTime.parse("2011-03-11T18:35:23.123");
-		assertEquals("2011-03-11T18:35:23.123+01:00", Dates.format(ldt));
+		assertEquals("2011-03-11T18:35:23.123" + OffsetDateTime.now().getOffset(), Dates.format(ldt));
 		assertNull(Dates.format((LocalDateTime) null));
 	}
 }
