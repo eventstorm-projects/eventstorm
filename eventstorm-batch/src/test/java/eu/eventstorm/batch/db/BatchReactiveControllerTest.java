@@ -47,13 +47,15 @@ class BatchReactiveControllerTest {
 	}
 
 	@Test
-	void testOk() {
+	void testOk() throws InterruptedException {
 		BatchJobCreated bjc = BatchJobCreated.newBuilder()
 				.setName("junit-name")
 				.setCreatedBy("junit")
 				.build();
 
 		batch.push(new EventCandidate<>("junit-stream", "123", bjc));
+
+		Thread.sleep(500);
 
 		webClient.get()
 				.uri("/db/123")
