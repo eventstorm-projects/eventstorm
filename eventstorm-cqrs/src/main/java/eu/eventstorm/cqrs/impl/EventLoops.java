@@ -29,7 +29,7 @@ public final class EventLoops {
 		
 		private Scheduler scheduler;
 		private Scheduler post;
-		private ImmutableMap.Builder<String, Scheduler> others = ImmutableMap.builder();
+		private final ImmutableMap.Builder<String, Scheduler> others = ImmutableMap.builder();
 		
 		private Builder() {
 		}

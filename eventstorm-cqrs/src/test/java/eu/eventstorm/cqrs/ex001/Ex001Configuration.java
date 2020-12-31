@@ -49,7 +49,7 @@ class Ex001Configuration {
 	}
 			
 	@Bean 
-	CommandGateway gateway(EventStoreClient eventStoreClient, EvolutionHandlers evolutionHandlers, List<CommandHandler<? extends Command, ?>> commands) {
+	CommandGateway gateway(List<CommandHandler<? extends Command, ?>> commands) {
 		CommandHandlerRegistry.Builder registry = CommandHandlerRegistry.newBuilder();
 		commands.forEach(registry::add);
 		return new CommandGateway(registry.build());

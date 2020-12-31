@@ -70,7 +70,7 @@ public final class CommandHandlerRegistry {
 			}
 		}
 
-		throw new CommandGatewayException(CommandGatewayException.Type.NO_HANDLER_IN_REGISTRY, of("command", command));
+		throw new CommandGatewayException(CommandGatewayException.Type.NOT_FOUND, of("command", command));
 	}
 
 	public static Builder newBuilder() {

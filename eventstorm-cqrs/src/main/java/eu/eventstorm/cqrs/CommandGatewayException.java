@@ -12,7 +12,7 @@ import eu.eventstorm.core.EventstormExceptionType;
 public final class CommandGatewayException extends EventstormException {
 
 	public enum Type implements EventstormExceptionType {
-		NOT_FOUND, NO_HANDLER_IN_REGISTRY
+		NOT_FOUND
 	}
 
 	public CommandGatewayException(EventstormExceptionType type, ImmutableMap<String, Object> values) {

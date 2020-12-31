@@ -3,6 +3,9 @@ package eu.eventstorm.cqrs.ex001;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import eu.eventstorm.cqrs.Command;
+import eu.eventstorm.cqrs.CommandException;
+import eu.eventstorm.cqrs.CommandGatewayException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,5 +80,11 @@ class Ex001Test {
 		CommandValidationException cve = assertThrows(CommandValidationException.class, () -> gateway.<CreateUserCommand, Event>dispatch(new DefaultCommandContext(),command).doOnNext(builder::add).blockLast());
 		assertEquals(command, cve.getCommand());
 		assertEquals("mail", cve.getConstraintViolations().get(0).getProperties().get(0));
+	}
+
+	@Test
+	void testCommandExceptionException() {
+		CommandGatewayException cge = assertThrows(CommandGatewayException.class, () -> gateway.<Command, Event>dispatch(new DefaultCommandContext(),new Command(){}).blockLast());
+		assertEquals(CommandGatewayException.Type.NOT_FOUND, cge.getType());
 	}
 }
