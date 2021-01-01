@@ -12,11 +12,14 @@ import eu.eventstorm.core.EventstormExceptionType;
 public final class ResourceException extends EventstormException{
 
 	public enum Type implements EventstormExceptionType {
-		CONVERT_ERROR
+		X_META_NOT_FOUND, X_META_FAILED_TO_READ
 	}
 	
 	public ResourceException(EventstormExceptionType type, ImmutableMap<String, Object> values, Throwable cause) {
 		super(type, values, cause);
+	}
+	public ResourceException(EventstormExceptionType type, ImmutableMap<String, Object> values) {
+		super(type, values);
 	}
 
 }

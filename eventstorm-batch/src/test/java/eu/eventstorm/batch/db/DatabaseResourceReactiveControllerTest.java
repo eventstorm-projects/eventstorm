@@ -63,5 +63,31 @@ class DatabaseResourceReactiveControllerTest {
 		       	.jsonPath("$[0].meta.name").isEqualTo("test_file.txt");
 			
 	}
-	
+
+	@Test
+	void testUploadWithMetaFailed() throws IOException {
+
+		webClient.post()
+				.uri("/db/upload")
+				.body(BodyInserters.fromValue("helloWorld"))
+				.exchange()
+				.expectBody()
+					.jsonPath("$.status").isEqualTo(400)
+					.jsonPath("$.title").isEqualTo("ResourceException")
+					.jsonPath("$.traceId").isEqualTo("noTraceId")
+				;
+
+		webClient.post()
+				.uri("/db/upload")
+				.header("X-META", "{\"name\":\"test_file.txt}")
+				.body(BodyInserters.fromValue("helloWorld"))
+				.exchange()
+				.expectBody()
+				.jsonPath("$.status").isEqualTo(400)
+				.jsonPath("$.title").isEqualTo("ResourceException")
+				.jsonPath("$.traceId").isEqualTo("noTraceId")
+		;
+
+	}
+
 }

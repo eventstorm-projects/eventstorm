@@ -13,11 +13,16 @@ import com.google.common.collect.ImmutableMap;
 import eu.eventstorm.cloudevents.CloudEvent;
 import eu.eventstorm.cloudevents.CloudEventBuilder;
 
+import static com.google.common.collect.ImmutableMap.of;
+import static eu.eventstorm.cloudevents.json.jackson.CloudEventDeserializerException.Type.PARSE_ERROR;
+
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 @SuppressWarnings({ "serial" })
 final class CloudEventDeserializer extends StdDeserializer<CloudEvent> {
+
+	public static final String FIELD = "field";
 
 	private static final ImmutableMap<String, BiConsumer<JsonParser, CloudEventBuilder>> CONFIG;
 
@@ -29,49 +34,49 @@ final class CloudEventDeserializer extends StdDeserializer<CloudEvent> {
 					builder.withSpecVersion(parser.nextTextValue());
 					
 				} catch (IOException cause) {
-					throw new CloudEventDeserializerException(CloudEventDeserializerException.Type.PARSE_ERROR, ImmutableMap.of("field", "specversion"), cause);
+					throw new CloudEventDeserializerException(PARSE_ERROR, of(FIELD, "specversion"), cause);
 				}
 			})
 			.put("type", (parser, builder) -> {
 				try {
 					builder.withAggregateType(parser.nextTextValue());
 				} catch (IOException cause) {
-					throw new CloudEventDeserializerException(CloudEventDeserializerException.Type.PARSE_ERROR, ImmutableMap.of("field", "type"), cause);
+					throw new CloudEventDeserializerException(PARSE_ERROR, of(FIELD, "type"), cause);
 				}
 			})
 			.put("id", (parser, builder) -> {
 				try {
 					builder.withAggregateId(parser.nextTextValue());
 				} catch (IOException cause) {
-					throw new CloudEventDeserializerException(CloudEventDeserializerException.Type.PARSE_ERROR, ImmutableMap.of("field", "id"), cause);
+					throw new CloudEventDeserializerException(PARSE_ERROR, of(FIELD, "id"), cause);
 				}
 			})
 			.put("time", (parser, builder) -> {
 				try {
 					builder.withTimestamp(parser.nextTextValue());
 				} catch (IOException cause) {
-					throw new CloudEventDeserializerException(CloudEventDeserializerException.Type.PARSE_ERROR, ImmutableMap.of("field", "time"), cause);
+					throw new CloudEventDeserializerException(PARSE_ERROR, of(FIELD, "time"), cause);
 				}
 			})
 			.put("version", (parser, builder) -> {
 				try {
 					builder.withVersion(parser.nextIntValue(0));
 				} catch (IOException cause) {
-					throw new CloudEventDeserializerException(CloudEventDeserializerException.Type.PARSE_ERROR, ImmutableMap.of("field", "version"), cause);
+					throw new CloudEventDeserializerException(PARSE_ERROR, of(FIELD, "version"), cause);
 				}
 			})
 			.put("subject", (parser, builder) -> {
 				try {
 					builder.withSubject(parser.nextTextValue());
 				} catch (IOException cause) {
-					throw new CloudEventDeserializerException(CloudEventDeserializerException.Type.PARSE_ERROR, ImmutableMap.of("field", "subject"), cause);
+					throw new CloudEventDeserializerException(PARSE_ERROR, of(FIELD, "subject"), cause);
 				}
 			})
 			.put("datacontenttype", (parser, builder) -> {
 				try {
 					builder.withDataContentType(parser.nextTextValue());
 				} catch (IOException cause) {
-					throw new CloudEventDeserializerException(CloudEventDeserializerException.Type.PARSE_ERROR, ImmutableMap.of("field", "datacontenttype"), cause);
+					throw new CloudEventDeserializerException(PARSE_ERROR, of(FIELD, "datacontenttype"), cause);
 				}
 			})
 			.put("data", (parser, builder) -> {
@@ -80,7 +85,7 @@ final class CloudEventDeserializer extends StdDeserializer<CloudEvent> {
 					parser.nextToken();
 					builder.withPayload(parser.readValueAs(Map.class));
 				} catch (IOException cause) {
-					throw new CloudEventDeserializerException(CloudEventDeserializerException.Type.PARSE_ERROR, ImmutableMap.of("field", "data"), cause);
+					throw new CloudEventDeserializerException(PARSE_ERROR, of(FIELD, "data"), cause);
 				}
 			})
 			// @formatter:on

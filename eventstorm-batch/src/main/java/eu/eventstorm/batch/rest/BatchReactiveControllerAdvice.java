@@ -13,7 +13,7 @@ import reactor.core.publisher.Mono;
 public final class BatchReactiveControllerAdvice {
 
     @ExceptionHandler(DatabaseExecutionNotFoundException.class)
-    public Mono<ResponseEntity<Problem>> on(DatabaseExecutionNotFoundException  ex, ServerHttpRequest request) {
+    public Mono<ResponseEntity<Problem>> on(DatabaseExecutionNotFoundException ex, ServerHttpRequest request) {
         return Mono.just(ResponseEntity.badRequest()
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE)
                 .body(Problem.builder()
@@ -21,6 +21,18 @@ public final class BatchReactiveControllerAdvice {
                         .withDetail(ex.getMessage())
                         .withReactiveRequest(request)
                         .with("uuid", ex.getUuid())
+                        .withStatus(400)
+                        .build()));
+    }
+
+    @ExceptionHandler(ResourceException.class)
+    public Mono<ResponseEntity<Problem>> on(ResourceException ex, ServerHttpRequest request) {
+        return Mono.just(ResponseEntity.badRequest()
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE)
+                .body(Problem.builder()
+                        .withTitle("ResourceException")
+                        .withDetail(ex.getMessage())
+                        .withReactiveRequest(request)
                         .withStatus(400)
                         .build()));
     }

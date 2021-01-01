@@ -3,6 +3,7 @@ package eu.eventstorm.batch.rest;
 import java.util.Map;
 
 import eu.eventstorm.sql.type.common.Lobs;
+import eu.eventstorm.util.Strings;
 import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +32,8 @@ import eu.eventstorm.sql.util.TransactionTemplate;
 import eu.eventstorm.util.FastByteArrayOutputStream;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import static com.google.common.collect.ImmutableMap.of;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -110,10 +113,13 @@ public final class DatabaseResourceReactiveController {
 	@SuppressWarnings("unchecked")
 	private Json getMeta(ServerHttpRequest serverRequest) {
 		String meta = serverRequest.getHeaders().getFirst("X-META");
+		if (Strings.isEmpty(meta)) {
+			throw new ResourceException(ResourceException.Type.X_META_NOT_FOUND, of());
+		}
 		try {
 			return Jsons.createMap(this.objectMapper.readValue(meta, Map.class));
 		} catch (JsonProcessingException cause) {
-			throw new ResourceException(ResourceException.Type.CONVERT_ERROR, ImmutableMap.of("meta",meta), cause);
+			throw new ResourceException(ResourceException.Type.X_META_FAILED_TO_READ, of("meta",meta), cause);
 		}
 	}
 	
