@@ -209,7 +209,7 @@ public final class CommandRestControllerImplementationGenerator {
 		writer.write("            })");
 		writeNewLine(writer);
 		if (Void.class.getName().equals(returnType)) {
-			writer.write("            .flatMapMany(command -> gateway.<"+rcd.element().toString() + ","+ Event.class.getName() + ">dispatch(new ReactiveCommandContext(exchange), command))");
+			writer.write("            .flatMapMany(command -> gateway.<"+ Event.class.getName() + ">dispatch(new ReactiveCommandContext(exchange), command))");
 			writeNewLine(writer);
 			writer.write("            .map(CloudEvents::to);");
 			writeNewLine(writer);			
