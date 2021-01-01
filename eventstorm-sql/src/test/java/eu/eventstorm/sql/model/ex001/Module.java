@@ -1,6 +1,6 @@
 package eu.eventstorm.sql.model.ex001;
 
-import jakarta.annotation.Generated;
+import javax.annotation.Generated;
 
 @Generated("eu.eventsotrm.sql.apt.ModuleGenerator")
 public final class Module extends eu.eventstorm.sql.Module { 

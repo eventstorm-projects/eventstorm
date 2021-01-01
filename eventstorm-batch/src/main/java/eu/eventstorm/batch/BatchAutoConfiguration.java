@@ -1,5 +1,6 @@
 package eu.eventstorm.batch;
 
+import eu.eventstorm.batch.file.FileResource;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -53,8 +54,8 @@ public class BatchAutoConfiguration {
 	
 	@Bean
 	@ConditionalOnProperty(prefix = "eu.eventstorm.batch", name = "type", havingValue = "MEMORY", matchIfMissing = true)
-	Batch batchMemory(ApplicationContext context, BatchExecutor batchExecutor) {
-		return new InMemoryBatch(context, batchExecutor);
+	Batch batchMemory(ApplicationContext context, BatchExecutor batchExecutor, FileResource fileResource) {
+		return new InMemoryBatch(context, batchExecutor, fileResource);
 	}
 	
 	@Bean

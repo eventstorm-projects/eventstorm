@@ -2,12 +2,16 @@ package eu.eventstorm.batch.memory;
 
 import static java.util.UUID.randomUUID;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
+import eu.eventstorm.batch.file.FileResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -32,15 +36,16 @@ public final class InMemoryBatch implements Batch {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(InMemoryBatch.class);
 
-	private final ConcurrentSkipListSet<InMemoryBatchJobContext> history = new ConcurrentSkipListSet<>();
+	private final ConcurrentLinkedQueue<InMemoryBatchJobContext> history = new ConcurrentLinkedQueue();
 	
 	private final BatchExecutor batchExecutor;
-	
 	private final ApplicationContext applicationContext;
-	
-	public InMemoryBatch(ApplicationContext applicationContext, BatchExecutor batchExecutor) {
+	private final FileResource fileResource;
+
+	public InMemoryBatch(ApplicationContext applicationContext, BatchExecutor batchExecutor,FileResource fileResource) {
 		this.applicationContext = applicationContext;
 		this.batchExecutor = batchExecutor;
+		this.fileResource = fileResource;
 	}
 
 	@Override
@@ -89,10 +94,10 @@ public final class InMemoryBatch implements Batch {
 		}
 		
 		@Override
-		public void onFailure(Throwable ex) {
+		public void onFailure(Throwable throwable) {
 			
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("onFailure()");
+				LOGGER.debug("onFailure()", throwable);
 			}
 			
 			InMemoryBatch.this.history.add(context);
@@ -100,7 +105,7 @@ public final class InMemoryBatch implements Batch {
 	}
 
 	
-	private static final class InMemoryBatchJobContext implements BatchJobContext {
+	private final class InMemoryBatchJobContext implements BatchJobContext {
 		
 		private final BatchJobCreated batchJobCreated;
 		private Instant endedAt;
@@ -127,7 +132,13 @@ public final class InMemoryBatch implements Batch {
 
 		@Override
 		public BatchResource getResource(String uuid) {
-			return null;
+			return () -> {
+				try {
+					return Files.newInputStream(fileResource.get(uuid));
+				} catch (IOException cause) {
+					throw new RuntimeException(cause);
+				}
+			};
 		}
 
 		@Override
