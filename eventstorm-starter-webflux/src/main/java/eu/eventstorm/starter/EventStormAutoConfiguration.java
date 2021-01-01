@@ -2,6 +2,7 @@ package eu.eventstorm.starter;
 
 import java.util.List;
 
+import eu.eventstorm.cqrs.Command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -17,7 +18,6 @@ import eu.eventstorm.cloudevents.json.jackson.CloudEventsModule;
 import eu.eventstorm.core.protobuf.DescriptorModule;
 import eu.eventstorm.cqrs.CommandGateway;
 import eu.eventstorm.cqrs.CommandHandler;
-import eu.eventstorm.cqrs.CommandHandlerRegistry;
 import eu.eventstorm.cqrs.event.EvolutionHandler;
 import eu.eventstorm.cqrs.event.EvolutionHandlers;
 import eu.eventstorm.cqrs.web.PageModule;
@@ -60,10 +60,10 @@ public class EventStormAutoConfiguration {
 	}
 
 	@Bean
-	CommandGateway commandGateway(List<CommandHandler<?, ?>> handlers) {
-		CommandHandlerRegistry.Builder builder = CommandHandlerRegistry.newBuilder();
+	CommandGateway commandGateway(List<CommandHandler<Command, ?>> handlers) {
+		CommandGateway.Builder builder = CommandGateway.newBuilder();
 		handlers.forEach(builder::add);
-		return new CommandGateway(builder.build());
+		return builder.build();
 	}
 
 	@Bean
