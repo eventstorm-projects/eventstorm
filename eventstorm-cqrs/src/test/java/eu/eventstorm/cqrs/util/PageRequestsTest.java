@@ -91,5 +91,9 @@ class PageRequestsTest {
 		
 		pre = assertThrows(PageRequestException.class, () -> PageRequests.parse("filter=code[eq]25&range=0-12", Mockito.mock(SqlQueryDescriptor.class)));
 		assertEquals(18, pre.getValues().get("offset"));
+
+		pre = assertThrows(PageRequestException.class, () -> PageRequests.parse("filter=code[BAD]25", Mockito.mock(SqlQueryDescriptor.class)));
+		assertEquals(11, pre.getValues().get("offset"));
+		assertEquals(PageRequestException.Type.PARSING, pre.getType());
 	}
 }

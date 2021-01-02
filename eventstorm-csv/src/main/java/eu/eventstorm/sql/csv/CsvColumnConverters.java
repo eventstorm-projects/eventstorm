@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Function;
 
+import eu.eventstorm.util.Dates;
 import eu.eventstorm.util.Strings;
 
 /**
@@ -25,7 +26,9 @@ public final class CsvColumnConverters {
     		return Integer.parseInt(value);
     };
 
-    public static Function<byte[], LocalDate> date(DateTimeFormatter formatter) {
+    public static final Function<byte[], LocalDate> RAW_LOCAL_DATE = data -> Dates.parseLocalDate(new String(data, StandardCharsets.UTF_8));
+
+    public static Function<byte[], LocalDate> localDate(DateTimeFormatter formatter) {
         return data -> formatter.parse(new String(data, StandardCharsets.UTF_8), LocalDate::from);
     }
 

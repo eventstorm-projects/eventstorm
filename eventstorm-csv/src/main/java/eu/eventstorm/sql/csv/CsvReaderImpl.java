@@ -28,9 +28,7 @@ final class CsvReaderImpl implements CsvReader {
     private static final byte QUOTE = '\"';
     private static final byte COMMA = ',';
 
-
     private final MappedByteBuffer buffer;
-    private final long address;
     private final long addressMax;
     private final FileEndOfLine fileEndOfLine;
 
@@ -39,9 +37,9 @@ final class CsvReaderImpl implements CsvReader {
 
     CsvReaderImpl(MappedByteBuffer buffer) {
         this.buffer = buffer;
-        this.address = UNSAFE.getLong(buffer, UnsafeHelper.getFieldOffset(Buffer.class, "address"));
+        long address = UNSAFE.getLong(buffer, UnsafeHelper.getFieldOffset(Buffer.class, "address"));
         this.addressMax = address + buffer.limit();
-        this.offset = this.address;
+        this.offset = address;
 
         ByteOrderMark bom = ByteOrderMark.read(buffer);
         if (bom != null) {
@@ -98,15 +96,13 @@ final class CsvReaderImpl implements CsvReader {
                 if (FileEndOfLine.MAC == this.fileEndOfLine) {
                     cols[i++] = off - 1;
                     CsvLine csvLine = new CsvLineImpl(this.offset, cols, line++, i);
-                    this.offset = off;
+                    this.offset = off + 1;
                     return csvLine;
                 } else if (FileEndOfLine.WIN == this.fileEndOfLine) {
                     cols[i++] = off - 1;
                     CsvLine csvLine = new CsvLineImpl(this.offset, cols, line++, i);
                     this.offset = off + 2;
                     return csvLine;
-                } else {
-
                 }
             }
 

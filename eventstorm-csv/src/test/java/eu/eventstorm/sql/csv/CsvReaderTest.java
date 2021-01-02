@@ -29,10 +29,20 @@ class CsvReaderTest {
         readAddresses("/csv/addresses_win.csv");
     }
 
-  //  @Test
- //   void testReadUnix() throws Exception {
- //       readAddresses("/csv/addresses_unix.csv");
- //   }
+    @Test
+    void testReadWinWithBom() throws Exception {
+        readAddresses("/csv/BOM_addresses_win.csv");
+    }
+
+    @Test
+    void testReadUnix() throws Exception {
+        readAddresses("/csv/addresses_unix.csv");
+    }
+
+    @Test
+    void testReadMac() throws Exception {
+        readAddresses("/csv/addresses_mac.csv");
+    }
 
     void readAddresses(String resource) throws Exception {
 

@@ -22,10 +22,11 @@ class LobsTest {
 	@Test
 	void testBlob() throws Exception {
 		Blob blob = Lobs.newBlob("helloWorld".getBytes());
-		
+
+		assertEquals(10, blob.length());
 		try (InputStream is = blob.getBinaryStream()) {
 			byte[] content = new byte[10];
-			is.read(content);
+			assertEquals(10, is.read(content));
 			assertEquals("helloWorld", new String(content));
 			assertEquals(-1, is.read());
 		}
@@ -35,9 +36,10 @@ class LobsTest {
 	void testClob() throws Exception {
 		Clob clob = Lobs.newClob("helloWorld");
 
+		assertEquals(10, clob.length());
 		try (Reader reader = clob.getCharacterStream()) {
 			char[] content = new char[10];
-			reader.read(content);
+			assertEquals(10, reader.read(content));
 			assertEquals("helloWorld", new String(content));
 			assertEquals(-1, reader.read());
 		}
@@ -51,7 +53,7 @@ class LobsTest {
 		
 		try (InputStream is = blob.getBinaryStream()) {
 			byte[] content = new byte[76];
-			is.read(content);
+			assertEquals(76, is.read(content));
 			assertEquals("This is a test with a long string, This is a test with a second long string.", new String(content));
 			assertEquals(-1, is.read());
 		}
