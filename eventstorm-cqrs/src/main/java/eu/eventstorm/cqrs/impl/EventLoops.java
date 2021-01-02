@@ -21,7 +21,7 @@ public final class EventLoops {
 		return new MultipleEventLoop(scheduler, others, postScheduler);
 	}
 	
-	public static Builder newBuider() {
+	public static Builder newBuilder() {
 		return new Builder();
 	}
 	
@@ -50,11 +50,11 @@ public final class EventLoops {
 		}
 		
 		public EventLoop build() {
-			ImmutableMap<String, Scheduler> others = this.others.build();
-			if (others.size() == 0) {
+			ImmutableMap<String, Scheduler> all = this.others.build();
+			if (all.size() == 0) {
 				return new SingleEventLoop(this.scheduler, post);
 			} else {
-				return new MultipleEventLoop(this.scheduler, others, post);
+				return new MultipleEventLoop(this.scheduler, all, post);
 			}
 		}
 	}

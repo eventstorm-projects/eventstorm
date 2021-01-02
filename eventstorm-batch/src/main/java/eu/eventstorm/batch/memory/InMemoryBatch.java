@@ -3,7 +3,6 @@ package eu.eventstorm.batch.memory;
 import static java.util.UUID.randomUUID;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -36,7 +35,7 @@ public final class InMemoryBatch implements Batch {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(InMemoryBatch.class);
 
-	private final ConcurrentLinkedQueue<InMemoryBatchJobContext> history = new ConcurrentLinkedQueue();
+	private final ConcurrentLinkedQueue<InMemoryBatchJobContext> history = new ConcurrentLinkedQueue<>();
 	
 	private final BatchExecutor batchExecutor;
 	private final ApplicationContext applicationContext;
