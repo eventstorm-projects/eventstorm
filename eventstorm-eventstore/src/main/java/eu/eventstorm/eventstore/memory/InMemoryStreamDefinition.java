@@ -1,8 +1,6 @@
 package eu.eventstorm.eventstore.memory;
 
-import static com.google.common.collect.ImmutableMap.of;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
-import static eu.eventstorm.eventstore.StreamDefinitionException.STREAM_EVENT_TYPE;
 import static java.util.function.Function.identity;
 
 import java.util.List;
@@ -37,7 +35,7 @@ final class InMemoryStreamDefinition implements StreamDefinition {
 		StreamEventDefinition def = mapByEventPayloadType.get(event);
 
 		if (def == null) {
-			throw new StreamDefinitionException(StreamDefinitionException.Type.INVALID_STREAM_EVENT_TYPE, of(STREAM_EVENT_TYPE, event));
+			throw StreamDefinitionException.newUnknownStreamType(name, event);
 		}
 
 		return def;

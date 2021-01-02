@@ -9,18 +9,18 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.google.common.collect.ImmutableMap;
-
 import eu.eventstorm.core.Event;
 import eu.eventstorm.eventstore.EventStore;
 import eu.eventstorm.eventstore.StreamDefinition;
-import eu.eventstorm.eventstore.StreamDefinitionException;
 import eu.eventstorm.eventstore.StreamEventDefinition;
 import eu.eventstorm.eventstore.StreamManager;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.util.function.Tuples;
+
+import static eu.eventstorm.eventstore.StreamDefinitionException.newUnknownStream;
+import static eu.eventstorm.eventstore.StreamDefinitionException.newUnknownStreamType;
 
 @RestController
 public final class ApiRestController {
@@ -37,20 +37,20 @@ public final class ApiRestController {
 		this.scheduler = scheduler;
 	}
 
-	@PostMapping(path = "append/{stream}/{streamId}/{eventPayloadType}", consumes = {"application/x-protobuf"})
+	@PostMapping(path = "append/{stream}/{streamId}/{eventType}", consumes = {"application/x-protobuf"})
 	public Mono<Event> append(@PathVariable("stream") String stream, @PathVariable("streamId") String streamId,
-	        @PathVariable("eventPayloadType") String payloadType, ServerHttpRequest request) {
+	        @PathVariable("eventType") String eventType, ServerHttpRequest request) {
 
 		StreamDefinition definition = streamManager.getDefinition(stream);
 
 		if (definition == null) {
-			throw new StreamDefinitionException(StreamDefinitionException.Type.UNKNOW_STREAM, ImmutableMap.of("stream", stream));
+			throw newUnknownStream(stream);
 		}
 		
-		StreamEventDefinition sepd = definition.getStreamEventDefinition(payloadType);
+		StreamEventDefinition sepd = definition.getStreamEventDefinition(eventType);
 		
 		if (sepd == null) {
-			throw new StreamDefinitionException(StreamDefinitionException.Type.UNKNOW_STREAM, ImmutableMap.of("stream", stream, "payloadType", payloadType));
+			throw newUnknownStreamType(stream, eventType);
 		}
 
 		// @formatter:off
@@ -68,7 +68,7 @@ public final class ApiRestController {
 		StreamDefinition definition = streamManager.getDefinition(stream);
 
 		if (definition == null) {
-			throw new StreamDefinitionException(StreamDefinitionException.Type.UNKNOW_STREAM, ImmutableMap.of("stream", stream));
+			throw newUnknownStream(stream);
 		}
 
 		// @formatter:off

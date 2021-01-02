@@ -26,6 +26,7 @@ final class BraveResultSet implements ResultSet {
 
 	public static final String GET_BINARY_RESULT = ")->[...]";
 	public static final String UPDATE_BINARY= ",...)";
+	public static final String BINARY_PARAM = ",...,";
 
 	private final ResultSet resultSet;
 	private final TransactionSpan span;
@@ -540,19 +541,19 @@ final class BraveResultSet implements ResultSet {
 
 	@Override
 	public void updateAsciiStream(int columnIndex, InputStream x, int length) throws SQLException {
-		this.span.annotate("updateAsciiStream(" + columnIndex + ",...," + length + ")");
+		this.span.annotate("updateAsciiStream(" + columnIndex + BINARY_PARAM + length + ")");
 		this.resultSet.updateAsciiStream(columnIndex, x, length);
 	}
 
 	@Override
 	public void updateBinaryStream(int columnIndex, InputStream x, int length) throws SQLException {
-		this.span.annotate("updateBinaryStream(" + columnIndex + ",...," + length + ")");
+		this.span.annotate("updateBinaryStream(" + columnIndex + BINARY_PARAM + length + ")");
 		this.resultSet.updateBinaryStream(columnIndex, x, length);
 	}
 
 	@Override
 	public void updateCharacterStream(int columnIndex, Reader x, int length) throws SQLException {
-		this.span.annotate("updateCharacterStream(" + columnIndex + ",...," + length + ")");
+		this.span.annotate("updateCharacterStream(" + columnIndex + BINARY_PARAM + length + ")");
 		this.resultSet.updateCharacterStream(columnIndex, x, length);
 	}
 
@@ -655,19 +656,19 @@ final class BraveResultSet implements ResultSet {
 
 	@Override
 	public void updateAsciiStream(String columnLabel, InputStream x, int length) throws SQLException {
-		this.span.annotate("updateAsciiStream(" + columnLabel + ",...," + length + "]");
+		this.span.annotate("updateAsciiStream(" + columnLabel + BINARY_PARAM + length + "]");
 		this.resultSet.updateAsciiStream(columnLabel, x, length);
 	}
 
 	@Override
 	public void updateBinaryStream(String columnLabel, InputStream x, int length) throws SQLException {
-		this.span.annotate("updateBinaryStream(" + columnLabel + ",...," + length + "]");
+		this.span.annotate("updateBinaryStream(" + columnLabel + BINARY_PARAM + length + "]");
 		this.resultSet.updateBinaryStream(columnLabel, x, length);
 	}
 
 	@Override
 	public void updateCharacterStream(String columnLabel, Reader reader, int length) throws SQLException {
-		this.span.annotate("updateCharacterStream(" + columnLabel + ",...," + length + "]");
+		this.span.annotate("updateCharacterStream(" + columnLabel + BINARY_PARAM + length + "]");
 		this.resultSet.updateCharacterStream(columnLabel, reader, length);
 	}
 
@@ -1027,86 +1028,86 @@ final class BraveResultSet implements ResultSet {
 
 	@Override
 	public void updateNCharacterStream(int columnIndex, Reader x, long length) throws SQLException {
-		this.span.annotate("updateNCharacterStream(" + columnIndex + ",...," + length+")");
+		this.span.annotate("updateNCharacterStream(" + columnIndex + BINARY_PARAM + length+")");
 		this.resultSet.updateNCharacterStream(columnIndex, x, length);
 	}
 
 	@Override
 	public void updateNCharacterStream(String columnLabel, Reader x, long length) throws SQLException {
-		this.span.annotate("updateNCharacterStream(" + columnLabel + ",...," + length+")");
+		this.span.annotate("updateNCharacterStream(" + columnLabel + BINARY_PARAM + length+")");
 		this.resultSet.updateNCharacterStream(columnLabel, x, length);
 	}
 
 	@Override
 	public void updateAsciiStream(int columnIndex, InputStream x, long length) throws SQLException {
-		this.span.annotate("updateAsciiStream(" + columnIndex + ",...," + length+")");
+		this.span.annotate("updateAsciiStream(" + columnIndex + BINARY_PARAM + length+")");
 		this.resultSet.updateAsciiStream(columnIndex, x, length);
 	}
 
 	@Override
 	public void updateBinaryStream(int columnIndex, InputStream x, long length) throws SQLException {
-		this.span.annotate("updateBinaryStream(" + columnIndex + ",...," + length+")");
+		this.span.annotate("updateBinaryStream(" + columnIndex + BINARY_PARAM + length+")");
 		this.resultSet.updateBinaryStream(columnIndex, x, length);
 	}
 
 	@Override
 	public void updateCharacterStream(int columnIndex, Reader x, long length) throws SQLException {
-		this.span.annotate("updateCharacterStream(" + columnIndex + ",...," + length+")");
+		this.span.annotate("updateCharacterStream(" + columnIndex + BINARY_PARAM + length+")");
 		this.resultSet.updateCharacterStream(columnIndex, x, length);
 	}
 
 	@Override
 	public void updateAsciiStream(String columnLabel, InputStream x, long length) throws SQLException {
-		this.span.annotate("updateAsciiStream(" + columnLabel + ",...," + length+")");
+		this.span.annotate("updateAsciiStream(" + columnLabel + BINARY_PARAM + length+")");
 		this.resultSet.updateAsciiStream(columnLabel, x, length);
 
 	}
 
 	@Override
 	public void updateBinaryStream(String columnLabel, InputStream x, long length) throws SQLException {
-		this.span.annotate("updateBinaryStream(" + columnLabel + ",...," + length+")");
+		this.span.annotate("updateBinaryStream(" + columnLabel + BINARY_PARAM + length+")");
 		this.resultSet.updateBinaryStream(columnLabel, x, length);
 	}
 
 	@Override
 	public void updateCharacterStream(String columnLabel, Reader x, long length) throws SQLException {
-		this.span.annotate("updateCharacterStream(" + columnLabel + ",...," + length+")");
+		this.span.annotate("updateCharacterStream(" + columnLabel + BINARY_PARAM + length+")");
 		this.resultSet.updateCharacterStream(columnLabel, x, length);
 	}
 
 	@Override
 	public void updateBlob(int columnIndex, InputStream x, long length) throws SQLException {
-		this.span.annotate("updateBlob(" + columnIndex + ",...," + length+")");
+		this.span.annotate("updateBlob(" + columnIndex + BINARY_PARAM + length+")");
 		this.resultSet.updateBlob(columnIndex, x, length);
 	}
 
 	@Override
 	public void updateBlob(String columnLabel, InputStream x, long length) throws SQLException {
-		this.span.annotate("updateBlob(" + columnLabel + ",...," + length+")");
+		this.span.annotate("updateBlob(" + columnLabel + BINARY_PARAM + length+")");
 		this.resultSet.updateBlob(columnLabel, x, length);
 	}
 
 	@Override
 	public void updateClob(int columnIndex, Reader x, long length) throws SQLException {
-		this.span.annotate("updateClob(" + columnIndex + ",...," + length+")");
+		this.span.annotate("updateClob(" + columnIndex + BINARY_PARAM + length+")");
 		this.resultSet.updateClob(columnIndex, x, length);
 	}
 
 	@Override
 	public void updateClob(String columnLabel, Reader x, long length) throws SQLException {
-		this.span.annotate("updateClob(" + columnLabel + ",...," + length+")");
+		this.span.annotate("updateClob(" + columnLabel + BINARY_PARAM + length+")");
 		this.resultSet.updateClob(columnLabel, x, length);
 	}
 
 	@Override
 	public void updateNClob(int columnIndex, Reader x, long length) throws SQLException {
-		this.span.annotate("updateNClob(" + columnIndex + ",...," + length+")");
+		this.span.annotate("updateNClob(" + columnIndex + BINARY_PARAM + length+")");
 		this.resultSet.updateNClob(columnIndex, x, length);
 	}
 
 	@Override
 	public void updateNClob(String columnLabel, Reader x, long length) throws SQLException {
-		this.span.annotate("updateNClob(" + columnLabel + ",...," + length+")");
+		this.span.annotate("updateNClob(" + columnLabel + BINARY_PARAM + length+")");
 		this.resultSet.updateNClob(columnLabel, x, length);
 	}
 
