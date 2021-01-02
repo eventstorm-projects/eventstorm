@@ -3,16 +3,12 @@ package eu.eventstorm.batch.json;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.google.protobuf.util.JsonFormat;
 import eu.eventstorm.batch.BatchStatus;
 import eu.eventstorm.batch.db.DatabaseExecution;
-import eu.eventstorm.cqrs.batch.BatchJobCreated;
 import eu.eventstorm.util.Dates;
 
 import java.io.IOException;
-import java.sql.Time;
 import java.sql.Timestamp;
-import java.time.ZoneId;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>

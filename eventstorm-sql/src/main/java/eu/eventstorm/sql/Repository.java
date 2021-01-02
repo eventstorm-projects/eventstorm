@@ -344,7 +344,7 @@ public abstract class Repository {
 
 			@Override
 			public int characteristics() {
-				return Spliterator.NONNULL;
+				return Spliterator.NONNULL | Spliterator.IMMUTABLE;
 			}
 			
 			

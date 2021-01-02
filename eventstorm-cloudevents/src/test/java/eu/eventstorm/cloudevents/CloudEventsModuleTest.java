@@ -1,11 +1,13 @@
 package eu.eventstorm.cloudevents;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.io.IOException;
 import java.io.StringWriter;
 import java.util.List;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import eu.eventstorm.cloudevents.json.jackson.CloudEventDeserializerException;
 import eu.eventstorm.test.LoggerInstancePostProcessor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -92,6 +94,14 @@ class CloudEventsModuleTest {
     	
     	assertEquals(1, cloudEvents.size());
     	assertEquals("test", cloudEvents.get(0).type());
+	}
+
+	@Test
+	void failedToDeserializedTest() {
+
+		CloudEventDeserializerException ex = assertThrows(CloudEventDeserializerException.class, () -> objectMapper.readValue("{\"specversion\":{}}", CloudEvent.class));
+		assertEquals(CloudEventDeserializerException.Type.INVALID_FIELD_VALUE, ex.getType());
+
 	}
 	
 }

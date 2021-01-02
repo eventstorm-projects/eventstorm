@@ -4,7 +4,10 @@ import static eu.eventstorm.sql.expression.Expressions.and;
 import static eu.eventstorm.sql.expression.Expressions.eq;
 import static eu.eventstorm.sql.expression.Expressions.or;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
 
+import eu.eventstorm.sql.SqlQuery;
+import eu.eventstorm.sql.builder.SubSelects;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,14 +29,14 @@ import eu.eventstorm.test.Tests;
 @ExtendWith(LoggerInstancePostProcessor.class)
 class ExpressionsTest {
 
-    private SqlTable table = new SqlTable("table_01", "a");
+    private final SqlTable table = new SqlTable("table_01", "a");
     
     private Dialect dialect;
 
     @BeforeEach
     void beforeEach() {
-    	Database database = Mockito.mock(Database.class);
-    	Mockito.when(database.rawSqlExecutor()).thenReturn(Mockito.mock(RawSqlExecutor.class));
+    	Database database = mock(Database.class);
+    	Mockito.when(database.rawSqlExecutor()).thenReturn(mock(RawSqlExecutor.class));
     	dialect = Dialects.h2(database);
     }
 
@@ -159,6 +162,16 @@ class ExpressionsTest {
         assertEquals("number IN (?,?,?)", Expressions.in(number, 3).build(dialect, false));
         assertEquals("number IN (?,?,?)", Expressions.in(number, 3).toString());
 
+    }
+
+    @Test
+    void testInSubSelect() {
+        SqlQuery subSelect = mock(SqlQuery.class);
+        Mockito.when(subSelect.sql()).thenReturn("--SUBSELECT_MOCK--");
+
+        SqlColumn number = new SqlSingleColumn(table, "number", false, true, true);
+        assertEquals("a.number IN ( --SUBSELECT_MOCK-- )", Expressions.in(number, SubSelects.from(subSelect)).build(dialect, true));
+        assertEquals("number IN ( --SUBSELECT_MOCK-- )", Expressions.in(number, SubSelects.from(subSelect)).build(dialect, false));
     }
 
     @Test

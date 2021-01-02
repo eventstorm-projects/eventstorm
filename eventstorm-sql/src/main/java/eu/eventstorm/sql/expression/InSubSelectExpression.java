@@ -32,7 +32,7 @@ final class InSubSelectExpression implements Expression {
             builder.append(column.table().alias()).append('.');
         }
     	builder.append(column.name());
-    	builder.append(" in ( ");
+    	builder.append(" IN ( ");
     	builder.append(value.sql());
     	builder.append(" )");
     	

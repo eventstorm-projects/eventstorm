@@ -1,6 +1,7 @@
 package eu.eventstorm.sql.type.common;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -59,4 +60,30 @@ class LobsTest {
 		}
 	}
 
+	@Test
+	void testInvalidBlobMethods() {
+		Blob blob = Lobs.newBlob("helloWorld".getBytes());
+		assertThrows(UnsupportedOperationException.class, () -> blob.getBinaryStream(0, 0));
+		assertThrows(UnsupportedOperationException.class, () -> blob.truncate(0));
+		assertThrows(UnsupportedOperationException.class, () -> blob.getBytes(0, 0));
+		assertThrows(UnsupportedOperationException.class, () -> blob.position((byte[]) null, 0));
+		assertThrows(UnsupportedOperationException.class, () -> blob.position((Blob) null, 0));
+		assertThrows(UnsupportedOperationException.class, () -> blob.setBytes(0, null));
+		assertThrows(UnsupportedOperationException.class, () -> blob.setBytes(0, null, 0, 0));
+		assertThrows(UnsupportedOperationException.class, () -> blob.setBinaryStream(0));
+	}
+
+	@Test
+	void testInvalidClobMethods() {
+		Clob clob = Lobs.newClob("helloWorld");
+		assertThrows(UnsupportedOperationException.class, () -> clob.getCharacterStream(0, 0));
+		assertThrows(UnsupportedOperationException.class, () -> clob.truncate(0));
+		assertThrows(UnsupportedOperationException.class, () -> clob.getSubString(0, 0));
+		assertThrows(UnsupportedOperationException.class, () -> clob.position((String) null, 0));
+		assertThrows(UnsupportedOperationException.class, () -> clob.position((Clob) null, 0));
+		assertThrows(UnsupportedOperationException.class, () -> clob.setString(0, null));
+		assertThrows(UnsupportedOperationException.class, () -> clob.setString(0, null, 0, 0));
+		assertThrows(UnsupportedOperationException.class, () -> clob.setAsciiStream(0));
+		assertThrows(UnsupportedOperationException.class, () -> clob.setCharacterStream(0));
+	}
 }
