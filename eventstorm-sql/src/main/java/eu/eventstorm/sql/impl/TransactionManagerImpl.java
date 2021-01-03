@@ -48,6 +48,7 @@ public final class TransactionManagerImpl implements TransactionManager {
         } catch (SQLException cause) {
             throw new TransactionException(CONNECTION_ISOLATION, cause);
         }
+        LOGGER.info("Transaction defaultIsolationLevel : [{}]", defaultIsolationLevel);
         this.transactions = new TransactionHolder();
     }
 

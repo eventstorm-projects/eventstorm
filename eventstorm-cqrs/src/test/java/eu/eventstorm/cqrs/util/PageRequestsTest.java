@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import static org.mockito.Mockito.anyString;
 
+import org.json.JSONException;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -12,16 +13,19 @@ import eu.eventstorm.cqrs.SqlQueryDescriptor;
 import eu.eventstorm.sql.builder.OrderType;
 import eu.eventstorm.sql.page.PageRequest;
 import eu.eventstorm.sql.page.PreparedStatementIndexSetter;
+import org.skyscreamer.jsonassert.JSONAssert;
 
 class PageRequestsTest {
 
 	@Test
-	void testParseOnlyRange() {
+	void testParseOnlyRange() throws JSONException {
 		PageRequest pr = PageRequests.parse("range=0-9", Mockito.mock(SqlQueryDescriptor.class));
 		assertEquals(0, pr.getOffset());
 		assertEquals(10, pr.getSize());
 		assertEquals(0, pr.getFilters().size());
 		assertEquals(0, pr.getOrders().size());
+
+		JSONAssert.assertEquals("{\"query\":\"range=0-9\",\"offset\":0,\"size\":10,\"filter\":{\"filters\":[]},\"orders\":[]}", pr.toString(), false);
 	}
 	
 	@Test

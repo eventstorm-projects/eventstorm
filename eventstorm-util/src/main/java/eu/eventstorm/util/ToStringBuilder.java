@@ -216,8 +216,11 @@ public final class ToStringBuilder {
 			return this;
 		}
 		insertKey(getChars(key));
-		if (value == null) {
+		if (values == null) {
 			insertNullValue();
+		} else if (values.size() == 0) {
+			addChar('[');
+			addChar(']');
 		} else {
 			addChar('[');			
 			values.forEach(this::insertValue);
