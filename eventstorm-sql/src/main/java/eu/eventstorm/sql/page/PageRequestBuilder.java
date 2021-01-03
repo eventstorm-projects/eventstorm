@@ -23,7 +23,7 @@ public final class PageRequestBuilder {
 	}
 	  
 	public PageRequest build() {
-		return new PageableRequestImpl(query, offset, size, new FiltersImpl(filters), orders);
+		return new PageRequestImpl(query, offset, size, new FiltersImpl(filters), orders);
 	}
 
 	public PageRequestBuilder withFilter(String property, String operator, String value, FilterEvaluator evaluator) {

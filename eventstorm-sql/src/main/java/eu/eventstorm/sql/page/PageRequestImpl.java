@@ -9,7 +9,7 @@ import eu.eventstorm.util.ToStringBuilder;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-final class PageableRequestImpl implements PageRequest {
+final class PageRequestImpl implements PageRequest {
 
 	private final String query;
     private final int offset;
@@ -17,7 +17,7 @@ final class PageableRequestImpl implements PageRequest {
     private final Filters filters;
     private final List<Order> orders;
 
-	PageableRequestImpl(String query, int offset, int size, Filters filters, List<Order> orders) {
+	PageRequestImpl(String query, int offset, int size, Filters filters, List<Order> orders) {
 		this.query = query;
         this.offset = offset;
         this.size = size;
@@ -47,7 +47,7 @@ final class PageableRequestImpl implements PageRequest {
 
 	@Override
 	public PageRequest next() {
-		return new PageableRequestImpl(Strings.EMPTY, offset + size, size, filters, orders);
+		return new PageRequestImpl(Strings.EMPTY, offset + size, size, filters, orders);
 	}
 
 	@Override
