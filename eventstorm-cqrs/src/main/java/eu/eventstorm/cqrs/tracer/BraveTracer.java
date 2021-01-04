@@ -14,8 +14,8 @@ public final class BraveTracer implements Tracer {
     @Override
     public Span start(String name) {
         brave.Span newSpan = this.tracer.nextSpan();
-        newSpan.tag("thread", Thread.currentThread().getName());
         newSpan.start();
+        newSpan.tag("thread", Thread.currentThread().getName());
         return new BraveSpan(this.tracer.withSpanInScope(newSpan), newSpan);
     }
 }
