@@ -87,7 +87,6 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 		return Mono.just(Tuples.of(context, command))
 				.publishOn(eventLoop.get(command))
 				.map(tuple -> storeAndEvolution(tuple, 0))
-				.timeout(Duration.ofSeconds(10))
 				.publishOn(eventLoop.post())
 				.map(events -> { postStoreAndEvolution(context, events); return events; })
 				.flatMapMany(events -> { publish(events); return Flux.fromIterable(events); })
@@ -98,6 +97,10 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 		try (Span ignored = this.tracer.start("storeAndEvolution")) {
 	    	return doStoreAndEvolution(tuple);
 		} catch (EventstormRepositoryException cause) {
+			// Cause of timeout of tx.
+			if (Thread.currentThread().isInterrupted()) {
+				throw cause;
+			}
 			LOGGER.info("storeAndEvolution -> retry [{}]", retry);
 			if (retry > 9) {
 				throw cause;

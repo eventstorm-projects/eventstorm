@@ -60,7 +60,7 @@ final class TransactionHolder implements AutoCloseable {
 			}
 			holder.forEach((th, tx) -> {
 
-				if (tx.getStart().plus(60, ChronoUnit.SECONDS).isAfter(now)) {
+				if (tx.getStart().plus(60, ChronoUnit.SECONDS).isBefore(now)) {
 					LOGGER.warn("transaction timeout [{}]-[{}]", now, tx);
 					th.interrupt();
 					return;

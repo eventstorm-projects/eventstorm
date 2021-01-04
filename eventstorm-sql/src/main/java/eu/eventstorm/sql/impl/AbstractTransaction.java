@@ -257,6 +257,7 @@ abstract class AbstractTransaction implements TransactionSupport {
 	public String toString() {
 		return new ToStringBuilder(this, false)
 				.append("uuid", uuid)
+				.append("instant", instant)
 				.append("active", active)
 				.toString();
 	}
