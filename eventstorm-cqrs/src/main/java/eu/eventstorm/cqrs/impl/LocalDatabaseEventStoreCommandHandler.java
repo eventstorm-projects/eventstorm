@@ -97,10 +97,10 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 		try (Span ignored = this.tracer.start("storeAndEvolution")) {
 	    	return doStoreAndEvolution(tuple);
 		} catch (EventstormRepositoryException cause) {
-			// Cause of timeout of tx.
-			if (Thread.currentThread().isInterrupted()) {
-				throw cause;
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug(cause.getMessage(), cause);
 			}
+			// Cause of timeout of tx.
 			LOGGER.info("storeAndEvolution -> retry [{}]", retry);
 			if (retry > 9) {
 				throw cause;
