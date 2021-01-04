@@ -75,8 +75,10 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 				try {
 					// validate the command
 					validate(context, command);
-				} finally {
-					tx.rollback();	
+					tx.commit();
+				} catch (Exception exception){
+					tx.rollback();
+					throw exception;
 				}
 			}	
 		}
