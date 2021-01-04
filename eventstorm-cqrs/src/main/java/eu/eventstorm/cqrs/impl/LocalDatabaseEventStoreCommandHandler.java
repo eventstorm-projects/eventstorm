@@ -1,5 +1,6 @@
 package eu.eventstorm.cqrs.impl;
 
+import java.time.Duration;
 import java.util.UUID;
 
 import eu.eventstorm.cqrs.tracer.Span;
@@ -86,6 +87,7 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 		return Mono.just(Tuples.of(context, command))
 				.publishOn(eventLoop.get(command))
 				.map(tuple -> storeAndEvolution(tuple, 0))
+				.timeout(Duration.ofSeconds(10))
 				.publishOn(eventLoop.post())
 				.map(events -> { postStoreAndEvolution(context, events); return events; })
 				.flatMapMany(events -> { publish(events); return Flux.fromIterable(events); })

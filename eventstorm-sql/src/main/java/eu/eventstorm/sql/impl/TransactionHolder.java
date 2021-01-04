@@ -1,6 +1,8 @@
 package eu.eventstorm.sql.impl;
 
 import java.sql.SQLException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -18,7 +20,7 @@ final class TransactionHolder implements AutoCloseable {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(TransactionHolder.class);
 
-	private final ConcurrentHashMap<Long, TransactionSupport> holder;
+	private final ConcurrentHashMap<Thread, TransactionSupport> holder;
 
 	private final ScheduledExecutorService ses;
 
@@ -29,21 +31,21 @@ final class TransactionHolder implements AutoCloseable {
 	}
 
 	TransactionSupport get() {
-		return this.holder.get(Thread.currentThread().getId());
+		return this.holder.get(Thread.currentThread());
 	}
 
 	void set(TransactionSupport tx) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("set({},{})", Thread.currentThread().getId(), tx);
 		}
-		this.holder.put(Thread.currentThread().getId(), tx);
+		this.holder.put(Thread.currentThread(), tx);
 	}
 
 	void remove() {
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("remove({})", Thread.currentThread().getId());
+			LOGGER.debug("remove({})", Thread.currentThread());
 		}
-		this.holder.remove(Thread.currentThread().getId());
+		this.holder.remove(Thread.currentThread());
 	}
 
 	private final class CleanerCommand implements Runnable {
@@ -51,10 +53,19 @@ final class TransactionHolder implements AutoCloseable {
 		@Override
 		public void run() {
 
+			Instant now = Instant.now();
+
 			if (LOGGER.isTraceEnabled()) {
 				LOGGER.trace("Start Transaction Holder Cleaner on [{}] transaction(s)", holder.size());
 			}
 			holder.forEach((th, tx) -> {
+
+				if (tx.getStart().plus(60, ChronoUnit.SECONDS).isAfter(now)) {
+					LOGGER.warn("transaction timeout [{}]-[{}]", now, tx);
+					th.interrupt();
+					return;
+				}
+
 				if (tx.isMain()) {
 					AbstractTransaction a = (AbstractTransaction) tx;
 					try {

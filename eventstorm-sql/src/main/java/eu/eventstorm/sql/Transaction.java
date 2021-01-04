@@ -1,5 +1,6 @@
 package eu.eventstorm.sql;
 
+import java.time.Instant;
 import java.util.UUID;
 
 /**
@@ -16,5 +17,7 @@ public interface Transaction extends AutoCloseable {
     void close();
 
     UUID getUuid();
+
+    Instant getStart();
     
 }

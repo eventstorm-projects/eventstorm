@@ -9,6 +9,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -42,6 +43,8 @@ abstract class AbstractTransaction implements TransactionSupport {
 
 	private final TransactionSpan span;
 
+	private final Instant instant;
+
 	protected AbstractTransaction(TransactionManagerImpl transactionManager, Connection connection) {
 		this.transactionManager = transactionManager;
 		this.connection = connection;
@@ -50,11 +53,17 @@ abstract class AbstractTransaction implements TransactionSupport {
 		this.tracer = transactionManager.getConfiguration().getTracer();
 		this.span = this.tracer.begin(this);
 		this.span.tag("uuid", this.uuid.toString());
+		this.instant = Instant.now();
 	}
 
 	@Override
 	public UUID getUuid() {
 		return this.uuid;
+	}
+
+	@Override
+	public Instant getStart() {
+		return this.instant;
 	}
 
 	@Override
