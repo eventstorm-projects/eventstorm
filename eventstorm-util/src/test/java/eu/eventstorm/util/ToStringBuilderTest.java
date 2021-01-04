@@ -187,6 +187,10 @@ class ToStringBuilderTest {
         builder.append("object", new Toto());
         assertEquals("{\"class\":\"Toto\",\"identityHashCode\":\""+ toto.hashCode() + "\",\"object\":\"toto2\"}", builder.toString());
 
+        TotoObject object = new TotoObject();
+        builder = new ToStringBuilder(object, false);
+        builder.append("object", object);
+        assertEquals("{\"class\":\"TotoObject\",\"identityHashCode\":\""+ object.hashCode() + "\",\"object\":{\"name\":\"toto\"}}", builder.toString());
     }
 
 	@Test
@@ -217,6 +221,10 @@ class ToStringBuilderTest {
         builder = new ToStringBuilder(true);
         builder.append("list", (List) null);
         assertEquals("{\"list\":null}", builder.toString());
+
+        builder = new ToStringBuilder(false);
+        builder.append("list", (List) null);
+        assertEquals("{}", builder.toString());
     }
 	
 	@Test
@@ -249,6 +257,14 @@ class ToStringBuilderTest {
         @Override
         public String toString() {
             return "toto2";
+        }
+    }
+
+    private static final class TotoObject {
+
+        @Override
+        public String toString() {
+            return "{\"name\":\"toto\"}";
         }
     }
 

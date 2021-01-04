@@ -212,13 +212,13 @@ public final class ToStringBuilder {
 	 * @return the to string builder
 	 */
 	public ToStringBuilder append(String key, List<?> values) {
-		if (!this.appendNull && value == null) {
+		if (!this.appendNull && values == null) {
 			return this;
 		}
 		insertKey(getChars(key));
 		if (values == null) {
 			insertNullValue();
-		} else if (values.size() == 0) {
+		} else if (values.isEmpty()) {
 			addChar('[');
 			addChar(']');
 		} else {

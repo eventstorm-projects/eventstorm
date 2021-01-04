@@ -1,5 +1,6 @@
 package eu.eventstorm.eventstore.memory;
 
+import static eu.eventstorm.eventstore.ex.UserCreatedEventPayload.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -25,7 +26,7 @@ class InMemoryEventStoreClientTest {
 	void beforeEach() {
 		manager = new InMemoryStreamManagerBuilder()
 				.withDefinition("test")
-				.withPayload(UserCreatedEventPayload.class, UserCreatedEventPayload.getDescriptor(), UserCreatedEventPayload.parser(), () -> UserCreatedEventPayload.newBuilder())
+				.withPayload(UserCreatedEventPayload.class, getDescriptor(), parser(), UserCreatedEventPayload::newBuilder)
 			.and()
 			.build();
 	}
@@ -35,16 +36,16 @@ class InMemoryEventStoreClientTest {
 		
 		InMemoryEventStoreClient client = new InMemoryEventStoreClient(manager, new InMemoryEventStore(new EventStoreProperties()));
 
-		client.appendToStream("test", "1", UserCreatedEventPayload.newBuilder().build());
-		client.appendToStream("test", "2", UserCreatedEventPayload.newBuilder().build());
-		client.appendToStream("test", "1", UserCreatedEventPayload.newBuilder().build());
-		client.appendToStream("test", "2", UserCreatedEventPayload.newBuilder().build());
-		client.appendToStream("test", "2", UserCreatedEventPayload.newBuilder().build());
+		client.appendToStream("test", "1", newBuilder().build());
+		client.appendToStream("test", "2", newBuilder().build());
+		client.appendToStream("test", "1", newBuilder().build());
+		client.appendToStream("test", "2", newBuilder().build());
+		client.appendToStream("test", "2", newBuilder().build());
 		
 		assertEquals(2, client.readStream("test", "1").count());
 		assertEquals(3, client.readStream("test", "2").count());
 		
-		EventStoreException ese = assertThrows(EventStoreException.class, () -> client.appendToStream("fake", "1", UserCreatedEventPayload.newBuilder().build()));
+		EventStoreException ese = assertThrows(EventStoreException.class, () -> client.appendToStream("fake", "1", newBuilder().build()));
 		assertEquals(EventStoreException.Type.STREAM_NOT_FOUND, ese.getType());
 	}
 	
