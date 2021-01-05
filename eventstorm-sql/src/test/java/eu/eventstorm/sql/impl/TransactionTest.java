@@ -148,7 +148,7 @@ class TransactionTest {
 
 			assertFalse(tx.isReadOnly());
 
-			try (TransactionNested tn = (TransactionNested) ((TransactionReadWrite) tx).innerTransaction(TransactionDefinition.READ_WRITE)) {
+			try (TransactionNested tn = (TransactionNested) ((TransactionReadWrite) tx).innerTransaction(TransactionDefinitions.READ_WRITE)) {
 				tn.rollback();
 			}
 

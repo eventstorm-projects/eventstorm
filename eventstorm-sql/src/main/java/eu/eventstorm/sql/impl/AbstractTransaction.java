@@ -1,10 +1,5 @@
 package eu.eventstorm.sql.impl;
 
-import static eu.eventstorm.sql.impl.TransactionException.Type.COMMIT;
-import static eu.eventstorm.sql.impl.TransactionException.Type.NOT_ACTIVE;
-import static eu.eventstorm.sql.impl.TransactionException.Type.PREPARED_STATEMENT;
-import static eu.eventstorm.sql.impl.TransactionException.Type.ROLLBACK;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -21,6 +16,8 @@ import eu.eventstorm.sql.SqlQuery;
 import eu.eventstorm.sql.tracer.TransactionSpan;
 import eu.eventstorm.sql.tracer.TransactionTracer;
 import eu.eventstorm.util.ToStringBuilder;
+
+import static eu.eventstorm.sql.impl.TransactionException.Type.*;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -45,9 +42,12 @@ abstract class AbstractTransaction implements TransactionSupport {
 
 	private final Instant instant;
 
+	private final boolean mustRestoreAutoCommit;
+
 	protected AbstractTransaction(TransactionManagerImpl transactionManager, Connection connection) {
 		this.transactionManager = transactionManager;
 		this.connection = connection;
+		this.mustRestoreAutoCommit = initAutoCommit(connection);
 		this.uuid = UUID.randomUUID();
 		this.active = true;
 		this.tracer = transactionManager.getConfiguration().getTracer();
@@ -92,14 +92,8 @@ abstract class AbstractTransaction implements TransactionSupport {
 				close(this.select);	
 			} finally {
 				try {
-					boolean isClosed = this.connection.isClosed();
-					
-					if (LOGGER.isDebugEnabled()) {
-						LOGGER.debug("close() connection : isClosed=[{}] connection=[{}]", isClosed, connection);
-					}
-					if (!isClosed) {
-						this.connection.close();
-					}
+					close(connection);
+
 				} catch (SQLException cause) {
 					span.exception(cause);
 					LOGGER.warn("Failed to close the connection", cause);
@@ -261,5 +255,29 @@ abstract class AbstractTransaction implements TransactionSupport {
 				.append("active", active)
 				.toString();
 	}
-	
+
+	private boolean initAutoCommit(Connection conn) {
+		try {
+			if (connection.getAutoCommit()) {
+				connection.setAutoCommit(false);
+				return true;
+			} else {
+				return false;
+			}
+		} catch (SQLException cause) {
+			throw new TransactionException(CREATE, cause);
+		}
+	}
+
+	private void close(Connection connection) throws SQLException {
+		boolean isClosed = this.connection.isClosed();
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("close() connection : isClosed=[{}] connection=[{}]", isClosed, connection);
+		}
+		if (!isClosed) {
+			this.connection.setAutoCommit(mustRestoreAutoCommit);
+			this.connection.close();
+		}
+	}
 }

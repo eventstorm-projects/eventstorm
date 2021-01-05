@@ -58,17 +58,17 @@ public final class TransactionManagerImpl implements TransactionManager {
 
     @Override
     public Transaction newTransactionReadOnly() {
-        return this.getTransaction(TransactionDefinition.READ_ONLY);
+        return this.getTransaction(TransactionDefinitions.READ_ONLY);
     }
 
     @Override
     public Transaction newTransactionReadWrite() {
-        return getTransaction(TransactionDefinition.READ_WRITE);
+        return getTransaction(TransactionDefinitions.READ_WRITE);
     }
     
     @Override
 	public Transaction newTransactionIsolatedReadWrite() {
-    	return getTransaction(TransactionDefinition.ISOLATED_READ_WRITE);
+    	return getTransaction(TransactionDefinitions.ISOLATED_READ_WRITE);
 	}
     
 	@Override
@@ -96,27 +96,20 @@ public final class TransactionManagerImpl implements TransactionManager {
         }
         
 		if (tx != null) {
-
-			if (TransactionDefinition.ISOLATED_READ_WRITE == definition) {
+			if (TransactionDefinitions.ISOLATED_READ_WRITE == definition) {
 				tx = new TransactionIsolatedReadWrite(this, doBegin(definition), tx);
 			} 
 			else {
 				// get TX inside another TX
 				tx = tx.innerTransaction(definition);
 			}
-		} else {
-			switch (definition) {
-			case READ_ONLY:
-				tx = new TransactionReadOnly(this, doBegin(definition));
-				break;
-			case ISOLATED_READ_WRITE:
-				tx = new TransactionIsolatedReadWrite(this, doBegin(definition), null);
-				break;
-			case READ_WRITE:
-				tx = new TransactionReadWrite(this, doBegin(definition));
-				break;
-			}
-		}
+		} else if (definition == TransactionDefinitions.READ_ONLY) {
+            tx = new TransactionReadOnly(this, doBegin(definition));
+        } else if (definition == TransactionDefinitions.ISOLATED_READ_WRITE) {
+            tx = new TransactionIsolatedReadWrite(this, doBegin(definition), null);
+        } else if (definition == TransactionDefinitions.READ_WRITE) {
+            tx = new TransactionReadWrite(this, doBegin(definition));
+        }
         
         this.transactions.set(tx);
         return tx;
@@ -126,12 +119,10 @@ public final class TransactionManagerImpl implements TransactionManager {
     	final Connection conn;
         try {
             conn = dataSource.getConnection();
-            conn.setAutoCommit(false);
             prepareTransactionalConnection(conn, definition);
         } catch (SQLException cause) {
             throw new TransactionException(CREATE, cause);
         }
-
         return conn;
     }
 

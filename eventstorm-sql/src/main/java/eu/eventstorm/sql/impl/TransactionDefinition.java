@@ -3,21 +3,12 @@ package eu.eventstorm.sql.impl;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-enum TransactionDefinition {
-
-	READ_ONLY(true), READ_WRITE(false), ISOLATED_READ_WRITE(false);
-	
-	private final boolean isReadOnly;
-	
-    TransactionDefinition(boolean isReadOnly) {
-		this.isReadOnly = isReadOnly;
-	}
+interface TransactionDefinition {
 
 	/**
-     * @return Return whether to optimize as a read-only transaction.
-     */
-    boolean isReadOnly() {
-    	return this.isReadOnly;
-    }
-
+	 * @return Return whether to optimize as a read-only transaction.
+	 */
+	default boolean isReadOnly() {
+		return false;
+	}
 }
