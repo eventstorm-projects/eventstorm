@@ -1,10 +1,7 @@
 package eu.eventstorm.sql.impl;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.util.HashMap;
-import java.util.Map;
 
 import eu.eventstorm.sql.TransactionDefinition;
 import org.slf4j.Logger;
@@ -19,8 +16,6 @@ class TransactionReadWrite extends AbstractTransaction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionReadWrite.class);
 
-    private final Map<String, PreparedStatement> writes = new HashMap<>();
-
     TransactionReadWrite(TransactionManagerImpl transactionManager, Connection connection, TransactionDefinition definition) {
         super(transactionManager, connection, definition);
     }
@@ -32,12 +27,12 @@ class TransactionReadWrite extends AbstractTransaction {
 
     @Override
     public final TransactionQueryContext write(SqlQuery query) {
-        return preparedStatement(query, this.writes, Statement.NO_GENERATED_KEYS);
+        return preparedStatement(query, getStatements(), Statement.NO_GENERATED_KEYS);
     }
     
     @Override
    	public final TransactionQueryContext writeAutoIncrement(SqlQuery query) {
-    	return preparedStatement(query, this.writes, Statement.RETURN_GENERATED_KEYS);
+    	return preparedStatement(query, getStatements(), Statement.RETURN_GENERATED_KEYS);
    	} 
 
 	public final TransactionSupport innerTransaction(TransactionDefinition definition) {
@@ -46,5 +41,5 @@ class TransactionReadWrite extends AbstractTransaction {
         }
         return new TransactionNested(this, getTransactionManager());
     }
-	
+
 }

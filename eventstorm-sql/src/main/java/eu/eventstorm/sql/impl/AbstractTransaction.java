@@ -37,7 +37,7 @@ abstract class AbstractTransaction implements TransactionSupport {
 
 	private boolean active;
 
-	private final Map<String, PreparedStatement> select = new HashMap<>();
+	private final Map<String, PreparedStatement> statements = new HashMap<>();
 
 	private final TransactionTracer tracer;
 
@@ -98,7 +98,7 @@ abstract class AbstractTransaction implements TransactionSupport {
 			}
 
 			try {
-				close(this.select);	
+				close(this.statements);
 			} finally {
 				try {
 					close(connection);
@@ -125,7 +125,7 @@ abstract class AbstractTransaction implements TransactionSupport {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("select({})", sql);
 		}
-		return preparedStatement(sql, this.select, Statement.NO_GENERATED_KEYS);
+		return preparedStatement(sql, this.statements, Statement.NO_GENERATED_KEYS);
 	}
 	
 	@Override
@@ -146,6 +146,7 @@ abstract class AbstractTransaction implements TransactionSupport {
             }
 
             try {
+				beforeRollback();
                 this.connection.rollback();
             } catch (SQLException cause) {
                 throw new TransactionException(ROLLBACK, this, null, cause);
@@ -165,7 +166,9 @@ abstract class AbstractTransaction implements TransactionSupport {
 			throw new TransactionException(NOT_ACTIVE, this);
 		}
         try (TransactionSpan ignored = this.tracer.span("commit")) {
+
             try {
+				beforeCommit();
                 this.connection.commit();
             } catch (SQLException cause) {
                 throw new TransactionException(COMMIT, this, null, cause);
@@ -176,6 +179,14 @@ abstract class AbstractTransaction implements TransactionSupport {
         } finally {
             afterCommit();
         }
+	}
+
+	protected void beforeCommit() {
+		close(this.statements);
+	}
+
+	protected void beforeRollback() {
+		close(this.statements);
 	}
 
 	protected void afterCommit() {
@@ -190,6 +201,10 @@ abstract class AbstractTransaction implements TransactionSupport {
 
 	protected final TransactionManagerImpl getTransactionManager() {
 		return transactionManager;
+	}
+
+	protected final Map<String, PreparedStatement> getStatements() {
+		return statements;
 	}
 
 	protected final void close(Map<String, PreparedStatement> map) {
