@@ -146,13 +146,11 @@ abstract class AbstractTransaction implements TransactionSupport {
             }
 
             try {
-				beforeRollback();
                 this.connection.rollback();
             } catch (SQLException cause) {
                 throw new TransactionException(ROLLBACK, this, null, cause);
             } finally {
-                this.active = false;
-                transactionManager.remove();
+				afterCommitOrRollback();
             }
         } finally {
             afterRollback();
@@ -166,27 +164,25 @@ abstract class AbstractTransaction implements TransactionSupport {
 			throw new TransactionException(NOT_ACTIVE, this);
 		}
         try (TransactionSpan ignored = this.tracer.span("commit")) {
-
             try {
-				beforeCommit();
                 this.connection.commit();
             } catch (SQLException cause) {
                 throw new TransactionException(COMMIT, this, null, cause);
             } finally {
-                this.active = false;
-                transactionManager.remove();
+				afterCommitOrRollback();
             }
         } finally {
             afterCommit();
         }
 	}
 
-	protected void beforeCommit() {
-		close(this.statements);
-	}
-
-	protected void beforeRollback() {
-		close(this.statements);
+	private void afterCommitOrRollback() {
+		try {
+			this.active = false;
+			transactionManager.remove();
+		} finally {
+			close(this.statements);
+		}
 	}
 
 	protected void afterCommit() {
@@ -254,42 +250,12 @@ abstract class AbstractTransaction implements TransactionSupport {
 	}
 
 	@Override
-	protected void finalize() throws Throwable {
-		try {
-			try {
-				if (this.active) {
-					this.connection.rollback();
-				}	
-			} finally {
-				if (!this.connection.isClosed()) {
-					this.connection.close();	
-				}
-			}
-		} finally {
-			super.finalize();	
-		}
-	}
-	
-	@Override
 	public String toString() {
 		return new ToStringBuilder(this, false)
 				.append("uuid", uuid)
 				.append("instant", instant)
 				.append("active", active)
 				.toString();
-	}
-
-	private boolean initAutoCommit(Connection conn) {
-		try {
-			if (connection.getAutoCommit()) {
-				connection.setAutoCommit(false);
-				return true;
-			} else {
-				return false;
-			}
-		} catch (SQLException cause) {
-			throw new TransactionException(CREATE, cause);
-		}
 	}
 
 	private void close(Connection connection) throws SQLException {
@@ -301,6 +267,19 @@ abstract class AbstractTransaction implements TransactionSupport {
 		if (!isClosed) {
 			this.connection.setAutoCommit(mustRestoreAutoCommit);
 			this.connection.close();
+		}
+	}
+
+	private static boolean initAutoCommit(Connection conn) {
+		try {
+			if (conn.getAutoCommit()) {
+				conn.setAutoCommit(false);
+				return true;
+			} else {
+				return false;
+			}
+		} catch (SQLException cause) {
+			throw new TransactionException(CREATE, cause);
 		}
 	}
 }
