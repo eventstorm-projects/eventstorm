@@ -10,6 +10,8 @@ import java.sql.Statement;
 
 import javax.sql.DataSource;
 
+import eu.eventstorm.sql.TransactionDefinition;
+import eu.eventstorm.sql.TransactionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,18 +59,50 @@ public final class TransactionManagerImpl implements TransactionManager {
     }
 
     @Override
+    public Transaction newTransaction(TransactionDefinition definition) {
+
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("getTransaction({})", definition);
+        }
+        TransactionSupport tx = this.transactions.get();
+
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("current Transaction ({})", tx);
+        }
+
+        if (tx != null) {
+            if (TransactionType.ISOLATED_READ_WRITE == definition.getType()) {
+                tx = new TransactionIsolatedReadWrite(this, getConnection(), tx, definition);
+            }
+            else {
+                // get TX inside another TX
+                tx = tx.innerTransaction(definition);
+            }
+        } else if (TransactionType.READ_ONLY == definition.getType()) {
+            tx = new TransactionReadOnly(this, getConnection(), definition);
+        } else if (TransactionType.ISOLATED_READ_WRITE == definition.getType()) {
+            tx = new TransactionIsolatedReadWrite(this, getConnection(), null, definition);
+        } else if (TransactionType.READ_WRITE == definition.getType()) {
+            tx = new TransactionReadWrite(this, getConnection(), definition);
+        }
+
+        this.transactions.set(tx);
+        return tx;
+    }
+
+    @Override
     public Transaction newTransactionReadOnly() {
-        return this.getTransaction(TransactionDefinitions.READ_ONLY);
+        return newTransaction(TransactionDefinitions.READ_ONLY);
     }
 
     @Override
     public Transaction newTransactionReadWrite() {
-        return getTransaction(TransactionDefinitions.READ_WRITE);
+        return newTransaction(TransactionDefinitions.READ_WRITE);
     }
     
     @Override
 	public Transaction newTransactionIsolatedReadWrite() {
-    	return getTransaction(TransactionDefinitions.ISOLATED_READ_WRITE);
+        return newTransaction(TransactionDefinitions.ISOLATED_READ_WRITE);
 	}
     
 	@Override
@@ -84,42 +118,12 @@ public final class TransactionManagerImpl implements TransactionManager {
 	public boolean hasCurrent() {
 		return this.transactions.get() != null;
 	}
-
-    public Transaction getTransaction(TransactionDefinition definition) {
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("getTransaction({})", definition);
-        }
-        TransactionSupport tx = this.transactions.get();
-        
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("current Transaction ({})", tx);
-        }
-        
-		if (tx != null) {
-			if (TransactionDefinitions.ISOLATED_READ_WRITE == definition) {
-				tx = new TransactionIsolatedReadWrite(this, doBegin(definition), tx);
-			} 
-			else {
-				// get TX inside another TX
-				tx = tx.innerTransaction(definition);
-			}
-		} else if (definition == TransactionDefinitions.READ_ONLY) {
-            tx = new TransactionReadOnly(this, doBegin(definition));
-        } else if (definition == TransactionDefinitions.ISOLATED_READ_WRITE) {
-            tx = new TransactionIsolatedReadWrite(this, doBegin(definition), null);
-        } else if (definition == TransactionDefinitions.READ_WRITE) {
-            tx = new TransactionReadWrite(this, doBegin(definition));
-        }
-        
-        this.transactions.set(tx);
-        return tx;
-    }
     
-	Connection doBegin(TransactionDefinition definition) {
+	Connection getConnection() {
     	final Connection conn;
         try {
             conn = dataSource.getConnection();
-            prepareTransactionalConnection(conn, definition);
+            //prepareTransactionalConnection(conn, definition);
         } catch (SQLException cause) {
             throw new TransactionException(CREATE, cause);
         }
@@ -158,14 +162,14 @@ public final class TransactionManagerImpl implements TransactionManager {
 		return context;
 	}
 
-	protected void prepareTransactionalConnection(Connection con, TransactionDefinition definition)
+	/*protected void prepareTransactionalConnection(Connection con, TransactionDefinition definition)
             throws SQLException {
-        if (enforceReadOnly && definition.isReadOnly()) {
+        if (enforceReadOnly && TransactionType.READ_ONLY == definition.getType()) {
             try (Statement stmt = con.createStatement()) {
                 stmt.executeUpdate("SET TRANSACTION READ ONLY");
             }
         }
-    }
+    }*/
 
 	public TransactionManagerConfiguration getConfiguration() {
 		return this.configuration;

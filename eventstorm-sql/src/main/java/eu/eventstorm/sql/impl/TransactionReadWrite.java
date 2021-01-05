@@ -2,11 +2,11 @@ package eu.eventstorm.sql.impl;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 
+import eu.eventstorm.sql.TransactionDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,8 +21,8 @@ class TransactionReadWrite extends AbstractTransaction {
 
     private final Map<String, PreparedStatement> writes = new HashMap<>();
 
-    TransactionReadWrite(TransactionManagerImpl transactionManager, Connection connection) {
-        super(transactionManager, connection);
+    TransactionReadWrite(TransactionManagerImpl transactionManager, Connection connection, TransactionDefinition definition) {
+        super(transactionManager, connection, definition);
     }
 
     @Override

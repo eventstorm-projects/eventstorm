@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import eu.eventstorm.sql.TransactionDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +31,8 @@ abstract class AbstractTransaction implements TransactionSupport {
 
 	private final Connection connection;
 
+	private final TransactionDefinition definition;
+
 	private final UUID uuid;
 
 	private boolean active;
@@ -44,8 +47,9 @@ abstract class AbstractTransaction implements TransactionSupport {
 
 	private final boolean mustRestoreAutoCommit;
 
-	protected AbstractTransaction(TransactionManagerImpl transactionManager, Connection connection) {
+	protected AbstractTransaction(TransactionManagerImpl transactionManager, Connection connection, TransactionDefinition definition) {
 		this.transactionManager = transactionManager;
+		this.definition = definition;
 		this.connection = connection;
 		this.mustRestoreAutoCommit = initAutoCommit(connection);
 		this.uuid = UUID.randomUUID();
@@ -64,6 +68,11 @@ abstract class AbstractTransaction implements TransactionSupport {
 	@Override
 	public Instant getStart() {
 		return this.instant;
+	}
+
+	@Override
+	public TransactionDefinition getDefinition() {
+		return this.definition;
 	}
 
 	@Override

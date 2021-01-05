@@ -3,6 +3,7 @@ package eu.eventstorm.sql.impl;
 import java.time.Instant;
 import java.util.UUID;
 
+import eu.eventstorm.sql.TransactionDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,6 +81,11 @@ final class TransactionNested implements TransactionSupport {
 	@Override
 	public Instant getStart() {
 		return parent.getStart();
+	}
+
+	@Override
+	public TransactionDefinition getDefinition() {
+		return parent.getDefinition();
 	}
 
 	@Override

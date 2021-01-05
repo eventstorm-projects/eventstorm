@@ -2,6 +2,7 @@ package eu.eventstorm.sql.util;
 
 import java.util.stream.Stream;
 
+import eu.eventstorm.sql.TransactionDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +23,32 @@ public final class TransactionTemplate {
 
 	public TransactionTemplate(TransactionManager transactionManager) {
 		this.transactionManager = transactionManager;
+	}
+
+	public <T> T executeWith(TransactionDefinition definition, TransactionCallback<T> callback) {
+		T returnValue;
+		try (Transaction tx = transactionManager.newTransaction(definition)) {
+			try {
+				returnValue = callback.doInTransaction();
+				tx.commit();
+			} catch (Exception cause) {
+				tx.rollback();
+				throw cause;
+			}
+		}
+		return returnValue;
+	}
+
+	public void executeWith(TransactionDefinition definition, TransactionCallbackVoid callback) {
+		try (Transaction tx = transactionManager.newTransaction(definition)) {
+			try {
+				callback.doInTransaction();
+				tx.commit();
+			} catch (Exception cause) {
+				tx.rollback();
+				throw cause;
+			}
+		}
 	}
 
 	public <T> T executeWithReadWrite(TransactionCallback<T> callback) {

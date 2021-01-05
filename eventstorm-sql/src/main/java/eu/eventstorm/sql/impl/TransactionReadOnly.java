@@ -3,14 +3,16 @@ package eu.eventstorm.sql.impl;
 import java.sql.Connection;
 
 import eu.eventstorm.sql.SqlQuery;
+import eu.eventstorm.sql.TransactionDefinition;
+import eu.eventstorm.sql.TransactionType;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 class TransactionReadOnly extends AbstractTransaction {
 
-	TransactionReadOnly(TransactionManagerImpl transactionManager, Connection connection) {
-		super(transactionManager, connection);
+	TransactionReadOnly(TransactionManagerImpl transactionManager, Connection connection, TransactionDefinition definition) {
+		super(transactionManager, connection, definition);
 	}
 
 	@Override
@@ -25,7 +27,7 @@ class TransactionReadOnly extends AbstractTransaction {
 
 	@Override
 	public TransactionSupport innerTransaction(TransactionDefinition definition) {
-		if (!definition.isReadOnly()) {
+		if (TransactionType.READ_ONLY != definition.getType()) {
 			throw new TransactionException(TransactionException.Type.READ_ONLY);
 		}
 		return new TransactionNested(this, getTransactionManager());

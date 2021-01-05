@@ -19,5 +19,6 @@ public interface Transaction extends AutoCloseable {
     UUID getUuid();
 
     Instant getStart();
-    
+
+    TransactionDefinition getDefinition();
 }

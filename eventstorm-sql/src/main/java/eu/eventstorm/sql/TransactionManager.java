@@ -7,6 +7,8 @@ import eu.eventstorm.sql.impl.TransactionContext;
  */
 public interface TransactionManager extends AutoCloseable {
 
+    Transaction newTransaction(TransactionDefinition definition);
+
     Transaction newTransactionReadOnly();
 
     Transaction newTransactionReadWrite();

@@ -13,6 +13,8 @@ import java.sql.Statement;
 import java.util.List;
 import java.util.stream.Stream;
 
+import eu.eventstorm.sql.TransactionDefinition;
+import eu.eventstorm.sql.impl.TransactionDefinitions;
 import org.h2.jdbcx.JdbcConnectionPool;
 import org.h2.tools.RunScript;
 import org.junit.jupiter.api.AfterEach;
@@ -91,6 +93,13 @@ class TransactionTemplateTest {
 			Student inside = template.executeWithReadOnly(() -> repository.findById(1));
 			assertNotNull(inside);
 		});
+
+		template.executeWith(
+				TransactionDefinitions.readOnly(5),
+				() -> {
+					Student inside = template.executeWithReadOnly(() -> repository.findById(1));
+					assertNotNull(inside);
+			});
 
 	}
 
@@ -199,5 +208,25 @@ class TransactionTemplateTest {
         assertNull(template.executeWithReadOnly(() -> repository.findById(1)));
         assertNotNull(template.executeWithReadOnly(() -> repository.findById(2)));
 
+	}
+
+	@Test
+	void timeoutTest() {
+
+		Student student = new StudentImpl();
+		student.setId(1);
+		student.setAge(37);
+		student.setCode("Code1");
+
+		Exception ex = template.executeWith(TransactionDefinitions.readWrite(1), () -> {
+			this.repository.insert(student);
+			try {
+				Thread.sleep(2500);
+			} catch (InterruptedException e) {
+				return e;
+			}
+			return null;
+		});
+		assertNotNull(ex);
 	}
 }
