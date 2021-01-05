@@ -98,9 +98,8 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 	    	return doStoreAndEvolution(tuple);
 		} catch (EventstormRepositoryException cause) {
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug(cause.getMessage(), cause);
+				LOGGER.debug("Thread [{}]- isInterrupted=[{}] - cause [{}]", Thread.currentThread(), Thread.currentThread().isInterrupted(), cause.getMessage());
 			}
-			// Cause of timeout of tx.
 			LOGGER.info("storeAndEvolution -> retry [{}]", retry);
 			if (retry > 9) {
 				throw cause;
@@ -129,7 +128,7 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 				// apply the evolution function (state,Event) => State
 				events.forEach(evolutionHandlers::on);
 			}
-			
+
 			tx.commit();
 		}
 		return events;

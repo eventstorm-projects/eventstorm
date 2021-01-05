@@ -102,7 +102,6 @@ abstract class AbstractTransaction implements TransactionSupport {
 			} finally {
 				try {
 					close(connection);
-
 				} catch (SQLException cause) {
 					span.exception(cause);
 					LOGGER.warn("Failed to close the connection", cause);
