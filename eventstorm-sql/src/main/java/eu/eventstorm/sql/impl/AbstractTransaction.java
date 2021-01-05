@@ -137,7 +137,7 @@ abstract class AbstractTransaction implements TransactionSupport {
 	public final void rollback() {
 		
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("rollback()");
+			LOGGER.debug("rollback() [{}]", this);
 		}
         
         try (TransactionSpan ignored = this.tracer.span("rollback")) {
@@ -166,16 +166,13 @@ abstract class AbstractTransaction implements TransactionSupport {
 		}
 
         try (TransactionSpan ignored = this.tracer.span("commit")) {
-            try {
-                this.connection.commit();
-				this.active = false;
-				afterCommitOrRollback();
-            } catch (SQLException cause) {
-                throw new TransactionException(COMMIT, this, null, cause);
-            }
-        } finally {
-            afterCommit();
-        }
+			this.connection.commit();
+			this.active = false;
+			afterCommitOrRollback();
+			afterCommit();
+        } catch (SQLException cause) {
+			throw new TransactionException(COMMIT, this, null, cause);
+		}
 	}
 
 	private void afterCommitOrRollback() {
@@ -205,6 +202,20 @@ abstract class AbstractTransaction implements TransactionSupport {
 	}
 
 	protected final void close(Map<String, PreparedStatement> map) {
+
+		try {
+			if (connection.isClosed()) {
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("connection is closed -> skip");
+				}
+				map.clear();
+				return;
+			}
+		} catch (SQLException cause) {
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("connection -> [{}]", connection);
+			}
+		}
 		try {
 			map.forEach((sql, ps) -> {
 				try {
