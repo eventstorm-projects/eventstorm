@@ -13,7 +13,6 @@ import java.sql.Statement;
 import java.util.List;
 import java.util.stream.Stream;
 
-import eu.eventstorm.sql.TransactionDefinition;
 import eu.eventstorm.sql.impl.TransactionDefinitions;
 import org.h2.jdbcx.JdbcConnectionPool;
 import org.h2.tools.RunScript;
@@ -169,11 +168,8 @@ class TransactionTemplateTest {
 			throw new RuntimeException();
 		}));
 
-		Assertions.assertThrows(RuntimeException.class, () -> template.executeWithReadWrite(new TransactionCallbackVoid() {
-			@Override
-			public void doInTransaction() {
-				throw new RuntimeException();
-			}
+		Assertions.assertThrows(RuntimeException.class, () -> template.executeWithReadWrite((TransactionCallbackVoid) () -> {
+			throw new RuntimeException();
 		}));
 
 	}
@@ -199,7 +195,7 @@ class TransactionTemplateTest {
             	this.repository.insert(s2);
             	return null;
             });
-        	assertEquals(2, template.executeWithReadOnly(() -> this.repository.findAll().count()));
+        	assertEquals(1, template.executeWithReadOnly(() -> this.repository.findAll().count()));
         	throw new RuntimeException();
         }));
 
@@ -207,6 +203,37 @@ class TransactionTemplateTest {
         
         assertNull(template.executeWithReadOnly(() -> repository.findById(1)));
         assertNotNull(template.executeWithReadOnly(() -> repository.findById(2)));
+
+	}
+
+	@Test
+	void simpleIsolated2() {
+
+		Student student = new StudentImpl();
+		student.setId(1);
+		student.setAge(37);
+		student.setCode("Code1");
+
+		Student s2 = new StudentImpl();
+		s2.setId(2);
+		s2.setAge(38);
+		s2.setCode("Code2");
+
+		template.executeWithIsolatedReadWrite(() -> {
+			this.repository.insert(student);
+			assertEquals(1, template.executeWithReadOnly(() -> this.repository.findAll().count()));
+			template.executeWithIsolatedReadWrite(() -> {
+				this.repository.insert(s2);
+				return null;
+			});
+			assertEquals(1, template.executeWithReadOnly(() -> this.repository.findAll().count()));
+			return null;
+		});
+
+		assertEquals(2, template.executeWithReadOnly(() -> this.repository.findAll().count()));
+
+		assertNotNull(template.executeWithReadOnly(() -> repository.findById(1)));
+		assertNotNull(template.executeWithReadOnly(() -> repository.findById(2)));
 
 	}
 

@@ -22,20 +22,11 @@ public final class TransactionException extends EventstormSqlException {
     }
 
 
-    public TransactionException(Type type, Transaction transaction) {
+    public TransactionException(Type type) {
         super(type, null);
     }
 
-    TransactionException(Type type, Transaction transaction, TransactionSpan span, SQLException cause) {
-        super(type, null, cause);
-    }
-
-    
-    TransactionException(Type type) {
-        super(type, null);
-    }
-
-     TransactionException(Type type, SQLException cause) {
+    TransactionException(Type type, SQLException cause) {
         super(type, null, cause);
     }
 

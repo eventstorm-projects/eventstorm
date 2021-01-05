@@ -84,7 +84,7 @@ class JsonTest {
 			Span s2 = repo.findById(2);
 			assertNull(s.getContent().asMap().get("toto", String.class));
 			assertEquals("val01", s2.getContent().asMap().get("key1", String.class));
-			tx.rollback();
+			tx.commit();
 		}
 
 		try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
@@ -111,7 +111,7 @@ class JsonTest {
 			for (String key : s2.getContent().asMap().keys()) {
 				assertEquals("val" + key.substring(5), s2.getContent().asMap().get(key, String.class));
 			}
-			tx.rollback();
+			tx.commit();
 		}
 
 	}

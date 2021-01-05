@@ -25,7 +25,7 @@ abstract class SqlSequenceStreamIdGenerator<T> implements StreamIdGenerator {
             String id;
             try (Transaction tx = sequenceGenerator.getDatabase().transactionManager().newTransactionReadOnly()) {
             	id = String.valueOf(sequenceGenerator.next());
-                tx.rollback();
+                tx.commit();
             }
             return id;
         }
@@ -43,7 +43,7 @@ abstract class SqlSequenceStreamIdGenerator<T> implements StreamIdGenerator {
             String id;
             try (Transaction tx = sequenceGenerator.getDatabase().transactionManager().newTransactionReadOnly()) {
             	id = String.valueOf(sequenceGenerator.next());
-                tx.rollback();
+                tx.commit();
             }
             return id;
         }

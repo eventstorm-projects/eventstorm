@@ -102,13 +102,8 @@ public final class TransactionTemplate {
 	public <T> T executeWithIsolatedReadWrite(TransactionCallback<T> callback) {
 		T returnValue;
 		try (Transaction tx = transactionManager.newTransactionIsolatedReadWrite()) {
-			try {
-				returnValue = callback.doInTransaction();
-				tx.commit();
-			} catch (Exception cause) {
-				tx.rollback();
-				throw cause;
-			}
+			returnValue = callback.doInTransaction();
+			tx.commit();
 		}
 		return returnValue;
 	}
@@ -167,7 +162,7 @@ public final class TransactionTemplate {
 	
 	private <T> T executeInExistingTx(TransactionCallback<T> callback) {
 		if (!this.transactionManager.current().isReadOnly()) {
-			throw new TransactionException(TransactionException.Type.READ_ONLY, transactionManager.current());
+			throw new TransactionException(TransactionException.Type.READ_ONLY);
 		}
 		return callback.doInTransaction();
 	}

@@ -103,7 +103,7 @@ class PageTest {
 		  
 		  try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
 			  assertEquals(56495, this.repo.count());
-			  tx.rollback();
+			  tx.commit();
 		  }
 		  
 		  
@@ -128,10 +128,8 @@ class PageTest {
 			  assertEquals("00ID", content.get(7).getId());
 			  assertEquals("00IG", content.get(8).getId());
 			  assertEquals("00II", content.get(9).getId());
-			  
-			  System.out.println(page);
 
-			  tx.rollback();
+			  tx.commit();
 		  }
 		  
 		  try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
@@ -157,7 +155,7 @@ class PageTest {
 			  for (int i = 0 ; i < 10 ; i++) {
 				  assertEquals("small_airport", content.get(i).getType());
 			  }
-			  tx.rollback();
+			  tx.commit();
 		  }
 		  
 		  Page<Airport> page = transactionTemplate.page(() -> this.repo.findAll( PageRequest.of(0, 10).withFilter("type", "eq", "small_airport",
@@ -202,7 +200,7 @@ class PageTest {
 			  for (int i = 0 ; i < 10 ; i++) {
 				  assertEquals("small_airport", content.get(i).getType());
 			  }
-			  tx.rollback();
+			  tx.commit();
 		  }
 		  
 		  try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
@@ -229,13 +227,13 @@ class PageTest {
 			  for (int i = 0 ; i < 10 ; i++) {
 				  assertEquals("small_airport", content.get(i).getType());
 			  }
-			  tx.rollback();
+			  tx.commit();
 		  }
 
 		  try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
 			  assertThrows(TransactionException.class, () -> transactionTemplate.page(() -> this.repo.findAll(PageRequest.of(0, 10)
 					  .withFilter("type", "eq", "small_airport", new DefaultFilterEvaluator(eq(AirportDescriptor.TYPE, "small_airport"), of(), null)).build())));
-			  tx.rollback();
+			  tx.commit();
 		  }
 	}
 
