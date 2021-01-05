@@ -147,6 +147,7 @@ abstract class AbstractTransaction implements TransactionSupport {
 
             try {
                 this.connection.rollback();
+				this.active = false;
             } catch (SQLException cause) {
                 throw new TransactionException(ROLLBACK, this, null, cause);
             } finally {
@@ -163,13 +164,14 @@ abstract class AbstractTransaction implements TransactionSupport {
 		if (!this.active) {
 			throw new TransactionException(NOT_ACTIVE, this);
 		}
+
         try (TransactionSpan ignored = this.tracer.span("commit")) {
             try {
                 this.connection.commit();
+				this.active = false;
+				afterCommitOrRollback();
             } catch (SQLException cause) {
                 throw new TransactionException(COMMIT, this, null, cause);
-            } finally {
-				afterCommitOrRollback();
             }
         } finally {
             afterCommit();
@@ -178,7 +180,6 @@ abstract class AbstractTransaction implements TransactionSupport {
 
 	private void afterCommitOrRollback() {
 		try {
-			this.active = false;
 			transactionManager.remove();
 		} finally {
 			close(this.statements);

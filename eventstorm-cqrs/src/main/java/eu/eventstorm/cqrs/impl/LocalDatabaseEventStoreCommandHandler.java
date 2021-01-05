@@ -112,24 +112,30 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 	private ImmutableList<Event> doStoreAndEvolution(Tuple2<CommandContext, T> tuple) {
 		ImmutableList<Event> events;
 		try (Transaction tx = this.transactionManager.newTransactionReadWrite()) {
-			
-			ImmutableList<EventCandidate<?>> candidates;
-			try (Span ignored = this.tracer.start("decision")) {
-				// apply the decision function (state,command) => events
-				candidates = decision(tuple.getT1(), tuple.getT2());
+
+			try {
+				ImmutableList<EventCandidate<?>> candidates;
+				try (Span ignored = this.tracer.start("decision")) {
+					// apply the decision function (state,command) => events
+					candidates = decision(tuple.getT1(), tuple.getT2());
+				}
+
+				try (Span ignored = this.tracer.start("store")) {
+					// save the to the eventStore
+					events = store(candidates);
+				}
+
+				try (Span ignored = this.tracer.start("evolution")) {
+					// apply the evolution function (state,Event) => State
+					events.forEach(evolutionHandlers::on);
+				}
+
+				tx.commit();
+			} catch (Exception exception) {
+				tx.rollback();
+				throw exception;
 			}
 
-			try (Span ignored = this.tracer.start("store")) {
-				// save the to the eventStore
-				events = store(candidates);
-			}
-
-			try (Span ignored = this.tracer.start("evolution")) {
-				// apply the evolution function (state,Event) => State
-				events.forEach(evolutionHandlers::on);
-			}
-
-			tx.commit();
 		}
 		return events;
 	}
