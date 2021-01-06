@@ -1,10 +1,11 @@
 package eu.eventstorm.cqrs.impl;
 
-import java.time.Duration;
 import java.util.UUID;
 
 import eu.eventstorm.cqrs.tracer.Span;
 import eu.eventstorm.cqrs.tracer.Tracer;
+import eu.eventstorm.sql.TransactionDefinition;
+import eu.eventstorm.sql.impl.TransactionDefinitions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,8 @@ import reactor.core.publisher.Mono;
 public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> implements CommandHandler<T, Event> {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(LocalDatabaseEventStoreCommandHandler.class);
+
+	private static final TransactionDefinition DEFAULT_TRANSACTION_DEFINITION = TransactionDefinitions.readWrite(10);
 
 	private final Class<T> type;
 
@@ -106,7 +109,7 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 	
 	private ImmutableList<Event> doStoreAndEvolution(Tuple2<CommandContext, T> tuple) {
 		ImmutableList<Event> events;
-		try (Transaction tx = this.transactionManager.newTransactionReadWrite()) {
+		try (Transaction tx = this.transactionManager.newTransaction(DEFAULT_TRANSACTION_DEFINITION)) {
 			ImmutableList<EventCandidate<?>> candidates;
 			try (Span ignored = this.tracer.start("decision")) {
 				// apply the decision function (state,command) => events

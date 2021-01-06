@@ -17,7 +17,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import eu.eventsotrm.core.apt.SourceCode;
-import eu.eventsotrm.core.apt.model.DatabaseQueryDescriptor;
+import eu.eventsotrm.core.apt.model.DatabaseViewQueryDescriptor;
 import eu.eventsotrm.core.apt.model.QueryPropertyDescriptor;
 import eu.eventsotrm.sql.apt.Helper;
 import eu.eventsotrm.sql.apt.log.Logger;
@@ -41,7 +41,7 @@ public final class QueryDescriptorGenerator {
 
 	public void generate(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
 		// generate Implementation class;
-		sourceCode.forEachDatabaseQueryPackage((pack, list) -> {
+		sourceCode.forEachDatabaseViewQueryPackage((pack, list) -> {
 			try {
 				generate(processingEnvironment, pack, list);
 			} catch (Exception cause) {
@@ -51,9 +51,9 @@ public final class QueryDescriptorGenerator {
 
 	}
 
-	private void generate(ProcessingEnvironment env, String pack, ImmutableList<DatabaseQueryDescriptor> descriptors) throws IOException {
+	private void generate(ProcessingEnvironment env, String pack, ImmutableList<DatabaseViewQueryDescriptor> descriptors) throws IOException {
 
-		for (DatabaseQueryDescriptor ed : descriptors) {
+		for (DatabaseViewQueryDescriptor ed : descriptors) {
 		    
 			String fcqn = pack + "." + ed.simpleName() + "SqlQueryDescriptor";
 			
@@ -78,7 +78,7 @@ public final class QueryDescriptorGenerator {
 
 	}
 
-	private static void writeHeader(Writer writer, String pack, DatabaseQueryDescriptor descriptor) throws IOException {
+	private static void writeHeader(Writer writer, String pack, DatabaseViewQueryDescriptor descriptor) throws IOException {
 		writePackage(writer, pack);
 		
 
@@ -105,7 +105,7 @@ public final class QueryDescriptorGenerator {
 	}
 	
 
-	private void writeStatic(Writer writer, DatabaseQueryDescriptor ed) throws IOException {
+	private void writeStatic(Writer writer, DatabaseViewQueryDescriptor ed) throws IOException {
 		
 		writeNewLine(writer);
 		writer.write("    private static final ImmutableMap<String, SqlColumn> VALUES = ImmutableMap.<String, SqlColumn>builder() ");
@@ -145,7 +145,7 @@ public final class QueryDescriptorGenerator {
 	}
 
 	
-	private static void writeConstructor(Writer writer, DatabaseQueryDescriptor ed) throws IOException {
+	private static void writeConstructor(Writer writer, DatabaseViewQueryDescriptor ed) throws IOException {
 		writeNewLine(writer);
 		writer.write("    public " + ed.simpleName() +"SqlQueryDescriptor");
 		writer.write("() {");
@@ -154,7 +154,7 @@ public final class QueryDescriptorGenerator {
 		writeNewLine(writer);
 	}
 
-	private void writeMethodGet(Writer writer, DatabaseQueryDescriptor ed) throws IOException {
+	private void writeMethodGet(Writer writer, DatabaseViewQueryDescriptor ed) throws IOException {
 		writeNewLine(writer);
 		writer.write("    @Override");
 		writeNewLine(writer);
@@ -166,7 +166,7 @@ public final class QueryDescriptorGenerator {
 		writeNewLine(writer);
 	}
 	
-	private void writeMethodExpression(Writer writer, DatabaseQueryDescriptor ed) throws IOException {
+	private void writeMethodExpression(Writer writer, DatabaseViewQueryDescriptor ed) throws IOException {
 		writeNewLine(writer);
 		writer.write("    @Override");
 		writeNewLine(writer);

@@ -18,17 +18,7 @@ import javax.annotation.processing.ProcessingEnvironment;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
-import eu.eventsotrm.core.apt.model.AbstractCommandDescriptor;
-import eu.eventsotrm.core.apt.model.CommandDescriptor;
-import eu.eventsotrm.core.apt.model.DatabaseQueryDescriptor;
-import eu.eventsotrm.core.apt.model.Descriptor;
-import eu.eventsotrm.core.apt.model.ElsQueryDescriptor;
-import eu.eventsotrm.core.apt.model.EmbeddedCommandDescriptor;
-import eu.eventsotrm.core.apt.model.EventEvolutionDescriptor;
-import eu.eventsotrm.core.apt.model.PojoQueryDescriptor;
-import eu.eventsotrm.core.apt.model.QueryClientDescriptor;
-import eu.eventsotrm.core.apt.model.QueryDescriptor;
-import eu.eventsotrm.core.apt.model.RestControllerDescriptor;
+import eu.eventsotrm.core.apt.model.*;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.annotation.CqrsConfiguration;
@@ -52,10 +42,12 @@ public final class SourceCode {
 	private final Map<String, ImmutableList<RestControllerDescriptor>> restControllers;
 	
 	private final ImmutableMap<String, ElsQueryDescriptor> queriesElasticSearch;
-	private final ImmutableMap<String, DatabaseQueryDescriptor> queriesDatabase;
+	private final ImmutableMap<String, DatabaseViewQueryDescriptor> queriesDatabaseView;
+	private final ImmutableMap<String, DatabaseTableQueryDescriptor> queriesDatabaseTable;
 	private final ImmutableMap<String, PojoQueryDescriptor> queriesPojo;
 	
-	private final ImmutableMap<String, ImmutableList<DatabaseQueryDescriptor>> queriesDatabasePackages;
+	private final ImmutableMap<String, ImmutableList<DatabaseViewQueryDescriptor>> queriesDatabaseViewPackages;
+	private final ImmutableMap<String, ImmutableList<DatabaseTableQueryDescriptor>> queriesDatabaseTablePackages;
 	private final ImmutableMap<String, ImmutableList<PojoQueryDescriptor>> queriesPojoPackages;
 	private final ImmutableMap<String, ImmutableList<QueryDescriptor>> queriesPackages;
 	
@@ -70,7 +62,8 @@ public final class SourceCode {
 	//		List<EventDescriptor> events,
 	        List<RestControllerDescriptor> restControllerDescriptors, 
 	        List<ElsQueryDescriptor> queriesElasticSearch,
-	        List<DatabaseQueryDescriptor> queriesDatabase,
+	        List<DatabaseViewQueryDescriptor> queriesDatabase,
+			List<DatabaseTableQueryDescriptor> queriesTableDatabase,
 	        List<PojoQueryDescriptor> queriesPojo,
 	        List<QueryClientDescriptor> clientQueries) {
 		this.cqrsConfiguration = cqrsConfiguration;
@@ -90,8 +83,10 @@ public final class SourceCode {
 		        .collect(groupingBy( t -> t.getFCQN(env), mapping(identity(), toImmutableList())));
 		
 		this.queriesElasticSearch = queriesElasticSearch.stream().collect(toImmutableMap(ElsQueryDescriptor::fullyQualidiedClassName, identity()));
-		this.queriesDatabase = queriesDatabase.stream().collect(toImmutableMap(DatabaseQueryDescriptor::fullyQualidiedClassName, identity()));
-		this.queriesDatabasePackages = mapByPackage(env, this.queriesDatabase);
+		this.queriesDatabaseView = queriesDatabase.stream().collect(toImmutableMap(DatabaseViewQueryDescriptor::fullyQualidiedClassName, identity()));
+		this.queriesDatabaseTable = queriesTableDatabase.stream().collect(toImmutableMap(DatabaseTableQueryDescriptor::fullyQualidiedClassName, identity()));
+		this.queriesDatabaseViewPackages = mapByPackage(env, this.queriesDatabaseView);
+		this.queriesDatabaseTablePackages = mapByPackage(env, this.queriesDatabaseTable);
 		
 		this.queriesPojo = queriesPojo.stream().collect(toImmutableMap(PojoQueryDescriptor::fullyQualidiedClassName, identity()));
 		this.queriesPojoPackages = mapByPackage(env, this.queriesPojo);
@@ -100,9 +95,10 @@ public final class SourceCode {
 		this.clientQueriesPackages = mapByPackage(env, this.clientQueries);
 
 		ImmutableList.Builder<QueryDescriptor> builder = ImmutableList.<QueryDescriptor>builder();
-    	builder.addAll((Iterable<? extends QueryDescriptor>) queriesDatabase);
-    	builder.addAll((Iterable<? extends QueryDescriptor>) queriesPojo);
-    	builder.addAll((Iterable<? extends QueryDescriptor>) clientQueries);
+    	builder.addAll(queriesDatabase);
+		builder.addAll(queriesTableDatabase);
+    	builder.addAll(queriesPojo);
+    	builder.addAll(clientQueries);
     	this.queriesPackages = mapByPackage(env, builder.build().stream().collect(toImmutableMap(QueryDescriptor::fullyQualidiedClassName, identity())));
     	
 	}
@@ -141,7 +137,7 @@ public final class SourceCode {
 	
 	public void forEachQuery(Consumer<QueryDescriptor> consumer) {
         this.queriesElasticSearch.values().forEach(consumer);
-        this.queriesDatabase.values().forEach(consumer);
+        this.queriesDatabaseView.values().forEach(consumer);
         this.queriesPojo.values().forEach(consumer);
 	}
 	
@@ -149,17 +145,21 @@ public final class SourceCode {
         this.queriesElasticSearch.values().forEach(consumer);
     }
     
-    public void forEachDatabaseQuery(Consumer<DatabaseQueryDescriptor> consumer) {
-        this.queriesDatabase.values().forEach(consumer);
+    public void forEachDatabaseQuery(Consumer<DatabaseViewQueryDescriptor> consumer) {
+        this.queriesDatabaseView.values().forEach(consumer);
     }
     
     public void forEachQueryClient(Consumer<QueryClientDescriptor> consumer) {
         this.clientQueries.values().forEach(consumer);
     }
     
-    public void forEachDatabaseQueryPackage(BiConsumer<String, ImmutableList<DatabaseQueryDescriptor>> consumer) {
-        this.queriesDatabasePackages.forEach(consumer);
+    public void forEachDatabaseViewQueryPackage(BiConsumer<String, ImmutableList<DatabaseViewQueryDescriptor>> consumer) {
+        this.queriesDatabaseViewPackages.forEach(consumer);
     }
+
+	public void forEachDatabaseTableQueryPackage(BiConsumer<String, ImmutableList<DatabaseTableQueryDescriptor>> consumer) {
+		this.queriesDatabaseTablePackages.forEach(consumer);
+	}
     
     public void forEachPojoQueryPackage(BiConsumer<String, ImmutableList<PojoQueryDescriptor>> consumer) {
         this.queriesPojoPackages.forEach(consumer);
@@ -214,11 +214,16 @@ public final class SourceCode {
             logger.info("\t-> " + desc);
         });
         logger.info("---------------------------------------------------------------------------------------------------------");
-        logger.info("Number of Query Database found : " + queriesDatabase.size());
-        queriesDatabase.values().forEach(desc -> {
+        logger.info("Number of Query Database View found : " + queriesDatabaseView.size());
+		queriesDatabaseView.values().forEach(desc -> {
             logger.info("\t-> " + desc);
         });
         logger.info("---------------------------------------------------------------------------------------------------------");
+		logger.info("Number of Query Database Table found : " + queriesDatabaseTable.size());
+		queriesDatabaseTable.values().forEach(desc -> {
+			logger.info("\t-> " + desc);
+		});
+		logger.info("---------------------------------------------------------------------------------------------------------");
 	}
 	
 	private <T extends Descriptor> ImmutableMap<String, ImmutableList<T>> mapByPackage(ProcessingEnvironment env, ImmutableMap<String, T> map) {

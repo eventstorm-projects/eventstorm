@@ -6,6 +6,7 @@ import static eu.eventsotrm.sql.apt.Helper.writePackage;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.sql.Timestamp;
 import java.time.OffsetDateTime;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -24,6 +25,8 @@ import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.annotation.CqrsQueryDatabaseProperty;
 import eu.eventstorm.annotation.CqrsQueryPojoProperty;
+import eu.eventstorm.sql.annotation.Column;
+import eu.eventstorm.sql.annotation.PrimaryKey;
 import eu.eventstorm.sql.type.Json;
 import eu.eventstorm.util.Dates;
 
@@ -42,7 +45,15 @@ public final class QueryJacksonStdSerializerGenerator {
 
 	public void generate(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
 		// generate Implementation class;
-		sourceCode.forEachDatabaseQueryPackage((pack, list) -> {
+		sourceCode.forEachDatabaseViewQueryPackage((pack, list) -> {
+			try {
+				generate(processingEnvironment, pack, list);
+			} catch (Exception cause) {
+				logger.error("Exception for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
+			}
+		});
+
+		sourceCode.forEachDatabaseTableQueryPackage((pack, list) -> {
 			try {
 				generate(processingEnvironment, pack, list);
 			} catch (Exception cause) {
@@ -149,6 +160,8 @@ public final class QueryJacksonStdSerializerGenerator {
 				writeOffsetDateTime(writer, epd);
 			} else if (Json.class.getName().equals(epd.getter().getReturnType().toString())) {
 				writeJson(writer, epd);
+			} else if (Timestamp.class.getName().equals(epd.getter().getReturnType().toString())) {
+				writeTimestamp(writer, epd);
 			} else {
 				writer.write("        // write (" + epd.name() + "); " + epd.getter().getReturnType());
 				writeNewLine(writer);
@@ -162,6 +175,20 @@ public final class QueryJacksonStdSerializerGenerator {
 		writeNewLine(writer);
 		writer.write("    }");
 		writeNewLine(writer);
+	}
+
+	private void writeTimestamp(Writer writer, QueryPropertyDescriptor epd) throws IOException {
+		if (isNullable(epd)) {
+			writer.write("        if (payload." +  epd.getter().getSimpleName()+ "() != null) {");
+			writeNewLine(writer);
+			writer.write("            gen.writeStringField(\"" + epd.name() + "\", "+ Dates.class.getName()+".format(payload."+ epd.getter().getSimpleName() +"().toLocalDateTime()));");
+			writeNewLine(writer);
+			writer.write("        }");
+			writeNewLine(writer);
+		} else {
+			writer.write("        gen.writeStringField(\"" + epd.name() + "\", "+ Dates.class.getName()+".format(payload."+ epd.getter().getSimpleName() +"().toLocalDateTime()));");
+			writeNewLine(writer);
+		}
 	}
 
 	private void writeOffsetDateTime(Writer writer, QueryPropertyDescriptor epd) throws IOException {
@@ -211,6 +238,16 @@ public final class QueryJacksonStdSerializerGenerator {
 		if (prop2 != null) {
 			return prop2.nullable();
 		}
+
+		Column column = epd.getter().getAnnotation(Column.class);
+		if (column != null) {
+			return column.nullable();
+		}
+
+		if (epd.getter().getAnnotation(PrimaryKey.class)!= null) {
+			return false;
+		}
+
 		throw new IllegalStateException();
 	}
 }

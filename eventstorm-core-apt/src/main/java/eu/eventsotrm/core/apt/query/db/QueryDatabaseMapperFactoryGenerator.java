@@ -13,7 +13,7 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.JavaFileObject;
 
 import eu.eventsotrm.core.apt.SourceCode;
-import eu.eventsotrm.core.apt.model.DatabaseQueryDescriptor;
+import eu.eventsotrm.core.apt.model.DatabaseViewQueryDescriptor;
 import eu.eventsotrm.core.apt.model.QueryDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
@@ -33,7 +33,7 @@ public final class QueryDatabaseMapperFactoryGenerator {
 
     public void generate(ProcessingEnvironment env, SourceCode sourceCode) {
     	
-    	sourceCode.forEachDatabaseQueryPackage((package_, list) -> {
+    	sourceCode.forEachDatabaseViewQueryPackage((package_, list) -> {
     	    
     		if (list.stream().filter(desc -> desc.element().getAnnotation(CqrsQueryDatabaseView.class) != null).findFirst().isPresent()) {
     			 try {
@@ -47,7 +47,7 @@ public final class QueryDatabaseMapperFactoryGenerator {
 		});
     }
 
-    private void create(ProcessingEnvironment env, String pack, List<DatabaseQueryDescriptor> descriptors) throws IOException {
+    private void create(ProcessingEnvironment env, String pack, List<DatabaseViewQueryDescriptor> descriptors) throws IOException {
 
         // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
         if (env.getElementUtils().getTypeElement(pack + ".Mappers") != null) {

@@ -8,7 +8,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 
-import eu.eventsotrm.core.apt.model.DatabaseQueryDescriptor;
+import eu.eventsotrm.core.apt.model.DatabaseViewQueryDescriptor;
 import eu.eventsotrm.core.apt.model.QueryPropertyDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
@@ -17,16 +17,16 @@ import eu.eventsotrm.sql.apt.log.LoggerFactory;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-public final class CqrsQueryDatabaseAnalyser implements Function<Element, DatabaseQueryDescriptor> {
+public final class CqrsQueryDatabaseViewAnalyser implements Function<Element, DatabaseViewQueryDescriptor> {
 
     private final Logger logger;
 
-    public CqrsQueryDatabaseAnalyser() {
-        this.logger = LoggerFactory.getInstance().getLogger(CqrsQueryDatabaseAnalyser.class);
+    public CqrsQueryDatabaseViewAnalyser() {
+        this.logger = LoggerFactory.getInstance().getLogger(CqrsQueryDatabaseViewAnalyser.class);
     }
 
     @Override
-    public DatabaseQueryDescriptor apply(Element element) {
+    public DatabaseViewQueryDescriptor apply(Element element) {
 
         try {
             return doApply(element);
@@ -38,7 +38,7 @@ public final class CqrsQueryDatabaseAnalyser implements Function<Element, Databa
 
     }
 
-    public DatabaseQueryDescriptor doApply(Element element) {
+    public DatabaseViewQueryDescriptor doApply(Element element) {
 
         if (ElementKind.INTERFACE != element.getKind()) {
             logger.error("element [" + element + "] should be an interface");
@@ -66,6 +66,6 @@ public final class CqrsQueryDatabaseAnalyser implements Function<Element, Databa
              throw new IllegalStateException("method [" + method + "] does'nt start with 'get'");
         }
 
-        return new DatabaseQueryDescriptor(element, properties);
+        return new DatabaseViewQueryDescriptor(element, properties);
     }
 }

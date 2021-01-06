@@ -60,10 +60,7 @@ final class TransactionHolder implements AutoCloseable {
 			}
 			holder.forEach((th, tx) -> {
 
-				if (tx.getStart().plus(tx.getDefinition().getTimeout(), ChronoUnit.SECONDS).isBefore(now)) {
-					LOGGER.warn("transaction timeout({}) for [{}] : [{}]-[{}] ",tx.getDefinition().getTimeout(), th, now, tx);
-					th.interrupt();
-					holder.remove(th);
+				if (checkTimeout(tx,th,now)) {
 					return;
 				}
 
@@ -85,6 +82,20 @@ final class TransactionHolder implements AutoCloseable {
 					// check inner transaction ...
 				}
 			});
+		}
+
+		boolean checkTimeout(TransactionSupport tx, Thread th, Instant instant) {
+			if (tx.getDefinition().getTimeout() == -1) {
+				// no timeout
+				return false;
+			}
+			if (tx.getStart().plus(tx.getDefinition().getTimeout(), ChronoUnit.SECONDS).isBefore(instant)) {
+				LOGGER.warn("transaction timeout({}) for [{}] : [{}]-[{}] ",tx.getDefinition().getTimeout(), th, instant, tx);
+				th.interrupt();
+				holder.remove(th);
+				return true;
+			}
+			return false;
 		}
 	}
 

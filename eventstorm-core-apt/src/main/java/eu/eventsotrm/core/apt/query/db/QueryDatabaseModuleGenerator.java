@@ -13,7 +13,7 @@ import javax.lang.model.element.TypeElement;
 import javax.tools.JavaFileObject;
 
 import eu.eventsotrm.core.apt.SourceCode;
-import eu.eventsotrm.core.apt.model.DatabaseQueryDescriptor;
+import eu.eventsotrm.core.apt.model.DatabaseViewQueryDescriptor;
 import eu.eventsotrm.core.apt.model.QueryDescriptor;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
@@ -33,7 +33,7 @@ public final class QueryDatabaseModuleGenerator {
 
     public void generate(ProcessingEnvironment env, SourceCode sourceCode) {
 
-        sourceCode.forEachDatabaseQueryPackage((pack, descriptors) -> {
+        sourceCode.forEachDatabaseViewQueryPackage((pack, descriptors) -> {
             try {
                 create(env, pack, descriptors);
             } catch (Exception cause) {
@@ -42,7 +42,7 @@ public final class QueryDatabaseModuleGenerator {
         });
     }
 
-    private void create(ProcessingEnvironment env, String pack, List<DatabaseQueryDescriptor> descriptors) throws IOException {
+    private void create(ProcessingEnvironment env, String pack, List<DatabaseViewQueryDescriptor> descriptors) throws IOException {
 
         // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
         if (env.getElementUtils().getTypeElement(pack + ".Module") != null) {
@@ -67,7 +67,7 @@ public final class QueryDatabaseModuleGenerator {
         writer.close();
     }
 
-    private static void writeConstructor(Writer writer, ProcessingEnvironment env, String classname, List<DatabaseQueryDescriptor> descriptors) throws IOException {
+    private static void writeConstructor(Writer writer, ProcessingEnvironment env, String classname, List<DatabaseViewQueryDescriptor> descriptors) throws IOException {
 
         writeNewLine(writer);
         writer.write("     public " + classname + "(String name, String catalog) {");
