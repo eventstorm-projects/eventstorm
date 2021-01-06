@@ -309,7 +309,7 @@ class RepositoryTest {
         }
 
 		
-		SqlQuery select  = repo.select(AggregateFunctions.count(StudentDescriptor.ID))
+		SqlQuery select  = repo.select(AggregateFunctions.count())
                 .from(StudentDescriptor.TABLE)
                 .build();
 

@@ -19,6 +19,10 @@ public final class AggregateFunctions {
         return new SimpleAggregateFunction(column, "count");
     }
 
+    public static AggregateFunction count() {
+        return CountAggregateFunction.INSTANCE;
+    }
+
     public static AggregateFunction distinct(SqlColumn column) {
         return new SimpleAggregateFunction(column, "distinct");
     }
