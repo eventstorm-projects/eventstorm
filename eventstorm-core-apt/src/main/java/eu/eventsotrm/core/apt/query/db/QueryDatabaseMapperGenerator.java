@@ -37,7 +37,7 @@ public final class QueryDatabaseMapperGenerator {
 	}
 
 	public void generate(ProcessingEnvironment env, SourceCode sourceCode) {
-		sourceCode.forEachDatabaseQuery((descriptor) -> {
+		sourceCode.forEachDatabaseViewQuery((descriptor) -> {
 			try {
 				doGenerate(env, descriptor);
 			} catch (Exception cause) {

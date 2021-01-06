@@ -145,9 +145,13 @@ public final class SourceCode {
         this.queriesElasticSearch.values().forEach(consumer);
     }
     
-    public void forEachDatabaseQuery(Consumer<DatabaseViewQueryDescriptor> consumer) {
+    public void forEachDatabaseViewQuery(Consumer<DatabaseViewQueryDescriptor> consumer) {
         this.queriesDatabaseView.values().forEach(consumer);
     }
+
+	public void forEachDatabaseTableQuery(Consumer<DatabaseTableQueryDescriptor> consumer) {
+		this.queriesDatabaseTable.values().forEach(consumer);
+	}
     
     public void forEachQueryClient(Consumer<QueryClientDescriptor> consumer) {
         this.clientQueries.values().forEach(consumer);

@@ -110,7 +110,7 @@ public final class SpringConfigurationGenerator {
 	private void writeQueryDescriptor(Writer writer, SourceCode sourceCode) {
 		
 		AtomicInteger counter = new AtomicInteger(0);
-		sourceCode.forEachDatabaseQuery(dq -> counter.incrementAndGet());
+		sourceCode.forEachDatabaseViewQuery(dq -> counter.incrementAndGet());
 		if (counter.get() == 0) {
 			return;
 		}

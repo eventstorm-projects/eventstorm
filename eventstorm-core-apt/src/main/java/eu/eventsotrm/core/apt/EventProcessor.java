@@ -204,7 +204,7 @@ public class EventProcessor extends AbstractProcessor {
 		new QueryDatabaseMapperGenerator().generate(processingEnv, sourceCode);
 		new QueryDatabaseModuleGenerator().generate(processingEnv, sourceCode);
 		
-		// Query / Database / Pojo
+		// Query / Database View and Table / Pojo
 		new QueryJacksonStdSerializerGenerator().generate(processingEnv, sourceCode);
 		new QueryJacksonModuleGenerator().generate(processingEnv, sourceCode);
 		new QueryDescriptorGenerator().generate(processingEnv, sourceCode);

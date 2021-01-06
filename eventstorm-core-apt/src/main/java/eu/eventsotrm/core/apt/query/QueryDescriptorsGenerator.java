@@ -42,9 +42,12 @@ public final class QueryDescriptorsGenerator {
         }
         
         AtomicInteger counter = new AtomicInteger(0);
-        sourceCode.forEachDatabaseQuery(item -> {
+        sourceCode.forEachDatabaseViewQuery(item -> {
         	counter.incrementAndGet();
         });
+		sourceCode.forEachDatabaseTableQuery(item -> {
+			counter.incrementAndGet();
+		});
         
         if (counter.get() == 0) {
 			logger.info("No Database Queries found => skip");
@@ -95,7 +98,15 @@ public final class QueryDescriptorsGenerator {
 		writer.write("    private static final ImmutableMap<String, SqlQueryDescriptor> DESCRIPTORS = ImmutableMap.<String, SqlQueryDescriptor>builder() ");
 		writeNewLine(writer);
 		
-		sourceCode.forEachDatabaseQuery(query -> {
+		sourceCode.forEachDatabaseViewQuery(query -> {
+			try {
+				writer.write("        .put(\"" + query.fullyQualidiedClassName() + "\", new " + query.fullyQualidiedClassName() + "SqlQueryDescriptor())");
+				writeNewLine(writer);
+			} catch (IOException cause) {
+				logger.error("failed to generate [" + query + "]", cause);
+			}
+		});
+		sourceCode.forEachDatabaseTableQuery(query -> {
 			try {
 				writer.write("        .put(\"" + query.fullyQualidiedClassName() + "\", new " + query.fullyQualidiedClassName() + "SqlQueryDescriptor())");
 				writeNewLine(writer);

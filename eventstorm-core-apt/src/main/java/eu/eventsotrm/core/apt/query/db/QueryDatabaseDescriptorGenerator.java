@@ -41,7 +41,7 @@ public final class QueryDatabaseDescriptorGenerator {
 
 	
 	public void generate(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
-        sourceCode.forEachDatabaseQuery(t -> {
+        sourceCode.forEachDatabaseViewQuery(t -> {
             try {
             	doGenerate(processingEnvironment, t);
             } catch (Exception cause) {
