@@ -32,6 +32,8 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import eu.eventstorm.sql.desc.*;
+import eu.eventstorm.sql.jdbc.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,11 +45,6 @@ import eu.eventstorm.sql.builder.SelectBuilder;
 import eu.eventstorm.sql.builder.SelectBuilderFromSubSelect;
 import eu.eventstorm.sql.builder.SubSelect;
 import eu.eventstorm.sql.builder.UpdateBuilder;
-import eu.eventstorm.sql.desc.SqlColumn;
-import eu.eventstorm.sql.desc.SqlPrimaryKey;
-import eu.eventstorm.sql.desc.SqlSingleColumn;
-import eu.eventstorm.sql.desc.SqlTable;
-import eu.eventstorm.sql.expression.AggregateFunction;
 import eu.eventstorm.sql.expression.Expression;
 import eu.eventstorm.sql.expression.Expressions;
 import eu.eventstorm.sql.id.Identifier;
@@ -55,14 +52,6 @@ import eu.eventstorm.sql.impl.BatchInsert;
 import eu.eventstorm.sql.impl.BatchInsertWithSequence;
 import eu.eventstorm.sql.impl.TransactionContext;
 import eu.eventstorm.sql.impl.TransactionQueryContext;
-import eu.eventstorm.sql.jdbc.Batch;
-import eu.eventstorm.sql.jdbc.InsertMapper;
-import eu.eventstorm.sql.jdbc.InsertMapperWithAutoIncrement;
-import eu.eventstorm.sql.jdbc.PreparedStatementSetter;
-import eu.eventstorm.sql.jdbc.ResultSetMapper;
-import eu.eventstorm.sql.jdbc.ResultSetMappers;
-import eu.eventstorm.sql.jdbc.SimpleUpdateMapper;
-import eu.eventstorm.sql.jdbc.UpdateMapper;
 import eu.eventstorm.sql.page.Page;
 import eu.eventstorm.sql.page.PageImpl;
 import eu.eventstorm.sql.page.PageRequest;
@@ -91,16 +80,8 @@ public abstract class Repository {
 		return new SelectBuilder(this.database, columns);
 	}
 
-	protected final SelectBuilder select(SqlColumn... columns) {
+	protected final SelectBuilder select(DerivedColumn... columns) {
 		return new SelectBuilder(this.database, ImmutableList.copyOf(columns));
-	}
-
-	protected final SelectBuilder select(AggregateFunction aggregateFunction) {
-		return new SelectBuilder(this.database, aggregateFunction);
-	}
-	
-	protected final SelectBuilder select(ImmutableList<SqlColumn> columns, AggregateFunction aggregateFunction) {
-		return new SelectBuilder(this.database, columns, aggregateFunction);
 	}
 
 	protected final SelectBuilderFromSubSelect select(SubSelect subSelect) {
@@ -152,6 +133,24 @@ public abstract class Repository {
 	protected final <E> void executeInsert(SqlQuery query, InsertMapper<E> im, E pojo) {
 		try (TransactionQueryContext tqc = database.transactionManager().context().write(query)) {
 			doInsert(query, im, pojo, tqc);
+		}
+	}
+
+	protected final void executeInsert(SqlQuery query, PreparedStatementSetter pss) {
+		try (TransactionQueryContext tqc = database.transactionManager().context().write(query)) {
+
+			try {
+				pss.set(tqc.preparedStatement());
+			} catch (SQLException cause) {
+				throw tqc.exception(new EventstormRepositoryException(INSERT_MAPPER, of(PARAM_SQL, query), cause));
+			}
+
+			try {
+				tqc.preparedStatement().executeUpdate();
+			} catch (SQLException cause) {
+				throw tqc.exception(new EventstormRepositoryException(INSERT_EXECUTE_QUERY, of(PARAM_SQL, query), cause));
+			}
+
 		}
 	}
 

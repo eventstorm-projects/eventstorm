@@ -30,6 +30,10 @@ public final class Expressions {
     public static Expression eq(SqlColumn column, boolean value) {
 		return new SimpleBooleanExpression(column, "=", value);
     }
+
+    public static Expression eq(SqlColumn left, SqlColumn right) {
+        return new DoubleColumnExpression(left, "=", right);
+    }
     
     public static Expression notEq(SqlColumn column) {
 		return new ParameterSimpleExpression(column, "<>");

@@ -22,6 +22,7 @@ public final class InsertBuilder extends AbstractBuilder {
     private final SqlTable table;
     private final ImmutableList<SqlPrimaryKey> keys;
     private final ImmutableList<SqlSingleColumn> columns;
+    private SubSelect subSelect;
 
     public InsertBuilder(Database database, SqlTable table, SqlPrimaryKey key,
                          ImmutableList<SqlSingleColumn> columns) {
@@ -36,12 +37,22 @@ public final class InsertBuilder extends AbstractBuilder {
         this.columns = columns;
     }
 
+    public InsertBuilder values(SubSelect subSelect) {
+        this.subSelect = subSelect;
+        return this;
+    }
+
     public SqlQuery build() {
         StringBuilder builder = new StringBuilder(2048);
         builder.append("INSERT INTO ");
         builder.append(table(this.table, false));
         builderColumn(builder, this.database().dialect());
-        builderValues(builder);
+
+        if (subSelect == null) {
+            builderValues(builder);
+        } else {
+            builder.append("(").append(subSelect.sql()).append(")");
+        }
 
         String sql = builder.toString();
         if (LOGGER.isDebugEnabled()) {

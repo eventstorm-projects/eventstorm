@@ -71,7 +71,7 @@ class SelectBuilderFromSubSelectTest {
 
 	@Test
 	void testSelectWithOver() {
-		SelectBuilder builder = new SelectBuilder(database, of(COL_T1_01, COL_T1_02),rowNumber(OverPartitions.by(COL_T1_03, "maxRowNumber")));
+		SelectBuilder builder = new SelectBuilder(database, of(COL_T1_01, COL_T1_02,rowNumber(OverPartitions.by(COL_T1_03, "maxRowNumber"))));
 		builder.from(TABLE_T1);
 
 		SelectBuilderFromSubSelect sbuilder = new SelectBuilderFromSubSelect(database, SubSelects.from(builder.build()));
@@ -89,7 +89,7 @@ class SelectBuilderFromSubSelectTest {
 	
 	@Test
 	void testSelectWithInnerJoin() {
-		SelectBuilder builder = new SelectBuilder(database, of(COL_T1_01, COL_T1_02, COL_T1_03.as("alias_03")),rowNumber(OverPartitions.by(COL_T1_03, "maxRowNumber")));
+		SelectBuilder builder = new SelectBuilder(database, of(COL_T1_01, COL_T1_02, COL_T1_03.as("alias_03"),rowNumber(OverPartitions.by(COL_T1_03, "maxRowNumber"))));
 		builder.from(TABLE_T1);
 		builder.innerJoin(TABLE_T2, COL_T2_01, COL_T1_01);
 		

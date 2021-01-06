@@ -1,10 +1,13 @@
 package eu.eventstorm.sql.builder;
 
+import static com.google.common.collect.ImmutableMap.of;
+import static eu.eventstorm.sql.builder.SqlBuilderException.Type.SELECT;
 import static eu.eventstorm.sql.expression.Expressions.and;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import eu.eventstorm.sql.desc.DerivedColumn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,8 +47,7 @@ public final class SelectBuilder extends AbstractBuilder {
     private static final String COLUMN_NN = "column" + NOT_NULL;
     private static final String EXPRESSION_NN = "expression " + LAMBDA_ARROW_OPERATOR;
 
-    private final ImmutableList<SqlColumn> columns;
-    private final AggregateFunction aggregateFunction;
+    private final ImmutableList<? extends DerivedColumn> columns;
     private Expression where;
     private ImmutableList<SqlTable> from;
     private final List<JoinClause> joins = new ArrayList<>();
@@ -56,22 +58,13 @@ public final class SelectBuilder extends AbstractBuilder {
     private int offset = -1;
     private boolean pageable = false;
 
-    public SelectBuilder(Database database, ImmutableList<SqlColumn> columns) {
-    	this(database, columns, null);
-    }
-    
-    public SelectBuilder(Database database, AggregateFunction function) {
-        this(database, ImmutableList.of(), function);
-    }
-    
-    public SelectBuilder(Database database, ImmutableList<SqlColumn> columns, AggregateFunction function) {
+
+    public SelectBuilder(Database database, ImmutableList<? extends DerivedColumn> columns) {
         super(database);
         this.columns = columns;
-        this.aggregateFunction = function;
     }
 
-    @SuppressWarnings("unchecked")
-	public <T extends Query> T build() {
+    public <T extends Query> T build() {
 
         validate();
         
@@ -222,7 +215,6 @@ public final class SelectBuilder extends AbstractBuilder {
      * @param targetTable  is the first table to be joined
      * @param targetColumn is the _targetColumn_ used for the 'ON'
      * @param column       is the _from_ column used for the 'ON'
-     * @return
      */
     public SelectBuilder leftJoin(SqlTable targetTable, SqlColumn targetColumn, SqlColumn column) {
     	return leftJoin(targetTable, targetColumn, column.table(), column);
@@ -235,7 +227,6 @@ public final class SelectBuilder extends AbstractBuilder {
      * @param targetColumn is the _targetColumn_ used for the 'ON'
      * @param otherFrom    is the first table to be joined
      * @param otherColumn  is the _from_ column used for the 'ON'
-     * @return
      */
     public SelectBuilder leftJoin(SqlTable targetTable, SqlColumn targetColumn, SqlTable otherFrom, SqlColumn otherColumn) {
        return leftJoin(targetTable, targetColumn, otherFrom, otherColumn, null);
@@ -252,7 +243,6 @@ public final class SelectBuilder extends AbstractBuilder {
      * @param targetColumn is the _targetColumn_ used for the 'ON'
      * @param otherFrom    is the first table to be joined
      * @param otherColumn  is the _from_ column used for the 'ON'
-     * @return
      */
     public SelectBuilder leftJoin(SqlTable targetTable, SqlColumn targetColumn, SqlTable otherFrom, SqlColumn otherColumn, Expression expression) {
         requireNonNull(targetTable, LEFT_JOIN + TARGET_TABLE_NN);
@@ -261,11 +251,11 @@ public final class SelectBuilder extends AbstractBuilder {
         requireNonNull(otherColumn, LEFT_JOIN + COLUMN_NN);
 
         if (this.from == null) {
-            throw new SqlBuilderException(SqlBuilderException.Type.SELECT, ImmutableMap.of(METHOD,"leftJoin", "cause","call from() before this"));
+            throw new SqlBuilderException(SELECT, of(METHOD,"leftJoin", "cause","call from() before this"));
         }
 
         if (!this.from.contains(otherFrom)) {
-            throw new SqlBuilderException(SqlBuilderException.Type.SELECT, ImmutableMap.of(METHOD,"leftJoin", "cause ", "join column [" + otherColumn + "] not found in from clause"));
+            throw new SqlBuilderException(SELECT, of(METHOD,"leftJoin", "cause ", "join column [" + otherColumn + "] not found in from clause"));
         }
         
         this.joins.add(new JoinClauseTable(this.database(), JoinType.LEFT, targetTable, targetColumn, otherFrom, otherColumn, expression));
@@ -324,17 +314,16 @@ public final class SelectBuilder extends AbstractBuilder {
         builder.append("SELECT ");
         boolean alias = hasAlias();
 
-        for (SqlColumn column : this.columns) {
-            database().dialect().wrap(builder, column, alias);
+        for (DerivedColumn column : this.columns) {
+            if (column instanceof SqlColumn) {
+                database().dialect().wrap(builder, (SqlColumn) column, alias);
+            } else if (column instanceof AggregateFunction) {
+                builder.append(((AggregateFunction)column).build(database().dialect(), alias));
+            } else {
+                throw new SqlBuilderException(SELECT, of("column",column));
+            }
             builder.append(',');
         }
-        
-        
-        // Aggregate Functions
-        if (aggregateFunction != null) {
-            builder.append(aggregateFunction.build(database().dialect(), alias));
-            builder.append(',');
-        } 
 
         builder.setCharAt(builder.length() - 1, ' ');
         
@@ -399,21 +388,23 @@ public final class SelectBuilder extends AbstractBuilder {
 
     boolean hasAlias() {
     	if (this.from == null) {
-    		throw new SqlBuilderException(SqlBuilderException.Type.SELECT, ImmutableMap.of("cause", "missing call from()"));
+    		throw new SqlBuilderException(SELECT, of("cause", "missing call from()"));
     	}
         return this.from.size() > 1 || !joins.isEmpty();
     }
 
     private void validate() {
-        for (SqlColumn column : this.columns) {
-            SqlTable table = column.table();
-            table.alias();
+        for (DerivedColumn column : this.columns) {
+            if (column instanceof SqlColumn) {
+                SqlTable table = ((SqlColumn)column).table();
+                table.alias();
+            }
         }
     }
 
     private static void requireNonNull(Object obj, String message) {
         if (obj == null) {
-            throw new SqlBuilderException(SqlBuilderException.Type.SELECT, ImmutableMap.of(METHOD,"todo", "cause ", message));
+            throw new SqlBuilderException(SELECT, of(METHOD,"todo", "cause ", message));
         }
     }
 }

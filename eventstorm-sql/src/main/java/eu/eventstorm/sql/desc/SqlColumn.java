@@ -6,7 +6,7 @@ import eu.eventstorm.util.ToStringBuilder;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-public abstract class SqlColumn {
+public abstract class SqlColumn implements DerivedColumn {
 
     /**
      * Table of this column.

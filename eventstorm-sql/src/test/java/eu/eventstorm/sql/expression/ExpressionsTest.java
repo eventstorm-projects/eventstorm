@@ -66,6 +66,10 @@ class ExpressionsTest {
         assertEquals("number=?", Expressions.eq(number).build(dialect, false));
         assertEquals("number=?", Expressions.eq(number).toString());
 
+        SqlColumn right = new SqlSingleColumn(table, "colRight", false, true, true);
+        assertEquals("a.number=a.colRight", Expressions.eq(number, right).build(dialect, true));
+        assertEquals("number=colRight", Expressions.eq(number, right).build(dialect, false));
+        assertEquals("number=colRight", Expressions.eq(number, right).toString());
     }
 
     @Test
