@@ -22,7 +22,7 @@ import static reactor.core.publisher.Mono.justOrEmpty;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-@Conditional(DatabaseResourceReactiveControllerCondition.class)
+@Conditional(DatabaseExecutionReactiveControllerCondition.class)
 @RestController
 public final class DatabaseExecutionReactiveController {
 

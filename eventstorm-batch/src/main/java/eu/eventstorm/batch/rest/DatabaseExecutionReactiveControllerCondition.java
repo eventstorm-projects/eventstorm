@@ -8,12 +8,12 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-class DatabaseResourceReactiveControllerCondition implements Condition {
+class DatabaseExecutionReactiveControllerCondition implements Condition {
 
 	@Override
 	public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
 		return "DATABASE".equalsIgnoreCase(context.getEnvironment().getProperty("eu.eventstorm.batch.type")) &&
-		 	!Strings.isEmpty(context.getEnvironment().getProperty("eu.eventstorm.batch.resource.context-path"));
+			!Strings.isEmpty(context.getEnvironment().getProperty("eu.eventstorm.batch.execution.context-path"));
 	}
 
 }
