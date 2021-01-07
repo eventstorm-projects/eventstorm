@@ -59,28 +59,13 @@ final class TransactionHolder implements AutoCloseable {
 				LOGGER.trace("Start Transaction Holder Cleaner on [{}] transaction(s)", holder.size());
 			}
 			holder.forEach((th, tx) -> {
-
 				if (checkTimeout(tx,th,now)) {
 					return;
 				}
-
 				if (tx.isMain()) {
-					AbstractTransaction a = (AbstractTransaction) tx;
-					try {
-						if (a.getConnection().isClosed()) {
-							// closed connection => remove
-							LOGGER.info("Remove TX [{}] for Thread [{}] : connection is closed", tx, th);
-							holder.remove(th);
-						}
-					} catch (SQLException cause) {
-						if (LOGGER.isDebugEnabled()) {
-							LOGGER.debug("Failed to check if connection is closed [{}] -> remove", cause.getMessage());
-						}
-						holder.remove(th);
-					}
-				} else {
-					// check inner transaction ...
+					checkMainTransaction(th,(AbstractTransaction)tx);
 				}
+				// -> else -> inner transaction ...
 			});
 		}
 
@@ -96,6 +81,21 @@ final class TransactionHolder implements AutoCloseable {
 				return true;
 			}
 			return false;
+		}
+
+		void checkMainTransaction(Thread th, AbstractTransaction tx) {
+			try {
+				if (tx.getConnection().isClosed()) {
+					// closed connection => remove
+					LOGGER.info("Remove TX [{}] for Thread [{}] : connection is closed", tx, th);
+					holder.remove(th);
+				}
+			} catch (SQLException cause) {
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("Failed to check if connection is closed [{}] -> remove", cause.getMessage());
+				}
+				holder.remove(th);
+			}
 		}
 	}
 

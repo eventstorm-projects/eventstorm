@@ -9,6 +9,10 @@ import eu.eventstorm.util.ToStringBuilder;
  */
 public final class TransactionDefinitions {
 
+    private static final String TIMEOUT = "timeout";
+    private static final String TYPE = "type";
+
+
     private TransactionDefinitions() {
     }
 
@@ -26,8 +30,8 @@ public final class TransactionDefinitions {
 
         @Override
         public String toString() {
-            return new ToStringBuilder(false).append("type", TransactionType.READ_ONLY)
-                    .append("timeout", -1)
+            return new ToStringBuilder(false).append(TYPE, TransactionType.READ_ONLY)
+                    .append(TIMEOUT, -1)
                     .toString();
         }
     };
@@ -46,8 +50,8 @@ public final class TransactionDefinitions {
 
         @Override
         public String toString() {
-            return new ToStringBuilder(false).append("type", TransactionType.READ_WRITE)
-                    .append("timeout", -1)
+            return new ToStringBuilder(false).append(TYPE, TransactionType.READ_WRITE)
+                    .append(TIMEOUT, -1)
                     .toString();
         }
 
@@ -66,8 +70,8 @@ public final class TransactionDefinitions {
 
         @Override
         public String toString() {
-            return new ToStringBuilder(false).append("type", TransactionType.ISOLATED_READ_WRITE)
-                    .append("timeout", -1)
+            return new ToStringBuilder(false).append(TYPE, TransactionType.ISOLATED_READ_WRITE)
+                    .append(TIMEOUT, -1)
                     .toString();
         }
     };
@@ -84,8 +88,8 @@ public final class TransactionDefinitions {
             }
             @Override
             public String toString() {
-                return new ToStringBuilder(false).append("type", TransactionType.READ_ONLY)
-                        .append("timeout", timeout)
+                return new ToStringBuilder(false).append(TYPE, TransactionType.READ_ONLY)
+                        .append(TIMEOUT, timeout)
                         .toString();
             }
         };
@@ -103,8 +107,8 @@ public final class TransactionDefinitions {
             }
             @Override
             public String toString() {
-                return new ToStringBuilder(false).append("type", TransactionType.READ_WRITE)
-                        .append("timeout", timeout)
+                return new ToStringBuilder(false).append(TYPE, TransactionType.READ_WRITE)
+                        .append(TIMEOUT, timeout)
                         .toString();
             }
         };

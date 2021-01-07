@@ -32,8 +32,19 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import eu.eventstorm.sql.desc.*;
-import eu.eventstorm.sql.jdbc.*;
+import eu.eventstorm.sql.desc.DerivedColumn;
+import eu.eventstorm.sql.desc.SqlColumn;
+import eu.eventstorm.sql.desc.SqlPrimaryKey;
+import eu.eventstorm.sql.desc.SqlSingleColumn;
+import eu.eventstorm.sql.desc.SqlTable;
+import eu.eventstorm.sql.jdbc.Batch;
+import eu.eventstorm.sql.jdbc.InsertMapper;
+import eu.eventstorm.sql.jdbc.InsertMapperWithAutoIncrement;
+import eu.eventstorm.sql.jdbc.PreparedStatementSetter;
+import eu.eventstorm.sql.jdbc.ResultSetMapper;
+import eu.eventstorm.sql.jdbc.ResultSetMappers;
+import eu.eventstorm.sql.jdbc.SimpleUpdateMapper;
+import eu.eventstorm.sql.jdbc.UpdateMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,7 +83,7 @@ public abstract class Repository {
 		this.database = database;
 	}
 
-	protected Database database() {
+	protected final Database database() {
 		return this.database;
 	}
 
