@@ -45,22 +45,22 @@ public final class QueryDatabaseModuleGenerator {
     private void create(ProcessingEnvironment env, String pack, List<DatabaseViewQueryDescriptor> descriptors) throws IOException {
 
         // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
-        if (env.getElementUtils().getTypeElement(pack + ".Module") != null) {
-            logger.info("Java SourceCode already exist [" + pack + ".Module" + "]");
+        if (env.getElementUtils().getTypeElement(pack + ".QueryViewModule") != null) {
+            logger.info("Java SourceCode already exist [" + pack + ".QueryViewModule" + "]");
             return;
         }
-        JavaFileObject object = env.getFiler().createSourceFile(pack + ".Module");
+        JavaFileObject object = env.getFiler().createSourceFile(pack + ".QueryViewModule");
         Writer writer = object.openWriter();
 
         writePackage(writer, pack);
         writeGenerated(writer, QueryDatabaseModuleGenerator.class.getName());
 
-        writer.write("public final class " + "Module" + " extends ");
+        writer.write("public final class QueryViewModule extends ");
         writer.write(Module.class.getName());
         writer.write(" { ");
         writeNewLine(writer);
 
-        writeConstructor(writer, env, "Module", descriptors);
+        writeConstructor(writer, env, "QueryViewModule", descriptors);
 
         writeNewLine(writer);
         writer.write('}');

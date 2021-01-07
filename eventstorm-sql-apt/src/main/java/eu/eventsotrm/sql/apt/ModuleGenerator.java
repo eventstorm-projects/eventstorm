@@ -47,7 +47,7 @@ final class ModuleGenerator implements Generator {
         writePackage(writer, pack);
         writeGenerated(writer, ModuleGenerator.class.getName());
 
-        writer.write("public final class " + "Module" + " extends ");
+        writer.write("public final class Module extends ");
         writer.write(Module.class.getName());
         writer.write(" { ");
         writeNewLine(writer);

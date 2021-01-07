@@ -34,7 +34,6 @@ public final class QueryDatabaseMapperFactoryGenerator {
     public void generate(ProcessingEnvironment env, SourceCode sourceCode) {
     	
     	sourceCode.forEachDatabaseViewQueryPackage((package_, list) -> {
-    	    
     		if (list.stream().filter(desc -> desc.element().getAnnotation(CqrsQueryDatabaseView.class) != null).findFirst().isPresent()) {
     			 try {
                      create(env, package_, list);
@@ -50,18 +49,18 @@ public final class QueryDatabaseMapperFactoryGenerator {
     private void create(ProcessingEnvironment env, String pack, List<DatabaseViewQueryDescriptor> descriptors) throws IOException {
 
         // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
-        if (env.getElementUtils().getTypeElement(pack + ".Mappers") != null) {
-            logger.info("Java SourceCode already exist [" + pack + ".Mappers" + "]");
+        if (env.getElementUtils().getTypeElement(pack + ".QueryViewMappers") != null) {
+            logger.info("Java SourceCode already exist [" + pack + ".QueryViewMappers" + "]");
             return;
         }
         
-        JavaFileObject object = env.getFiler().createSourceFile(pack + ".Mappers");
+        JavaFileObject object = env.getFiler().createSourceFile(pack + ".QueryViewMappers");
         Writer writer = object.openWriter();
 
         writePackage(writer, pack);
         writeGenerated(writer, QueryDatabaseMapperFactoryGenerator.class.getName());
 
-        writer.write("public final class Mappers {");
+        writer.write("public final class QueryViewMappers {");
         writeNewLine(writer);
 
         for (QueryDescriptor desc : descriptors) {
