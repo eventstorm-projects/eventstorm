@@ -50,13 +50,13 @@ public final class PojoPropertyDescriptor {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("PojoPropertyDescriptor [name=");
+		builder.append("PojoPropertyDescriptor name=[");
 		builder.append(name);
-		builder.append(", variable=");
+		builder.append("], variable=[");
 		builder.append(variable);
-		builder.append(", getter=");
+		builder.append("], getter=[");
 		builder.append(getter);
-		builder.append(", setter=");
+		builder.append("], setter=[");
 		builder.append(setter);
 		builder.append("]");
 		return builder.toString();

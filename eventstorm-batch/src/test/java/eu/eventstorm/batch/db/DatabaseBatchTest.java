@@ -49,7 +49,7 @@ class DatabaseBatchTest {
 			DatabaseExecutionRepository repo = new DatabaseExecutionRepository(database);
 			DatabaseExecution dbe = repo.findById("999");
 			assertNotNull(dbe);
-			assertEquals((byte)BatchStatus.COMPLETED.ordinal(), dbe.getStatus());
+			assertEquals(BatchStatus.COMPLETED.name(), dbe.getStatus());
 		});
 	}
 	
@@ -69,7 +69,7 @@ class DatabaseBatchTest {
 			DatabaseExecutionRepository repo = new DatabaseExecutionRepository(database);
 			DatabaseExecution dbe = repo.findById("345");
 			assertNotNull(dbe);
-			assertEquals((byte)BatchStatus.FAILED.ordinal(), dbe.getStatus());
+			assertEquals(BatchStatus.FAILED.name(), dbe.getStatus());
 		});
 
 	}

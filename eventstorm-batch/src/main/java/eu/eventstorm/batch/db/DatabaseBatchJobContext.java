@@ -49,7 +49,7 @@ final class DatabaseBatchJobContext implements BatchJobContext {
 
 	@Override
 	public void setStatus(BatchStatus status) {
-		this.databaseExecution.setStatus((byte)status.ordinal()); 
+		this.databaseExecution.setStatus(status.name());
 	}
 	
 	@Override

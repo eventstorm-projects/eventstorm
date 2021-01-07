@@ -26,7 +26,7 @@ final class DatabaseExecutionSerializer extends StdSerializer<DatabaseExecution>
 		gen.writeStringField("name", value.getName());
 		gen.writeFieldName("event");
 		gen.writeRawValue(value.getEvent());
-		gen.writeStringField("status", BatchStatus.values()[value.getStatus()].name());
+		gen.writeStringField("status", value.getStatus());
 		writeTimestamp(gen, "createdAt", value.getCreatedAt());
 		gen.writeStringField("createdBy", value.getCreatedBy());
 		writeTimestamp(gen, "startedAt", value.getStartedAt());

@@ -65,7 +65,7 @@ class DatabaseResourceReactiveControllerTest {
 	}
 
 	@Test
-	void testUploadWithMetaFailed() throws IOException {
+	void testUploadWithMetaFailed() {
 
 		webClient.post()
 				.uri("/db/upload")

@@ -14,7 +14,7 @@ CREATE TABLE "batch_execution" (
    -- COLUMNS
    "event"                   VARCHAR(4000)    NOT NULL,
    "name"                    VARCHAR(128)     NOT NULL,
-   "status"                  TINYINT          NOT NULL,
+   "status"                  VARCHAR(9)       NOT NULL,
    "created_by"              VARCHAR(64)      NOT NULL,
    "created_at"              TIMESTAMP        NOT NULL,
    "started_at"              TIMESTAMP       ,

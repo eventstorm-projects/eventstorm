@@ -36,7 +36,7 @@ class BatchReactiveControllerTest {
 	@Test
 	void testNoUuid() {
 		webClient.get()
-			.uri("/db/123456")
+			.uri("/batch/123456")
 			.exchange()
 				.expectBody()
 				.jsonPath("$.status").isEqualTo(400)
@@ -58,7 +58,7 @@ class BatchReactiveControllerTest {
 		Thread.sleep(500);
 
 		webClient.get()
-				.uri("/db/123")
+				.uri("/batch/123")
 				.exchange()
 				.expectBody()
 				.jsonPath("$.uuid").isEqualTo("123")
@@ -67,6 +67,28 @@ class BatchReactiveControllerTest {
 				.jsonPath("$.status").isEqualTo("COMPLETED")
 				.jsonPath("$.createdBy").isEqualTo("junit")
 				;
+
+		webClient.get()
+				.uri("/batch/date/2021-01-07")
+				.exchange()
+				.expectBody()
+				.jsonPath("$[0].uuid").isEqualTo("123")
+				.jsonPath("$[0].name").isEqualTo("junit-stream")
+				.jsonPath("$[0].event.name").isEqualTo("junit-name")
+				.jsonPath("$[0].status").isEqualTo("COMPLETED")
+				.jsonPath("$[0].createdBy").isEqualTo("junit")
+				;
+
+		webClient.get()
+				.uri("/batch/today")
+				.exchange()
+				.expectBody()
+				.jsonPath("$[0].uuid").isEqualTo("123")
+				.jsonPath("$[0].name").isEqualTo("junit-stream")
+				.jsonPath("$[0].event.name").isEqualTo("junit-name")
+				.jsonPath("$[0].status").isEqualTo("COMPLETED")
+				.jsonPath("$[0].createdBy").isEqualTo("junit")
+		;
 
 	}
 }

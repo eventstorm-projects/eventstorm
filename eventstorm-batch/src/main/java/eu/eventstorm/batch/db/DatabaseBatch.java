@@ -70,7 +70,7 @@ public final class DatabaseBatch implements Batch {
 			
 		DatabaseExecution batchExecution = new DatabaseExecutionBuilder()
 				.withName(candidate.getStream())
-				.withStatus((byte)BatchStatus.STARTING.ordinal())
+				.withStatus(BatchStatus.STARTING.name())
 				.withEvent(toJson(candidate.getMessage()))
 				.withUuid(candidate.getStreamId())
 				.withStartedAt(Timestamp.from(Instant.now()))

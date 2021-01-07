@@ -19,7 +19,7 @@ public interface DatabaseExecution {
 
 	void setUuid(String uuid);
 	
-	@Column(value = "event", length = 4000)
+	@Column(value = "event")
 	String getEvent();
 
 	void setEvent(String event);
@@ -29,10 +29,10 @@ public interface DatabaseExecution {
 
 	void setName(String value);
 
-	@Column(value = "status")
-	byte getStatus();
+	@Column(value = "status", length = 9)
+	String getStatus();
 
-	void setStatus(byte status);
+	void setStatus(String status);
 
 	@Column(value = "created_by", length = 64)
 	String getCreatedBy();

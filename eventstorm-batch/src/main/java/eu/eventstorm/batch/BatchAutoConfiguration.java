@@ -1,5 +1,6 @@
 package eu.eventstorm.batch;
 
+import eu.eventstorm.batch.config.BatchExecutionProperties;
 import eu.eventstorm.batch.file.FileResource;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -27,7 +28,7 @@ import eu.eventstorm.sql.Database;
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 @Configuration
-@EnableConfigurationProperties({ResourceProperties.class, BatchProperties.class})
+@EnableConfigurationProperties({ResourceProperties.class, BatchProperties.class, BatchExecutionProperties.class})
 @ComponentScan("eu.eventstorm.batch")
 public class BatchAutoConfiguration {
 

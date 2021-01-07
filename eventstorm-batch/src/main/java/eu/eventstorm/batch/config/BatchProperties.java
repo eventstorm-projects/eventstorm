@@ -13,8 +13,6 @@ public class BatchProperties {
 	private int poolSize = 1;
 	
 	private String prefix = "batch-";
-	
-	private String contextParh = "batch";
 
 	public BatchType getType() {
 		return type;
@@ -38,14 +36,6 @@ public class BatchProperties {
 
 	public void setPrefix(String prefix) {
 		this.prefix = prefix;
-	}
-
-	public String getContextParh() {
-		return contextParh;
-	}
-
-	public void setContextParh(String contextParh) {
-		this.contextParh = contextParh;
 	}
 
 }
