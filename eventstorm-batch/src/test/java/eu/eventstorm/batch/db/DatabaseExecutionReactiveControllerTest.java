@@ -1,22 +1,28 @@
 package eu.eventstorm.batch.db;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.JsonPath;
 import eu.eventstorm.batch.BatchAutoConfiguration;
 import eu.eventstorm.core.EventCandidate;
 import eu.eventstorm.cqrs.batch.BatchJobCreated;
 import eu.eventstorm.test.LoggerInstancePostProcessor;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
+import org.springframework.test.web.reactive.server.JsonPathAssertions;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ActiveProfiles("database")
 @SpringBootTest(classes = { DatabaseTestConfiguration.class}, webEnvironment = WebEnvironment.RANDOM_PORT)
 @Import(BatchAutoConfiguration.class)
-class BatchReactiveControllerTest {
+class DatabaseExecutionReactiveControllerTest {
 
 	@Autowired
 	private WebTestClient webClient;
@@ -60,35 +66,71 @@ class BatchReactiveControllerTest {
 		webClient.get()
 				.uri("/batch/123")
 				.exchange()
+				.expectStatus().isOk()
+				.expectHeader().contentType(MediaType.APPLICATION_JSON)
 				.expectBody()
 				.jsonPath("$.uuid").isEqualTo("123")
 				.jsonPath("$.name").isEqualTo("junit-stream")
 				.jsonPath("$.event.name").isEqualTo("junit-name")
 				.jsonPath("$.status").isEqualTo("COMPLETED")
 				.jsonPath("$.createdBy").isEqualTo("junit")
+				.jsonPath("$.log").hasJsonPath()
+		.consumeWith(t -> System.out.println(new String(t.getResponseBody())))
 				;
 
 		webClient.get()
-				.uri("/batch/date/2021-01-07")
+				.uri("/batch/date/{date}", LocalDate.now())
 				.exchange()
+				.expectStatus().isOk()
+				.expectHeader().contentType(MediaType.APPLICATION_STREAM_JSON)
 				.expectBody()
-				.jsonPath("$[0].uuid").isEqualTo("123")
-				.jsonPath("$[0].name").isEqualTo("junit-stream")
-				.jsonPath("$[0].event.name").isEqualTo("junit-name")
-				.jsonPath("$[0].status").isEqualTo("COMPLETED")
-				.jsonPath("$[0].createdBy").isEqualTo("junit")
+				.jsonPath("$.uuid").isEqualTo("123")
+				.jsonPath("$.name").isEqualTo("junit-stream")
+				.jsonPath("$.event.name").isEqualTo("junit-name")
+				.jsonPath("$.status").isEqualTo("COMPLETED")
+				.jsonPath("$.createdBy").isEqualTo("junit")
+				.jsonPath("$.log").hasJsonPath()
 				;
 
 		webClient.get()
 				.uri("/batch/today")
 				.exchange()
+				.expectStatus().isOk()
+				.expectHeader().contentType(MediaType.APPLICATION_STREAM_JSON)
 				.expectBody()
-				.jsonPath("$[0].uuid").isEqualTo("123")
-				.jsonPath("$[0].name").isEqualTo("junit-stream")
-				.jsonPath("$[0].event.name").isEqualTo("junit-name")
-				.jsonPath("$[0].status").isEqualTo("COMPLETED")
-				.jsonPath("$[0].createdBy").isEqualTo("junit")
+				.jsonPath("$.uuid").isEqualTo("123")
+				.jsonPath("$.name").isEqualTo("junit-stream")
+				.jsonPath("$.event.name").isEqualTo("junit-name")
+				.jsonPath("$.status").isEqualTo("COMPLETED")
+				.jsonPath("$.createdBy").isEqualTo("junit")
+				.jsonPath("$.log").hasJsonPath()
 		;
+
+
+		webClient.get()
+				.uri("/batch/123/log")
+				.exchange()
+				.expectStatus().isOk()
+				.expectHeader().contentType(MediaType.APPLICATION_JSON)
+				.expectBody()
+				.jsonPath("$.key_1").isEqualTo("value_1")
+		;
+
+		batch.push(new EventCandidate<>("junit-stream-2", "1234", bjc));
+
+		List<String> execs = webClient.get()
+				.uri("/batch/today")
+				.exchange()
+				.expectStatus().isOk()
+				.expectHeader().contentType(MediaType.APPLICATION_STREAM_JSON)
+				.returnResult(String.class)
+				.getResponseBody()
+				.collectList()
+				.block();
+
+		assertEquals(2, execs.size());
+		assertEquals("1234", JsonPath.parse(execs.get(0)).read("$.uuid"));
+		assertEquals("123", JsonPath.parse(execs.get(1)).read("$.uuid"));
 
 	}
 }

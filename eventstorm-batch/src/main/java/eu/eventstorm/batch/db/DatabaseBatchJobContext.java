@@ -1,14 +1,14 @@
 package eu.eventstorm.batch.db;
 
 import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.base.Throwables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,10 +55,10 @@ final class DatabaseBatchJobContext implements BatchJobContext {
 	@Override
 	public void setException(Throwable ex) {
 		LOGGER.info("Batch failed", ex);
-		StringWriter sw = new StringWriter();
-		PrintWriter pw = new PrintWriter(sw);
-		ex.printStackTrace(pw);
-		this.databaseExecution.getLog().asMap().put("exception",  sw.toString());
+		Map<String,String> exceptionMap = new HashMap<>();
+		exceptionMap.put("message", ex.getMessage());
+		exceptionMap.put("cause", Throwables.getStackTraceAsString(ex));
+		this.databaseExecution.getLog().asMap().put("exception", exceptionMap);
 	}
 
 	@Override

@@ -68,6 +68,7 @@ public class DatabaseTestConfiguration {
 	@Bean("junit-name") 
 	eu.eventstorm.batch.BatchJob batchJob() {
 		return context -> {
+			context.log("key_1","value_1");
 		};
 	}
 	
