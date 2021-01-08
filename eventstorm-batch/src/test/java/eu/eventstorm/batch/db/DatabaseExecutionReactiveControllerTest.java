@@ -74,8 +74,7 @@ class DatabaseExecutionReactiveControllerTest {
 				.jsonPath("$.event.name").isEqualTo("junit-name")
 				.jsonPath("$.status").isEqualTo("COMPLETED")
 				.jsonPath("$.createdBy").isEqualTo("junit")
-				.jsonPath("$.log").hasJsonPath()
-		.consumeWith(t -> System.out.println(new String(t.getResponseBody())))
+				.jsonPath("$.log").doesNotExist()
 				;
 
 		webClient.get()
@@ -89,7 +88,7 @@ class DatabaseExecutionReactiveControllerTest {
 				.jsonPath("$.event.name").isEqualTo("junit-name")
 				.jsonPath("$.status").isEqualTo("COMPLETED")
 				.jsonPath("$.createdBy").isEqualTo("junit")
-				.jsonPath("$.log").hasJsonPath()
+				.jsonPath("$.log").doesNotExist()
 				;
 
 		webClient.get()
@@ -103,7 +102,7 @@ class DatabaseExecutionReactiveControllerTest {
 				.jsonPath("$.event.name").isEqualTo("junit-name")
 				.jsonPath("$.status").isEqualTo("COMPLETED")
 				.jsonPath("$.createdBy").isEqualTo("junit")
-				.jsonPath("$.log").hasJsonPath()
+				.jsonPath("$.log").doesNotExist()
 		;
 
 
@@ -114,6 +113,7 @@ class DatabaseExecutionReactiveControllerTest {
 				.expectHeader().contentType(MediaType.APPLICATION_JSON)
 				.expectBody()
 				.jsonPath("$.key_1").isEqualTo("value_1")
+				.jsonPath("$.log").doesNotExist()
 		;
 
 		batch.push(new EventCandidate<>("junit-stream-2", "1234", bjc));

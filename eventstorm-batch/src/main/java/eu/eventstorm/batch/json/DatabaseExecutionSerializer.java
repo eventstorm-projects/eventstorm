@@ -3,7 +3,6 @@ package eu.eventstorm.batch.json;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import eu.eventstorm.batch.BatchStatus;
 import eu.eventstorm.batch.db.DatabaseExecution;
 import eu.eventstorm.util.Dates;
 
@@ -31,8 +30,6 @@ final class DatabaseExecutionSerializer extends StdSerializer<DatabaseExecution>
 		gen.writeStringField("createdBy", value.getCreatedBy());
 		writeTimestamp(gen, "startedAt", value.getStartedAt());
 		writeTimestamp(gen, "endedAt", value.getEndedAt());
-		gen.writeFieldName("log");
-		gen.writeRawValue(new String(value.getLog().write(null)));
 		gen.writeEndObject();
 	}
 
