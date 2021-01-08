@@ -34,7 +34,7 @@ public final class LoggerInstancePostProcessor implements TestInstancePostProces
 		if (Level.ALL == level) {
 			loggerConfig.setLevel(Level.INFO);
 			for (LoggerConfig lc : config.getLoggers().values()) {
-				if (lc.getName().startsWith("org") || lc.getName().startsWith("com")) {
+				if (lc.getName().startsWith("org") || lc.getName().startsWith("com") || lc.getName().startsWith("io")) {
 					lc.setLevel(Level.INFO);
 				} else {
 					lc.setLevel(level);	

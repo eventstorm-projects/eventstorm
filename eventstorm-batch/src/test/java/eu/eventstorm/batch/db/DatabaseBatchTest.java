@@ -3,8 +3,11 @@ package eu.eventstorm.batch.db;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import eu.eventstorm.sql.Transaction;
 import eu.eventstorm.test.LoggerInstancePostProcessor;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +34,18 @@ class DatabaseBatchTest {
 	
 	@Autowired
 	private Database database;
-	
+
+
+	@BeforeEach
+	@AfterEach
+	void beforeAndAfterEach() {
+		try (Transaction tx = database.transactionManager().newTransactionReadWrite()) {
+			DatabaseExecutionRepository databaseExecutionRepository = new DatabaseExecutionRepository(database);
+			databaseExecutionRepository.delete("999");
+			databaseExecutionRepository.delete("345");
+			tx.commit();
+		}
+	}
 
 	@Test
 	void testPushOK() throws InterruptedException {

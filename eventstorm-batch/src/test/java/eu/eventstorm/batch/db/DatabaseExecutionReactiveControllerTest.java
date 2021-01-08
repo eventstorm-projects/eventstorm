@@ -7,6 +7,7 @@ import eu.eventstorm.cqrs.batch.BatchJobCreated;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Transaction;
 import eu.eventstorm.test.LoggerInstancePostProcessor;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,7 +40,8 @@ class DatabaseExecutionReactiveControllerTest {
 	private Database database;
 
 	@BeforeEach
-	void beforeEach() {
+	@AfterEach
+	void beforeAndAfterEach() {
 		try (Transaction tx = database.transactionManager().newTransactionReadWrite()) {
 			DatabaseExecutionRepository databaseExecutionRepository = new DatabaseExecutionRepository(database);
 			databaseExecutionRepository.delete("123");
