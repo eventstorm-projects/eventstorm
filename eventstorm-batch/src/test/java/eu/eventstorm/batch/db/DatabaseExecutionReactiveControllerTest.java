@@ -1,12 +1,13 @@
 package eu.eventstorm.batch.db;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import eu.eventstorm.batch.BatchAutoConfiguration;
 import eu.eventstorm.core.EventCandidate;
 import eu.eventstorm.cqrs.batch.BatchJobCreated;
+import eu.eventstorm.sql.Database;
+import eu.eventstorm.sql.Transaction;
 import eu.eventstorm.test.LoggerInstancePostProcessor;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,15 +16,10 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.reactive.server.EntityExchangeResult;
-import org.springframework.test.web.reactive.server.JsonPathAssertions;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.web.reactive.function.BodyInserters;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -38,6 +34,19 @@ class DatabaseExecutionReactiveControllerTest {
 
 	@Autowired
 	private DatabaseBatch batch;
+
+	@Autowired
+	private Database database;
+
+	@BeforeEach
+	void beforeEach() {
+		try (Transaction tx = database.transactionManager().newTransactionReadWrite()) {
+			DatabaseExecutionRepository databaseExecutionRepository = new DatabaseExecutionRepository(database);
+			databaseExecutionRepository.delete("123");
+			databaseExecutionRepository.delete("1234");
+			tx.commit();
+		}
+	}
 
 	@Test
 	void testNoUuid() {
