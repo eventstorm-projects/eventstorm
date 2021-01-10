@@ -1,6 +1,8 @@
 package eu.eventstorm.cqrs.impl;
 
 import java.util.UUID;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import eu.eventstorm.cqrs.tracer.Span;
 import eu.eventstorm.cqrs.tracer.Tracer;
@@ -27,10 +29,13 @@ import eu.eventstorm.eventstore.db.LocalDatabaseEventStore;
 import eu.eventstorm.sql.EventstormRepositoryException;
 import eu.eventstorm.sql.Transaction;
 import eu.eventstorm.sql.TransactionManager;
-import eu.eventstorm.util.tuple.Tuple2;
-import eu.eventstorm.util.tuple.Tuples;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.SignalType;
+import reactor.core.publisher.SynchronousSink;
+import reactor.util.function.Tuple2;
+
+import static reactor.util.function.Tuples.of;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -40,6 +45,9 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 	private static final Logger LOGGER = LoggerFactory.getLogger(LocalDatabaseEventStoreCommandHandler.class);
 
 	private static final TransactionDefinition DEFAULT_TRANSACTION_DEFINITION = TransactionDefinitions.readWrite(10);
+
+	private static final Consumer<SignalType> DEFAULT_SIGNAL_TYPE_CONSUMER = signalType -> {
+	};
 
 	private final Class<T> type;
 
@@ -62,10 +70,17 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 
 	@Autowired
 	private Tracer tracer;
-	
+
+	private final boolean publish;
+
 	protected LocalDatabaseEventStoreCommandHandler(Class<T> type, Validator<T> validator) {
+		this(type, validator, true);
+	}
+	
+	protected LocalDatabaseEventStoreCommandHandler(Class<T> type, Validator<T> validator, boolean publish) {
 		this.type = type;
 		this.validator = validator;
+		this.publish = publish;
 	}
 
 	@Override
@@ -74,37 +89,75 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 	}
 
 	public final Flux<Event> handle(CommandContext context, T command) {
-		try (Span ignored = this.tracer.start("validate")) {
-			try (Transaction tx = this.transactionManager.newTransactionReadOnly()) {
-				// validate the command
-				validate(context, command);
-				tx.commit();
-			}	
-		}
-		
-		return Mono.just(Tuples.of(context, command))
-				.publishOn(eventLoop.get(command))
-				.map(tuple -> storeAndEvolution(tuple, 0))
-				.publishOn(eventLoop.post())
-				.map(events -> { postStoreAndEvolution(context, events); return events; })
-				.flatMapMany(events -> { publish(events); return Flux.fromIterable(events); })
+		return Mono.just(of(context, command))
+				.doFinally(onFinally(context, command))
+				.handle(this::validate)
+				// if exception in the validation -> skip the eventLoop
+				.filterWhen( t -> Mono.just(true))
+				.flatMap(tp -> Mono.just(tp)
+						.publishOn(eventLoop.get(command))
+						.handle(this::storeAndEvolution)
+						.publishOn(eventLoop.post()))
+				.handle(this::afterEventStore)
+				.flatMapMany(Flux::fromIterable)
 				;
 	}
 
-	private ImmutableList<Event> storeAndEvolution(Tuple2<CommandContext, T> tuple, int retry) {
-		try (Span ignored = this.tracer.start("storeAndEvolution")) {
-	    	return doStoreAndEvolution(tuple);
-		} catch (EventstormRepositoryException cause) {
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Thread [{}]- isInterrupted=[{}] - cause [{}]", Thread.currentThread(), Thread.currentThread().isInterrupted(), cause.getMessage());
-			}
-			LOGGER.info("storeAndEvolution -> retry [{}]", retry);
-			if (retry > 9) {
-				throw cause;
-			} else {
-				return storeAndEvolution(tuple, retry + 1);	
-			}
+	private void afterEventStore(Tuple2<CommandContext, ImmutableList<Event>> events, SynchronousSink<ImmutableList<Event>> sink) {
+
+		BiConsumer<CommandContext, ImmutableList<Event>> consumer = doPostStoreAndEvolution();
+		if (consumer != null) {
+			eventLoop.post().schedule(() -> {
+				try (Span ignored = this.tracer.start("postStoreAndEvolution")) {
+					consumer.accept(events.getT1(), events.getT2());
+				}
+			});
 		}
+
+		if (publish) {
+			eventLoop.post().schedule(() -> publish(events.getT2()));
+		}
+
+		sink.next(events.getT2());
+	}
+
+
+
+	private void validate(Tuple2<CommandContext,T> tuple , SynchronousSink<Tuple2<CommandContext,T>> sink) {
+		try (Span ignored = this.tracer.start("validate")) {
+			ImmutableList<ConstraintViolation> constraintViolations = this.validator.validate(tuple.getT1(), tuple.getT2());
+			if (!constraintViolations.isEmpty()) {
+				sink.error(new CommandValidationException(constraintViolations, tuple.getT2()));
+				return;
+			}
+			ImmutableList<ConstraintViolation> consistencyValidation;
+			try (Transaction tx = this.transactionManager.newTransactionReadOnly()) {
+				// validate the command
+				consistencyValidation = consistencyValidation(tuple.getT1(), tuple.getT2());
+				tx.commit();
+			}
+			if (!consistencyValidation.isEmpty()) {
+				sink.error(new CommandValidationException(consistencyValidation, tuple.getT2()));
+				return;
+			}
+
+		} catch (Exception exception) {
+			sink.error(exception);
+			return;
+		}
+
+		sink.next(tuple);
+	}
+
+	private void storeAndEvolution(Tuple2<CommandContext,T> tuple , SynchronousSink<Tuple2<CommandContext, ImmutableList<Event>>> sink) {
+		ImmutableList<Event> events;
+		try (Span ignored = this.tracer.start("storeAndEvolution")) {
+			events = doStoreAndEvolution(tuple);
+		} catch (EventstormRepositoryException cause) {
+			sink.error(cause);
+			return;
+		}
+		sink.next(of(tuple.getT1(), events));
 	}
 	
 	private ImmutableList<Event> doStoreAndEvolution(Tuple2<CommandContext, T> tuple) {
@@ -130,22 +183,6 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 		}
 		return events;
 	}
-	
-	private void validate(CommandContext context, T command) {
-		
-		ImmutableList<ConstraintViolation> constraintViolations = this.validator.validate(context, command);
-		
-		if (!constraintViolations.isEmpty()) {
-			throw new CommandValidationException(constraintViolations, command);
-		}
-		
-		ImmutableList<ConstraintViolation> consistencyValidation = consistencyValidation(context, command);
-		
-		if (!consistencyValidation.isEmpty()) {
-			throw new CommandValidationException(consistencyValidation, command);
-		}
-		
-	}
 
 	private ImmutableList<Event> store(ImmutableList<EventCandidate<?>> candidates) {
 		if (LOGGER.isDebugEnabled()) {
@@ -163,19 +200,10 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 		return builder.build();
 	}
 
-	private void postStoreAndEvolution(CommandContext context, ImmutableList<Event> events) {
-		try (Span ignored = this.tracer.start("postStoreAndEvolution")) {
-			doPostStoreAndEvolution(context, events);
-		}
-	}
-	
 	private void publish(ImmutableList<Event> events) {
 		try (Span ignored = this.tracer.start("publish")) {
 			eventBus.publish(events);
 		}
-	}
-	
-	protected void doPostStoreAndEvolution(CommandContext context, ImmutableList<Event> events) {
 	}
 
 	protected ImmutableList<ConstraintViolation> consistencyValidation(CommandContext context, T command) {
@@ -186,7 +214,14 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 	 * (state,command) => events
 	 */
 	protected abstract ImmutableList<EventCandidate<?>> decision(CommandContext context, T command);
-	
-	
+
+	protected BiConsumer<CommandContext, ImmutableList<Event>> doPostStoreAndEvolution() {
+		return null;
+	}
+
+	protected Consumer<SignalType> onFinally(CommandContext context, T command) {
+		return DEFAULT_SIGNAL_TYPE_CONSUMER;
+	}
+
 
 }

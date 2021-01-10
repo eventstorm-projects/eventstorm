@@ -4,6 +4,7 @@ package eu.eventstorm.cqrs.impl;
 import eu.eventstorm.cqrs.EventLoop;
 import eu.eventstorm.cqrs.event.EvolutionHandlers;
 import eu.eventstorm.cqrs.impl.LocalDatabaseEventStoreCommandHandlerTest.TestLocalDatabaseEventStoreCommandHandler;
+import eu.eventstorm.cqrs.impl.LocalDatabaseEventStoreCommandHandlerTest.TestLocalDatabaseEventStoreFailedCommandHandler;
 import eu.eventstorm.cqrs.tracer.NoOpTracer;
 import eu.eventstorm.cqrs.tracer.Tracer;
 import eu.eventstorm.eventbus.EventBus;
@@ -32,8 +33,13 @@ class LocalDatabaseEventStoreCommandHandlerConfiguration {
     }
 
     @Bean
-    TestLocalDatabaseEventStoreCommandHandler TestLocalDatabaseEventStoreCommandHandler() {
+    TestLocalDatabaseEventStoreCommandHandler testLocalDatabaseEventStoreCommandHandler() {
         return new TestLocalDatabaseEventStoreCommandHandler();
+    }
+
+    @Bean
+    TestLocalDatabaseEventStoreFailedCommandHandler testLocalDatabaseEventStoreFailedCommandHandler() {
+        return new TestLocalDatabaseEventStoreFailedCommandHandler();
     }
 
     @Bean

@@ -16,11 +16,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.SignalType;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = { LocalDatabaseEventStoreCommandHandlerConfiguration.class })
@@ -29,6 +35,9 @@ class LocalDatabaseEventStoreCommandHandlerTest {
 
     @Autowired
     private TestLocalDatabaseEventStoreCommandHandler handler;
+
+    @Autowired
+    private TestLocalDatabaseEventStoreFailedCommandHandler handlerFailedValidation;
 
     @Test
     void testNormal() {
@@ -43,7 +52,22 @@ class LocalDatabaseEventStoreCommandHandlerTest {
         assertEquals(2, command.integer.intValue());
     }
 
+    @Test
+    void testFailedValidation() {
+
+        TestFailedCommand command = new TestFailedCommand();
+        DefaultCommandContext commandContext = new DefaultCommandContext();
+
+        RuntimeException ex =  assertThrows(RuntimeException.class, () -> handlerFailedValidation.handle(commandContext, command).collectList().block());
+        assertEquals("FAILED VALIDATION", ex.getMessage());
+        assertEquals(1, command.integer.get());
+    }
+
     static final class TestCommand implements  Command {
+        public final AtomicInteger integer = new AtomicInteger(0);
+    }
+
+    static final class TestFailedCommand implements  Command {
         public final AtomicInteger integer = new AtomicInteger(0);
     }
 
@@ -68,8 +92,39 @@ class LocalDatabaseEventStoreCommandHandlerTest {
         }
 
         @Override
-        protected void doPostStoreAndEvolution(CommandContext context, ImmutableList<Event> events) {
-            assertTrue(Thread.currentThread().getName().startsWith("event-post-junit-"));
+        protected BiConsumer<CommandContext, ImmutableList<Event>> doPostStoreAndEvolution() {
+            return (ctx,events) -> {
+                assertTrue(Thread.currentThread().getName().startsWith("event-post-junit-"));
+            };
+        }
+
+    }
+
+    static final class TestLocalDatabaseEventStoreFailedCommandHandler extends LocalDatabaseEventStoreCommandHandler<TestFailedCommand> {
+
+        public TestLocalDatabaseEventStoreFailedCommandHandler() {
+            super(TestFailedCommand.class, Validators.empty());
+        }
+
+        @Override
+        protected ImmutableList<ConstraintViolation> consistencyValidation(CommandContext context, TestFailedCommand command) {
+            throw new RuntimeException("FAILED VALIDATION");
+        }
+
+        @Override
+        protected ImmutableList<EventCandidate<?>> decision(CommandContext context, TestFailedCommand command) {
+            return null;
+        }
+
+        @Override
+        protected Consumer<SignalType> onFinally(CommandContext context, TestFailedCommand command) {
+            return type -> {
+                System.out.println("override onFinally -> " + type + "--> " + Thread.currentThread());
+                if (type == SignalType.CANCEL || type == SignalType.ON_ERROR) {
+                    command.integer.incrementAndGet();
+
+                }
+            };
         }
     }
 
