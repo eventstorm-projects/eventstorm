@@ -179,6 +179,16 @@ class ExpressionsTest {
     }
 
     @Test
+    void testNotInSubSelect() {
+        SqlQuery subSelect = mock(SqlQuery.class);
+        Mockito.when(subSelect.sql()).thenReturn("--SUBSELECT_MOCK--");
+
+        SqlColumn number = new SqlSingleColumn(table, "number", false, true, true);
+        assertEquals("a.number NOT IN ( --SUBSELECT_MOCK-- )", Expressions.notIn(number, SubSelects.from(subSelect)).build(dialect, true));
+        assertEquals("number NOT IN ( --SUBSELECT_MOCK-- )", Expressions.notIn(number, SubSelects.from(subSelect)).build(dialect, false));
+    }
+
+    @Test
     void testLike() {
 
         SqlColumn number = new SqlSingleColumn(table, "number", false, true, true);

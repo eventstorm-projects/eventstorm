@@ -104,9 +104,13 @@ public final class Expressions {
     }
 
     public static Expression in(SqlColumn column, SubSelect value) {
-		return new InSubSelectExpression(column, value);
+		return new InSubSelectExpression(column, value, false);
     }
-	
+
+    public static Expression notIn(SqlColumn column, SubSelect value) {
+        return new InSubSelectExpression(column, value, true);
+    }
+
     public static Expression in(SqlColumn column, int size) {
 		return new InExpression(column, size);
     }

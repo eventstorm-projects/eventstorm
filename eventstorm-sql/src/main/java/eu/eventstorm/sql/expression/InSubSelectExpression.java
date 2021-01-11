@@ -18,10 +18,13 @@ final class InSubSelectExpression implements Expression {
      * value
      */
     private final SubSelect value;
+
+    private final boolean not;
 	
-	public InSubSelectExpression(SqlColumn column, SubSelect value) {
+	public InSubSelectExpression(SqlColumn column, SubSelect value, boolean not) {
 		this.column = column;
 		this.value = value;
+		this.not = not;
 	}
 
 	@Override
@@ -32,6 +35,9 @@ final class InSubSelectExpression implements Expression {
             builder.append(column.table().alias()).append('.');
         }
     	builder.append(column.name());
+    	if (not) {
+			builder.append(" NOT");
+		}
     	builder.append(" IN ( ");
     	builder.append(value.sql());
     	builder.append(" )");
