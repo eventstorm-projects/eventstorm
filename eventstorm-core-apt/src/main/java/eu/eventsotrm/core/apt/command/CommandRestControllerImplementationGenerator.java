@@ -244,6 +244,12 @@ public final class CommandRestControllerImplementationGenerator {
 			return;
 		}
 
+		if (HttpMethod.DELETE == rcd.getRestController().method()) {
+			writer.write("    @org.springframework.web.bind.annotation.DeleteMapping(name=\"" + rcd.getRestController().uri() + "\", produces = \""+ type +"\")");
+			writeNewLine(writer);
+			return;
+		}
+
 	}
 
 	private static String getReturnTypeClassname(RestControllerDescriptor rcd) {
