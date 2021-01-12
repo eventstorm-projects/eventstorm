@@ -239,13 +239,13 @@ public final class CommandRestControllerImplementationGenerator {
 		}
 
 		if (HttpMethod.PUT == rcd.getRestController().method()) {
-			writer.write("    @org.springframework.web.bind.annotation.PutMapping(name=\"" + rcd.getRestController().uri() + "\", produces = \""+ type +"\")");
+			writer.write("    @org.springframework.web.bind.annotation.PutMapping(path=\"" + rcd.getRestController().uri() + "\", produces = \""+ type +"\")");
 			writeNewLine(writer);
 			return;
 		}
 
 		if (HttpMethod.DELETE == rcd.getRestController().method()) {
-			writer.write("    @org.springframework.web.bind.annotation.DeleteMapping(name=\"" + rcd.getRestController().uri() + "\", produces = \""+ type +"\")");
+			writer.write("    @org.springframework.web.bind.annotation.DeleteMapping(path=\"" + rcd.getRestController().uri() + "\", produces = \""+ type +"\")");
 			writeNewLine(writer);
 			return;
 		}
