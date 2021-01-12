@@ -29,6 +29,8 @@ public final class EventstormRepositoryException extends EventstormSqlException 
 		DELETE_PREPARED_STATEMENT_SETTER, DELETE_EXECUTE_QUERY,
 		// batch
 		BATCH_ADD, BATCH_EXECUTE_QUERY, BATCH_RESULT,
+		// execute query
+		PREPARED_STATEMENT_SETTER
 		;
 	}
 

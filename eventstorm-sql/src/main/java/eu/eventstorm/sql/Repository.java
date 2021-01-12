@@ -9,6 +9,7 @@ import static eu.eventstorm.sql.EventstormRepositoryException.Type.INSERT_EXECUT
 import static eu.eventstorm.sql.EventstormRepositoryException.Type.INSERT_GENERATED_KEYS;
 import static eu.eventstorm.sql.EventstormRepositoryException.Type.INSERT_MAPPER;
 import static eu.eventstorm.sql.EventstormRepositoryException.Type.INSERT_RESULT;
+import static eu.eventstorm.sql.EventstormRepositoryException.Type.PREPARED_STATEMENT_SETTER;
 import static eu.eventstorm.sql.EventstormRepositoryException.Type.SELECT_EXECUTE_QUERY;
 import static eu.eventstorm.sql.EventstormRepositoryException.Type.SELECT_MAPPER;
 import static eu.eventstorm.sql.EventstormRepositoryException.Type.SELECT_NEXT;
@@ -43,7 +44,6 @@ import eu.eventstorm.sql.jdbc.InsertMapperWithAutoIncrement;
 import eu.eventstorm.sql.jdbc.PreparedStatementSetter;
 import eu.eventstorm.sql.jdbc.ResultSetMapper;
 import eu.eventstorm.sql.jdbc.ResultSetMappers;
-import eu.eventstorm.sql.jdbc.SimpleUpdateMapper;
 import eu.eventstorm.sql.jdbc.UpdateMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -147,24 +147,6 @@ public abstract class Repository {
 		}
 	}
 
-	protected final void executeInsert(SqlQuery query, PreparedStatementSetter pss) {
-		try (TransactionQueryContext tqc = database.transactionManager().context().write(query)) {
-
-			try {
-				pss.set(tqc.preparedStatement());
-			} catch (SQLException cause) {
-				throw tqc.exception(new EventstormRepositoryException(INSERT_MAPPER, of(PARAM_SQL, query), cause));
-			}
-
-			try {
-				tqc.preparedStatement().executeUpdate();
-			} catch (SQLException cause) {
-				throw tqc.exception(new EventstormRepositoryException(INSERT_EXECUTE_QUERY, of(PARAM_SQL, query), cause));
-			}
-
-		}
-	}
-
 	private <E> void doInsert(SqlQuery query, InsertMapper<E> im, E pojo, TransactionQueryContext tqc) {
 		try {
 			im.insert(this.database.dialect(), tqc.preparedStatement(), pojo);
@@ -200,26 +182,21 @@ public abstract class Repository {
 	}
 
 
-	protected final void executeUpdate(SqlQuery query, SimpleUpdateMapper sum) {
+	protected final void execute(SqlQuery query, PreparedStatementSetter pss) {
 		
 		try (TransactionQueryContext tqc = database.transactionManager().context().write(query)) {
 			
 			try {
-				sum.update(this.database.dialect(), tqc.preparedStatement());
+				pss.set(tqc.preparedStatement());
 			} catch (SQLException cause) {
-				throw tqc.exception(new EventstormRepositoryException(UPDATE_MAPPER, of(PARAM_SQL, query), cause));
+				throw tqc.exception(new EventstormRepositoryException(PREPARED_STATEMENT_SETTER, of(PARAM_SQL, query), cause));
 			}
 
-			int val;
 
 			try {
-				val = tqc.preparedStatement().executeUpdate();
+				tqc.preparedStatement().executeUpdate();
 			} catch (SQLException cause) {
 				throw tqc.exception(new EventstormRepositoryException(UPDATE_EXECUTE_QUERY, of(PARAM_SQL, query), cause));
-			}
-
-			if (val != 1) {
-				throw tqc.exception(new EventstormRepositoryException(UPDATE_RESULT, of(PARAM_SQL, query)));
 			}
 			
 		}
