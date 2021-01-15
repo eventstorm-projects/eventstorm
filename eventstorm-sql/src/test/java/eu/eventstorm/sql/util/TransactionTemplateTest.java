@@ -224,7 +224,6 @@ class TransactionTemplateTest {
 			assertEquals(1, template.executeWithReadOnly(() -> this.repository.findAll().count()));
 			template.executeWithIsolatedReadWrite(() -> {
 				this.repository.insert(s2);
-				return null;
 			});
 			assertEquals(1, template.executeWithReadOnly(() -> this.repository.findAll().count()));
 			return null;

@@ -82,8 +82,10 @@ public final class TransactionTemplate {
 		try (Transaction tx = transactionManager.newTransactionReadOnly()) {
 			try {
 				returnValue = callback.doInTransaction();
-			} finally {
 				tx.commit();
+			} catch (Exception cause) {
+				tx.rollback();
+				throw cause;
 			}
 		}
 		return returnValue;
@@ -93,8 +95,10 @@ public final class TransactionTemplate {
 		try (Transaction tx = transactionManager.newTransactionReadOnly()) {
 			try {
 				callback.doInTransaction();
-			} finally {
 				tx.commit();
+			} catch (Exception cause) {
+				tx.rollback();
+				throw cause;
 			}
 		}
 	}
@@ -102,10 +106,27 @@ public final class TransactionTemplate {
 	public <T> T executeWithIsolatedReadWrite(TransactionCallback<T> callback) {
 		T returnValue;
 		try (Transaction tx = transactionManager.newTransactionIsolatedReadWrite()) {
-			returnValue = callback.doInTransaction();
-			tx.commit();
+			try {
+				returnValue = callback.doInTransaction();
+				tx.commit();
+			} catch (Exception cause) {
+				tx.rollback();
+				throw cause;
+			}
 		}
 		return returnValue;
+	}
+
+	public void executeWithIsolatedReadWrite(TransactionCallbackVoid callback) {
+		try (Transaction tx = transactionManager.newTransactionIsolatedReadWrite()) {
+			try {
+				callback.doInTransaction();
+				tx.commit();
+			} catch (Exception cause) {
+				tx.rollback();
+				throw cause;
+			}
+		}
 	}
 
 	public <T> Stream<T> stream(TransactionCallback<Stream<T>> callback) {

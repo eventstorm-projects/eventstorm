@@ -98,12 +98,12 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 						.publishOn(eventLoop.get(command))
 						.handle(this::storeAndEvolution)
 						.publishOn(eventLoop.post()))
-				.handle(this::afterEventStore)
+				.handle(this::postEventStore)
 				.flatMapMany(Flux::fromIterable)
 				;
 	}
 
-	private void afterEventStore(Tuple2<CommandContext, ImmutableList<Event>> events, SynchronousSink<ImmutableList<Event>> sink) {
+	private void postEventStore(Tuple2<CommandContext, ImmutableList<Event>> events, SynchronousSink<ImmutableList<Event>> sink) {
 
 		BiConsumer<CommandContext, ImmutableList<Event>> consumer = doPostStoreAndEvolution();
 		if (consumer != null) {
@@ -146,7 +146,13 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 			return;
 		}
 
-		sink.next(tuple);
+		try {
+			postValidate(tuple.getT1(), tuple.getT2());
+			sink.next(tuple);
+		} catch (Exception cause) {
+			sink.error(cause);
+		}
+
 	}
 
 	private void storeAndEvolution(Tuple2<CommandContext,T> tuple , SynchronousSink<Tuple2<CommandContext, ImmutableList<Event>>> sink) {
@@ -208,6 +214,10 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 
 	protected ImmutableList<ConstraintViolation> consistencyValidation(CommandContext context, T command) {
 		return ImmutableList.of();
+	}
+
+	protected void postValidate(CommandContext commandContext, T command) {
+
 	}
 
 	/**
