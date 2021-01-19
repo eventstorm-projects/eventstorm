@@ -1,5 +1,7 @@
 package eu.eventstorm.starter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,8 +19,13 @@ import reactor.core.publisher.Mono;
 @RestControllerAdvice
 final class CommandValidationRestControllerAdvice {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(CommandValidationRestControllerAdvice.class);
+
     @ExceptionHandler(CommandValidationException.class)
-    public Mono<ResponseEntity<Problem>> on(CommandValidationException  ex, ServerHttpRequest request) { 
+    public Mono<ResponseEntity<Problem>> on(CommandValidationException  ex, ServerHttpRequest request) {
+
+        LOGGER.info("onCommandValidationException [{}]", ex.getMessage());
+
         return Mono.just(ResponseEntity.badRequest()
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE)
                 .body(Problem.builder()
