@@ -34,17 +34,17 @@ class InMemoryBatchTest {
 
 		batch.push(new EventCandidate<>("read","123", BatchJobCreated.newBuilder()
 				.setName("Test")
-				.setCommand(ByteString.copyFrom("[{\"uuid\":\""+ java.util.UUID.randomUUID() +"\"}]", StandardCharsets.UTF_8))
+				.setCommand("[{\"uuid\":\""+ java.util.UUID.randomUUID() +"\"}]")
 				.build()));
 		
 		batch.push(new EventCandidate<>("read","456", BatchJobCreated.newBuilder()
 				.setName("Test")
-				.setCommand(ByteString.copyFrom("[{\"uuid\":\""+ java.util.UUID.randomUUID() +"\"}]", StandardCharsets.UTF_8))
+				.setCommand("[{\"uuid\":\""+ java.util.UUID.randomUUID() +"\"}]")
 				.build()));
 		
 		batch.push(new EventCandidate<>("read","789", BatchJobCreated.newBuilder()
 				.setName("Test")
-				.setCommand(ByteString.copyFrom("[{\"uuid\":\""+ java.util.UUID.randomUUID() +"\"}]", StandardCharsets.UTF_8))
+				.setCommand("[{\"uuid\":\""+ java.util.UUID.randomUUID() +"\"}]")
 				.build()));
 		
 		Thread.sleep(1500);
