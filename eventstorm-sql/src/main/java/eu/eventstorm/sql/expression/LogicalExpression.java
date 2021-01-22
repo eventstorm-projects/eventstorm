@@ -64,4 +64,8 @@ final class LogicalExpression implements Expression{
         return builder.toString();
     }
 
+    @Override
+    public int countParameter() {
+        return expressions.stream().mapToInt(Expression::countParameter).sum();
+    }
 }

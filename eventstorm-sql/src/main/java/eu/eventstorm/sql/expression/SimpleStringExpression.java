@@ -16,4 +16,8 @@ final class SimpleStringExpression extends SimpleExpression<String> {
 		builder.append('\'').append(value).append('\'');
 	}
 
+	@Override
+	public int countParameter() {
+		return 0;
+	}
 }

@@ -69,7 +69,7 @@ public final class SelectBuilder extends AbstractBuilder {
         validate();
         
         if (pageable) {
-        	return (T) new SqlQueryPageableImpl(this , this.where == null ? 1 : countParamInWhereClause());	
+        	return (T) new SqlQueryPageableImpl(this , this.where == null ? 1 : this.where.countParameter());
         } 
         
         // not pageable => build sql
@@ -100,11 +100,6 @@ public final class SelectBuilder extends AbstractBuilder {
         return (T) new SqlQueryImpl(sql);
         
     }
-
-	private int countParamInWhereClause() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
 
 	SqlQueryImpl buildPageableCount(PageRequest pageRequest) {
 		SqlTable table = this.from.get(0);

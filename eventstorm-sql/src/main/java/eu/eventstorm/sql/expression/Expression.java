@@ -10,4 +10,8 @@ public interface Expression {
 
     String build(Dialect dialect, boolean alias);
 
+    default int countParameter() {
+        return 1;
+    }
+
 }

@@ -16,4 +16,8 @@ final class SimpleNumericExpression extends SimpleExpression<Number> {
 		builder.append(value);
 	}
 
+	@Override
+	public int countParameter() {
+		return 0;
+	}
 }

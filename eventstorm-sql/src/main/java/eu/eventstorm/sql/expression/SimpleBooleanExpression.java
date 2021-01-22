@@ -16,4 +16,8 @@ final class SimpleBooleanExpression extends SimpleExpression<Boolean> {
 		builder.append(value.toString());
 	}
 
+	@Override
+	public int countParameter() {
+		return 0;
+	}
 }
