@@ -5,11 +5,15 @@ import java.sql.SQLException;
 import java.util.List;
 
 import eu.eventstorm.sql.expression.Expression;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 public final class DefaultFilterEvaluator implements FilterEvaluator {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultFilterEvaluator.class);
 
 	private final Expression expression;
 	private final List<String> values;
@@ -36,6 +40,11 @@ public final class DefaultFilterEvaluator implements FilterEvaluator {
 		if (psis == null) {
 			return index;
 		}
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("apply with index({}) - values ({}) - expression ({})", index, values, expression);
+		}
+
 		try {
 			return psis.set(ps, index);
 		} catch (SQLException cause) {
