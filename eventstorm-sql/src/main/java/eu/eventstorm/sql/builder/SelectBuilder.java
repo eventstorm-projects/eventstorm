@@ -69,7 +69,7 @@ public final class SelectBuilder extends AbstractBuilder {
         validate();
         
         if (pageable) {
-        	return (T) new SqlQueryPageableImpl(this , this.where == null ? 1 : this.where.countParameter());
+        	return (T) new SqlQueryPageableImpl(this , this.where == null ? 1 : this.where.countParameter() + 1);
         } 
         
         // not pageable => build sql
