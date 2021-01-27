@@ -8,11 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import eu.eventstorm.sql.desc.DerivedColumn;
+import eu.eventstorm.sql.page.SingleSqlEvaluator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Query;
@@ -21,7 +21,7 @@ import eu.eventstorm.sql.desc.SqlTable;
 import eu.eventstorm.sql.expression.AggregateFunction;
 import eu.eventstorm.sql.expression.Expression;
 import eu.eventstorm.sql.expression.Expressions;
-import eu.eventstorm.sql.page.PageRequest;
+import eu.eventstorm.page.PageRequest;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -124,25 +124,46 @@ public final class SelectBuilder extends AbstractBuilder {
 	}
 	
 	private void appendOrderPage(StringBuilder builder, PageRequest pageRequest) {
-		if (!this.orderBy.isEmpty() && !pageRequest.getOrders().isEmpty()) {
-			appendOrder(ImmutableList.<Order>builder().addAll(this.orderBy).addAll(pageRequest.getOrders()).build(), builder);
+        ImmutableList<Order> orders = toOrders(pageRequest);
+		if (!this.orderBy.isEmpty() && !orders.isEmpty()) {
+			appendOrder(ImmutableList.<Order>builder().addAll(this.orderBy).addAll(orders).build(), builder);
 		} else if (!this.orderBy.isEmpty()) {
 			appendOrder(this.orderBy, builder);
-		} else if (!pageRequest.getOrders().isEmpty()) {
-			appendOrder(pageRequest.getOrders(), builder);
+		} else if (!orders.isEmpty()) {
+			appendOrder(orders, builder);
 		}
 	}
 
 	
 	void appendWherePage(StringBuilder builder, PageRequest pageRequest) {
+
 		if (where != null && pageRequest.getFilters().size() > 0) {
-			appendWhere(Expressions.and(this.where, and(pageRequest.getFilters().toExpressions())), builder);
+			appendWhere(Expressions.and(this.where, and(toExpressions(pageRequest))), builder);
 		} else if (where != null) {
 			appendWhere(this.where, builder);
 		} else if (pageRequest.getFilters().size() > 0) {
-			appendWhere(and(pageRequest.getFilters().toExpressions()), builder);
+			appendWhere(and(toExpressions(pageRequest)), builder);
 		}	
 	}
+
+	private ImmutableList<Order> toOrders(PageRequest pageRequest) {
+        ImmutableList.Builder<Order> builder = ImmutableList.builder();
+        SingleSqlEvaluator evaluator = (SingleSqlEvaluator) pageRequest.getEvaluator();
+        pageRequest.getSorts().forEach(s -> {
+            SqlColumn column = evaluator.getSqlPageRequestDescriptor().get(s.getProperty());
+            if (s.isAscending()) {
+                builder.add(Order.asc(column));
+            } else {
+                builder.add(Order.desc(column));
+            }
+        });
+        return builder.build();
+    }
+
+	private ImmutableList<Expression> toExpressions(PageRequest pageRequest) {
+        SingleSqlEvaluator evaluator = (SingleSqlEvaluator) pageRequest.getEvaluator();
+        return evaluator.toExpressions(pageRequest);
+    }
 
 	SqlQueryImpl buildPageable(PageRequest pageRequest) {
 

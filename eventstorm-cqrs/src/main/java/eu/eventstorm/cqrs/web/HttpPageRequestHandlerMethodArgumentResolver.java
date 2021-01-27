@@ -1,11 +1,9 @@
 package eu.eventstorm.cqrs.web;
 
-import static eu.eventstorm.cqrs.util.PageRequests.parse;
-
-import java.lang.reflect.Array;
-import java.lang.reflect.Method;
-import java.util.concurrent.ConcurrentHashMap;
-
+import eu.eventstorm.cqrs.PageQueryDescriptor;
+import eu.eventstorm.cqrs.PageQueryDescriptors;
+import eu.eventstorm.page.PageRequest;
+import eu.eventstorm.page.PageRequests;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.MethodParameter;
@@ -13,11 +11,11 @@ import org.springframework.util.ReflectionUtils;
 import org.springframework.web.reactive.BindingContext;
 import org.springframework.web.reactive.result.method.HandlerMethodArgumentResolver;
 import org.springframework.web.server.ServerWebExchange;
-
-import eu.eventstorm.cqrs.QueryDescriptors;
-import eu.eventstorm.cqrs.SqlQueryDescriptor;
-import eu.eventstorm.sql.page.PageRequest;
 import reactor.core.publisher.Mono;
+
+import java.lang.reflect.Array;
+import java.lang.reflect.Method;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -36,11 +34,11 @@ public final class HttpPageRequestHandlerMethodArgumentResolver implements Handl
 		}
 	}
 	
-	private final QueryDescriptors queryDescriptors;
+	private final PageQueryDescriptors queryDescriptors;
 	
-	private final ConcurrentHashMap<Method, SqlQueryDescriptor> descriptors;
+	private final ConcurrentHashMap<Method, PageQueryDescriptor> descriptors;
 	
-	public HttpPageRequestHandlerMethodArgumentResolver(QueryDescriptors queryDescriptors) {
+	public HttpPageRequestHandlerMethodArgumentResolver(PageQueryDescriptors queryDescriptors) {
 		this.queryDescriptors = queryDescriptors;
 		this.descriptors = new ConcurrentHashMap<>();
 	}
@@ -63,7 +61,7 @@ public final class HttpPageRequestHandlerMethodArgumentResolver implements Handl
 	
 	private Mono<Object> resolveArgument(Method method, String uri) {
 		
-		SqlQueryDescriptor queryDescriptor = this.descriptors.get(method);
+		PageQueryDescriptor queryDescriptor = this.descriptors.get(method);
 		
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("resolveArgument [{}] - [{}] -> [{}]" , uri, queryDescriptor, method);
@@ -93,11 +91,11 @@ public final class HttpPageRequestHandlerMethodArgumentResolver implements Handl
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Method clazz [{}]" , clazz);
 			}
-			queryDescriptor = queryDescriptors.getSqlQueryDescriptor(clazz.getName());
+			queryDescriptor = queryDescriptors.get(clazz.getName());
 			this.descriptors.put(method, queryDescriptor);
 		}
 		
-		return Mono.just(parse(uri, queryDescriptor));
+		return Mono.just(PageRequests.parse(uri, queryDescriptor.getEvaluator()));
 		
 	}
 

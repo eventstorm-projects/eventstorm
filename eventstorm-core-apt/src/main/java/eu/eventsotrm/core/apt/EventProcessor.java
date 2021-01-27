@@ -28,8 +28,8 @@ import eu.eventsotrm.core.apt.command.CommandValidatorGenerator;
 import eu.eventsotrm.core.apt.event.EventProtoGenerator;
 import eu.eventsotrm.core.apt.model.*;
 import eu.eventsotrm.core.apt.query.QueryBuilderGenerator;
-import eu.eventsotrm.core.apt.query.QueryDescriptorGenerator;
-import eu.eventsotrm.core.apt.query.QueryDescriptorsGenerator;
+import eu.eventsotrm.core.apt.query.SqlPageRequestDescriptorGenerator;
+import eu.eventsotrm.core.apt.query.PageQueryDescriptorsGenerator;
 import eu.eventsotrm.core.apt.query.QueryImplementationGenerator;
 import eu.eventsotrm.core.apt.query.QueryJacksonModuleGenerator;
 import eu.eventsotrm.core.apt.query.QueryJacksonStdSerializerGenerator;
@@ -207,8 +207,8 @@ public class EventProcessor extends AbstractProcessor {
 		// Query / Database View and Table / Pojo
 		new QueryJacksonStdSerializerGenerator().generate(processingEnv, sourceCode);
 		new QueryJacksonModuleGenerator().generate(processingEnv, sourceCode);
-		new QueryDescriptorGenerator().generate(processingEnv, sourceCode);
-		new QueryDescriptorsGenerator().generate(processingEnv, sourceCode);
+		new SqlPageRequestDescriptorGenerator().generate(processingEnv, sourceCode);
+		new PageQueryDescriptorsGenerator().generate(processingEnv, sourceCode);
 		
 		// Query Client
 		QueryClientGeneratorFacade.generate(processingEnv, sourceCode);

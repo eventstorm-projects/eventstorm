@@ -21,6 +21,12 @@
 
 		<dependency>
 			<groupId>eu.eventstorm</groupId>
+			<artifactId>eventstorm-page</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>eu.eventstorm</groupId>
 			<artifactId>eventstorm-test</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
@@ -74,11 +80,7 @@
 			<scope>test</scope>
 		</dependency>
 
-		<dependency>
-			<groupId>org.skyscreamer</groupId>
-			<artifactId>jsonassert</artifactId>
-			<scope>test</scope>
-		</dependency>
+
 
 	</dependencies>
 

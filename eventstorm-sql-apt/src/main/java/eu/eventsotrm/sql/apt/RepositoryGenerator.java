@@ -38,8 +38,8 @@ import eu.eventstorm.sql.expression.Expressions;
 import eu.eventstorm.sql.id.SequenceGenerator4Integer;
 import eu.eventstorm.sql.id.SequenceGenerator4Long;
 import eu.eventstorm.sql.jdbc.Batch;
-import eu.eventstorm.sql.page.Page;
-import eu.eventstorm.sql.page.PageRequest;
+import eu.eventstorm.page.Page;
+import eu.eventstorm.page.PageRequest;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>

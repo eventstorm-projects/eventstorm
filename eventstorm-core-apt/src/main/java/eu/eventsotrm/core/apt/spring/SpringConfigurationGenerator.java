@@ -19,7 +19,7 @@ import eu.eventsotrm.core.apt.SourceCode;
 import eu.eventsotrm.core.apt.model.ProtobufMessage;
 import eu.eventsotrm.sql.apt.log.Logger;
 import eu.eventsotrm.sql.apt.log.LoggerFactory;
-import eu.eventstorm.cqrs.QueryDescriptors;
+import eu.eventstorm.cqrs.PageQueryDescriptors;
 import eu.eventstorm.eventstore.StreamManager;
 import eu.eventstorm.eventstore.memory.InMemoryStreamManagerBuilder;
 
@@ -119,9 +119,9 @@ public final class SpringConfigurationGenerator {
 			writeNewLine(writer);
 			writer.write("    @Bean");
 			writeNewLine(writer);
-			writer.write("    "+ QueryDescriptors.class.getName() + " queryDescriptors() {");
+			writer.write("    "+ PageQueryDescriptors.class.getName() + " pageQueryDescriptors() {");
 			 writeNewLine(writer);
-			writer.write("       return new EventstormQueryDescriptors();");
+			writer.write("       return new EventstormPageQueryDescriptors();");
 		    writeNewLine(writer);
 			writer.write("    }");
 		    writeNewLine(writer);

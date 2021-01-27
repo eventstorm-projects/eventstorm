@@ -1,6 +1,6 @@
 package eu.eventstorm.sql;
 
-import eu.eventstorm.sql.page.PageRequest;
+import eu.eventstorm.page.PageRequest;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>

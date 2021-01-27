@@ -1,4 +1,4 @@
-package eu.eventstorm.sql.page;
+package eu.eventstorm.page;
 
 import java.util.stream.Stream;
 

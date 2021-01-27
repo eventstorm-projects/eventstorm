@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import eu.eventstorm.sql.Transaction;
 import eu.eventstorm.sql.TransactionManager;
 import eu.eventstorm.sql.impl.TransactionException;
-import eu.eventstorm.sql.page.Page;
+import eu.eventstorm.page.Page;
 import reactor.core.publisher.Flux;
 
 /**

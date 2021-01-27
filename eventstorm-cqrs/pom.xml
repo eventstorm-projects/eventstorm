@@ -47,12 +47,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.antlr</groupId>
-			<artifactId>antlr4-runtime</artifactId>
-			<optional>true</optional>
-		</dependency>
-
-		<dependency>
 			<groupId>eu.eventstorm</groupId>
 			<artifactId>eventstorm-sql-apt</artifactId>
 			<version>${project.version}</version>
@@ -119,26 +113,7 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
-				<groupId>org.antlr</groupId>
-				<artifactId>antlr4-maven-plugin</artifactId>
-				<version>${org.antlr.version}</version>
-				<configuration>
-					<arguments>
-						<argument>-o</argument>
-						<argument>${project.build.directory}/generated-sources/antlr4/eu/eventstorm/cqrs/query</argument>
-					</arguments>
-				</configuration>
-				<executions>
-					<execution>
-						<id>antlr</id>
-						<goals>
-							<goal>antlr4</goal>
-						</goals>
-						<phase>generate-sources</phase>
-					</execution>
-				</executions>
-			</plugin>
+
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>

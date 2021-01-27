@@ -8,11 +8,11 @@ import static eu.eventstorm.sql.model.airport.AirportDescriptor.IDS;
 import static eu.eventstorm.sql.model.airport.AirportDescriptor.ID;
 import static eu.eventstorm.sql.model.airport.AirportDescriptor.TABLE;
 
+import eu.eventstorm.page.Page;
+import eu.eventstorm.page.PageRequest;
 import eu.eventstorm.sql.SqlQuery;
 import eu.eventstorm.sql.SqlQueryPageable;
 import eu.eventstorm.sql.expression.AggregateFunctions;
-import eu.eventstorm.sql.page.Page;
-import eu.eventstorm.sql.page.PageRequest;
 
 public class AirportRepository extends eu.eventstorm.sql.Repository {
 

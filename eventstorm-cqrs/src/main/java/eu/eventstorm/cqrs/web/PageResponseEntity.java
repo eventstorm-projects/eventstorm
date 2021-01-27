@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
 
-import eu.eventstorm.sql.page.Page;
+import eu.eventstorm.page.Page;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>

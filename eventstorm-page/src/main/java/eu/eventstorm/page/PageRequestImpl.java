@@ -1,9 +1,7 @@
-package eu.eventstorm.sql.page;
+package eu.eventstorm.page;
 
 import java.util.List;
 
-import eu.eventstorm.sql.builder.Order;
-import eu.eventstorm.util.Strings;
 import eu.eventstorm.util.ToStringBuilder;
 
 /**
@@ -14,40 +12,47 @@ final class PageRequestImpl implements PageRequest {
 	private final String query;
     private final int offset;
     private final int size;
-    private final Filters filters;
-    private final List<Order> orders;
+    private final List<Filter> filters;
+    private final List<Sort> sorts;
+    private final EvaluatorDefinition evaluator;
 
-	PageRequestImpl(String query, int offset, int size, Filters filters, List<Order> orders) {
+	PageRequestImpl(String query, int offset, int size, List<Filter> filters, List<Sort> sorts, EvaluatorDefinition evaluator) {
 		this.query = query;
         this.offset = offset;
         this.size = size;
         this.filters = filters;
-        this.orders = orders;
+        this.sorts = sorts;
+        this.evaluator = evaluator;
 	}
 
 	@Override
 	public int getOffset() {
 		return this.offset;
 	}
-	
+
 	@Override
 	public int getSize() {
 		return this.size;
 	}
 	
 	@Override
-	public Filters getFilters() {
+	public List<Filter> getFilters() {
 		return this.filters;
 	}
 
 	@Override
-	public List<Order> getOrders() {
-		return this.orders;
+	public List<Sort> getSorts() {
+		return this.sorts;
+	}
+
+	@Override
+	public EvaluatorDefinition getEvaluator() {
+		return this.evaluator;
 	}
 
 	@Override
 	public PageRequest next() {
-		return new PageRequestImpl(Strings.EMPTY, offset + size, size, filters, orders);
+		return new PageRequestImpl(this.query, offset + size, size, filters, sorts, evaluator);
 	}
 
 	@Override
@@ -57,7 +62,7 @@ final class PageRequestImpl implements PageRequest {
 				.append("offset", offset)
 				.append("size", size)
 				.append("filter", this.filters)
-				.append("orders", this.orders)
+				.append("sorts", this.sorts)
 				.toString();
 	}
 

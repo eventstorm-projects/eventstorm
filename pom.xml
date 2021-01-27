@@ -276,6 +276,7 @@
 		<module>eventstorm-util</module>
 		<module>eventstorm-problem</module>
 		<module>eventstorm-csv</module>
+		<module>eventstorm-page</module>
 		<module>eventstorm-sql</module>
 		<module>eventstorm-sql-apt</module>
 		<module>eventstorm-sql-spring</module>
@@ -290,7 +291,7 @@
 		<module>eventstorm-starter-web</module>
 		<module>eventstorm-starter-webflux</module>
 		<module>eventstorm-bom</module>
-	</modules>
+    </modules>
 
 	<profiles>
 		<profile>

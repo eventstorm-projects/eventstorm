@@ -7,6 +7,12 @@ import static org.mockito.Mockito.when;
 import java.net.URI;
 import java.util.stream.Stream;
 
+import eu.eventstorm.cqrs.PageQueryDescriptor;
+import eu.eventstorm.cqrs.PageQueryDescriptors;
+import eu.eventstorm.page.Page;
+import eu.eventstorm.page.PageImpl;
+import eu.eventstorm.page.PageRequest;
+import eu.eventstorm.page.Range;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.MethodParameter;
@@ -15,12 +21,7 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.reactive.BindingContext;
 import org.springframework.web.server.ServerWebExchange;
 
-import eu.eventstorm.cqrs.QueryDescriptors;
-import eu.eventstorm.cqrs.SqlQueryDescriptor;
-import eu.eventstorm.sql.page.Page;
-import eu.eventstorm.sql.page.PageImpl;
-import eu.eventstorm.sql.page.PageRequest;
-import eu.eventstorm.sql.page.Range;
+
 import eu.eventstorm.test.LoggerInstancePostProcessor;
 import reactor.core.publisher.Mono;
 
@@ -30,8 +31,8 @@ class HttpPageRequestHandlerMethodArgumentResolverTest {
 	@Test
 	void testNormal() throws Exception {
 
-		QueryDescriptors queryDescriptors = mock(QueryDescriptors.class);
-		when(queryDescriptors.getSqlQueryDescriptor("java.lang.String")).thenReturn(mock(SqlQueryDescriptor.class));
+		PageQueryDescriptors queryDescriptors = mock(PageQueryDescriptors.class);
+		when(queryDescriptors.get("java.lang.String")).thenReturn(mock(PageQueryDescriptor.class));
 
 		HttpPageRequestHandlerMethodArgumentResolver resolver = new HttpPageRequestHandlerMethodArgumentResolver(queryDescriptors);
 		MethodParameter methodParameter = new MethodParameter(HttpPageRequestHandlerMethodArgumentResolverTest.class.getMethod("find", PageRequest.class), 0);

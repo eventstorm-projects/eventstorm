@@ -6,6 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.io.IOException;
 import java.util.stream.Stream;
 
+import eu.eventstorm.page.Page;
+import eu.eventstorm.page.PageImpl;
+import eu.eventstorm.page.Range;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -13,9 +16,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.eventstorm.cqrs.QueryException;
-import eu.eventstorm.sql.page.Page;
-import eu.eventstorm.sql.page.PageImpl;
-import eu.eventstorm.sql.page.Range;
+
 import eu.eventstorm.test.LoggerInstancePostProcessor;
 
 @ExtendWith(LoggerInstancePostProcessor.class)

@@ -1,10 +1,33 @@
 package eu.eventstorm.sql.page;
 
-import static com.google.common.collect.ImmutableList.of;
-import static com.google.common.collect.ImmutableList.toImmutableList;
-import static eu.eventstorm.sql.expression.Expressions.eq;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import com.google.common.collect.ImmutableList;
+import eu.eventstorm.page.Filter;
+import eu.eventstorm.page.Operator;
+import eu.eventstorm.page.Page;
+import eu.eventstorm.page.PageRequest;
+import eu.eventstorm.page.Sort;
+import eu.eventstorm.sql.Database;
+import eu.eventstorm.sql.Dialect;
+import eu.eventstorm.sql.Transaction;
+import eu.eventstorm.sql.TransactionManager;
+import eu.eventstorm.sql.csv.CsvColumnConverters;
+import eu.eventstorm.sql.csv.CsvLine;
+import eu.eventstorm.sql.csv.CsvReader;
+import eu.eventstorm.sql.csv.CsvReaders;
+import eu.eventstorm.sql.desc.SqlColumn;
+import eu.eventstorm.sql.impl.DatabaseBuilder;
+import eu.eventstorm.sql.impl.TransactionManagerImpl;
+import eu.eventstorm.sql.model.airport.Airport;
+import eu.eventstorm.sql.model.airport.AirportDescriptor;
+import eu.eventstorm.sql.model.airport.AirportImpl;
+import eu.eventstorm.sql.model.airport.AirportRepository;
+import eu.eventstorm.sql.util.TransactionTemplate;
+import eu.eventstorm.test.LoggerInstancePostProcessor;
+import org.h2.jdbcx.JdbcConnectionPool;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.net.URI;
 import java.nio.channels.FileChannel;
@@ -15,35 +38,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.h2.jdbcx.JdbcConnectionPool;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-
-import com.google.common.collect.ImmutableList;
-
-import eu.eventstorm.sql.Database;
-import eu.eventstorm.sql.Dialect;
-import eu.eventstorm.sql.Transaction;
-import eu.eventstorm.sql.TransactionManager;
-import eu.eventstorm.sql.builder.Order;
-import eu.eventstorm.sql.csv.CsvColumnConverters;
-import eu.eventstorm.sql.csv.CsvLine;
-import eu.eventstorm.sql.csv.CsvReader;
-import eu.eventstorm.sql.csv.CsvReaders;
-import eu.eventstorm.sql.impl.DatabaseBuilder;
-import eu.eventstorm.sql.impl.TransactionException;
-import eu.eventstorm.sql.impl.TransactionManagerImpl;
-import eu.eventstorm.sql.model.airport.Airport;
-import eu.eventstorm.sql.model.airport.AirportDescriptor;
-import eu.eventstorm.sql.model.airport.AirportImpl;
-import eu.eventstorm.sql.model.airport.AirportRepository;
-import eu.eventstorm.sql.util.TransactionTemplate;
-import eu.eventstorm.test.LoggerInstancePostProcessor;
+import static com.google.common.collect.ImmutableList.toImmutableList;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -55,7 +58,9 @@ class PageTest {
 	private Database db;
 	private AirportRepository repo;
 	private TransactionTemplate transactionTemplate;
-	
+
+	SqlPageRequestDescriptor descriptor;
+
 	@BeforeEach
 	void before() {
 		ds = JdbcConnectionPool.create("jdbc:h2:mem:test;DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1;INIT=RUNSCRIPT FROM 'classpath:sql/airport.sql'", "sa", "");
@@ -66,6 +71,36 @@ class PageTest {
 				.build();  
 		repo = new AirportRepository(db);
 		transactionTemplate = new TransactionTemplate(transactionManager);
+
+		descriptor = new SqlPageRequestDescriptor() {
+			@Override
+			public SqlColumn get(String property) {
+				if ("type".equals(property)) {
+					return AirportDescriptor.TYPE;
+				}
+				if ("id".equals(property)) {
+					return AirportDescriptor.ID;
+				}
+				throw new IllegalStateException();
+			}
+			@Override
+			public PreparedStatementIndexSetter getPreparedStatementIndexSetter(Filter filter) {
+				return (ps, index) -> {
+					ps.setString(index, filter.getRaw());
+					return index+1;
+				};
+			}
+		};
+	}
+
+	@AfterEach()
+	void after() throws SQLException {
+		db.close();
+		try (Connection c = ds.getConnection()) {
+			try (Statement st = c.createStatement()) {
+				st.execute("SHUTDOWN");
+			}
+		}
 	}
 	
 	@Test
@@ -109,7 +144,7 @@ class PageTest {
 		  
 		  try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
 			  
-			  PageRequest pageable = PageRequest.of(0, 10).build();
+			  PageRequest pageable = PageRequest.of("airport", 0, 10).build();
 			  
 			  Page<Airport> page = this.repo.findAll(pageable);
 			  List<Airport> content = page.getContent().collect(ImmutableList.toImmutableList());
@@ -134,8 +169,9 @@ class PageTest {
 		  
 		  try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
 			  
-			  PageRequest pageable = PageRequest.of(0, 10).withFilter("type", "eq", "small_airport", 
-					  new DefaultFilterEvaluator(eq(AirportDescriptor.TYPE), ImmutableList.of("small_airport"), (ps,index) -> {ps.setString(index,"small_airport"); return index+1;}))
+			  PageRequest pageable = PageRequest.of("airport", 0, 10)
+					  .withFilter("type", Operator.EQUALS, "small_airport")
+					  .withEvaluator(new SingleSqlEvaluator(descriptor))
 					  .build();
 			  Page<Airport> page = this.repo.findAll(pageable);
 			  assertEquals(34475, page.getTotalElements());
@@ -158,8 +194,12 @@ class PageTest {
 			  tx.commit();
 		  }
 		  
-		  Page<Airport> page = transactionTemplate.page(() -> this.repo.findAll( PageRequest.of(0, 10).withFilter("type", "eq", "small_airport",
-				  new DefaultFilterEvaluator(eq(AirportDescriptor.TYPE, "small_airport"), of(), null)).build()));
+		  Page<Airport> page = transactionTemplate.page(() -> this.repo.findAll(
+				  PageRequest.of("airport", 0, 10)
+						  .withFilter("type", Operator.EQUALS, "small_airport")
+						  .withEvaluator(new SingleSqlEvaluator(descriptor))
+						  .build()));
+
 		  assertEquals(34475, page.getTotalElements());
 		  List<Airport> content;
 		  try (Stream<Airport> stream = page.getContent()) {
@@ -180,8 +220,11 @@ class PageTest {
 		  }
 		  
 		  try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
-			  page = transactionTemplate.page(() -> this.repo.findAll( PageRequest.of(0, 10).withFilter("type", "eq", "small_airport",
-					  new DefaultFilterEvaluator(eq(AirportDescriptor.TYPE, "small_airport"), of(), null)).build()));
+			  page = transactionTemplate.page(() -> this.repo.findAll( PageRequest.of("airport", 0, 10)
+					  .withFilter("type", Operator.EQUALS, "small_airport")
+					  .withEvaluator(new SingleSqlEvaluator(descriptor))
+					  .build()));
+
 			  assertEquals(34475, page.getTotalElements());
 			  try (Stream<Airport> stream = page.getContent()) {
 				  content = stream.collect(toImmutableList());  
@@ -202,12 +245,14 @@ class PageTest {
 			  }
 			  tx.commit();
 		  }
-		  
+
 		  try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
-			  page = transactionTemplate.page(() -> this.repo.findAll( PageRequest.of(0, 10)
-					  .withFilter("type", "eq", "small_airport", new DefaultFilterEvaluator(eq(AirportDescriptor.TYPE, "small_airport"), of(), null))
-					  .withOrder(Order.desc(AirportDescriptor.ID))
-					  .build()));
+			  page = transactionTemplate.page(() -> this.repo.findAll(PageRequest.of("airport", 0, 10)
+							  .withFilter("type", Operator.EQUALS, "small_airport")
+					          .withSort(Sort.desc("id"))
+							  .withEvaluator(new SingleSqlEvaluator(descriptor))
+							  .build()));
+
 			  
 			  assertEquals(34475, page.getTotalElements());
 			  try (Stream<Airport> stream = page.getContent()) {
@@ -230,11 +275,6 @@ class PageTest {
 			  tx.commit();
 		  }
 
-		  try (Transaction tx = db.transactionManager().newTransactionReadWrite()) {
-			  assertThrows(TransactionException.class, () -> transactionTemplate.page(() -> this.repo.findAll(PageRequest.of(0, 10)
-					  .withFilter("type", "eq", "small_airport", new DefaultFilterEvaluator(eq(AirportDescriptor.TYPE, "small_airport"), of(), null)).build())));
-			  tx.commit();
-		  }
 	}
 
 }

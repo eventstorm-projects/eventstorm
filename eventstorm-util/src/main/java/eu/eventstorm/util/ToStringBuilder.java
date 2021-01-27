@@ -221,10 +221,12 @@ public final class ToStringBuilder {
 		} else if (values.isEmpty()) {
 			addChar('[');
 			addChar(']');
+			addChar(',');
 		} else {
 			addChar('[');			
 			values.forEach(this::insertValue);
 			this.value[idx-1] = ']';
+			addChar(',');
 		}
 		return this;
 	}

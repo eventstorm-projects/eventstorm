@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>eventstorm</artifactId>
+        <groupId>eu.eventstorm</groupId>
+        <version>0.12.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>eventstorm-page</artifactId>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>eu.eventstorm</groupId>
+            <artifactId>eventstorm-util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>eu.eventstorm</groupId>
+            <artifactId>eventstorm-test</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr4-runtime</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.skyscreamer</groupId>
+            <artifactId>jsonassert</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr4-maven-plugin</artifactId>
+                <version>${org.antlr.version}</version>
+                <configuration>
+                    <arguments>
+                        <argument>-o</argument>
+                        <argument>${project.build.directory}/generated-sources/antlr4/eu/eventstorm/page/parser</argument>
+                    </arguments>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>antlr</id>
+                        <goals>
+                            <goal>antlr4</goal>
+                        </goals>
+                        <phase>generate-sources</phase>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

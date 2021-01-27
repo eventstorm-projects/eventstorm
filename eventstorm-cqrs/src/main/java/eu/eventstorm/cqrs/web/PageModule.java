@@ -1,7 +1,7 @@
 package eu.eventstorm.cqrs.web;
 
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import eu.eventstorm.sql.page.Page;
+import eu.eventstorm.page.Page;
 
 public final class PageModule extends SimpleModule {
 

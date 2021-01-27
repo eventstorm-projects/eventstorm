@@ -2,7 +2,7 @@ package eu.eventstorm.sql.builder;
 
 import eu.eventstorm.sql.SqlQuery;
 import eu.eventstorm.sql.SqlQueryPageable;
-import eu.eventstorm.sql.page.PageRequest;
+import eu.eventstorm.page.PageRequest;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>

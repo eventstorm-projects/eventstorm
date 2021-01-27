@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.google.common.collect.ImmutableMap;
 
 import eu.eventstorm.cqrs.QueryException;
-import eu.eventstorm.sql.page.Page;
+import eu.eventstorm.page.Page;
 
 @SuppressWarnings({ "serial", "rawtypes" })
 final class PageStdSerializer extends StdSerializer<Page> {

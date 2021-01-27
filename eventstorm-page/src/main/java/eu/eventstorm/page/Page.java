@@ -1,4 +1,4 @@
-package eu.eventstorm.sql.page;
+package eu.eventstorm.page;
 
 import java.util.stream.Stream;
 
@@ -21,7 +21,7 @@ public interface Page<T> {
      */
     Stream<T> getContent();
 
-    public static <T> Page<T> empty() {
+    static <T> Page<T> empty() {
         return new PageImpl<>(Stream.empty(), 0, new Range(0,0));
     }
 

@@ -1,10 +1,12 @@
-package eu.eventstorm.cqrs.util;
+/*package eu.eventstorm.cqrs.util;
 
 import static com.google.common.collect.ImmutableList.of;
 
 import java.util.List;
 import java.util.function.Function;
 
+import eu.eventstorm.cqrs.PageQueryDescriptor;
+import eu.eventstorm.cqrs.PageQueryDescriptors;
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -16,7 +18,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
-import eu.eventstorm.cqrs.SqlQueryDescriptor;
+
 import eu.eventstorm.cqrs.query.PageableLexer;
 import eu.eventstorm.cqrs.query.PageableParser;
 import eu.eventstorm.cqrs.query.PageableParser.FilterContext;
@@ -32,14 +34,12 @@ import eu.eventstorm.sql.desc.SqlColumn;
 import eu.eventstorm.sql.expression.Expression;
 import eu.eventstorm.sql.expression.Expressions;
 import eu.eventstorm.sql.page.DefaultFilterEvaluator;
-import eu.eventstorm.sql.page.PageRequest;
-import eu.eventstorm.sql.page.PageRequestBuilder;
+import eu.eventstorm.page.PageRequest;
+import eu.eventstorm.page.PageRequestBuilder;
 import eu.eventstorm.sql.page.PreparedStatementIndexSetter;
 import eu.eventstorm.util.Strings;
 
-/**
- * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
- */
+
 public final class PageRequests {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(PageRequests.class);
@@ -67,7 +67,7 @@ public final class PageRequests {
 	private PageRequests() {
 	}
 	
-	public static PageRequest parse(String query, SqlQueryDescriptor queryDescriptor) {
+	public static PageRequest parse(String query, PageQueryDescriptor queryDescriptor) {
 		
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("parseQuery [{}] -> [{}]", query, queryDescriptor);
@@ -118,7 +118,7 @@ public final class PageRequests {
 		}
 	}
 
-	private static void parseFilter(PageRequestBuilder builder, FilterContext filterContext, SqlQueryDescriptor queryDescriptor) {
+	private static void parseFilter(PageRequestBuilder builder, FilterContext filterContext, PageQueryDescriptors queryDescriptor) {
 		if (filterContext != null) {
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("found filter() -> [{}]", filterContext.getText());
@@ -176,7 +176,7 @@ public final class PageRequests {
 
 		Expression apply(SqlColumn column, FilterItemContext fic);
 		
-		PreparedStatementIndexSetter getPreparedStatementIndexSetter(SqlQueryDescriptor queryDescriptor, String property, FilterItemContext fic); 
+		PreparedStatementIndexSetter getPreparedStatementIndexSetter(SqlQueryDescriptor queryDescriptor, String property, FilterItemContext fic);
 
 	}
 	
@@ -257,3 +257,4 @@ public final class PageRequests {
 	}
 	
 }
+*/
