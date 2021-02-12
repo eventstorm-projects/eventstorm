@@ -13,7 +13,6 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
 
-import eu.eventsotrm.core.apt.analyser.*;
 import eu.eventstorm.core.apt.analyser.CqrsQueryClientAnalyser;
 import eu.eventstorm.core.apt.analyser.CqrsQueryDatabaseViewAnalyser;
 import eu.eventstorm.core.apt.analyser.CqrsQueryPojoAnalyser;
@@ -30,7 +29,7 @@ import eu.eventstorm.core.apt.command.CommandRestControllerAdviceImplementationG
 import eu.eventstorm.core.apt.command.CommandRestControllerImplementationGenerator;
 import eu.eventstorm.core.apt.command.CommandValidatorGenerator;
 import eu.eventstorm.core.apt.event.EventProtoGenerator;
-import eu.eventsotrm.core.apt.model.*;
+
 import eu.eventstorm.core.apt.query.QueryBuilderGenerator;
 import eu.eventstorm.core.apt.query.SqlPageRequestDescriptorGenerator;
 import eu.eventstorm.core.apt.query.PageQueryDescriptorsGenerator;

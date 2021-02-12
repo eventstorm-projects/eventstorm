@@ -18,7 +18,6 @@ import javax.annotation.processing.ProcessingEnvironment;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
-import eu.eventsotrm.core.apt.model.*;
 import eu.eventstorm.core.apt.model.AbstractCommandDescriptor;
 import eu.eventstorm.core.apt.model.CommandDescriptor;
 import eu.eventstorm.core.apt.model.DatabaseTableQueryDescriptor;
