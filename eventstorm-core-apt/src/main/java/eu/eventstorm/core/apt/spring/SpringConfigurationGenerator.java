@@ -111,6 +111,7 @@ public final class SpringConfigurationGenerator {
 		
 		AtomicInteger counter = new AtomicInteger(0);
 		sourceCode.forEachDatabaseViewQuery(dq -> counter.incrementAndGet());
+		sourceCode.forEachDatabaseTableQuery(dq -> counter.incrementAndGet());
 		if (counter.get() == 0) {
 			return;
 		}

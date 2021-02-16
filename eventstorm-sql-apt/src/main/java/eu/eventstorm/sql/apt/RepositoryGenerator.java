@@ -415,7 +415,7 @@ final class RepositoryGenerator implements Generator {
         generateMethodBatch(writer, descriptor);
         generateMethodFindByBusinessKey(writer, descriptor);
         generateMethodDelete(writer, descriptor);
-        generateMethodPage(writer, descriptor);
+        //generateMethodPage(writer, descriptor);
         generateMethodLink(writer, descriptor);
         generateMethodUnlink(writer, descriptor);
     }

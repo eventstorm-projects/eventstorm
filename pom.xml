@@ -261,6 +261,10 @@
 					<groupId>com.github.os72</groupId>
 					<artifactId>protoc-jar-maven-plugin</artifactId>
 					<version>3.11.4</version>
+					<configuration>
+						<protocVersion>3.14.0</protocVersion>
+						<optimizeCodegen>true</optimizeCodegen>
+					</configuration>
 				</plugin>
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
