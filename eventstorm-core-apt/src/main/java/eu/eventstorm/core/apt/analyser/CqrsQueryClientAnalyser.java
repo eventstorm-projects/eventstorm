@@ -50,9 +50,14 @@ public final class CqrsQueryClientAnalyser implements Function<Element, QueryCli
         List<QueryPropertyDescriptor> properties = new ArrayList<>();
         
         for (Element method : element.getEnclosedElements()) {
-            
+
+            if (ElementKind.FIELD == method.getKind()) {
+                continue;
+            }
+
              if (ElementKind.METHOD != method.getKind()) {
-                 logger.error( "element [" + method + "] in [" + element + "] is not a method, it's [" + element.getKind() + "]");
+                 logger.error( "element [" + method + "]-[" + method.getKind() +"] in [" + element +
+                         "] is not a method, it's [" + element.getKind() + "]");
                  return null;
              }
 
