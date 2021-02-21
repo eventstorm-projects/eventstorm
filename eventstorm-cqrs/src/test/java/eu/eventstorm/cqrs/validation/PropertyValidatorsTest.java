@@ -21,27 +21,27 @@ class PropertyValidatorsTest {
 	@Test
 	void testIsEmpty() {
 		Builder<ConstraintViolation> builder = ImmutableList.builder();
-		PropertyValidators.notEmpty().validate(of("fake"), null, builder);
+		PropertyValidators.notEmpty().validate("fake", null, builder);
 		assertEquals(1, builder.build().size());
 		
 		builder = ImmutableList.builder();
-		PropertyValidators.notEmpty().validate(of("fake"), "", builder);
+		PropertyValidators.notEmpty().validate("fake", "", builder);
 		assertEquals(1, builder.build().size());
 		
 		builder = ImmutableList.builder();
-		PropertyValidators.notEmpty().validate(of("fake"), "VAL", builder);
+		PropertyValidators.notEmpty().validate("fake", "VAL", builder);
 		assertEquals(0, builder.build().size());
 		
 		builder = ImmutableList.builder();
-		PropertyValidators.listNotEmpty().validate(of("fake"), null, builder);
+		PropertyValidators.listNotEmpty().validate("fake", null, builder);
 		assertEquals(1, builder.build().size());
 		
 		builder = ImmutableList.builder();
-		PropertyValidators.listNotEmpty().validate(of("fake"), new ArrayList<>(), builder);
+		PropertyValidators.listNotEmpty().validate("fake", new ArrayList<>(), builder);
 		assertEquals(1, builder.build().size());
 		
 		builder = ImmutableList.builder();
-		PropertyValidators.listNotEmpty().validate(of("fake"), ImmutableList.of("test"), builder);
+		PropertyValidators.listNotEmpty().validate("fake", ImmutableList.of("test"), builder);
 		assertEquals(0, builder.build().size());
 	}
 	
@@ -49,11 +49,11 @@ class PropertyValidatorsTest {
 	void testIsNull() {
 		
 		Builder<ConstraintViolation> builder = ImmutableList.builder();
-		PropertyValidators.notNull().validate(of("fake"), null, builder);
+		PropertyValidators.notNull().validate("fake", null, builder);
 		assertEquals(1, builder.build().size());
 		
 		builder = ImmutableList.builder();
-		PropertyValidators.notNull().validate(of("fake"), LocalDate.now(), builder);
+		PropertyValidators.notNull().validate("fake", LocalDate.now(), builder);
 		assertEquals(0, builder.build().size());
 		
 	}

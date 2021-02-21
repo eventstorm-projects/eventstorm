@@ -38,8 +38,8 @@
 		<org.owasp.encoder.version>1.2.3</org.owasp.encoder.version>
 		<io.swagger.core.v3.version>2.1.5</io.swagger.core.v3.version>
 
-		<org.springframework.boot.version>2.3.7.RELEASE</org.springframework.boot.version>
-		<org.springframework.version>5.2.12.RELEASE</org.springframework.version>
+		<org.springframework.boot.version>2.3.8.RELEASE</org.springframework.boot.version>
+		<org.springframework.version>5.2.13.RELEASE</org.springframework.version>
 
 		<org.junit.jupiter.version>5.7.0</org.junit.jupiter.version>
 		<com.h2database.version>1.4.200</com.h2database.version>

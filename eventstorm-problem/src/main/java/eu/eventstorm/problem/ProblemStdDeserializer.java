@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
@@ -13,7 +14,9 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.collect.ImmutableMap;
 
-@SuppressWarnings("serial")
+/**
+ * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
+ */
 final class ProblemStdDeserializer extends StdDeserializer<Problem> {
 
 	public static final ProblemStdDeserializer INSTANCE = new ProblemStdDeserializer();
@@ -38,22 +41,49 @@ final class ProblemStdDeserializer extends StdDeserializer<Problem> {
 		parser.nextToken();
 		while (!JsonToken.END_OBJECT.equals(parser.currentToken())) {
 			String field = parser.getCurrentName();
-			BiConsumer<ProblemBuilder, String> consumer = getConsumer(field);
-			parser.nextToken();
-			consumer.accept(builder, parser.getText());
-			parser.nextToken();
+			BiConsumer<ProblemBuilder, String> consumer = READER.get(field);
+			if (consumer != null) {
+				parser.nextToken();
+				consumer.accept(builder, parser.getText());
+				parser.nextToken();
+			} else {
+				doDeserializeCustomField(parser, field, builder);
+			}
 		}
 		return builder.build();
 	}
-	
-	
-	private BiConsumer<ProblemBuilder, String> getConsumer(String field) {
-		BiConsumer<ProblemBuilder, String> consumer = READER.get(field);
-		if (consumer != null) {
-			return consumer;
+
+	private void doDeserializeCustomField(JsonParser parser, String field, ProblemBuilder builder) throws IOException {
+		JsonToken token = parser.nextToken();
+
+		if (token == JsonToken.VALUE_STRING) {
+			builder.with(field, parser.getText());
+			parser.nextToken();
+			return;
 		}
-		return (builder,value) -> builder.with(field, value);
+
+		if (token == JsonToken.VALUE_NULL) {
+			builder.with(field, null);
+			parser.nextToken();
+			return;
+		}
+		if (token == JsonToken.VALUE_NUMBER_INT) {
+			builder.with(field, parser.getValueAsInt());
+			parser.nextToken();
+			return;
+		}
+		if (token == JsonToken.START_ARRAY) {
+			builder.with(field, parser.readValueAs(List.class));
+			parser.nextToken();
+			return;
+		}
+		if (token == JsonToken.START_OBJECT) {
+			builder.with(field, parser.readValueAs(Map.class));
+			parser.nextToken();
+			return;
+		}
+
+		throw new IllegalStateException();
 	}
-	
 
 }

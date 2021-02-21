@@ -13,8 +13,8 @@ public final class CreateUserCommandValidator implements Validator<CreateUserCom
 	@Override
 	public ImmutableList<ConstraintViolation> validate(CommandContext context, CreateUserCommand command) {
 		ImmutableList.Builder<ConstraintViolation> builder =ImmutableList.builder();
-		PropertyValidators.notEmpty().validate(ImmutableList.of("name"), command.getName(), builder);
-		new MailPropertyValidator().validate(ImmutableList.of("mail"), command.getEmail(), builder);
+		PropertyValidators.notEmpty().validate("name", command.getName(), builder);
+		new MailPropertyValidator().validate("mail", command.getEmail(), builder);
 		return builder.build();
 	}
 

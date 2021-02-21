@@ -1,5 +1,6 @@
 package eu.eventstorm.starter;
 
+import eu.eventstorm.cqrs.validation.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -34,6 +35,24 @@ final class CommandValidationRestControllerAdvice {
                         .withReactiveRequest(request)
                         .with("command", ex.getCommand())
                         .with("violations", ex.getConstraintViolations())
+                        .with("code" , ex.getCode())
+                        .withStatus(400)
+                        .build()));
+    }
+
+    @ExceptionHandler(ValidationException.class)
+    public Mono<ResponseEntity<Problem>> on(ValidationException  ex, ServerHttpRequest request) {
+
+        LOGGER.info("onValidationException [{}]", ex.getMessage());
+
+        return Mono.just(ResponseEntity.badRequest()
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE)
+                .body(Problem.builder()
+                        .withTitle("ValidationException")
+                        .withDetail(ex.getMessage())
+                        .withReactiveRequest(request)
+                        .with("violations", ex.getConstraintViolations())
+                        .with("code" , ex.getCode())
                         .withStatus(400)
                         .build()));
     }

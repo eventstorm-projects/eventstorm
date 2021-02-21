@@ -5,7 +5,9 @@ import com.google.common.collect.ImmutableList;
 import eu.eventstorm.core.validation.ConstraintViolation;
 import eu.eventstorm.cqrs.Command;
 
-@SuppressWarnings("serial")
+/**
+ * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
+ */
 public final class CommandValidationException extends ValidationException {
 
 	private final transient Command command;

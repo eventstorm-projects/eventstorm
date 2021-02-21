@@ -10,6 +10,7 @@ import java.util.Optional;
 
 import javax.servlet.RequestDispatcher;
 
+import com.google.common.collect.ImmutableList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -57,6 +58,7 @@ class ProblemTest {
 	
 	@Test
 	void test2() throws IOException {
+
 		Problem problem = Problem.builder()
 			.withType(URI.create("http://localhost"))
 			.withInstance(URI.create("/test/service"))
@@ -68,6 +70,8 @@ class ProblemTest {
 			.with("key3", Optional.ofNullable(null))
 			.with("key4", Optional.ofNullable("hello"))
 			.with("key5", 12345)
+			.with("key6", ImmutableList.of("A","B","C"))
+			.with("key7", ImmutableMap.of("A","B","C","D"))
 			.build();
 
 		byte[] content = this.mapper.writeValueAsBytes(problem);

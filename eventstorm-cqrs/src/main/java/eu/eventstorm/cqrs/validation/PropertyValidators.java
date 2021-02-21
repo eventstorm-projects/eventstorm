@@ -13,25 +13,25 @@ public final class PropertyValidators {
 	private PropertyValidators() {
 	}
 
-	private static final PropertyValidator<Object> NOT_NULL = (properties, value, builder) -> {
+	private static final PropertyValidator<Object> NOT_NULL = (property, value, builder) -> {
 		if (value == null) {
-			builder.add(new ConstraintViolationImpl(properties, "isNull"));
+			builder.add(ConstraintViolations.ofNullProperty(property, "isNull"));
 		}
 	};
 	
-	private static final PropertyValidator<String> NOT_EMPTY = (properties, value, builder) -> {
+	private static final PropertyValidator<String> NOT_EMPTY = (property, value, builder) -> {
 		if (Strings.isEmpty(value)) {
-			builder.add(new ConstraintViolationImpl(properties, "isEmpty"));
+			builder.add(ConstraintViolations.ofNullProperty(property, "isEmpty"));
 		}
 	};
 	
-	private static final PropertyValidator<List<?>> LIST_NOT_EMPTY = (properties, value, builder) -> {
+	private static final PropertyValidator<List<?>> LIST_NOT_EMPTY = (property, value, builder) -> {
 		if (value == null) {
-			builder.add(new ConstraintViolationImpl(properties, "isNull"));
+			builder.add(ConstraintViolations.ofNullProperty(property, "isNull"));
 			return;
 		}
 		if (value.isEmpty()) {
-			builder.add(new ConstraintViolationImpl(properties, "isEmpty"));
+			builder.add(ConstraintViolations.ofNullProperty(property, "isEmpty"));
 		}
 	};
 	

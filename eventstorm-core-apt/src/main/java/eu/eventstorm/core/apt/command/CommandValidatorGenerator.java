@@ -190,7 +190,7 @@ public final class CommandValidatorGenerator {
         writer.write("        // validate properties " + Arrays.toString(cpv.properties()) + " from " + cpv.toString());
     	writeNewLine(writer);
 		writer.write("        this.validatorCustomProperties" + Helper.firstToUpperCase(cpv.name()));
-    	writer.write(".validate(PROPERTIES_" + Helper.toUpperCase(cpv.name()));
+    	writer.write(".validate(PROPERTY_" + Helper.toUpperCase(cpv.name()));
         writer.write(", ");
         writer.write(Tuples.class.getName() + ".of(");
         for(int i = 0; i < cpv.properties().length ; i++) {
@@ -229,9 +229,9 @@ public final class CommandValidatorGenerator {
     	
     	String type = getReturnType(ppd.getter());
     	if (String.class.getName().equals(type)) {
-    		writer.write("        PropertyValidators.notEmpty().validate(PROPERTIES_");
+    		writer.write("        PropertyValidators.notEmpty().validate(PROPERTY_");
     	} else if (type.startsWith(List.class.getName())) {
-    		writer.write("        PropertyValidators.listNotEmpty().validate(PROPERTIES_");
+    		writer.write("        PropertyValidators.listNotEmpty().validate(PROPERTY_");
     	} else {
     		logger.error("@notEmptyNot supported for type [" + type + "]");
     	}
@@ -245,7 +245,7 @@ public final class CommandValidatorGenerator {
         writeNewLine(writer);
         writer.write("        // validate property " + ppd.name() + " from " + am.toString());
     	writeNewLine(writer);
-    	writer.write("        PropertyValidators.notNull().validate(PROPERTIES_");
+    	writer.write("        PropertyValidators.notNull().validate(PROPERTY_");
     	writer.write(Helper.toUpperCase(ppd.name())+", ");
         writer.write("command." + ppd.getter().getSimpleName().toString() + "(), builder);");
     	writeNewLine(writer);
@@ -365,8 +365,10 @@ public final class CommandValidatorGenerator {
     	for (PropertyDescriptor ppd : descriptor.properties()) {
     		 for (AnnotationMirror am : ppd.getter().getAnnotationMirrors()) {
                  if (isConstraint(am)) {
-         			writer.write("    private static final ImmutableList<String> PROPERTIES_" + Helper.toUpperCase(ppd.name()) + " = ");
-         			writer.write(" ImmutableList.of(\""+ ppd.name() + "\");");
+         			//writer.write("    private static final ImmutableList<String> PROPERTIES_" + Helper.toUpperCase(ppd.name()) + " = ");
+         			//writer.write(" ImmutableList.of(\""+ ppd.name() + "\");");
+					 writer.write("    private static final String PROPERTY_" + Helper.toUpperCase(ppd.name()) + " = ");
+					 writer.write(" \""+ ppd.name() + "\";");
         			writeNewLine(writer);
         			break;
                  }
