@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableMap;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-class DefaultPropertyConstraintViolation extends  DefaultConstraintViolation {
+abstract class DefaultPropertyConstraintViolation extends DefaultConstraintViolation {
 
     private final String property;
 
@@ -16,6 +16,11 @@ class DefaultPropertyConstraintViolation extends  DefaultConstraintViolation {
 
     public String getProperty() {
         return property;
+    }
+
+    @Override
+    protected void doBuildMessage(StringBuilder builder) {
+        builder.append(" property=[").append(property).append("]");
     }
 
 }

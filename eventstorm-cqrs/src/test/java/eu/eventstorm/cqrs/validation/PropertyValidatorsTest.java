@@ -1,19 +1,16 @@
-	package eu.eventstorm.cqrs.validation;
+package eu.eventstorm.cqrs.validation;
 
-import static com.google.common.collect.ImmutableList.of;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
+import eu.eventstorm.core.validation.ConstraintViolation;
+import eu.eventstorm.test.LoggerInstancePostProcessor;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableList.Builder;
-
-import eu.eventstorm.core.validation.ConstraintViolation;
-import eu.eventstorm.test.LoggerInstancePostProcessor;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(LoggerInstancePostProcessor.class)
 class PropertyValidatorsTest {

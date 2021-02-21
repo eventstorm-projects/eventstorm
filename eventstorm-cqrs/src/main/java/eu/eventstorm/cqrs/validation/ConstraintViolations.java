@@ -56,6 +56,11 @@ public final class ConstraintViolations  {
         public Object getValue() {
             return value;
         }
+        @Override
+        protected void doBuildMessage(StringBuilder builder) {
+            super.doBuildMessage(builder);
+            builder.append(" value=[").append(value).append("]");
+        }
     }
 
     private static final class PropertyAssertionConstraintViolation extends DefaultPropertyConstraintViolation {
@@ -71,6 +76,12 @@ public final class ConstraintViolations  {
         }
         public Object getExpected() {
             return expected;
+        }
+        @Override
+        protected void doBuildMessage(StringBuilder builder) {
+            super.doBuildMessage(builder);
+            builder.append(" actual=[").append(actual).append("]");
+            builder.append(" expected=[").append(expected).append("]");
         }
     }
 }
