@@ -16,6 +16,7 @@ import eu.eventstorm.sql.Dialect;
 import eu.eventstorm.sql.TransactionManager;
 import eu.eventstorm.sql.impl.DatabaseBuilder;
 import eu.eventstorm.sql.impl.TransactionManagerImpl;
+import eu.eventstorm.sql.util.TransactionTemplate;
 import org.h2.jdbcx.JdbcConnectionPool;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -50,6 +51,11 @@ class LocalDatabaseEventStoreCommandHandlerConfiguration {
     @Bean
     TransactionManager transactionManager(DataSource dataSource) {
         return new TransactionManagerImpl(dataSource);
+    }
+
+    @Bean
+    TransactionTemplate transactionTemplate(TransactionManager transactionManager) {
+        return new TransactionTemplate(transactionManager);
     }
 
     @Bean

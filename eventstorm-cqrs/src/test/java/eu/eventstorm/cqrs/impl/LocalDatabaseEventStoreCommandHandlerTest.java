@@ -3,7 +3,6 @@ package eu.eventstorm.cqrs.impl;
 import com.google.common.collect.ImmutableList;
 import eu.eventstorm.core.Event;
 import eu.eventstorm.core.EventCandidate;
-import eu.eventstorm.core.validation.ConstraintViolation;
 import eu.eventstorm.cqrs.Command;
 import eu.eventstorm.cqrs.CommandContext;
 import eu.eventstorm.cqrs.context.DefaultCommandContext;
@@ -78,10 +77,9 @@ class LocalDatabaseEventStoreCommandHandlerTest {
         }
 
         @Override
-        protected ImmutableList<ConstraintViolation> consistencyValidation(CommandContext context, TestCommand command) {
+        protected void consistencyValidation(CommandContext context, TestCommand command) {
             assertTrue(Thread.currentThread().getName().startsWith("main"));
             command.integer.incrementAndGet();
-            return ImmutableList.of();
         }
 
         @Override
@@ -107,7 +105,7 @@ class LocalDatabaseEventStoreCommandHandlerTest {
         }
 
         @Override
-        protected ImmutableList<ConstraintViolation> consistencyValidation(CommandContext context, TestFailedCommand command) {
+        protected void consistencyValidation(CommandContext context, TestFailedCommand command) {
             throw new RuntimeException("FAILED VALIDATION");
         }
 

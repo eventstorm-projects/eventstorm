@@ -22,6 +22,7 @@ import com.google.common.collect.ImmutableList;
 import eu.eventstorm.core.apt.SourceCode;
 import eu.eventstorm.core.apt.model.AbstractCommandDescriptor;
 import eu.eventstorm.core.apt.model.PropertyDescriptor;
+import eu.eventstorm.core.validation.ValidatorContext;
 import eu.eventstorm.sql.apt.Helper;
 import eu.eventstorm.sql.apt.log.Logger;
 import eu.eventstorm.sql.apt.log.LoggerFactory;
@@ -35,9 +36,8 @@ import eu.eventstorm.annotation.constraint.InstantiatorType;
 import eu.eventstorm.annotation.constraint.NotEmpty;
 import eu.eventstorm.annotation.constraint.NotNull;
 import eu.eventstorm.core.validation.ConstraintViolation;
-import eu.eventstorm.cqrs.CommandContext;
-import eu.eventstorm.cqrs.validation.PropertyValidators;
-import eu.eventstorm.cqrs.validation.Validator;
+import eu.eventstorm.core.validation.PropertyValidators;
+import eu.eventstorm.core.validation.Validator;
 import eu.eventstorm.util.tuple.Tuple2;
 import eu.eventstorm.util.tuple.Tuples;
 
@@ -114,7 +114,7 @@ public final class CommandValidatorGenerator {
         writeNewLine(writer);
         writer.write("import "+ PropertyValidators.class.getName() +";");
         writeNewLine(writer);
-        writer.write("import "+ CommandContext.class.getName() +";");
+        writer.write("import "+ ValidatorContext.class.getName() +";");
         writeNewLine(writer);
         writer.write("import "+ ImmutableList.class.getName() +";");
         writeNewLine(writer);
@@ -139,10 +139,7 @@ public final class CommandValidatorGenerator {
         writeNewLine(writer);
         writer.write("    @Override");
         writeNewLine(writer);
-        writer.write("    public ImmutableList<ConstraintViolation> validate(CommandContext context, "+ descriptor.fullyQualidiedClassName()+" command) {");
-        writeNewLine(writer);
-        
-        writer.write("        ImmutableList.Builder<ConstraintViolation> builder = ImmutableList.builder();");
+        writer.write("    public void validate(ValidatorContext context, "+ descriptor.fullyQualidiedClassName()+" command) {");
         writeNewLine(writer);
         
         for (PropertyDescriptor ppd : descriptor.properties()) {
@@ -176,9 +173,7 @@ public final class CommandValidatorGenerator {
             	
             }
         }
-        
-        writer.write("        return builder.build();");
-        writeNewLine(writer);
+
         writer.write("    }");
     	writeNewLine(writer);
 
@@ -237,7 +232,7 @@ public final class CommandValidatorGenerator {
     	}
     	
     	writer.write(Helper.toUpperCase(ppd.name())+", ");
-        writer.write("command." + ppd.getter().getSimpleName().toString() + "(), builder);");
+        writer.write("command." + ppd.getter().getSimpleName().toString() + "(), context);");
     	writeNewLine(writer);
     }
     
@@ -247,7 +242,7 @@ public final class CommandValidatorGenerator {
     	writeNewLine(writer);
     	writer.write("        PropertyValidators.notNull().validate(PROPERTY_");
     	writer.write(Helper.toUpperCase(ppd.name())+", ");
-        writer.write("command." + ppd.getter().getSimpleName().toString() + "(), builder);");
+        writer.write("command." + ppd.getter().getSimpleName().toString() + "(), context);");
     	writeNewLine(writer);
     }
 
@@ -264,7 +259,7 @@ public final class CommandValidatorGenerator {
 		}
     	writer.write(".validate(PROPERTIES_");
         writer.write(Helper.toUpperCase(ppd.name()) + ", ");
-        writer.write("command." + ppd.getter().getSimpleName().toString() + "(), builder);");
+        writer.write("command." + ppd.getter().getSimpleName().toString() + "(), context);");
     	writeNewLine(writer);
     }
     
@@ -499,7 +494,7 @@ public final class CommandValidatorGenerator {
     	writer.write("            for (" + targetType + " item : command." + ppd.getter().getSimpleName().toString()+"()) {" );
     	writeNewLine(writer);
     	
-    	writer.write("                builder.addAll(this.$$listValidator" + Helper.firstToUpperCase(ppd.name()) +".validate(context, item));");
+    	writer.write("                this.$$listValidator" + Helper.firstToUpperCase(ppd.name()) +".validate(context, item);");
     	writeNewLine(writer);
     	
     	

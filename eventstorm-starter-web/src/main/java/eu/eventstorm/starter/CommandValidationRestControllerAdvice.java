@@ -30,6 +30,7 @@ final class CommandValidationRestControllerAdvice {
                         .withDetail(ex.getMessage())
                         .withServletRequest(request)
                         .with("command", ex.getCommand())
+                        .with("code", ex.getCode())
                         .with("violations", ex.getConstraintViolations())
                         .withStatus(400)
                         .build());

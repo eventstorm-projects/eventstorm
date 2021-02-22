@@ -1,8 +1,7 @@
 package eu.eventstorm.cqrs.validation;
 
-import com.google.common.collect.ImmutableList;
-
-import eu.eventstorm.core.validation.ConstraintViolation;
+import eu.eventstorm.core.validation.ValidationException;
+import eu.eventstorm.core.validation.ValidatorContext;
 import eu.eventstorm.cqrs.Command;
 
 /**
@@ -12,8 +11,8 @@ public final class CommandValidationException extends ValidationException {
 
 	private final transient Command command;
 
-	public CommandValidationException(ImmutableList<ConstraintViolation> constraintViolations, Command command) {
-		super(constraintViolations);
+	public CommandValidationException(ValidatorContext validatorContext, Command command) {
+		super(validatorContext);
 		this.command = command;
 	}
 

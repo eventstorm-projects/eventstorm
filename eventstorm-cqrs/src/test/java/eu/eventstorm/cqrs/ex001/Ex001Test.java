@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import eu.eventstorm.cqrs.Command;
-import eu.eventstorm.cqrs.CommandException;
 import eu.eventstorm.cqrs.CommandGatewayException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,7 +36,7 @@ class Ex001Test {
 	private EventStoreClient eventStoreClient;
 
 	@Test
-	void test() {
+	void test() throws InvalidProtocolBufferException {
 
 		CreateUserCommand command = new CreateUserCommandImpl();
 		command.setAge(39);
@@ -53,14 +52,8 @@ class Ex001Test {
 		assertEquals("user", event.getStream());
 		assertEquals("1", event.getStreamId());
 
-		UserCreatedEventPayload userCreatedEvent;
-		try {
-			userCreatedEvent = event.getData().unpack(UserCreatedEventPayload.class);
-		} catch (InvalidProtocolBufferException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return;
-		}
+		UserCreatedEventPayload userCreatedEvent = event.getData().unpack(UserCreatedEventPayload.class);
+
 
 		assertEquals("Jacques", userCreatedEvent.getName());
 		assertEquals("jm@mail.org", userCreatedEvent.getEmail());

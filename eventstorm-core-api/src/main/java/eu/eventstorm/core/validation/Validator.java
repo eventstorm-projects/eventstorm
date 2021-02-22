@@ -1,10 +1,12 @@
-package eu.eventstorm.cqrs;
+package eu.eventstorm.core.validation;
 
 import eu.eventstorm.core.validation.ValidatorContext;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-public interface CommandContext extends ValidatorContext {
-	
+public interface Validator<T> {
+
+	void validate(ValidatorContext context, T object);
+
 }

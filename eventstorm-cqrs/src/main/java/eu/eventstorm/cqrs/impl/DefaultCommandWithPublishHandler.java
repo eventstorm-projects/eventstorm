@@ -6,7 +6,7 @@ import com.google.common.collect.ImmutableList;
 
 import eu.eventstorm.core.Event;
 import eu.eventstorm.cqrs.Command;
-import eu.eventstorm.cqrs.validation.Validator;
+import eu.eventstorm.core.validation.Validator;
 import eu.eventstorm.eventbus.EventBus;
 
 /**

@@ -1,39 +1,35 @@
 package eu.eventstorm.cqrs.impl;
 
-import java.util.UUID;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-
-import eu.eventstorm.cqrs.tracer.Span;
-import eu.eventstorm.cqrs.tracer.Tracer;
-import eu.eventstorm.sql.TransactionDefinition;
-import eu.eventstorm.sql.impl.TransactionDefinitions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.google.common.collect.ImmutableList;
-
 import eu.eventstorm.core.Event;
 import eu.eventstorm.core.EventCandidate;
-import eu.eventstorm.core.validation.ConstraintViolation;
 import eu.eventstorm.cqrs.Command;
 import eu.eventstorm.cqrs.CommandContext;
 import eu.eventstorm.cqrs.CommandHandler;
 import eu.eventstorm.cqrs.EventLoop;
 import eu.eventstorm.cqrs.event.EvolutionHandlers;
+import eu.eventstorm.cqrs.tracer.Span;
+import eu.eventstorm.cqrs.tracer.Tracer;
 import eu.eventstorm.cqrs.validation.CommandValidationException;
-import eu.eventstorm.cqrs.validation.Validator;
+import eu.eventstorm.core.validation.Validator;
 import eu.eventstorm.eventbus.EventBus;
 import eu.eventstorm.eventstore.db.LocalDatabaseEventStore;
 import eu.eventstorm.sql.EventstormRepositoryException;
-import eu.eventstorm.sql.Transaction;
-import eu.eventstorm.sql.TransactionManager;
+import eu.eventstorm.sql.TransactionDefinition;
+import eu.eventstorm.sql.impl.TransactionDefinitions;
+import eu.eventstorm.sql.util.TransactionTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.SignalType;
 import reactor.core.publisher.SynchronousSink;
 import reactor.util.function.Tuple2;
+
+import java.util.UUID;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import static reactor.util.function.Tuples.of;
 
@@ -57,7 +53,7 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 	private LocalDatabaseEventStore eventStore;
 	
 	@Autowired
-	private TransactionManager transactionManager;
+	private TransactionTemplate transactionTemplate;
 	
 	@Autowired
 	private EvolutionHandlers evolutionHandlers;
@@ -125,19 +121,15 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 
 	private void validate(Tuple2<CommandContext,T> tuple , SynchronousSink<Tuple2<CommandContext,T>> sink) {
 		try (Span ignored = this.tracer.start("validate")) {
-			ImmutableList<ConstraintViolation> constraintViolations = this.validator.validate(tuple.getT1(), tuple.getT2());
-			if (!constraintViolations.isEmpty()) {
-				sink.error(new CommandValidationException(constraintViolations, tuple.getT2()));
+			this.validator.validate(tuple.getT1(), tuple.getT2());
+			if (tuple.getT1().hasConstraintViolation()) {
+				sink.error(new CommandValidationException(tuple.getT1(), tuple.getT2()));
 				return;
 			}
-			ImmutableList<ConstraintViolation> consistencyValidation;
-			try (Transaction tx = this.transactionManager.newTransactionReadOnly()) {
-				// validate the command
-				consistencyValidation = consistencyValidation(tuple.getT1(), tuple.getT2());
-				tx.commit();
-			}
-			if (!consistencyValidation.isEmpty()) {
-				sink.error(new CommandValidationException(consistencyValidation, tuple.getT2()));
+
+			transactionTemplate.executeWithReadOnly(() -> consistencyValidation(tuple.getT1(), tuple.getT2()));
+			if (tuple.getT1().hasConstraintViolation()) {
+				sink.error(new CommandValidationException(tuple.getT1(), tuple.getT2()));
 				return;
 			}
 
@@ -167,8 +159,8 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 	}
 	
 	private ImmutableList<Event> doStoreAndEvolution(Tuple2<CommandContext, T> tuple) {
-		ImmutableList<Event> events;
-		try (Transaction tx = this.transactionManager.newTransaction(DEFAULT_TRANSACTION_DEFINITION)) {
+		return transactionTemplate.executeWith(DEFAULT_TRANSACTION_DEFINITION, () -> {
+			ImmutableList<Event> events;
 			ImmutableList<EventCandidate<?>> candidates;
 			try (Span ignored = this.tracer.start("decision")) {
 				// apply the decision function (state,command) => events
@@ -184,10 +176,8 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 				// apply the evolution function (state,Event) => State
 				events.forEach(evolutionHandlers::on);
 			}
-
-			tx.commit();
-		}
-		return events;
+			return events;
+		});
 	}
 
 	private ImmutableList<Event> store(ImmutableList<EventCandidate<?>> candidates) {
@@ -212,8 +202,7 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 		}
 	}
 
-	protected ImmutableList<ConstraintViolation> consistencyValidation(CommandContext context, T command) {
-		return ImmutableList.of();
+	protected void consistencyValidation(CommandContext context, T command) {
 	}
 
 	protected void postValidate(CommandContext commandContext, T command) {

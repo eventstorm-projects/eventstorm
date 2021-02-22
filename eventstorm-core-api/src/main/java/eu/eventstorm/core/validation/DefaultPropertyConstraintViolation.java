@@ -1,4 +1,4 @@
-package eu.eventstorm.cqrs.validation;
+package eu.eventstorm.core.validation;
 
 import com.google.common.collect.ImmutableMap;
 
