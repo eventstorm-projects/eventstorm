@@ -123,8 +123,8 @@ public final class Expressions {
   		return (dialect, alias) -> raw;
     }
 
-	public static Expression eqJson(SqlColumn column) {
-		return new JsonEqExpression(column);
+	public static Expression eqJson(SqlColumn column, String key) {
+		return new JsonEqExpression(column, key);
 	}
     
 }

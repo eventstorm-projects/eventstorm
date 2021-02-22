@@ -1,8 +1,17 @@
 package eu.eventstorm.batch.rest;
 
-import java.util.Map;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.eventstorm.batch.db.DatabaseResource;
+import eu.eventstorm.batch.db.DatabaseResourceBuilder;
+import eu.eventstorm.batch.db.DatabaseResourceRepository;
+import eu.eventstorm.core.id.StreamIdGenerator;
+import eu.eventstorm.sql.Database;
+import eu.eventstorm.sql.type.Json;
+import eu.eventstorm.sql.type.Jsons;
 import eu.eventstorm.sql.type.common.Lobs;
+import eu.eventstorm.sql.util.TransactionTemplate;
+import eu.eventstorm.util.FastByteArrayOutputStream;
 import eu.eventstorm.util.Strings;
 import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
@@ -16,22 +25,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
-
-import eu.eventstorm.batch.db.DatabaseResource;
-import eu.eventstorm.batch.db.DatabaseResourceBuilder;
-import eu.eventstorm.batch.db.DatabaseResourceRepository;
-import eu.eventstorm.core.id.StreamIdGenerator;
-import eu.eventstorm.sql.Database;
-import eu.eventstorm.sql.type.Json;
-import eu.eventstorm.sql.type.Jsons;
-import eu.eventstorm.sql.util.TransactionTemplate;
-import eu.eventstorm.util.FastByteArrayOutputStream;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static com.google.common.collect.ImmutableMap.of;
 
@@ -91,11 +89,11 @@ public final class DatabaseResourceReactiveController {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("list for [{}]", serverRequest.getQueryParams());
 		}
+
+		LinkedHashMap<String,String> linkedHashMap = new LinkedHashMap<>();
+		serverRequest.getQueryParams().forEach((k,v) -> linkedHashMap.put(k, v.get(0)));
 		
-		ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
-		serverRequest.getQueryParams().forEach((k,v) -> builder.put(k, v.get(0)));
-		
-		return this.transactionTemplate.flux(() -> databaseResourceRepository.findByMeta(builder.build(), (dialect, rs) -> new DatabaseResourceQuery(rs.getString(1), rs.getString(2), rs.getString(3), rs.getTimestamp(4))));
+		return this.transactionTemplate.flux(() -> databaseResourceRepository.findByMeta(linkedHashMap, (dialect, rs) -> new DatabaseResourceQuery(rs.getString(1), rs.getString(2), rs.getString(3), rs.getTimestamp(4))));
 
 	}
 	

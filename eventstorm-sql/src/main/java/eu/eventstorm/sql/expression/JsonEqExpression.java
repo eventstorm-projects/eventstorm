@@ -9,9 +9,11 @@ import eu.eventstorm.sql.desc.SqlColumn;
 final class JsonEqExpression implements Expression{
 
 	private final SqlColumn column;
+	private final String key;
 	
-	public JsonEqExpression(SqlColumn column) {
+	public JsonEqExpression(SqlColumn column, String key) {
 		this.column = column;
+		this.key = key;
 	}
 
 
@@ -23,7 +25,7 @@ final class JsonEqExpression implements Expression{
         }
     	col += column.name();
     	
-    	return dialect.functionJsonValue(col, "?" , "?");
+    	return dialect.functionJsonValue(col, key , "?");
 	}
 
 }
