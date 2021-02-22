@@ -38,7 +38,7 @@ public final class DatabaseResourceRepository extends AbstractDatabaseResourceRe
 		return stream(selectBuilder.build(), ps -> {
 			int index = 1;
 			for (Map.Entry<String,String> entry : meta.entrySet()) {
-				ps.setString(index++, entry.getKey());
+				ps.setString(index++, "$." + entry.getKey());
 				ps.setString(index++, entry.getValue());
 			}
 		}, mapper);

@@ -38,6 +38,11 @@
 		</dependency>
 
 		<dependency>
+			<groupId>com.jayway.jsonpath</groupId>
+			<artifactId>json-path</artifactId>
+		</dependency>
+
+		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
 			<optional>true</optional>
