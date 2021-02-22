@@ -111,7 +111,7 @@ final class OracleDialect extends AbstractDialect {
 	
 	@Override
 	public String functionJsonValue(String col, String key, String value) {
-		return "json_value(" + col + ",''' || '"+ key +"' || ''') = " + value;
+		return "json_value(" + col + ",'"+ key +"') = " + value;
 	}
 
 	@Override
