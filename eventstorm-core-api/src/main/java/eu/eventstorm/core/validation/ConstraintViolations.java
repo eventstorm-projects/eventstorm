@@ -23,7 +23,11 @@ public final class ConstraintViolations  {
     }
 
     public static ConstraintViolation ofProperty(String property, String code, Object value) {
-        return new PropertyConstraintViolation(property, code, value);
+        return new PropertyConstraintViolation(property, code, value,  ImmutableMap.of());
+    }
+
+    public static ConstraintViolation ofProperty(String property, String code, Object value, ImmutableMap<String,Object> params) {
+        return new PropertyConstraintViolation(property, code, value, params);
     }
 
     public static ConstraintViolation ofRule(String code) {
@@ -48,8 +52,8 @@ public final class ConstraintViolations  {
 
     private static final class PropertyConstraintViolation extends DefaultPropertyConstraintViolation {
         private final Object value;
-        private PropertyConstraintViolation(String property, String code, Object value) {
-            super(property, code, ImmutableMap.of());
+        private PropertyConstraintViolation(String property, String code, Object value, ImmutableMap<String,Object> params) {
+            super(property, code, params);
             this.value = value;
         }
         public Object getValue() {
