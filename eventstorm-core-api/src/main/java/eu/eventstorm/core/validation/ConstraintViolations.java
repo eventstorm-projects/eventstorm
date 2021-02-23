@@ -1,5 +1,6 @@
 package eu.eventstorm.core.validation;
 
+import com.fasterxml.jackson.annotation.JacksonAnnotation;
 import com.google.common.collect.ImmutableMap;
 
 /**
@@ -18,7 +19,7 @@ public final class ConstraintViolations  {
         return new NullConstraintViolation(property, code, params);
     }
 
-    public static ConstraintViolation ofProperty(String property, String code, Object actual, Object expected) {
+    public static ConstraintViolation ofAssertProperty(String property, String code, Object actual, Object expected) {
         return new PropertyAssertionConstraintViolation(property, code, actual, expected);
     }
 
