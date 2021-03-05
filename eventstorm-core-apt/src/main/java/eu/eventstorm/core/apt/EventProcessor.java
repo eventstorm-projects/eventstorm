@@ -14,6 +14,7 @@ import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
 
 import eu.eventstorm.core.apt.analyser.CqrsQueryClientAnalyser;
+import eu.eventstorm.core.apt.analyser.CqrsQueryClientServiceAnalyser;
 import eu.eventstorm.core.apt.analyser.CqrsQueryDatabaseViewAnalyser;
 import eu.eventstorm.core.apt.analyser.CqrsQueryPojoAnalyser;
 import eu.eventstorm.core.apt.analyser.EventEvolutionAnalyser;
@@ -30,6 +31,7 @@ import eu.eventstorm.core.apt.command.CommandRestControllerImplementationGenerat
 import eu.eventstorm.core.apt.command.CommandValidatorGenerator;
 import eu.eventstorm.core.apt.event.EventProtoGenerator;
 
+import eu.eventstorm.core.apt.model.QueryClientServiceDescriptor;
 import eu.eventstorm.core.apt.query.QueryBuilderGenerator;
 import eu.eventstorm.core.apt.query.SqlPageRequestDescriptorGenerator;
 import eu.eventstorm.core.apt.query.PageQueryDescriptorsGenerator;
@@ -159,6 +161,9 @@ public class EventProcessor extends AbstractProcessor {
 		List<QueryClientDescriptor> clientQueries  = roundEnvironment.getElementsAnnotatedWith(CqrsQueryClient.class).stream().map(new CqrsQueryClientAnalyser())
                 .collect(Collectors.toList());
 
+		List<QueryClientServiceDescriptor> cqrsQueryClientServices  = roundEnvironment.getElementsAnnotatedWith(CqrsQueryClientService.class).stream().map(new CqrsQueryClientServiceAnalyser())
+				.collect(Collectors.toList());
+
 		
 
 
@@ -173,7 +178,8 @@ public class EventProcessor extends AbstractProcessor {
 				queriesDatabase,
 				queriesDatabaseTable,
 				queriesPojo, 
-				clientQueries);
+				clientQueries,
+				cqrsQueryClientServices);
 
 		sourceCode.dump();
 

@@ -29,10 +29,14 @@ public final class CommandRestControllerAdviceImplementationGenerator {
 	}
 
 	public void generate(ProcessingEnvironment env, SourceCode sourceCode) {
-		
 	    
 	    String packagename = findBestCommonPackage(sourceCode);
-	    
+
+	    if (packagename == null) {
+	    	//no command -> skip
+			logger.info("no command -> skip CommandRestControllerAdvice");
+			return;
+		}
 	    
 		try {
 		    
@@ -43,6 +47,9 @@ public final class CommandRestControllerAdviceImplementationGenerator {
 	            logger.info("Java SourceCode already exist [" + packagename + ".CommandRestControllerAdvice]");
 	            return;
 	        }
+
+
+
 	        
 	        JavaFileObject object = env.getFiler().createSourceFile(packagename + ".CommandRestControllerAdvice");
 	        try (Writer writer = object.openWriter()) {

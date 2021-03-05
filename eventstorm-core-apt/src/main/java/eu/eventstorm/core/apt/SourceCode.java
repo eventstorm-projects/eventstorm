@@ -28,8 +28,10 @@ import eu.eventstorm.core.apt.model.EmbeddedCommandDescriptor;
 import eu.eventstorm.core.apt.model.EventEvolutionDescriptor;
 import eu.eventstorm.core.apt.model.PojoQueryDescriptor;
 import eu.eventstorm.core.apt.model.QueryClientDescriptor;
+import eu.eventstorm.core.apt.model.QueryClientServiceDescriptor;
 import eu.eventstorm.core.apt.model.QueryDescriptor;
 import eu.eventstorm.core.apt.model.RestControllerDescriptor;
+import eu.eventstorm.core.apt.query.QueryClientServiceGenerator;
 import eu.eventstorm.sql.apt.log.Logger;
 import eu.eventstorm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.annotation.CqrsConfiguration;
@@ -65,18 +67,21 @@ public final class SourceCode {
 	private final ImmutableMap<String, QueryClientDescriptor> clientQueries;
 	private final ImmutableMap<String, ImmutableList<QueryClientDescriptor>> clientQueriesPackages;
 
+	private final ImmutableMap<String, QueryClientServiceDescriptor> clientServiceDescriptors;
+
 	
 	SourceCode(ProcessingEnvironment env, CqrsConfiguration cqrsConfiguration,
 			List<CommandDescriptor> commands,
 			List<EmbeddedCommandDescriptor> embeddedCommands,
 			List<EventEvolutionDescriptor> eventEvolutionDescriptors,
-	//		List<EventDescriptor> events,
 	        List<RestControllerDescriptor> restControllerDescriptors, 
 	        List<ElsQueryDescriptor> queriesElasticSearch,
 	        List<DatabaseViewQueryDescriptor> queriesDatabase,
 			List<DatabaseTableQueryDescriptor> queriesTableDatabase,
 	        List<PojoQueryDescriptor> queriesPojo,
-	        List<QueryClientDescriptor> clientQueries) {
+	        List<QueryClientDescriptor> clientQueries,
+			List<QueryClientServiceDescriptor> cqrsQueryClientServices) {
+
 		this.cqrsConfiguration = cqrsConfiguration;
 		this.commands = commands.stream().collect(toImmutableMap(CommandDescriptor::fullyQualidiedClassName, identity()));
 		this.embeddedCommands = embeddedCommands.stream().collect(toImmutableMap(EmbeddedCommandDescriptor::fullyQualidiedClassName, identity()));
@@ -87,9 +92,7 @@ public final class SourceCode {
 		
 		
 		this.eventEvolutionDescriptors = ImmutableList.copyOf(eventEvolutionDescriptors);
-		
-	//	this.events = events.stream().collect(toImmutableMap(EventDescriptor::fullyQualidiedClassName, identity()));
-//		this.eventpackages = mapByPackage(env, this.events);
+
 		this.restControllers = restControllerDescriptors.stream()
 		        .collect(groupingBy( t -> t.getFCQN(env), mapping(identity(), toImmutableList())));
 		
@@ -111,7 +114,8 @@ public final class SourceCode {
     	builder.addAll(queriesPojo);
     	builder.addAll(clientQueries);
     	this.queriesPackages = mapByPackage(env, builder.build().stream().collect(toImmutableMap(QueryDescriptor::fullyQualidiedClassName, identity())));
-    	
+
+    	this.clientServiceDescriptors = cqrsQueryClientServices.stream().collect(toImmutableMap(QueryClientServiceDescriptor::fullyQualifiedClassName, identity()));
 	}
 
 	public void forEachCommand(Consumer<CommandDescriptor> consumer) {
@@ -167,6 +171,10 @@ public final class SourceCode {
     public void forEachQueryClient(Consumer<QueryClientDescriptor> consumer) {
         this.clientQueries.values().forEach(consumer);
     }
+
+	public void forEachQueryClientService(Consumer<QueryClientServiceDescriptor> consumer) {
+		this.clientServiceDescriptors.values().forEach(consumer);
+	}
     
     public void forEachDatabaseViewQueryPackage(BiConsumer<String, ImmutableList<DatabaseViewQueryDescriptor>> consumer) {
         this.queriesDatabaseViewPackages.forEach(consumer);

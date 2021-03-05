@@ -126,7 +126,6 @@ public final class Helper {
 		//writeNewLine(writer);
 		//writeNewLine(writer);
 		writeNewLine(writer);
-		writeNewLine(writer);
 		writer.write("//javax.annotation.Generated(\"" + clazz + "\")");
 		writeNewLine(writer);
 	}

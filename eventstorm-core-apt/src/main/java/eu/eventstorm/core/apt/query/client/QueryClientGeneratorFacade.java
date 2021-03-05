@@ -4,6 +4,7 @@ import javax.annotation.processing.ProcessingEnvironment;
 
 import eu.eventstorm.core.apt.SourceCode;
 import eu.eventstorm.core.apt.query.QueryBuilderGenerator;
+import eu.eventstorm.core.apt.query.QueryClientServiceGenerator;
 import eu.eventstorm.core.apt.query.QueryImplementationGenerator;
 import eu.eventstorm.core.apt.query.QueryJacksonStdDeserializerGenerator;
 
@@ -18,6 +19,9 @@ public class QueryClientGeneratorFacade {
 		new QueryBuilderGenerator().generateClient(processingEnv, sourceCode);
 		
 		new QueryJacksonStdDeserializerGenerator().generate(processingEnv, sourceCode);
+
+		new QueryClientServiceGenerator().generateClient(processingEnv, sourceCode);
+
 	}
 
 }

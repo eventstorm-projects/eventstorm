@@ -5,6 +5,7 @@ import static eu.eventstorm.sql.apt.Helper.writeNewLine;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.FileObject;
@@ -21,6 +22,7 @@ import eu.eventstorm.core.apt.model.RestControllerDescriptor;
 import eu.eventstorm.sql.apt.log.Logger;
 import eu.eventstorm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.annotation.CqrsConfiguration;
+import org.checkerframework.checker.units.qual.A;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -35,6 +37,14 @@ public final class CommandOpenApiGenerator {
 
 	public void generate(ProcessingEnvironment env, SourceCode sourceCode) {
 
+		AtomicInteger counter = new AtomicInteger(0);
+		sourceCode.forEachCommand(c -> counter.incrementAndGet());
+		sourceCode.forEachQuery(q -> counter.incrementAndGet());
+
+		if (counter.get() == 0) {
+			logger.info("no command and no query -> skip api.json");
+			return;
+		}
 		// check due to
 		// "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
 		// if (env.getElementUtils().getTypeElement(cd.fullyQualidiedClassName() +
@@ -67,7 +77,7 @@ public final class CommandOpenApiGenerator {
 			writer.close();
 
 		} catch (Exception ex) {
-
+			logger.error("failed to generate api.json", ex);
 		}
 
 	}
