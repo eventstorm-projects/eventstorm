@@ -156,13 +156,20 @@ public final class QueryJacksonStdSerializerGenerator {
 					|| "short".equals(epd.getter().getReturnType().toString()) || "byte".equals(epd.getter().getReturnType().toString())) {
 				writer.write("        gen.writeNumberField(\"" + epd.name() + "\", payload."+ epd.getter().getSimpleName() +"());");
 				writeNewLine(writer);	
+			} else if (Integer.class.equals(epd.getter().getReturnType().toString()) || Long.class.equals(epd.getter().getReturnType().toString())
+					|| Short.class.equals(epd.getter().getReturnType().toString()) || Byte.class.equals(epd.getter().getReturnType().toString())) {
+				writeNumber(writer, epd);
 			} else if (OffsetDateTime.class.getName().equals(epd.getter().getReturnType().toString())) {
 				writeOffsetDateTime(writer, epd);
 			} else if (Json.class.getName().equals(epd.getter().getReturnType().toString())) {
 				writeJson(writer, epd);
 			} else if (Timestamp.class.getName().equals(epd.getter().getReturnType().toString())) {
 				writeTimestamp(writer, epd);
-			} else {
+			} else if (Boolean.class.getName().equals(epd.getter().getReturnType().toString())) {
+				writeBoolean(writer, epd);
+			} else if (boolean.class.getName().equals(epd.getter().getReturnType().toString())) {
+				writer.write("        gen.writeBooleanField(\"" + epd.name() + "\", payload."+ epd.getter().getSimpleName() +"());");
+			}else {
 				writer.write("        // write (" + epd.name() + "); " + epd.getter().getReturnType());
 				writeNewLine(writer);
 			}
@@ -187,6 +194,34 @@ public final class QueryJacksonStdSerializerGenerator {
 			writeNewLine(writer);
 		} else {
 			writer.write("        gen.writeStringField(\"" + epd.name() + "\", "+ Dates.class.getName()+".format(payload."+ epd.getter().getSimpleName() +"().toLocalDateTime()));");
+			writeNewLine(writer);
+		}
+	}
+
+	private void writeBoolean(Writer writer, QueryPropertyDescriptor epd) throws IOException {
+		if (isNullable(epd)) {
+			writer.write("        if (payload." +  epd.getter().getSimpleName()+ "() != null) {");
+			writeNewLine(writer);
+			writer.write("            gen.writeBooleanField(\"" + epd.name() + "\", payload."+ epd.getter().getSimpleName() +"());");
+			writeNewLine(writer);
+			writer.write("        }");
+			writeNewLine(writer);
+		} else {
+			writer.write("            gen.writeBooleanField(\"" + epd.name() + "\", payload."+ epd.getter().getSimpleName() +"());");
+			writeNewLine(writer);
+		}
+	}
+
+	private void writeNumber(Writer writer, QueryPropertyDescriptor epd) throws IOException {
+		if (isNullable(epd)) {
+			writer.write("        if (payload." +  epd.getter().getSimpleName()+ "() != null) {");
+			writeNewLine(writer);
+			writer.write("            gen.writeNumberField(\"" + epd.name() + "\", payload."+ epd.getter().getSimpleName() +"());");
+			writeNewLine(writer);
+			writer.write("        }");
+			writeNewLine(writer);
+		} else {
+			writer.write("            gen.writeNumberField(\"" + epd.name() + "\", payload."+ epd.getter().getSimpleName() +"());");
 			writeNewLine(writer);
 		}
 	}
