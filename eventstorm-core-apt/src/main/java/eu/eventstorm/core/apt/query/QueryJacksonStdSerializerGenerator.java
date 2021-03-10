@@ -170,7 +170,7 @@ public final class QueryJacksonStdSerializerGenerator {
 			} else if (boolean.class.getName().equals(epd.getter().getReturnType().toString())) {
 				writer.write("        gen.writeBooleanField(\"" + epd.name() + "\", payload."+ epd.getter().getSimpleName() +"());");
 			}else {
-				writer.write("        // write (" + epd.name() + "); " + epd.getter().getReturnType());
+				writer.write("        gen.writeObjectField(\"" + epd.name() + "\", pojo." + epd.getter().getSimpleName()+"());");
 				writeNewLine(writer);
 			}
 			
