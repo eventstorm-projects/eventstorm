@@ -27,6 +27,11 @@ public @interface CqrsConfiguration {
 	 * evolution base url : @see https://developers.google.com/protocol-buffers/docs/proto3#any
 	 */
 	String evolutionDataTypeBaseUrl() default "";
-	
+
+
+	/**
+	 * identifier for this configuration
+	 */
+	String id() default "";
 
 }

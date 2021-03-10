@@ -22,6 +22,7 @@ import eu.eventstorm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.cqrs.PageQueryDescriptors;
 import eu.eventstorm.eventstore.StreamManager;
 import eu.eventstorm.eventstore.memory.InMemoryStreamManagerBuilder;
+import eu.eventstorm.util.Strings;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -41,17 +42,22 @@ public final class SpringConfigurationGenerator {
 		this.env = processingEnvironment;
 		this.code = sourceCode;
 
+		String className = "EventstormSpringAutoConfiguration";
+		if (!Strings.isEmpty(sourceCode.getCqrsConfiguration().id())) {
+			className += "_" + sourceCode.getCqrsConfiguration().id();
+		}
+
 		// check due to
 		// "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
-		if (env.getElementUtils().getTypeElement(sourceCode.getCqrsConfiguration().basePackage() + ".EventstormSpringAutoConfiguration") != null) {
-			logger.info("Java SourceCode already exist " + sourceCode.getCqrsConfiguration().basePackage() + ".EventstormSpringAutoConfiguration");
+		if (env.getElementUtils().getTypeElement(sourceCode.getCqrsConfiguration().basePackage() + "." + className) != null) {
+			logger.info("Java SourceCode already exist " + sourceCode.getCqrsConfiguration().basePackage() + "." + className);
 			return;
 		}
 
 		try {
-			JavaFileObject object = env.getFiler().createSourceFile(sourceCode.getCqrsConfiguration().basePackage() + ".EventstormSpringAutoConfiguration");
+			JavaFileObject object = env.getFiler().createSourceFile(sourceCode.getCqrsConfiguration().basePackage() + "." + className);
 			try (Writer writer = object.openWriter()) {
-				writeHeader(writer, env, code);
+				writeHeader(writer, env, code, className);
 				writeStreamManager(writer, env, code);
 				writeTypeRegistry(writer, env, code);
 				writeCommandModule(writer, env, code);
@@ -89,12 +95,20 @@ public final class SpringConfigurationGenerator {
 	
 	private void writeQueryModule(Writer writer, ProcessingEnvironment env, SourceCode sourceCode) {
 		AtomicInteger counter = new AtomicInteger();
+
+		String suffix;
+		if (!Strings.isEmpty(sourceCode.getCqrsConfiguration().id())) {
+			suffix = "_" + sourceCode.getCqrsConfiguration().id();
+		} else {
+			suffix = "";
+		}
+
 		sourceCode.forEachQueryPackage((pack, list) -> {
 			try {
 				writeNewLine(writer);
 				writer.write("    @Bean");
 				writeNewLine(writer);
-				writer.write("    com.fasterxml.jackson.databind.Module queryModule"+ counter.incrementAndGet() +"() {");
+				writer.write("    com.fasterxml.jackson.databind.Module queryModule"+ counter.incrementAndGet() + suffix +"() {");
 				 writeNewLine(writer);
 				writer.write("       return new " + pack + ".json.QueryModule();");
 			    writeNewLine(writer);
@@ -228,7 +242,7 @@ public final class SpringConfigurationGenerator {
 		
 	}
 
-    private void writeHeader(Writer writer, ProcessingEnvironment env, SourceCode sourceCode) throws IOException {
+    private void writeHeader(Writer writer, ProcessingEnvironment env, SourceCode sourceCode, String classname) throws IOException {
 
         writePackage(writer, sourceCode.getCqrsConfiguration().basePackage());
         writeNewLine(writer);
@@ -258,7 +272,7 @@ public final class SpringConfigurationGenerator {
         writeGenerated(writer,SpringConfigurationGenerator.class.getName());
         writer.write("@Configuration");
         writeNewLine(writer);
-        writer.write("public class EventstormSpringAutoConfiguration {");
+        writer.write("public class " + classname + " {");
         writeNewLine(writer);
     }
     
