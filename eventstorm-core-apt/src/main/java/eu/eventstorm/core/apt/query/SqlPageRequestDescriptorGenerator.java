@@ -146,7 +146,7 @@ public final class SqlPageRequestDescriptorGenerator {
 			} else if (Helper.isLong(type)) {
 				writer.write("            .put(\"" + property.name() + "\", filter -> (ps,index) -> { for (String value : filter.getValues()) { ps.setLong(index++, Long.valueOf(value));} return index; })");
 			} else if (Helper.isBoolean(type)) {
-				writer.write("            .put(\"" + property.name() + "\", val -> (ps,index) -> { for (String value : filter.getValues()) { ps.setBoolean(index++, Boolean.valueOf(value));} return index; })");
+				writer.write("            .put(\"" + property.name() + "\", filter -> (ps,index) -> { for (String value : filter.getValues()) { ps.setBoolean(index++, Boolean.valueOf(value));} return index; })");
 			} else if (Helper.isString(type)) {
 				writer.write("            .put(\"" + property.name() + "\", filter -> (ps,index) -> { for (String value : filter.getValues()) { ps.setString(index++, value); } return index; })");
 			} else if (Timestamp.class.getName().equals(type)) {
