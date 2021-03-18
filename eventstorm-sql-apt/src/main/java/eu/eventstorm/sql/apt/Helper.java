@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.io.Writer;
 
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
 
 import com.google.common.collect.ImmutableSet;
@@ -98,6 +101,20 @@ public final class Helper {
 //			// it's primitive
 //			return element.getReturnType().toString();
 //		}
+	}
+
+	public static boolean isEnum(TypeMirror typeMirror) {
+		if (TypeKind.DECLARED == typeMirror.getKind()) {
+			for (TypeMirror supertype : Helper.getTypes().directSupertypes(typeMirror)) {
+				DeclaredType declared = (DeclaredType)supertype;
+				if (Enum.class.getName().equals(declared.asElement().toString())) {
+					return true;
+				}
+			}
+			return false;
+		} else {
+			return false;
+		}
 	}
 		
 	public static void writeNewLine(Writer writer) throws IOException {

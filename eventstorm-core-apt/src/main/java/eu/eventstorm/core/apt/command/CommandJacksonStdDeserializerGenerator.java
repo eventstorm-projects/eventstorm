@@ -14,6 +14,11 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.Element;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Types;
 import javax.tools.JavaFileObject;
 
 import com.fasterxml.jackson.core.JsonParser;
@@ -38,11 +43,7 @@ import eu.eventstorm.util.TriConsumer;
  */
 public final class CommandJacksonStdDeserializerGenerator {
 
-	private final Logger logger;
-
-	public CommandJacksonStdDeserializerGenerator() {
-		logger = LoggerFactory.getInstance().getLogger(CommandJacksonStdDeserializerGenerator.class);
-	}
+	private static final Logger LOGGER = LoggerFactory.getInstance().getLogger(CommandJacksonStdDeserializerGenerator.class);
 
 	public void generate(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
 		// generate Implementation class;
@@ -50,7 +51,7 @@ public final class CommandJacksonStdDeserializerGenerator {
 			try {
 				generate(processingEnvironment, pack, list);
 			} catch (Exception cause) {
-				logger.error("Exception for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
+				LOGGER.error("Exception for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
 			}
 		});
 	}
@@ -61,7 +62,7 @@ public final class CommandJacksonStdDeserializerGenerator {
 			try {
 				generate(processingEnvironment, pack, list);
 			} catch (Exception cause) {
-				logger.error("Exception for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
+				LOGGER.error("Exception for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
 			}
 		});
 	}
@@ -74,7 +75,7 @@ public final class CommandJacksonStdDeserializerGenerator {
 		    
 		    // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
 	        if (env.getElementUtils().getTypeElement(pack + ".json." + cd.simpleName() + "StdDeserializer") != null) {
-	            logger.info("Java SourceCode already exist [" +pack + ".json." + cd.simpleName() + "StdDeserializer" + "]");
+				LOGGER.info("Java SourceCode already exist [" +pack + ".json." + cd.simpleName() + "StdDeserializer" + "]");
 	            return;
 	        }
 	        
@@ -243,8 +244,9 @@ public final class CommandJacksonStdDeserializerGenerator {
 	                writer.write("parseLocalDate(parser.nextTextValue())");
 	            } else if (LocalTime.class.getName().equals(returnType)) {
 	                writer.write("parseLocalTime(parser.nextTextValue())");
-	            }
-	            else {
+	            } else if (Helper.isEnum(cpd.getter().getReturnType())) {
+					writer.write(cpd.getter().getReturnType().toString() +".valueOf(parser.nextTextValue())");
+				} else {
 				    throw new UnsupportedOperationException("Type not supported [" + returnType + "]");
 				}
 			    writer.write(");");
@@ -268,7 +270,6 @@ public final class CommandJacksonStdDeserializerGenerator {
 		writeNewLine(writer);
 
 	}
-
 	
 	private static void writeConstructor(Writer writer, AbstractCommandDescriptor descriptor) throws IOException {
 		writeNewLine(writer);
