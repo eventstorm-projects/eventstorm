@@ -77,6 +77,11 @@ public class EventStormAutoConfiguration {
 	CommandValidationRestControllerAdvice commandValidationRestControllerAdvice() {
 	    return new CommandValidationRestControllerAdvice();
 	}
+
+	@Bean
+	CommandGatewayControllerAdvice commandGatewayControllerAdvice() {
+		return new CommandGatewayControllerAdvice();
+	}
 	
 	@ConditionalOnMissingBean
 	@Bean
