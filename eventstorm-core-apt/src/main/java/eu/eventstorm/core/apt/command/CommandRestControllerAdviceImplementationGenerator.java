@@ -8,10 +8,13 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.JavaFileObject;
 
+import eu.eventstorm.annotation.CqrsCommand;
+import eu.eventstorm.annotation.CqrsCommandType;
 import eu.eventstorm.core.apt.SourceCode;
 import eu.eventstorm.core.apt.model.CommandDescriptor;
 import eu.eventstorm.sql.apt.log.Logger;
@@ -22,11 +25,7 @@ import eu.eventstorm.sql.apt.log.LoggerFactory;
  */
 public final class CommandRestControllerAdviceImplementationGenerator {
 
-	private final Logger logger;
-
-	public CommandRestControllerAdviceImplementationGenerator() {
-		logger = LoggerFactory.getInstance().getLogger(CommandRestControllerAdviceImplementationGenerator.class);
-	}
+	private static final Logger LOGGER = LoggerFactory.getInstance().getLogger(CommandRestControllerAdviceImplementationGenerator.class);
 
 	public void generate(ProcessingEnvironment env, SourceCode sourceCode) {
 	    
@@ -34,22 +33,30 @@ public final class CommandRestControllerAdviceImplementationGenerator {
 
 	    if (packagename == null) {
 	    	//no command -> skip
-			logger.info("no command -> skip CommandRestControllerAdvice");
+			LOGGER.info("no command -> skip CommandRestControllerAdvice");
 			return;
 		}
 	    
 		try {
-		    
-		    //CommandRestControllerAdvice
-		    
 		    // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
 	        if (env.getElementUtils().getTypeElement(packagename+ ".CommandRestControllerAdvice") != null) {
-	            logger.info("Java SourceCode already exist [" + packagename + ".CommandRestControllerAdvice]");
+				LOGGER.info("Java SourceCode already exist [" + packagename + ".CommandRestControllerAdvice]");
 	            return;
 	        }
 
+	        // if only client -> not need to generate a controller advice
+			AtomicBoolean serverFound = new AtomicBoolean(false);
+			sourceCode.forEachCommand(cd -> {
+				CqrsCommand command = cd.element().getAnnotation(CqrsCommand.class);
+				if (!serverFound.get() && CqrsCommandType.SERVER == command.type()) {
+					serverFound.set(true);
+				}
+			});
 
-
+			if (!serverFound.get()) {
+				LOGGER.info("no Server Command found -> skip CommandRestControllerAdvice");
+				return;
+			}
 	        
 	        JavaFileObject object = env.getFiler().createSourceFile(packagename + ".CommandRestControllerAdvice");
 	        try (Writer writer = object.openWriter()) {
@@ -60,7 +67,7 @@ public final class CommandRestControllerAdviceImplementationGenerator {
 	        }
 			
 		} catch (Exception cause) {
-			logger.error("Exception for [" + packagename + ".CommandRestControllerAdvice] -> [" + cause.getMessage() + "]", cause);
+			LOGGER.error("Exception for [" + packagename + ".CommandRestControllerAdvice] -> [" + cause.getMessage() + "]", cause);
 		}
 
 	}
@@ -104,7 +111,7 @@ public final class CommandRestControllerAdviceImplementationGenerator {
 	        try {
                 writeMethodOn(writer, cd);
             } catch (IOException cause) {
-                logger.error("Exception for [CommandRestControllerAdvice] -> [" + cause.getMessage() + "] -> command [" + cd + "]", cause);
+				LOGGER.error("Exception for [CommandRestControllerAdvice] -> [" + cause.getMessage() + "] -> command [" + cd + "]", cause);
             }
 	    });
 	    

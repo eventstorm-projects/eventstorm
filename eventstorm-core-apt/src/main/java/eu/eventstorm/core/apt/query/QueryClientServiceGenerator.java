@@ -199,9 +199,11 @@ public final class QueryClientServiceGenerator {
             loggerParams.append("{},");
             loggerParamsValue.append(parameter.getName()).append(',');
         });
-        builder.deleteCharAt(builder.length()-1);
-        loggerParams.deleteCharAt(loggerParams.length()-1);
-        loggerParamsValue.deleteCharAt(loggerParamsValue.length()-1);
+        if (epd.getParameters().size() > 0) {
+            builder.deleteCharAt(builder.length()-1);
+            loggerParams.deleteCharAt(loggerParams.length()-1);
+            loggerParamsValue.deleteCharAt(loggerParamsValue.length()-1);
+        }
 
         writer.write(builder.toString());
         writer.write(") { ");
@@ -209,7 +211,11 @@ public final class QueryClientServiceGenerator {
         writeNewLine(writer);
         writer.write("        if (LOGGER.isDebugEnabled()) {");
         writeNewLine(writer);
-        writer.write("            LOGGER.debug(\"" + epd.getMethod().getSimpleName() +"(" + loggerParams.toString() + ")\"," + loggerParamsValue + ");");
+        writer.write("            LOGGER.debug(\"" + epd.getMethod().getSimpleName() +"(" + loggerParams.toString() + ")\"");
+        if (epd.getParameters().size() > 0) {
+            writer.write(", " + loggerParamsValue);
+        }
+        writer.write(");");
         writeNewLine(writer);
         writer.write("        }");
         writeNewLine(writer);
@@ -217,14 +223,18 @@ public final class QueryClientServiceGenerator {
         if (Strings.isEmpty(epd.getAnnotation().cacheFactoryBean())) {
             writer.write("        return this.webClient.get()");
             writeNewLine(writer);
-            writer.write("                .uri(\"" + ed.element().getAnnotation(CqrsQueryClientService.class).uri() + "/" + epd.getAnnotation().path() + "\",");
-            writer.write(loggerParamsValue.toString());
+            writer.write("                .uri(\"" + ed.element().getAnnotation(CqrsQueryClientService.class).uri() + "/" + epd.getAnnotation().path() + "\"");
+            if (epd.getParameters().size() > 0) {
+                writer.write(", " + loggerParamsValue.toString());
+            }
             writer.write(")");
             writeNewLine(writer);
             writer.write("                .retrieve()");
             writeNewLine(writer);
-            if (epd.getMethod().toString().contains("Flux<")) {
-                writer.write("                .bodyToFlux(");
+            if (epd.getMethod().getReturnType().toString().contains("reactor.core.publisher.Flux<")) {
+                String type = getFluxType(epd);
+                writer.write("                .bodyToFlux(" + type + ".class);");
+                writeNewLine(writer);
             } else {
 
                 String type = getMonoType(epd);
@@ -241,6 +251,12 @@ public final class QueryClientServiceGenerator {
 
         writer.write("    }");
         writeNewLine(writer);
+    }
+    private static String getFluxType(QueryClientServiceMethodDescriptor epd) {
+        String type = epd.getMethod().getReturnType().toString();
+        type = type.substring(28);
+        type = type.substring(0, type.length() - 1);
+        return type;
     }
 
     private static String getMonoType(QueryClientServiceMethodDescriptor epd) {

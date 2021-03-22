@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.type.MirroredTypeException;
+import javax.lang.model.type.TypeMirror;
 import javax.tools.JavaFileObject;
 
 import com.fasterxml.jackson.core.JsonParser;
@@ -23,9 +25,12 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
+import eu.eventstorm.annotation.CqrsQueryPropertyFactory;
 import eu.eventstorm.core.apt.SourceCode;
 import eu.eventstorm.core.apt.model.QueryDescriptor;
 import eu.eventstorm.core.apt.model.QueryPropertyDescriptor;
+import eu.eventstorm.core.util.PropertyFactory;
+import eu.eventstorm.core.util.PropertyFactoryType;
 import eu.eventstorm.sql.apt.Helper;
 import eu.eventstorm.sql.apt.log.Logger;
 import eu.eventstorm.sql.apt.log.LoggerFactory;
@@ -80,6 +85,7 @@ public final class QueryJacksonStdDeserializerGenerator {
 			Writer writer = object.openWriter();
 
 			writeHeader(writer, pack + ".json", cd);
+			writeVariables(writer, cd);
 			writeStatic(writer, cd);
 		    writeConstructor(writer, cd);
 			writeMethod(writer, cd);
@@ -216,7 +222,20 @@ public final class QueryJacksonStdDeserializerGenerator {
 	                writer.write("parseLocalDate(parser.nextTextValue())");
 	            } else if (LocalTime.class.getName().equals(returnType)) {
 	                writer.write("parseLocalTime(parser.nextTextValue())");
-	            }
+	            } else if (Helper.isEnum(cpd.getter().getReturnType())) {
+					CqrsQueryPropertyFactory factory = cpd.getter().getAnnotation(CqrsQueryPropertyFactory.class);
+					if (factory == null) {
+						writer.write(cpd.getter().getReturnType().toString() +".valueOf(parser.nextTextValue())");
+					} else {
+						if (PropertyFactoryType.STRING == factory.type()) {
+							writer.write(cpd.name().toUpperCase() + "_FACTORY.apply(parser.nextTextValue())");
+						} else if  (PropertyFactoryType.INTEGER == factory.type()) {
+							writer.write(cpd.name().toUpperCase() + "_FACTORY.apply(parser.nextIntValue(0))");
+						} else {
+							writer.write(cpd.name().toUpperCase() + "_FACTORY.apply(parser.nextLongValue(0l))");
+						}
+					}
+				}
 	            else {
 				    throw new UnsupportedOperationException("Type not supported [" + returnType + "]");
 				}
@@ -242,6 +261,26 @@ public final class QueryJacksonStdDeserializerGenerator {
 
 	}
 
+	private void writeVariables(Writer writer, QueryDescriptor cd) throws IOException {
+		for (QueryPropertyDescriptor cpd : cd.properties()) {
+			CqrsQueryPropertyFactory factory = cpd.getter().getAnnotation(CqrsQueryPropertyFactory.class);
+			if (factory != null) {
+				writer.write("    private static final " + PropertyFactory.class.getName() +"<");
+				if (PropertyFactoryType.INTEGER == factory.type()) {
+					writer.write("Integer,");
+				} else if (PropertyFactoryType.LONG == factory.type()) {
+					writer.write("Long,");
+				} else {
+					writer.write("String,");
+				}
+				writer.write(cpd.getter().getReturnType().toString());
+				writer.write("> " + cpd.name().toUpperCase() + "_FACTORY = ");
+				writeNewLine(writer);
+				writer.write("        new " + getFactory(factory) + "();");
+				writeNewLine(writer);
+			}
+		}
+	}
 	
 	private static void writeConstructor(Writer writer, QueryDescriptor descriptor) throws IOException {
 		writeNewLine(writer);
@@ -304,5 +343,15 @@ public final class QueryJacksonStdDeserializerGenerator {
 		writeNewLine(writer);
 		writer.write("     }");
 		writeNewLine(writer);
+	}
+
+	private static TypeMirror getFactory(CqrsQueryPropertyFactory factory) {
+		try	{
+			factory.factory(); // this should throw
+		}
+		catch( MirroredTypeException mte )	{
+			return mte.getTypeMirror();
+		}
+		return null; // can this ever happen ??
 	}
 }
