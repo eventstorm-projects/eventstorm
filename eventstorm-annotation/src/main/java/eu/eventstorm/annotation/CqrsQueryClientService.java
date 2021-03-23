@@ -16,6 +16,4 @@ public @interface CqrsQueryClientService {
 
     String uri();
 
-    String profile() default "";
-
 }

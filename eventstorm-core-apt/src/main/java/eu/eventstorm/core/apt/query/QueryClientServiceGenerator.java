@@ -81,12 +81,16 @@ public final class QueryClientServiceGenerator {
         }
 
         writeGenerated(writer, QueryClientServiceGenerator.class.getName());
+
+
+        /*
         writer.write("@org.springframework.stereotype.Component");
         writeNewLine(writer);
         if (!Strings.isEmpty(descriptor.getAnnotation().profile())) {
             writer.write("@org.springframework.context.annotation.Profile(\"" + descriptor.getAnnotation().profile() + "\")");
             writeNewLine(writer);
         }
+         */
 
         writer.write("public final class ");
         writer.write(descriptor.element().getSimpleName() + "Impl implements " + descriptor.element().getSimpleName());
