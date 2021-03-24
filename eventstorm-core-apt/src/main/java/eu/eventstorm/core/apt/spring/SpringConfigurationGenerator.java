@@ -74,12 +74,20 @@ public final class SpringConfigurationGenerator {
 
 	private void writeCommandModule(Writer writer, ProcessingEnvironment env, SourceCode sourceCode) {
 		AtomicInteger counter = new AtomicInteger();
+
+		String suffix;
+		if (!Strings.isEmpty(sourceCode.getCqrsConfiguration().id())) {
+			suffix = "_" + sourceCode.getCqrsConfiguration().id();
+		} else {
+			suffix = "";
+		}
+
 		sourceCode.forEachAllCommandPackage((pack, list) -> {
 			try {
 				writeNewLine(writer);
 				writer.write("    @Bean");
 				writeNewLine(writer);
-				writer.write("    com.fasterxml.jackson.databind.Module commandModule"+ counter.incrementAndGet() +"() {");
+				writer.write("    com.fasterxml.jackson.databind.Module commandModule"+ counter.incrementAndGet() + suffix +"() {");
 				 writeNewLine(writer);
 				writer.write("       return new " + pack + ".json.CommandModule();");
 			    writeNewLine(writer);
