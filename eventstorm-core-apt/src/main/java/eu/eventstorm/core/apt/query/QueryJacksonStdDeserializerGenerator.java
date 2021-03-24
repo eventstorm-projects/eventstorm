@@ -212,6 +212,10 @@ public final class QueryJacksonStdDeserializerGenerator {
 					writer.write("parser.nextTextValue()");
 				} else if ("int".equals(returnType)) {
 					writer.write("parser.nextIntValue(0)");
+				} else if ("byte".equals(returnType)) {
+					writer.write("(byte)parser.nextIntValue(0)");
+				} else if ("short".equals(returnType)) {
+					writer.write("(short)parser.nextIntValue(0)");
 				} else if ("long".equals(returnType)) {
 					writer.write("parser.nextLongValue(0l)");
 				} else if ("boolean".equals(returnType)) {
