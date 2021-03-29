@@ -31,6 +31,7 @@ import eu.eventstorm.core.apt.model.QueryDescriptor;
 import eu.eventstorm.core.apt.model.QueryPropertyDescriptor;
 import eu.eventstorm.core.util.PropertyFactory;
 import eu.eventstorm.core.util.PropertyFactoryType;
+import eu.eventstorm.cqrs.util.Jsons;
 import eu.eventstorm.sql.apt.Helper;
 import eu.eventstorm.sql.apt.log.Logger;
 import eu.eventstorm.sql.apt.log.LoggerFactory;
@@ -266,6 +267,10 @@ public final class QueryJacksonStdDeserializerGenerator {
 	}
 
 	private void writeVariables(Writer writer, QueryDescriptor cd) throws IOException {
+
+		writer.write("    private static final " + org.slf4j.Logger.class.getName() +" LOGGER = " +  org.slf4j.LoggerFactory.class.getName() + ".getLogger(" + cd.simpleName() + "StdDeserializer.class);");
+		writeNewLine(writer);
+
 		for (QueryPropertyDescriptor cpd : cd.properties()) {
 			CqrsQueryPropertyFactory factory = cpd.getter().getAnnotation(CqrsQueryPropertyFactory.class);
 			if (factory != null) {
@@ -332,11 +337,16 @@ public final class QueryJacksonStdDeserializerGenerator {
 		writeNewLine(writer);
 		writer.write("            if (consumer == null) {");
 		writeNewLine(writer);
-		writer.write("                throw new DeserializerException(DeserializerException.Type.FIELD_NOT_FOUND, ImmutableMap.of(\"field\",p.currentName(),\"eventPayload\", \""+ cd.simpleName()+"\"));");
+		//writer.write("                throw new DeserializerException(DeserializerException.Type.FIELD_NOT_FOUND, ImmutableMap.of(\"field\",p.currentName(),\"eventPayload\", \""+ cd.simpleName()+"\"));");
+		writer.write("                LOGGER.warn(\"Field [{}] not found -> skip\", p.currentName());");
+		writeNewLine(writer);
+		writer.write("                " + Jsons.class.getName() + ".ignoreField(p);");
+		writeNewLine(writer);
+		writer.write("            } else {");
+		writeNewLine(writer);
+		writer.write("                consumer.accept(p, ctxt, builder);");
 		writeNewLine(writer);
 		writer.write("            }");
-		writeNewLine(writer);
-		writer.write("            consumer.accept(p, ctxt, builder);");
 		writeNewLine(writer);
 		writer.write("            p.nextToken();");
 		writeNewLine(writer);
