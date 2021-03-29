@@ -34,6 +34,10 @@ public final class Expressions {
     public static Expression eq(SqlColumn left, SqlColumn right) {
         return new DoubleColumnExpression(left, "=", right);
     }
+
+    public static Expression notEq(SqlColumn left, SqlColumn right) {
+        return new DoubleColumnExpression(left, "<>", right);
+    }
     
     public static Expression notEq(SqlColumn column) {
 		return new ParameterSimpleExpression(column, "<>");
