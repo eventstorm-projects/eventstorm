@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.*;
+import java.time.format.DateTimeFormatter;
 
 import org.junit.jupiter.api.Test;
 
@@ -175,7 +176,7 @@ class DatesTest {
 	@Test
 	void testFormatLocalDateTime() {
 		LocalDateTime ldt = LocalDateTime.parse("2011-03-11T18:35:23.123");
-		assertEquals("2011-03-11T18:35:23.123" + OffsetDateTime.now().getOffset(), Dates.format(ldt));
+		assertEquals(DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(ldt.atZone(ZoneId.systemDefault())), Dates.format(ldt));
 		assertNull(Dates.format((LocalDateTime) null));
 	}
 }
