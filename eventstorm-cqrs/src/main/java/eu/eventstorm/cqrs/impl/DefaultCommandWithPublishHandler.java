@@ -1,5 +1,6 @@
 package eu.eventstorm.cqrs.impl;
 
+import eu.eventstorm.cqrs.CommandContext;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.ImmutableList;

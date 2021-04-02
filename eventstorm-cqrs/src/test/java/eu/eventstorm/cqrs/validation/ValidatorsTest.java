@@ -8,6 +8,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import eu.eventstorm.core.validation.ValidationException;
 import eu.eventstorm.core.validation.ValidatorContext;
 import eu.eventstorm.core.validation.ValidatorContextImpl;
+import eu.eventstorm.cqrs.CommandContext;
+import eu.eventstorm.cqrs.context.DefaultCommandContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -22,7 +24,7 @@ final class ValidatorsTest {
 
 	@Test
 	void testEmpty() {
-		ValidatorContext validatorContext = new ValidatorContextImpl();
+		CommandContext validatorContext = new DefaultCommandContext();
 		Validators.empty().validate(validatorContext, new Command() {});
 		assertFalse(validatorContext.hasConstraintViolation());
 	}

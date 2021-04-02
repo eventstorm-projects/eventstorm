@@ -1,9 +1,13 @@
 package eu.eventstorm.cqrs.validation;
 
+import com.google.common.collect.ImmutableList;
 import eu.eventstorm.core.validation.Validator;
 import eu.eventstorm.core.validation.ValidatorContext;
 import eu.eventstorm.cqrs.Command;
+import eu.eventstorm.cqrs.CommandContext;
+import eu.eventstorm.util.tuple.Tuple2;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
@@ -11,14 +15,26 @@ import java.util.function.Consumer;
  */
 public final class Validators {
 
-	private static final Validator<Command> EMTPY = (context, command) -> {
+	private static final Validator<Command> EMPTY = (context, command) -> {
 	};
 
 	private Validators() {
 	}
 
 	public static <T extends Command> Validator<T> empty() {
-		return (Validator<T>) EMTPY;
+		return (Validator<T>) EMPTY;
+	}
+
+	public static <T extends Command> Validator<T> from(ImmutableList<BiConsumer<CommandContext,T>> rules) {
+		return (context, object) -> {
+			CommandContext ctx = (CommandContext) context;
+			for (BiConsumer<CommandContext,T> rule : rules) {
+				rule.accept(ctx, object);
+				if (ctx.hasConstraintViolation()) {
+					return;
+				}
+			}
+		};
 	}
 
 	public static <T extends Command> ComposeValidator<T> compose(ValidatorContext context) {

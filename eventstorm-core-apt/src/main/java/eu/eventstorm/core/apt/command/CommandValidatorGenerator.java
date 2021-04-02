@@ -22,6 +22,7 @@ import com.google.common.collect.ImmutableList;
 import eu.eventstorm.core.apt.SourceCode;
 import eu.eventstorm.core.apt.model.AbstractCommandDescriptor;
 import eu.eventstorm.core.apt.model.PropertyDescriptor;
+import eu.eventstorm.core.validation.Validator;
 import eu.eventstorm.core.validation.ValidatorContext;
 import eu.eventstorm.sql.apt.Helper;
 import eu.eventstorm.sql.apt.log.Logger;
@@ -37,7 +38,6 @@ import eu.eventstorm.annotation.constraint.NotEmpty;
 import eu.eventstorm.annotation.constraint.NotNull;
 import eu.eventstorm.core.validation.ConstraintViolation;
 import eu.eventstorm.core.validation.PropertyValidators;
-import eu.eventstorm.core.validation.Validator;
 import eu.eventstorm.util.tuple.Tuple2;
 import eu.eventstorm.util.tuple.Tuples;
 
