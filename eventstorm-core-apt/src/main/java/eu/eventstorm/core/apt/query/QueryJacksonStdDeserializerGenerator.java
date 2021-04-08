@@ -183,7 +183,8 @@ public final class QueryJacksonStdDeserializerGenerator {
 		    	writeNewLine(writer);
 		    	
 		    } else if (returnType.startsWith(Map.class.getName())) {
-		    	
+
+		    	/*
 		    	writer.write("				" + ImmutableMap.class.getName() + ".Builder<String,String> mapBuilder = " + ImmutableMap.class.getName() + ".builder();");
 		    	writeNewLine(writer);
 		    	writer.write("				// FIELD");
@@ -202,7 +203,13 @@ public final class QueryJacksonStdDeserializerGenerator {
 			    writeNewLine(writer);
 		    	writer.write("				}");
 		    	writeNewLine(writer);
-		    	writer.write("				builder.with" + Helper.firstToUpperCase(cpd.name()) + "(mapBuilder.build());");
+		    	 */
+				if (returnType.equals(Map.class.getName()+ "<String,String>")) {
+					writer.write("				builder.with" + Helper.firstToUpperCase(cpd.name()) + "(" + eu.eventstorm.cqrs.util.Jsons.class.getName() + ".readMapStringString(parser));");
+				} else{
+					writer.write("				builder.with" + Helper.firstToUpperCase(cpd.name()) + "(("+
+							returnType+")" + eu.eventstorm.cqrs.util.Jsons.class.getName() + ".readMapStringObject(parser));");
+				}
 		    	writeNewLine(writer);
 		    	
 		    } else {
