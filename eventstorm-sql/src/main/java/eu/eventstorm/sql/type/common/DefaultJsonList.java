@@ -12,6 +12,7 @@ import eu.eventstorm.sql.type.Json;
 import eu.eventstorm.sql.type.JsonList;
 import eu.eventstorm.sql.type.JsonMap;
 import eu.eventstorm.sql.type.SqlTypeException;
+import eu.eventstorm.util.ToStringBuilder;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -66,6 +67,13 @@ public final class DefaultJsonList implements Json, JsonList{
         } catch (IOException cause) {
             throw new SqlTypeException(SqlTypeException.Type.WRITE_JSON, of(PARAM_CONTENT_OBJECT, list), cause);
         }
+	}
+
+	@Override
+	public String toString() {
+		return new ToStringBuilder(this, false)
+				.append("list" , this.list)
+				.toString();
 	}
 
 }

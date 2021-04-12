@@ -134,5 +134,13 @@ public final class Expressions {
 	public static Expression eqJson(SqlColumn column, String key) {
 		return new JsonEqExpression(column, key);
 	}
-    
+
+    public static Expression eqJson(SqlColumn column, String key, String value) {
+        if (key.contains("[*]")) {
+            return new JsonExistsExpression(column, key, value);
+        } else {
+            return new JsonEqExpression(column, key, value);
+        }
+    }
+
 }

@@ -282,6 +282,13 @@ public final class FlywayGenerator {
 			
 			PojoDescriptor target = sourceCode.getPojoDescriptor(getClass(fk).toString());
 			PrimaryKey targetColumn;
+
+
+
+			if (target == null) {
+				logger.info("desc : " + ppd + "--> target : " + target + "--> class fk :" + getClass(fk) + "--> FK :" + fk);
+				return;
+			}
 			if (target.ids().size() != 1) {
 				throw new UnsupportedOperationException();
 			} else {

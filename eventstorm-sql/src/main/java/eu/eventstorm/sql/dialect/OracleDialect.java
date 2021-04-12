@@ -115,6 +115,11 @@ final class OracleDialect extends AbstractDialect {
 	}
 
 	@Override
+	public String functionJsonExists(String col, String key, String value) {
+		return "json_exists(" + col + ",'" + key + " ?(@ == \"" + value + "\")')";
+	}
+
+	@Override
 	public void init() {
     	// nothing to init -> skip.
 	}

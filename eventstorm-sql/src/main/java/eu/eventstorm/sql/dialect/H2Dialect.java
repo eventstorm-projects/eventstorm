@@ -86,5 +86,10 @@ final class H2Dialect extends AbstractDialect {
 	public String functionJsonValue(String col, String key, String value) {
 		return "json_value(" + col + ",'" + key + "') = " + value;
 	}
-	
+
+	@Override
+	public String functionJsonExists(String col, String key, String value) {
+    	return "json_exists(" + col + ",'" + key + "==" + value + "')";
+	}
+
 }

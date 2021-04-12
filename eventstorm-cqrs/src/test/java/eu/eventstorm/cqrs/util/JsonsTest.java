@@ -79,6 +79,17 @@ class JsonsTest {
     }
 
     @Test
+    void testReadStringObjectEmpty() throws IOException {
+        String value = "{}";
+
+        JsonFactory factory = new JsonFactory();
+        JsonParser parser = factory.createParser(value);
+        Map<String,String> map = ( Map<String,String>) Jsons.readMapStringObject(parser);
+
+        assertEquals(0, map.size());
+    }
+
+    @Test
     void testReadStringObjectArray() throws IOException {
 
         String value = "{ \"key1\" : \"value1\",  \"key2\" : \"value2\", \"key3\" : 123456, \"key4\" : [\"A\",\"B\",\"C\"]}";

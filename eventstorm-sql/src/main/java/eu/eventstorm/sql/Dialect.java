@@ -49,4 +49,6 @@ public interface Dialect {
 
 	String functionJsonValue(String col, String key, String value);
 
+	String functionJsonExists(String col, String key, String value);
+
 }

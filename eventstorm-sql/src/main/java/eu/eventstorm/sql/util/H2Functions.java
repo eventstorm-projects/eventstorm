@@ -1,6 +1,7 @@
 package eu.eventstorm.sql.util;
 
 import com.jayway.jsonpath.JsonPath;
+import net.minidev.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +39,21 @@ public final class H2Functions {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("json_exists: json {}, key: {}", key, json);
         }
-        return JsonPath.parse(json).read(key) != null;
+
+        String[] jsonPart = key.split("==");
+
+        Object object = JsonPath.parse(json).read(jsonPart[0]);
+
+        if (object == null) {
+            return false;
+        }
+        if (object instanceof JSONArray) {
+            JSONArray array = (JSONArray) object;
+            return array.contains(jsonPart[1]);
+        }
+
+        throw new IllegalStateException();
+
     }
 
 }
