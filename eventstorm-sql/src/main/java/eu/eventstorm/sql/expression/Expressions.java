@@ -55,6 +55,10 @@ public final class Expressions {
 		return new SimpleBooleanExpression(column, "<>", value);
 	}
 
+    public static Expression not(Expression expression) {
+        return (dialect, alias) -> "not (" + expression.build(dialect,alias) + ")";
+    }
+
     public static Expression ge(SqlColumn column) {
 		return new ParameterSimpleExpression(column, ">=");
     }
