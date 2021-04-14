@@ -54,7 +54,7 @@ public final class H2Functions {
         throw new IllegalStateException();
     }
 
-    public static boolean json_exists(String json, String key, String val) {
+    public static boolean json_exists_2(String json, String key, String val) {
         Objects.requireNonNull(json);
         Objects.requireNonNull(key);
         Objects.requireNonNull(val);

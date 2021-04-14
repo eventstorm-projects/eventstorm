@@ -97,7 +97,7 @@ final class H2Dialect extends AbstractDialect {
 	@Override
 	public String functionJsonExists(String col, String key, ImmutableList<JsonExpression> values) {
 		StringBuilder builder = new StringBuilder(256);
-		builder.append("json_exists(").append(col).append(",'").append(key).append("','");
+		builder.append("json_exists_2(").append(col).append(",'").append(key).append("','");
 		for (int i =0,n=values.size(); i < n ; i++) {
 			JsonExpression expression = values.get(i);
 			builder.append("@.");
