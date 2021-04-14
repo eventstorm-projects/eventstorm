@@ -153,7 +153,7 @@ final class OracleDialect extends AbstractDialect {
 				builder.append(')');
 			}
 		}
-    	builder.append(')');
+    	builder.append("')");
 
 		return builder.toString();
 	}
