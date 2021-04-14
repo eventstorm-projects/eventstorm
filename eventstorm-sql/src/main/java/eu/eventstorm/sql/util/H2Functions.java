@@ -51,8 +51,31 @@ public final class H2Functions {
             JSONArray array = (JSONArray) object;
             return array.contains(jsonPart[1]);
         }
-
         throw new IllegalStateException();
+    }
+
+    public static boolean json_exists(String json, String key, String val) {
+        Objects.requireNonNull(json);
+        Objects.requireNonNull(key);
+        Objects.requireNonNull(val);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("json_exists: json {}, key: {}, val: {}", key, json, val);
+        }
+
+
+        String predicate = key.replaceAll("\\*", val);
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("json_exists: predicate {}", predicate);
+        }
+
+        Object object = JsonPath.parse(json).read(predicate);
+
+        if (object == null) {
+            return false;
+        } else {
+            return true;
+        }
 
     }
 

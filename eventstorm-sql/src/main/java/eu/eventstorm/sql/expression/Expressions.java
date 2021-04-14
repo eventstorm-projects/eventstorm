@@ -132,14 +132,22 @@ public final class Expressions {
     }
 
 	public static Expression eqJson(SqlColumn column, String key) {
-		return new JsonEqExpression(column, key);
+		return new SingleJsonValueExpression(column, key);
 	}
+
+    public static Expression andJson(SqlColumn column, String key, JsonExpression left, JsonExpression right) {
+        return new JsonExistsExpression(column, key, ImmutableList.of(left, right));
+    }
+
+    public static Expression andJson(SqlColumn column, String key, JsonExpression left, JsonExpression right, JsonExpression ... others) {
+        return new JsonExistsExpression(column, key, ImmutableList.<JsonExpression>builder().add(left).add(right).addAll(Arrays.asList(others)).build());
+    }
 
     public static Expression eqJson(SqlColumn column, String key, String value) {
         if (key.contains("[*]")) {
-            return new JsonExistsExpression(column, key, value);
+            return new SingleJsonExpression(column, key, value);
         } else {
-            return new JsonEqExpression(column, key, value);
+            return new SingleJsonValueExpression(column, key, value);
         }
     }
 

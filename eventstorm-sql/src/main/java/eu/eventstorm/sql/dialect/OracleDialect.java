@@ -8,8 +8,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import com.google.common.collect.ImmutableList;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.desc.SqlSequence;
+import eu.eventstorm.sql.expression.JsonExpression;
 import eu.eventstorm.sql.type.Json;
 import eu.eventstorm.sql.type.Xml;
 import eu.eventstorm.sql.type.common.AbstractBlob;
@@ -117,6 +119,43 @@ final class OracleDialect extends AbstractDialect {
 	@Override
 	public String functionJsonExists(String col, String key, String value) {
 		return "json_exists(" + col + ",'" + key + " ?(@ == \"" + value + "\")')";
+	}
+
+	@Override
+	public String functionJsonExists(String col, String key, ImmutableList<JsonExpression> values) {
+    	StringBuilder builder = new StringBuilder(256);
+    	builder.append("json_exists(").append(col).append(",'").append(key).append(" ?(");
+    	for (int i =0,n=values.size(); i < n ; i++) {
+    		JsonExpression expression = values.get(i);
+    		builder.append("@.");
+			builder.append(expression.getField());
+
+			switch (expression.getOperation()) {
+				case EQUALS: {
+					builder.append("==");
+					break;
+				}
+				default:
+					builder.append("==");
+			}
+
+			if (expression.getValue() instanceof String) {
+				builder.append('"').append(expression.getValue()).append('"');
+			} else if (expression.getValue() instanceof Number) {
+				builder.append(expression.getValue());
+			} else {
+				throw new IllegalStateException();
+			}
+
+			if (i + 1 < n) {
+				builder.append(" && ");
+			} else {
+				builder.append(')');
+			}
+		}
+    	builder.append(')');
+
+		return builder.toString();
 	}
 
 	@Override

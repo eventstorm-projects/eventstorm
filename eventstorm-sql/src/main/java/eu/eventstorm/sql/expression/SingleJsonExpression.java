@@ -6,22 +6,16 @@ import eu.eventstorm.sql.desc.SqlColumn;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-abstract class AbstractJsonExpression implements Expression {
+final class SingleJsonExpression implements Expression {
 
     private final SqlColumn column;
     private final String key;
     private final String value;
 
-    public AbstractJsonExpression(SqlColumn column, String key, String value) {
+    public SingleJsonExpression(SqlColumn column, String key, String value) {
         this.column = column;
         this.key = key;
         this.value = value;
-    }
-
-    public AbstractJsonExpression(SqlColumn column, String key) {
-        this.column = column;
-        this.key = key;
-        this.value = "?";
     }
 
     @Override
@@ -32,8 +26,7 @@ abstract class AbstractJsonExpression implements Expression {
         }
         col += column.name();
 
-        return applyDialectFunction(dialect, col, key, value);
+        return dialect.functionJsonExists(col, key, value);
     }
 
-    protected abstract String applyDialectFunction(Dialect dialect, String col, String key, String value);
 }

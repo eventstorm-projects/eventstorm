@@ -6,9 +6,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import eu.eventstorm.sql.desc.SqlColumn;
 import eu.eventstorm.sql.desc.SqlSequence;
 import eu.eventstorm.sql.desc.SqlTable;
+import eu.eventstorm.sql.expression.JsonExpression;
 import eu.eventstorm.sql.type.Json;
 import eu.eventstorm.sql.type.Xml;
 import eu.eventstorm.util.FastByteArrayInputStream;
@@ -50,5 +53,7 @@ public interface Dialect {
 	String functionJsonValue(String col, String key, String value);
 
 	String functionJsonExists(String col, String key, String value);
+
+	String functionJsonExists(String col, String key, ImmutableList<JsonExpression> values);
 
 }
