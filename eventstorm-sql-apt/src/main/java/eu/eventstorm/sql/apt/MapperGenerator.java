@@ -165,7 +165,7 @@ final class MapperGenerator implements Generator {
                 }
                 Helper.writeNewLine(writer);
                 if (ppd.getter().getAnnotation(Column.class).nullable()
-                        && isLinkToPrimitive(ppd.getter().getReturnType().toString())) {
+                        && !isAPrimitive(ppd.getter().getReturnType().toString())) {
                     writer.write("        if (rs.wasNull()) {");
                     Helper.writeNewLine(writer);
                     writer.write("            pojo.");
@@ -196,7 +196,7 @@ final class MapperGenerator implements Generator {
                 }
                 Helper.writeNewLine(writer);
                 if (ppd.getter().getAnnotation(Column.class).nullable()
-                        && isLinkToPrimitive(ppd.getter().getReturnType().toString())) {
+                        && !isAPrimitive(ppd.getter().getReturnType().toString())) {
                     writer.write("        if (rs.wasNull()) {");
                     Helper.writeNewLine(writer);
                     writer.write("            pojo.");
@@ -373,14 +373,15 @@ final class MapperGenerator implements Generator {
     }
 
 
-    private static boolean isLinkToPrimitive(String type) {
+    private static boolean isAPrimitive(String type) {
 
-        return ("java.lang.Integer".equals(type) ||
-                "java.lang.Long".equals(type) ||
-                "java.lang.Short".equals(type) ||
-                "java.lang.Byte".equals(type) ||
-                "java.lang.Double".equals(type) ||
-                "java.lang.Float".equals(type));
+        return ("int".equals(type) ||
+                "long".equals(type) ||
+                "short".equals(type) ||
+                "byte".equals(type) ||
+                "boolean".equals(type) ||
+                "double".equals(type) ||
+                "float".equals(type));
 
     }
 
