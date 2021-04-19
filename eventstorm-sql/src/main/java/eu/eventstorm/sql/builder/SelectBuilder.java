@@ -113,8 +113,9 @@ public final class SelectBuilder extends AbstractBuilder {
 		}
 		builder.append("*) ");
 		appendFrom(builder);
-		appendWherePage(builder, pageRequest);
-
+        appendJoins(builder);
+        appendWherePage(builder, pageRequest);
+        appendOrder(this.orderBy, builder);
 		
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("SQL Pageable Count [{}]", builder);

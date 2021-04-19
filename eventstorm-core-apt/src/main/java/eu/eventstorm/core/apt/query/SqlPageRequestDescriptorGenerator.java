@@ -153,6 +153,8 @@ public final class SqlPageRequestDescriptorGenerator {
 				writer.write("            .put(\"" + property.name() + "\", filter -> (ps,index) -> { for (String value : filter.getValues()) { ps.setString(index++, value); } return index; })");
 			} else if (Timestamp.class.getName().equals(type)) {
 				writer.write("            .put(\"" + property.name() + "\", filter -> (ps,index) -> { for (String value : filter.getValues()) { ps.setTimestamp(index, "+ Dates.class.getName()+".convertTimestamp(value)); } return index; })");
+			} else {
+				writer.write("            // type [" + type + "] not supported.");
 			}
 			writeNewLine(writer);
 		}
