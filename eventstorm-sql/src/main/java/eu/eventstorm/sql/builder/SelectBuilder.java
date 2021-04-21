@@ -270,11 +270,6 @@ public final class SelectBuilder extends AbstractBuilder {
         if (this.from == null) {
             throw new SqlBuilderException(SELECT, of(METHOD,"leftJoin", "cause","call from() before this"));
         }
-
-        if (!this.from.contains(otherFrom)) {
-            throw new SqlBuilderException(SELECT, of(METHOD,"leftJoin", "cause ", "join column [" + otherColumn + "] not found in from clause"));
-        }
-        
         this.joins.add(new JoinClauseTable(this.database(), JoinType.LEFT, targetTable, targetColumn, otherFrom, otherColumn, expression));
         return this;
     }

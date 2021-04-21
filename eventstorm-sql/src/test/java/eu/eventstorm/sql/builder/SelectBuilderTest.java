@@ -120,12 +120,6 @@ class SelectBuilderTest {
         builder.leftJoin(TABLE_T2, COL_T2_01, COL_T1_01, eq(COL_T2_02));
         assertEquals("SELECT a.col_T1_01,a.col_T1_02,a.col_T1_03 FROM T1 a LEFT JOIN T2 b ON b.col_T2_01=a.col_T1_01 AND b.col_T2_02=?", builder.<SqlQuery>build().sql());
 
-        // test exceptions
-        SelectBuilder builderEx = new SelectBuilder(database, of(COL_T1_01, COL_T1_02, COL_T1_03));
-        builderEx.from(TABLE_T3);
-        SqlBuilderException ex = assertThrows(SqlBuilderException.class, () -> builderEx.leftJoin(TABLE_T2, COL_T2_01, COL_T1_01));
-        
-        assertEquals("leftJoin", ex.getValues().get(SelectBuilder.METHOD));
     }
 
     @Test

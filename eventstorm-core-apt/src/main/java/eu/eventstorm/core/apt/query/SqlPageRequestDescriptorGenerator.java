@@ -29,6 +29,7 @@ import eu.eventstorm.sql.desc.SqlColumn;
 import eu.eventstorm.sql.page.PreparedStatementIndexSetter;
 import eu.eventstorm.sql.page.SqlPageRequestDescriptor;
 import eu.eventstorm.sql.page.SqlPageRequestDescriptorException;
+import eu.eventstorm.sql.type.Json;
 import eu.eventstorm.sql.util.Dates;
 
 /**
@@ -153,6 +154,8 @@ public final class SqlPageRequestDescriptorGenerator {
 				writer.write("            .put(\"" + property.name() + "\", filter -> (ps,index) -> { for (String value : filter.getValues()) { ps.setString(index++, value); } return index; })");
 			} else if (Timestamp.class.getName().equals(type)) {
 				writer.write("            .put(\"" + property.name() + "\", filter -> (ps,index) -> { for (String value : filter.getValues()) { ps.setTimestamp(index, "+ Dates.class.getName()+".convertTimestamp(value)); } return index; })");
+			} else if (Json.class.equals(type)) {
+				writer.write("            // json");
 			} else {
 				writer.write("            // type [" + type + "] not supported.");
 			}
