@@ -141,7 +141,7 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
             sink.error(exception);
             return;
         }
-fix
+
         try {
             postValidate(tuple.getT1(), tuple.getT2());
             sink.next(tuple);
