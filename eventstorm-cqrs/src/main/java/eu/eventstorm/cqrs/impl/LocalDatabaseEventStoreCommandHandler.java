@@ -101,7 +101,6 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
         return Mono.just(tp)
                 .publishOn(eventLoop.get(tp.getT2()))
                 .handle(this::storeAndEvolution)
-                .onErrorResume(LocalDatabaseStorageException.class, ex -> this.eventLoopStoreAndEvolution(tp))
                 ;
     }
 
@@ -142,7 +141,7 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
             sink.error(exception);
             return;
         }
-
+fix
         try {
             postValidate(tuple.getT1(), tuple.getT2());
             sink.next(tuple);
