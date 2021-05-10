@@ -5,6 +5,7 @@ import net.minidev.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Locale;
 import java.util.Objects;
 
 /**
@@ -56,26 +57,26 @@ public final class H2Functions {
 
     public static boolean json_exists_2(String json, String key, String val) {
         Objects.requireNonNull(json);
-        Objects.requireNonNull(key);
         Objects.requireNonNull(val);
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("json_exists: json {}, key: {}, val: {}", key, json, val);
+            LOGGER.debug("json_exists: json {}, key: [{}] val: [{}]", json, key, val);
         }
 
+        Object object;
 
-        String predicate = key.replaceAll("\\*", val);
+        if (key.contains("*")) {
+            String predicate =  key.replaceAll("\\*",val);
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("json_exists: predicate {}", predicate);
-        }
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("json_exists: predicate {}", predicate);
+            }
 
-        Object object = JsonPath.parse(json).read(predicate);
-
-        if (object == null) {
-            return false;
+            object = JsonPath.parse(json).read(predicate);
         } else {
-            return true;
+            object = null;
         }
+
+        return object != null;
 
     }
 
