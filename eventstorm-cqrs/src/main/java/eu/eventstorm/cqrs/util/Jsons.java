@@ -79,6 +79,40 @@ public final class Jsons {
         return mapBuilder.build();
     }
 
+    public static <T> List<T> readList(JsonParser parser,Class<T> clazz) throws IOException {
+        com.google.common.collect.ImmutableList.Builder<T> builder = com.google.common.collect.ImmutableList.builder();
+
+        parser.nextToken();
+
+        while (parser.currentToken() != JsonToken.END_ARRAY) {
+            if (parser.currentToken() == JsonToken.VALUE_STRING) {
+                throw new IOException("String value not allow");
+            } else if (parser.currentToken() == JsonToken.VALUE_NUMBER_INT) {
+                throw new IOException("number value not allow");
+            } else if (parser.currentToken() == JsonToken.START_OBJECT) {
+                builder.add(parser.readValueAs(clazz));
+            } else {
+                throw new RuntimeException();
+            }
+            parser.nextToken();
+        }
+        return builder.build();
+    }
+
+    public static List<String> readListString(JsonParser parser) throws IOException {
+        com.google.common.collect.ImmutableList.Builder<String> builder = com.google.common.collect.ImmutableList.builder();
+        parser.nextToken();
+        while (parser.currentToken() != JsonToken.END_ARRAY) {
+            if (parser.currentToken() == JsonToken.VALUE_STRING) {
+                builder.add(parser.getText());
+            } else {
+                throw new IOException("JsonToken [" + parser.currentToken() +"] not allow");
+            }
+            parser.nextToken();
+        }
+        return builder.build();
+    }
+
     public static List<?> readList(JsonParser parser) throws IOException {
         com.google.common.collect.ImmutableList.Builder<? super Object> builder = com.google.common.collect.ImmutableList.builder();
 

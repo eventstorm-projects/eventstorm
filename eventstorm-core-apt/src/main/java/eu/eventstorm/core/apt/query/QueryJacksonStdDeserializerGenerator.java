@@ -162,48 +162,13 @@ public final class QueryJacksonStdDeserializerGenerator {
 		    String returnType = getReturnType(cpd.getter());
 		    
 		    if (returnType.startsWith(List.class.getName())) {
-		    	writer.write("				");
-		    	String fcqnTarget = returnType.substring(15, returnType.length()-1);
-		    	String fcqnTargetSimpleName = fcqnTarget.substring(fcqnTarget.lastIndexOf('.') + 1);
-		    	writer.write(cd.fullyQualidiedClassName() + "__"+fcqnTargetSimpleName + "__Builder childBuilder = builder.with" + Helper.firstToUpperCase(cpd.name()) + "();");
-		    	writeNewLine(writer);
-		    	writer.write("				ctxt.setAttribute(\""+ fcqnTarget +"\", childBuilder);");
-		    	writeNewLine(writer);
-		    	writer.write("				parser.nextToken();");
-		    	writeNewLine(writer);
-		    	writer.write("                while (parser.currentToken() != JsonToken.END_ARRAY) {");
-		    	writeNewLine(writer);
-		    	writer.write("                    if (parser.nextToken() == JsonToken.START_OBJECT) {");
-		    	writeNewLine(writer);
-		    	writer.write("                        childBuilder.and(ctxt.readValue(parser, " + fcqnTarget + ".class));");
-		    	writeNewLine(writer);
-		    	writer.write("                    }");
-		    	writeNewLine(writer);
-		    	writer.write("                }");
-		    	writeNewLine(writer);
-		    	
+				if (returnType.equals(List.class.getName()+ "<String>")) {
+					writer.write("				builder.with" + Helper.firstToUpperCase(cpd.name()) + "(" + eu.eventstorm.cqrs.util.Jsons.class.getName() + ".readListString(parser));");
+				} else{
+					writer.write("				builder.with" + Helper.firstToUpperCase(cpd.name()) + "(" + eu.eventstorm.cqrs.util.Jsons.class.getName() + ".readList(parser, " + returnType.substring(15, returnType.length()-1)  +".class));");
+				}
+				writeNewLine(writer);
 		    } else if (returnType.startsWith(Map.class.getName())) {
-
-		    	/*
-		    	writer.write("				" + ImmutableMap.class.getName() + ".Builder<String,String> mapBuilder = " + ImmutableMap.class.getName() + ".builder();");
-		    	writeNewLine(writer);
-		    	writer.write("				// FIELD");
-		    	writeNewLine(writer);
-		    	writer.write("				parser.nextToken();");
-				writeNewLine(writer);
-				writer.write("				// START_OBJECT");
-				writeNewLine(writer);
-				writer.write("				parser.nextToken();");
-				writeNewLine(writer);
-		    	writer.write("				while (parser.currentToken() != JsonToken.END_OBJECT) {");
-		    	writeNewLine(writer);
-				writer.write("				    mapBuilder.put(parser.currentName(), parser.nextTextValue());");
-			    writeNewLine(writer);
-			    writer.write("				    parser.nextToken();");
-			    writeNewLine(writer);
-		    	writer.write("				}");
-		    	writeNewLine(writer);
-		    	 */
 				if (returnType.equals(Map.class.getName()+ "<String,String>")) {
 					writer.write("				builder.with" + Helper.firstToUpperCase(cpd.name()) + "(" + eu.eventstorm.cqrs.util.Jsons.class.getName() + ".readMapStringString(parser));");
 				} else{
