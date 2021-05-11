@@ -232,6 +232,8 @@ public final class CommandJacksonStdDeserializerGenerator {
 		    
 			    if ("java.lang.String".equals(returnType)) {
 					writer.write("parser.nextTextValue()");
+				} else if ("byte".equals(returnType) || "java.lang.Byte".equals(returnType)) {
+					writer.write("(byte)parser.nextIntValue(0)");
 				} else if ("int".equals(returnType) || "java.lang.Integer".equals(returnType)) {
 					writer.write("parser.nextIntValue(0)");
 				} else if ("long".equals(returnType) || "java.lang.Long".equals(returnType)) {
