@@ -19,14 +19,6 @@ import javax.tools.JavaFileObject;
 
 import com.google.common.collect.ImmutableList;
 
-import eu.eventstorm.core.apt.SourceCode;
-import eu.eventstorm.core.apt.model.AbstractCommandDescriptor;
-import eu.eventstorm.core.apt.model.PropertyDescriptor;
-import eu.eventstorm.core.validation.Validator;
-import eu.eventstorm.core.validation.ValidatorContext;
-import eu.eventstorm.sql.apt.Helper;
-import eu.eventstorm.sql.apt.log.Logger;
-import eu.eventstorm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.annotation.Constraint;
 import eu.eventstorm.annotation.CqrsCommand;
 import eu.eventstorm.annotation.CqrsCommandType;
@@ -36,8 +28,17 @@ import eu.eventstorm.annotation.constraint.CustomPropertyValidator;
 import eu.eventstorm.annotation.constraint.InstantiatorType;
 import eu.eventstorm.annotation.constraint.NotEmpty;
 import eu.eventstorm.annotation.constraint.NotNull;
+import eu.eventstorm.annotation.constraint.Size;
+import eu.eventstorm.core.apt.SourceCode;
+import eu.eventstorm.core.apt.model.AbstractCommandDescriptor;
+import eu.eventstorm.core.apt.model.PropertyDescriptor;
 import eu.eventstorm.core.validation.ConstraintViolation;
 import eu.eventstorm.core.validation.PropertyValidators;
+import eu.eventstorm.core.validation.Validator;
+import eu.eventstorm.core.validation.ValidatorContext;
+import eu.eventstorm.sql.apt.Helper;
+import eu.eventstorm.sql.apt.log.Logger;
+import eu.eventstorm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.util.tuple.Tuple2;
 import eu.eventstorm.util.tuple.Tuples;
 
@@ -200,6 +201,7 @@ public final class CommandValidatorGenerator {
 
 	private void writeMethodPart(Writer writer, AbstractCommandDescriptor descriptor, PropertyDescriptor ppd, AnnotationMirror am) throws IOException {
        
+		//TODO if more than one => append and();
         if (NotEmpty.class.getName().equals(am.getAnnotationType().asElement().toString())) {
             writeMethodPartNotEmpty(writer, descriptor, ppd, am);
             return;
@@ -207,6 +209,11 @@ public final class CommandValidatorGenerator {
         
         if (NotNull.class.getName().equals(am.getAnnotationType().asElement().toString())) {
             writeMethodPartNotNull(writer, descriptor, ppd, am);
+            return;
+        }
+        
+        if (Size.class.getName().equals(am.getAnnotationType().asElement().toString())) {
+            writeMethodPartSize(writer, descriptor, ppd, am);
             return;
         }
 
@@ -246,6 +253,16 @@ public final class CommandValidatorGenerator {
     	writeNewLine(writer);
     }
 
+    private void writeMethodPartSize(Writer writer, AbstractCommandDescriptor descriptor, PropertyDescriptor ppd, AnnotationMirror am) throws IOException {
+    	Size size = (Size) am.getAnnotationType().asElement();
+        writeNewLine(writer);
+        writer.write("        // validate property " + ppd.name() + " from " + am.toString());
+    	writeNewLine(writer);
+    	writer.write("        PropertyValidators.size("+ size.min() +"," + size.max()+","+ size.code() +").validate(PROPERTY_");
+    	writer.write(Helper.toUpperCase(ppd.name())+", ");
+        writer.write("command." + ppd.getter().getSimpleName().toString() + "(), context);");
+    	writeNewLine(writer);
+    }
     
     private void writeMethodPartCustomPropertyValidator(Writer writer, AbstractCommandDescriptor descriptor, PropertyDescriptor ppd, AnnotationMirror am) throws IOException {
         writeNewLine(writer);

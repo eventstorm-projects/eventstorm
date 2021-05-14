@@ -8,6 +8,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
+import static eu.eventstorm.core.validation.PropertyValidators.listNotEmpty;
+import static eu.eventstorm.core.validation.PropertyValidators.notEmpty;
+import static eu.eventstorm.core.validation.PropertyValidators.notNull;
+import static eu.eventstorm.core.validation.PropertyValidators.size;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -18,27 +22,27 @@ class PropertyValidatorsTest {
 	void testIsEmpty() {
 		ValidatorContext context = new ValidatorContextImpl();
 
-		PropertyValidators.notEmpty().validate("fake", null, context);
+		notEmpty().validate("fake", null, context);
 		assertTrue(context.hasConstraintViolation());
 
 		context = new ValidatorContextImpl();
-		PropertyValidators.notEmpty().validate("fake", "", context);
+		notEmpty().validate("fake", "", context);
 		assertTrue(context.hasConstraintViolation());
 
 		context = new ValidatorContextImpl();
-		PropertyValidators.notEmpty().validate("fake", "VAL", context);
+		notEmpty().validate("fake", "VAL", context);
 		assertFalse(context.hasConstraintViolation());
 
 		context = new ValidatorContextImpl();
-		PropertyValidators.listNotEmpty().validate("fake", null, context);
+		listNotEmpty().validate("fake", null, context);
 		assertTrue(context.hasConstraintViolation());
 
 		context = new ValidatorContextImpl();
-		PropertyValidators.listNotEmpty().validate("fake", new ArrayList<>(), context);
+		listNotEmpty().validate("fake", new ArrayList<>(), context);
 		assertTrue(context.hasConstraintViolation());
 
 		context = new ValidatorContextImpl();
-		PropertyValidators.listNotEmpty().validate("fake", ImmutableList.of("test"), context);
+		listNotEmpty().validate("fake", ImmutableList.of("test"), context);
 		assertFalse(context.hasConstraintViolation());
 	}
 	
@@ -46,13 +50,49 @@ class PropertyValidatorsTest {
 	void testIsNull() {
 
 		ValidatorContext context = new ValidatorContextImpl();
-		PropertyValidators.notNull().validate("fake", null, context);
+		notNull().validate("fake", null, context);
 		assertTrue(context.hasConstraintViolation());
 
 		context = new ValidatorContextImpl();
-		PropertyValidators.notNull().validate("fake", LocalDate.now(), context);
+		notNull().validate("fake", LocalDate.now(), context);
 		assertFalse(context.hasConstraintViolation());
 		
+	}
+	
+	@Test
+	void testSizeForString() {
+
+		ValidatorContext context = new ValidatorContextImpl();
+		size(1,4,"X23").validate("property", "FAKEE", context);
+		assertTrue(context.hasConstraintViolation());
+
+		context = new ValidatorContextImpl();
+		size(1,4,"X23").validate("property", "", context);
+		assertTrue(context.hasConstraintViolation());
+		
+		context = new ValidatorContextImpl();
+		size(1,4,"X23").validate("property", "FAKE", context);
+		assertFalse(context.hasConstraintViolation());
+		
+		context = new ValidatorContextImpl();
+		size(1,4,"X23").validate("property", "F", context);
+		assertFalse(context.hasConstraintViolation());
+		
+	}
+	
+	@Test
+	void testAnd() {
+		ValidatorContext context = new ValidatorContextImpl();
+		PropertyValidators.and(notEmpty(),size(1,4,"X23")).validate("property", "FAKEE", context);
+		assertTrue(context.hasConstraintViolation());
+		
+		context = new ValidatorContextImpl();
+		PropertyValidators.and(notEmpty(),size(1,4,"X23")).validate("property", null, context);
+		assertTrue(context.hasConstraintViolation());
+		
+		context = new ValidatorContextImpl();
+		PropertyValidators.and(notEmpty(),size(1,4,"X23")).validate("property", "GOOD", context);
+		assertFalse(context.hasConstraintViolation());
 	}
 
 }
