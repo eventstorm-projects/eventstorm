@@ -12,6 +12,7 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Map;
 
 import static eu.eventstorm.sql.apt.Helper.writeGenerated;
 import static eu.eventstorm.sql.apt.Helper.writeNewLine;
@@ -227,12 +228,26 @@ public final class QueryClientServiceGenerator {
         if (Strings.isEmpty(epd.getAnnotation().cacheFactoryBean())) {
             writer.write("        return this.webClient.get()");
             writeNewLine(writer);
-            writer.write("                .uri(\"" + ed.element().getAnnotation(CqrsQueryClientService.class).uri() + "/" + epd.getAnnotation().path() + "\"");
-            if (epd.getParameters().size() > 0) {
-                writer.write(", " + loggerParamsValue.toString());
+
+            if (epd.getParameters().stream().anyMatch(p -> p.getType().startsWith(Map.class.getName()))) {
+                writer.write("                .uri(uriBuilder -> {");
+                writeNewLine(writer);
+                writer.write("                    uriBuilder.path(\"" + ed.element().getAnnotation(CqrsQueryClientService.class).uri() + "/" + epd.getAnnotation().path() + "\");");
+                writeNewLine(writer);
+                writer.write("                    " + epd.getParameters().get(epd.getParameters().size()-1).getName() + ".forEach((key,value) -> uriBuilder.queryParam(key,value));");
+                writeNewLine(writer);
+                writer.write("                    return uriBuilder.build();");
+                writeNewLine(writer);
+                writer.write("                })");
+                writeNewLine(writer);
+            } else {
+                writer.write("                .uri(\"" + ed.element().getAnnotation(CqrsQueryClientService.class).uri() + "/" + epd.getAnnotation().path() + "\"");
+                if (epd.getParameters().size() > 0) {
+                    writer.write(", " + loggerParamsValue);
+                }
+                writer.write(")");
+                writeNewLine(writer);
             }
-            writer.write(")");
-            writeNewLine(writer);
             writer.write("                .retrieve()");
             writeNewLine(writer);
             if (epd.getMethod().getReturnType().toString().contains("reactor.core.publisher.Flux<")) {
