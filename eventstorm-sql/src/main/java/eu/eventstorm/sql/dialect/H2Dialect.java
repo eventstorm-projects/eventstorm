@@ -1,21 +1,19 @@
 package eu.eventstorm.sql.dialect;
 
-import java.sql.Blob;
-import java.sql.Clob;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import com.google.common.collect.ImmutableList;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.RawSqlExecutor;
 import eu.eventstorm.sql.desc.SqlSequence;
-import eu.eventstorm.sql.expression.JsonExpression;
 import eu.eventstorm.sql.type.Json;
 import eu.eventstorm.sql.type.Xml;
 import eu.eventstorm.sql.type.common.BlobJson;
 import eu.eventstorm.sql.type.common.BlobXml;
 import eu.eventstorm.util.FastByteArrayInputStream;
+
+import java.sql.Blob;
+import java.sql.Clob;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 final class H2Dialect extends AbstractDialect {
 
@@ -85,16 +83,12 @@ final class H2Dialect extends AbstractDialect {
 	}
 
 	@Override
-	public String functionJsonValue(String col, String key, String value) {
-		return "json_value(" + col + ",'" + key + "') = " + value;
+	public String functionJsonExists(String col, String path) {
+		return "json_exists(" + col + ",'" + path + "')";
 	}
 
-	@Override
-	public String functionJsonExists(String col, String key, String value) {
-    	return "json_exists(" + col + ",'" + key + "==" + value + "')";
-	}
 
-	@Override
+/*	@Override
 	public String functionJsonExists(String col, String key, ImmutableList<JsonExpression> values) {
 		StringBuilder builder = new StringBuilder(256);
 		builder.append("json_exists_2(").append(col).append(",'").append(key).append("','");
@@ -132,5 +126,5 @@ final class H2Dialect extends AbstractDialect {
 		builder.append("')");
 		return builder.toString();
 	}
-
+*/
 }

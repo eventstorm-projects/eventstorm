@@ -1,6 +1,5 @@
 package eu.eventstorm.sql.expression;
 
-import com.google.common.collect.ImmutableList;
 import eu.eventstorm.sql.Dialect;
 import eu.eventstorm.sql.desc.SqlColumn;
 
@@ -9,29 +8,23 @@ import eu.eventstorm.sql.desc.SqlColumn;
  */
 final class JsonExistsExpression implements Expression {
 
-	private final SqlColumn column;
-	private final String key;
-	private final ImmutableList<JsonExpression> expressions;
+    private final SqlColumn column;
+    private final String path;
 
-	JsonExistsExpression(SqlColumn column, String key, ImmutableList<JsonExpression> expressions) {
-		this.column = column;
-		this.key = key;
-		this.expressions = expressions;
-	}
+    public JsonExistsExpression(SqlColumn column, String path) {
+        this.column = column;
+        this.path = path;
+    }
 
-	@Override
-	public String build(Dialect dialect, boolean alias) {
-		String col = "";
-		if (alias) {
-			col = column.table().alias() + '.';
-		}
-		col += column.name();
+    @Override
+    public String build(Dialect dialect, boolean alias) {
+        String col = "";
+        if (alias) {
+            col = column.table().alias() + '.';
+        }
+        col += column.name();
 
-		return dialect.functionJsonExists(col, key, expressions);
-	}
+        return dialect.functionJsonExists(col, path);
+    }
 
-	@Override
-	public int countParameter() {
-		return 0;
-	}
 }

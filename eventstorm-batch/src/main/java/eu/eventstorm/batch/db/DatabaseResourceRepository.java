@@ -1,9 +1,13 @@
 package eu.eventstorm.batch.db;
 
+import com.google.common.collect.ImmutableList;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.builder.SelectBuilder;
+import eu.eventstorm.sql.expression.Expression;
+import eu.eventstorm.sql.jdbc.PreparedStatementSetters;
 import eu.eventstorm.sql.jdbc.ResultSetMapper;
 
+import java.sql.PreparedStatement;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -15,7 +19,7 @@ import static eu.eventstorm.batch.db.DatabaseResourceDescriptor.ID;
 import static eu.eventstorm.batch.db.DatabaseResourceDescriptor.META;
 import static eu.eventstorm.batch.db.DatabaseResourceDescriptor.TABLE;
 import static eu.eventstorm.sql.expression.Expressions.and;
-import static eu.eventstorm.sql.expression.Expressions.eqJson;
+import static eu.eventstorm.sql.expression.Expressions.jsonExists;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -29,21 +33,20 @@ public final class DatabaseResourceRepository extends AbstractDatabaseResourceRe
 	public <T> Stream<T> findByMeta(LinkedHashMap<String, String> meta, ResultSetMapper<T> mapper) {
 
 		SelectBuilder selectBuilder = select(ID, META, CREATED_BY, CREATED_AT).from(TABLE);
+		ImmutableList.Builder<Expression> builder = ImmutableList.builder();
+		meta.forEach((key,value) -> {
+			// $.[?(@.expensive==10)]
+			builder.add(jsonExists(META, "$.[?(@."+ key +"==\""+ value +"\")]"));
+		});
+		ImmutableList<Expression> expressions = builder.build();
 
-		if (meta.size() == 1) {
-			selectBuilder.where(eqJson(META, "$." + meta.keySet().iterator().next()));
-		} else if (meta.size() == 2) {
-			Iterator<String> it = meta.keySet().iterator();
-			selectBuilder.where(and(eqJson(META, it.next()), eqJson(META, it.next())));
+		if (expressions.size() == 1) {
+			selectBuilder.where(expressions.get(0));
 		} else {
-			
+			selectBuilder.where(and(expressions));
 		}
-		return stream(selectBuilder.build(), ps -> {
-			int index = 1;
-			for (Map.Entry<String,String> entry : meta.entrySet()) {
-				ps.setString(index++, entry.getValue());
-			}
-		}, mapper);
+
+		return stream(selectBuilder.build(), PreparedStatementSetters.noParameter(), mapper);
 	}
 	
 }

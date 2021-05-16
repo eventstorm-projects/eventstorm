@@ -1,20 +1,18 @@
 package eu.eventstorm.sql;
 
+import com.google.common.collect.ImmutableList;
+import eu.eventstorm.sql.desc.SqlColumn;
+import eu.eventstorm.sql.desc.SqlSequence;
+import eu.eventstorm.sql.desc.SqlTable;
+import eu.eventstorm.sql.type.Json;
+import eu.eventstorm.sql.type.Xml;
+import eu.eventstorm.util.FastByteArrayInputStream;
+
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import eu.eventstorm.sql.desc.SqlColumn;
-import eu.eventstorm.sql.desc.SqlSequence;
-import eu.eventstorm.sql.desc.SqlTable;
-import eu.eventstorm.sql.expression.JsonExpression;
-import eu.eventstorm.sql.type.Json;
-import eu.eventstorm.sql.type.Xml;
-import eu.eventstorm.util.FastByteArrayInputStream;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -50,10 +48,6 @@ public interface Dialect {
 	
 	void setPreparedStatement(PreparedStatement ps, int index, Clob clob) throws SQLException;
 
-	String functionJsonValue(String col, String key, String value);
-
-	String functionJsonExists(String col, String key, String value);
-
-	String functionJsonExists(String col, String key, ImmutableList<JsonExpression> values);
+	String functionJsonExists(String col, String path);
 
 }

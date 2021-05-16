@@ -5,7 +5,6 @@ import net.minidev.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Locale;
 import java.util.Objects;
 
 /**
@@ -26,7 +25,6 @@ public final class H2Functions {
         }
 
         Object value = JsonPath.parse(json).read(key);
-
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("json_value: key {}, value: {}", key, value);
         }
@@ -34,25 +32,30 @@ public final class H2Functions {
         return String.valueOf(value);
     }
 
-    public static boolean json_exists(String json, String key) {
+    public static boolean json_exists(String json, String path) {
         Objects.requireNonNull(json);
-        Objects.requireNonNull(key);
+        Objects.requireNonNull(path);
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("json_exists: json {}, key: {}", key, json);
+            LOGGER.debug("json_exists: json {}, path: {}", json, path);
         }
 
-        String[] jsonPart = key.split("==");
+        Object object = null;
+        try {
+             object = JsonPath.parse(json).read(path);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
 
-        Object object = JsonPath.parse(json).read(jsonPart[0]);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("json_exists: result {}", object);
+        }
 
         if (object == null) {
             return false;
         }
-        if (object instanceof JSONArray) {
-            JSONArray array = (JSONArray) object;
-            return array.contains(jsonPart[1]);
-        }
-        throw new IllegalStateException();
+
+        JSONArray array = (JSONArray) object;
+        return (!array.isEmpty());
     }
 
     public static boolean json_exists_2(String json, String key, String val) {

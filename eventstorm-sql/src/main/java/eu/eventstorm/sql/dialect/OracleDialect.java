@@ -1,17 +1,7 @@
 package eu.eventstorm.sql.dialect;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.sql.Blob;
-import java.sql.Clob;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import com.google.common.collect.ImmutableList;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.desc.SqlSequence;
-import eu.eventstorm.sql.expression.JsonExpression;
 import eu.eventstorm.sql.type.Json;
 import eu.eventstorm.sql.type.Xml;
 import eu.eventstorm.sql.type.common.AbstractBlob;
@@ -21,6 +11,18 @@ import eu.eventstorm.sql.type.common.BlobXml;
 import eu.eventstorm.util.FastByteArrayInputStream;
 import eu.eventstorm.util.Streams;
 import eu.eventstorm.util.Strings;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.sql.Blob;
+import java.sql.Clob;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 final class OracleDialect extends AbstractDialect {
 
@@ -110,17 +112,13 @@ final class OracleDialect extends AbstractDialect {
 		}
 		ps.setClob(index, oracleClob);
 	}
-	
-	@Override
-	public String functionJsonValue(String col, String key, String value) {
-		return "json_value(" + col + ",'"+ key +"') = " + value;
-	}
 
 	@Override
-	public String functionJsonExists(String col, String key, String value) {
-		return "json_exists(" + col + ",'" + key + " ?(@ == \"" + value + "\")')";
+	public String functionJsonExists(String col, String path) {
+		return "json_exists(" + col + ",'" + path + "')";
 	}
 
+	/*
 	@Override
 	public String functionJsonExists(String col, String key, ImmutableList<JsonExpression> values) {
     	StringBuilder builder = new StringBuilder(256);
@@ -157,6 +155,7 @@ final class OracleDialect extends AbstractDialect {
 
 		return builder.toString();
 	}
+	 */
 
 	@Override
 	public void init() {
