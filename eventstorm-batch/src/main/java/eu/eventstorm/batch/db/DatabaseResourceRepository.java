@@ -7,10 +7,7 @@ import eu.eventstorm.sql.expression.Expression;
 import eu.eventstorm.sql.jdbc.PreparedStatementSetters;
 import eu.eventstorm.sql.jdbc.ResultSetMapper;
 
-import java.sql.PreparedStatement;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.stream.Stream;
 
 import static eu.eventstorm.batch.db.DatabaseResourceDescriptor.CREATED_AT;
