@@ -232,7 +232,9 @@ public final class QueryClientServiceGenerator {
             if (epd.getParameters().stream().anyMatch(p -> p.getType().startsWith(Map.class.getName()))) {
                 writer.write("                .uri(uriBuilder -> {");
                 writeNewLine(writer);
-                writer.write("                    uriBuilder.path(\"" + ed.element().getAnnotation(CqrsQueryClientService.class).uri() + "/" + epd.getAnnotation().path() + "\");");
+                writer.write("                    uriBuilder.host(\"" + ed.element().getAnnotation(CqrsQueryClientService.class).uri() + "\");");
+                writeNewLine(writer);
+                writer.write("                    uriBuilder.path(\"" + epd.getAnnotation().path() + "\");");
                 writeNewLine(writer);
                 writer.write("                    " + epd.getParameters().get(epd.getParameters().size()-1).getName() + ".forEach((key,value) -> uriBuilder.queryParam(key,value));");
                 writeNewLine(writer);
