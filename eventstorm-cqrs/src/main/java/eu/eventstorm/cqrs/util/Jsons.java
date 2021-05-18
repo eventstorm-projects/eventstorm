@@ -84,6 +84,11 @@ public final class Jsons {
 
         parser.nextToken();
 
+        if (JsonToken.START_ARRAY != parser.currentToken()) {
+            throw new IOException("JsonToken [" + parser.currentToken() +"] not allow, expected [START_ARRAY]");
+        }
+        parser.nextToken();
+
         while (parser.currentToken() != JsonToken.END_ARRAY) {
             if (parser.currentToken() == JsonToken.VALUE_STRING) {
                 throw new IOException("String value not allow");

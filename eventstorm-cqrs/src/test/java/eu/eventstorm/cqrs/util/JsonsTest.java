@@ -3,8 +3,10 @@ package eu.eventstorm.cqrs.util;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.shadow.com.univocity.parsers.annotations.LowerCase;
 
 import java.io.IOException;
 import java.util.List;
@@ -139,4 +141,41 @@ class JsonsTest {
         assertEquals("B_4_2", tmp.get("k4_2"));
 
     }
+
+    @Test
+    void testReadList() throws IOException{
+
+        String value = "{\"roles\": [{\"id\": \"00001745-05fc-6f45-0000-100000001000\",\"name\": \"Jacques\",\"rank\": 10}]}";
+
+        JsonFactory factory = new ObjectMapper().getFactory();
+        JsonParser parser = factory.createParser(value);
+
+        // Start object
+        parser.nextToken();
+        // String
+        parser.nextToken();
+
+        Assertions.assertEquals("roles", parser.currentName());
+        List<Info> infos = Jsons.readList(parser, Info.class);
+        assertEquals(1, infos.size());
+        assertEquals("00001745-05fc-6f45-0000-100000001000", infos.get(0).getId());
+        assertEquals("Jacques", infos.get(0).getName());
+        assertEquals(10, infos.get(0).getRank());
+    }
+
+    private static class Info {
+        private String id;
+        private String name;
+        private int rank;
+        public String getId() {
+            return id;
+        }
+        public String getName() {
+            return name;
+        }
+        public int getRank() {
+            return rank;
+        }
+    }
+
 }
