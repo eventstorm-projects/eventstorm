@@ -92,7 +92,7 @@ public final class Jsons {
             } else if (parser.currentToken() == JsonToken.START_OBJECT) {
                 builder.add(parser.readValueAs(clazz));
             } else {
-                throw new RuntimeException();
+                throw new IOException("JsonToken [" + parser.currentToken() +"] not allow");
             }
             parser.nextToken();
         }
