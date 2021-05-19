@@ -290,6 +290,7 @@ public final class FlywayGenerator {
 				return;
 			}
 			if (target.ids().size() != 1) {
+				logger.error("desc : " + ppd + "--> target : " + target + "--> class fk :" + getClass(fk) + "--> FK :" + fk);
 				throw new UnsupportedOperationException();
 			} else {
 				targetColumn = target.ids().get(0).getter().getAnnotation(PrimaryKey.class);
