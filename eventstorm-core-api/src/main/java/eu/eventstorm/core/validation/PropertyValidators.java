@@ -47,7 +47,7 @@ public final class PropertyValidators {
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("size({},{},{}) for [{}] with value [{}]", min, max, code, property, value);
 			}
-			int len = value.length();
+			int len = Strings.isEmpty(value) ? 0 : value.length();
 			if (len < min) {
 				context.add(ConstraintViolations.ofRule(code, ImmutableMap.of("property", property, "min", len)));
 				return;
@@ -65,11 +65,11 @@ public final class PropertyValidators {
 				LOGGER.debug("size({},{},{}) for [{}] with value [{}]", min, max, code, property, value);
 			}
 			int len = value.size();
-			if (len < min) {
+			if (len <= min) {
 				context.add(ConstraintViolations.ofRule(code, ImmutableMap.of("property", property, "min", len)));
 				return;
 			}
-			if (len > max) {
+			if (len >= max) {
 				context.add(ConstraintViolations.ofRule(code, ImmutableMap.of("property", property, "max", len)));
 				return;
 			}
