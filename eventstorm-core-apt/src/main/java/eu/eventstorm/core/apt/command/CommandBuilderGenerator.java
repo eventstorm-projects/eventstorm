@@ -371,8 +371,8 @@ public final class CommandBuilderGenerator {
 		writeNewLine(writer);
         writer.write("    public T parent() { ");
         writeNewLine(writer);
-        writer.write("        and();");
-        writeNewLine(writer);
+        //writer.write("        and();");
+        //writeNewLine(writer);
         writer.write("        return parent;");
         writeNewLine(writer);
         writer.write("    }");
