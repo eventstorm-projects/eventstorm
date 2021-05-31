@@ -77,7 +77,7 @@ public final class PageRequests {
 	}
 	
 	public static String unwrap(String value) {
-		return value.substring(1, value.length()-1);
+		return value.substring(1, value.length()-1).replaceAll("''","'");
 	}
 
 	private static RequestContext parse(String query) {

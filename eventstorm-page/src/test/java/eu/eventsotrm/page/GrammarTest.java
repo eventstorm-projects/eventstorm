@@ -121,6 +121,38 @@ class GrammarTest {
 		assertEquals("12345", unwrap(fic.value().multipleValue().singleValue().get(2).STRING().getText()));
 		assertEquals("hello world", unwrap(fic.value().multipleValue().singleValue().get(3).STRING().getText()));
 	}
-	
+
+	@Test
+	void testEscapeQuote() {
+
+		PageableLexer lexer = new PageableLexer(CharStreams.fromString("range=0-49&filter=type[cnt]'val''ue'"));
+		CommonTokenStream tokens = new CommonTokenStream(lexer);
+		PageableParser parser = new PageableParser(tokens);
+
+		RequestContext ctx =parser.request();
+
+		assertEquals("range=0-49&filter=type[cnt]'val''ue'", ctx.getText());
+		assertEquals("range=0-49", ctx.range().getText());
+		assertEquals("filter=type[cnt]'val''ue'", ctx.filter().getText());
+
+		//filter
+		assertEquals("type[cnt]'val''ue'", ctx.filter().filterContent().getText());
+		assertEquals(1, ctx.filter().filterContent().filterItem().size());
+		assertEquals("type[cnt]'val''ue'", ctx.filter().filterContent().filterItem(0).getText());
+
+		assertEquals("type", ctx.filter().filterContent().filterItem(0).property().getText());
+		assertEquals("[cnt]", ctx.filter().filterContent().filterItem(0).op().getText());
+		assertEquals("'val''ue'", ctx.filter().filterContent().filterItem(0).value().singleValue().STRING().getText());
+		assertEquals("'val'ue'", ctx.filter().filterContent().filterItem(0).value().singleValue().STRING().getText().replaceAll("''","'"));
+
+		lexer = new PageableLexer(CharStreams.fromString("range=0-9&sort=-code,+titi"));
+		tokens = new CommonTokenStream(lexer);
+		parser = new PageableParser(tokens);
+		ctx = parser.request();
+
+		assertEquals("range=0-9", ctx.range().getText());
+		assertEquals("sort=-code,+titi", ctx.sort().getText());
+
+	}
 }
 
