@@ -30,7 +30,11 @@ abstract class AbstractDialect implements Dialect {
 	}
 	
 	final String prefix(SqlTable table) {
-		Module module = this.database.getModule(table);
+
+		// in case of alias of the alias of multiple join
+		SqlTable parent = table.parent() == null ? table : table.parent();
+
+		Module module = this.database.getModule(parent);
 		if (module == null) {
 			throw new EventstormDialectException(EventstormDialectException.Type.MODULE_NOT_FOUND, of("table", table));
 		}

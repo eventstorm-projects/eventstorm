@@ -16,9 +16,16 @@ public final class SqlTable {
 
     private final String alias;
 
-    public SqlTable(String name, String alias) {
+    private final SqlTable parent;
+
+    private SqlTable(String name, String alias, SqlTable parent) {
         this.name = name;
         this.alias = alias;
+        this.parent = parent;
+    }
+
+    public SqlTable(String name, String alias) {
+        this(name, alias, null);
     }
 
     public String name() {
@@ -29,8 +36,12 @@ public final class SqlTable {
         return this.alias;
     }
 
+    public SqlTable parent() {
+        return this.parent;
+    }
+
     public SqlTable as(String alias) {
-        return new SqlTable(name, alias);
+        return new SqlTable(name, alias, this);
     }
 
     /**
