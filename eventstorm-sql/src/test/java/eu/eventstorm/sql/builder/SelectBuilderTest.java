@@ -119,7 +119,16 @@ class SelectBuilderTest {
         builder.from(TABLE_T1);
         builder.leftJoin(TABLE_T2, COL_T2_01, COL_T1_01, eq(COL_T2_02));
         assertEquals("SELECT a.col_T1_01,a.col_T1_02,a.col_T1_03 FROM T1 a LEFT JOIN T2 b ON b.col_T2_01=a.col_T1_01 AND b.col_T2_02=?", builder.<SqlQuery>build().sql());
+    }
 
+    @Test
+    void testLeftJoinChangeAlias() {
+        SelectBuilder builder = new SelectBuilder(database, of(COL_T1_01, COL_T1_02, COL_T1_03));
+        builder.from(TABLE_T1);
+        builder.leftJoin(TABLE_T2.as("toto"), COL_T2_01, COL_T1_01);
+        assertEquals("SELECT a.col_T1_01,a.col_T1_02,a.col_T1_03 FROM T1 a LEFT JOIN T2 toto ON toto.col_T2_01=a.col_T1_01", builder.<SqlQuery>build().sql());
+        builder.leftJoin(TABLE_T3.as("tutu"), COL_T3_01, COL_T1_01);
+        assertEquals("SELECT a.col_T1_01,a.col_T1_02,a.col_T1_03 FROM T1 a LEFT JOIN T2 toto ON toto.col_T2_01=a.col_T1_01 LEFT JOIN T3 tutu ON tutu.col_T3_01=a.col_T1_01", builder.<SqlQuery>build().sql());
     }
 
     @Test

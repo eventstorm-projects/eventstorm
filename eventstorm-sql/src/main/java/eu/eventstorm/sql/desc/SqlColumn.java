@@ -53,12 +53,12 @@ public abstract class SqlColumn implements DerivedColumn {
         if (this.table.equals(targetTable)) {
             return this;
         }
-        return newColumFromAlias(targetTable);
+        return newColumnFromAlias(targetTable);
     }
 
     public abstract SqlColumn as(String alias);
-    
-    protected abstract SqlColumn newColumFromAlias(SqlTable targetTable);
+
+    public abstract SqlColumn newColumnFromAlias(SqlTable targetTable);
     
     /**
      * {@inheritDoc}

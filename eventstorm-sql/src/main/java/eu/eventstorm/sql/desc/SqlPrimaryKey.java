@@ -18,7 +18,7 @@ public final class SqlPrimaryKey extends SqlColumn {
     }
 
     @Override
-    protected SqlColumn newColumFromAlias(SqlTable targetTable) {
+    public SqlColumn newColumnFromAlias(SqlTable targetTable) {
         return new SqlPrimaryKey(targetTable, this.sequence, this.name());
     }
     

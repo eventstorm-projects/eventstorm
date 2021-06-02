@@ -29,6 +29,10 @@ public final class SqlTable {
         return this.alias;
     }
 
+    public SqlTable as(String alias) {
+        return new SqlTable(name, alias);
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -65,4 +69,5 @@ public final class SqlTable {
     public int hashCode() {
         return this.name.hashCode() + this.alias.hashCode();
     }
+
 }

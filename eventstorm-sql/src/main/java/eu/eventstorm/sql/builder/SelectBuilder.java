@@ -270,7 +270,7 @@ public final class SelectBuilder extends AbstractBuilder {
         if (this.from == null) {
             throw new SqlBuilderException(SELECT, of(METHOD,"leftJoin", "cause","call from() before this"));
         }
-        this.joins.add(new JoinClauseTable(this.database(), JoinType.LEFT, targetTable, targetColumn, otherFrom, otherColumn, expression));
+        this.joins.add(new JoinClauseTable(this.database(), JoinType.LEFT, targetTable, targetColumn.newColumnFromAlias(targetTable), otherFrom, otherColumn, expression));
         return this;
     }
 
@@ -288,7 +288,7 @@ public final class SelectBuilder extends AbstractBuilder {
         requireNonNull(targetTable, INNER_JOIN + TARGET_TABLE_NN);
         requireNonNull(targetColumn, INNER_JOIN + TARGET_COLUMN_NN);
         requireNonNull(fromColumn, INNER_JOIN + COLUMN_NN);
-        this.joins.add(new JoinClauseTable(this.database(), JoinType.INNER, targetTable, targetColumn, fromTable, fromColumn));
+        this.joins.add(new JoinClauseTable(this.database(), JoinType.INNER, targetTable,  targetColumn.newColumnFromAlias(targetTable), fromTable, fromColumn));
         return this;
     }
 
@@ -300,7 +300,7 @@ public final class SelectBuilder extends AbstractBuilder {
         requireNonNull(targetTable, INNER_JOIN + TARGET_TABLE_NN);
         requireNonNull(targetColumn, INNER_JOIN + TARGET_COLUMN_NN);
         requireNonNull(fromColumn, INNER_JOIN + COLUMN_NN);
-        this.joins.add(new JoinClauseTable(this.database(), JoinType.INNER, targetTable, targetColumn, fromTable, fromColumn, expression));
+        this.joins.add(new JoinClauseTable(this.database(), JoinType.INNER, targetTable,  targetColumn.newColumnFromAlias(targetTable), fromTable, fromColumn, expression));
         return this;
     }
 
@@ -308,7 +308,7 @@ public final class SelectBuilder extends AbstractBuilder {
         requireNonNull(targetTable, RIGHT_JOIN + TARGET_TABLE_NN);
         requireNonNull(targetColumn, RIGHT_JOIN + TARGET_COLUMN_NN);
         requireNonNull(column, RIGHT_JOIN + COLUMN_NN);
-        this.joins.add(new JoinClauseTable(this.database(), JoinType.RIGHT, targetTable, targetColumn, column.table(), column));
+        this.joins.add(new JoinClauseTable(this.database(), JoinType.RIGHT, targetTable,  targetColumn.newColumnFromAlias(targetTable), column.table(), column));
         return this;
     }
 
@@ -318,7 +318,7 @@ public final class SelectBuilder extends AbstractBuilder {
         requireNonNull(targetColumn, RIGHT_JOIN + TARGET_COLUMN_NN);
         requireNonNull(column, RIGHT_JOIN + COLUMN_NN);
         requireNonNull(expression, RIGHT_JOIN + EXPRESSION_NN);
-        this.joins.add(new JoinClauseTable(this.database(), JoinType.RIGHT, targetTable, targetColumn, column.table(), column, expression));
+        this.joins.add(new JoinClauseTable(this.database(), JoinType.RIGHT, targetTable,  targetColumn.newColumnFromAlias(targetTable), column.table(), column, expression));
         return this;
     }
 

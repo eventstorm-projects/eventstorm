@@ -37,7 +37,7 @@ public final class SqlSingleColumn extends SqlColumn {
     }
     
     @Override
-    protected SqlColumn newColumFromAlias(SqlTable targetTable) {
+    public SqlColumn newColumnFromAlias(SqlTable targetTable) {
         return new SqlSingleColumn(targetTable, name(), this.nullable, this.insertable, this.nullable);
     }
 
