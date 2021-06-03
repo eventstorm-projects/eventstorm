@@ -15,6 +15,7 @@ import reactor.core.publisher.Mono;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -73,13 +74,27 @@ public final class HttpPageRequestHandlerMethodArgumentResolver implements Handl
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Method ResponseEntity [{}]" , responseEntity);
 			}
-			
-			Object page = ReflectionUtils.invokeMethod(GET_ACTUAL_TYPE_ARGUMENTS, Array.get(responseEntity, 0));
+
+			Object returnType = Array.get(responseEntity, 0);
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("returnType [{}]" , returnType);
+			}
+
+			if (returnType instanceof Class && "java.lang.Void".equals(((Class)returnType).getName())) {
+				return Mono.empty();
+			}
+
+			Object page = ReflectionUtils.invokeMethod(GET_ACTUAL_TYPE_ARGUMENTS, returnType);
 
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Method Page [{}]" , page);
 			}
-			
+
+			if ("java.lang.Void".equals(page.toString())) {
+				return Mono.empty();
+			}
+
 			Object query = ReflectionUtils.invokeMethod(GET_ACTUAL_TYPE_ARGUMENTS, Array.get(page, 0));
 			
 			if (LOGGER.isDebugEnabled()) {
