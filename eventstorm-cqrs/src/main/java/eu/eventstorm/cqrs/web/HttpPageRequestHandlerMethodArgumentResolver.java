@@ -2,6 +2,7 @@ package eu.eventstorm.cqrs.web;
 
 import eu.eventstorm.cqrs.PageQueryDescriptor;
 import eu.eventstorm.cqrs.PageQueryDescriptors;
+import eu.eventstorm.page.EvaluatorDefinition;
 import eu.eventstorm.page.PageRequest;
 import eu.eventstorm.page.PageRequests;
 import org.slf4j.Logger;
@@ -82,7 +83,8 @@ public final class HttpPageRequestHandlerMethodArgumentResolver implements Handl
 			}
 
 			if (returnType instanceof Class && "java.lang.Void".equals(((Class)returnType).getName())) {
-				return Mono.empty();
+				this.descriptors.put(method, () -> null);
+				return Mono.just(PageRequests.parse(uri, null));
 			}
 
 			Object page = ReflectionUtils.invokeMethod(GET_ACTUAL_TYPE_ARGUMENTS, returnType);

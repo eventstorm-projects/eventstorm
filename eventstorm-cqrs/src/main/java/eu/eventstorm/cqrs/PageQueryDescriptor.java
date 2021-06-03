@@ -9,8 +9,4 @@ public interface PageQueryDescriptor {
 
     EvaluatorDefinition getEvaluator();
 
-	//SqlColumn get(String proper);
-	
-	//PreparedStatementIndexSetter getPreparedStatementIndexSetter(String property, String value);
-
 }
