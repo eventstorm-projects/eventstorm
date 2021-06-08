@@ -39,7 +39,7 @@ public abstract class RetryLocalDatabaseEventStoreCommandHandler<T extends Comma
     }
 
     @Override
-    protected Mono<Tuple2<CommandContext, ImmutableList<Event>>> eventLoopStoreAndEvolution(Tuple2<CommandContext, T> tp) {
+    protected  Mono<ImmutableList<Event>> eventLoopStoreAndEvolution(Tuple2<CommandContext, T> tp) {
         return super.eventLoopStoreAndEvolution(tp)
                 .onErrorResume(LocalDatabaseStorageException.class, cause -> {
                     AtomicInteger counter = tp.getT1().get(LocalDatabaseStorageException.class.getName());

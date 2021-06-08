@@ -91,16 +91,17 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
                 // if exception in the validation -> skip the eventLoop
                 .filterWhen(t -> Mono.just(true))
                 .flatMap(this::eventLoopStoreAndEvolution)
-                .publishOn(eventLoop.post())
-                .handle(this::postEventStore)
                 .flatMapMany(Flux::fromIterable)
                 ;
     }
 
-    protected Mono<Tuple2<CommandContext, ImmutableList<Event>>> eventLoopStoreAndEvolution(Tuple2<CommandContext, T> tp) {
+    protected  Mono<ImmutableList<Event>> eventLoopStoreAndEvolution(Tuple2<CommandContext, T> tp) {
         return Mono.just(tp)
                 .publishOn(eventLoop.get(tp.getT2()))
                 .handle(this::storeAndEvolution)
+                .flatMap(tuple -> Mono.just(tuple)
+                        .publishOn(eventLoop.post())
+                        .handle(this::postEventStore))
                 ;
     }
 
