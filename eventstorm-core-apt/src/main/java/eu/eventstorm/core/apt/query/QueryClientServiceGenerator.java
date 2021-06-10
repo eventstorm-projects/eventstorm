@@ -146,6 +146,10 @@ public final class QueryClientServiceGenerator {
         writeNewLine(writer);
         writer.write("                .uri(\"" + ed.element().getAnnotation(CqrsQueryClientService.class).uri() + "/" + epd.getAnnotation().path() + "\", key");
         writer.write(")");
+        for (QueryClientServiceMethodDescriptor.HttpHeader h : epd.getHeaders()) {
+            writeNewLine(writer);
+            writer.write("                .header(\"" + h.getHeader().name() + "\", " + h.getName() + ")");
+        }
         writeNewLine(writer);
         writer.write("                .retrieve()");
         writeNewLine(writer);
@@ -202,7 +206,11 @@ public final class QueryClientServiceGenerator {
             builder.append(",");
 
             loggerParams.append("{},");
-            loggerParamsValue.append(parameter.getName()).append(',');
+
+            if (!(parameter instanceof QueryClientServiceMethodDescriptor.HttpHeader)) {
+                loggerParamsValue.append(parameter.getName()).append(',');
+            }
+
         });
         if (epd.getParameters().size() > 0) {
             builder.deleteCharAt(builder.length()-1);
@@ -229,6 +237,7 @@ public final class QueryClientServiceGenerator {
             writer.write("        return this.webClient.get()");
             writeNewLine(writer);
 
+
             if (epd.getParameters().stream().anyMatch(p -> p.getType().startsWith(Map.class.getName()))) {
                 writer.write("                .uri(uriBuilder -> {");
                 writeNewLine(writer);
@@ -251,6 +260,10 @@ public final class QueryClientServiceGenerator {
                     writer.write(", " + loggerParamsValue);
                 }
                 writer.write(")");
+                writeNewLine(writer);
+            }
+            for (QueryClientServiceMethodDescriptor.HttpHeader h : epd.getHeaders()) {
+                writer.write("                .header(\"" + h.getHeader().name() + "\", " + h.getName() + ")");
                 writeNewLine(writer);
             }
             writer.write("                .retrieve()");

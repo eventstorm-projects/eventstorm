@@ -3,6 +3,7 @@ package eu.eventstorm.core.apt.analyser;
 import com.google.common.collect.ImmutableList;
 import eu.eventstorm.annotation.CqrsQueryClientService;
 import eu.eventstorm.annotation.CqrsQueryClientServiceMethod;
+import eu.eventstorm.annotation.Header;
 import eu.eventstorm.core.apt.model.QueryClientServiceDescriptor;
 import eu.eventstorm.core.apt.model.QueryClientServiceMethodDescriptor;
 import eu.eventstorm.sql.apt.log.Logger;
@@ -70,14 +71,21 @@ public final class CqrsQueryClientServiceAnalyser implements Function<Element, Q
             LOGGER.info("found [" + executableElement + "]");
 
             ImmutableList.Builder<QueryClientServiceMethodDescriptor.Parameter> parameters = ImmutableList.builder();
+            ImmutableList.Builder<QueryClientServiceMethodDescriptor.HttpHeader> headers = ImmutableList.builder();
+
 
             executableElement.getParameters().forEach(t -> {
                 String name = t.getSimpleName().toString();
                 String type = t.asType().toString();
-                parameters.add(new QueryClientServiceMethodDescriptor.Parameter(name, type));
+                if (t.getAnnotation(Header.class) != null) {
+                    headers.add(new QueryClientServiceMethodDescriptor.HttpHeader(name, type, t.getAnnotation(Header.class)));
+                    parameters.add(new QueryClientServiceMethodDescriptor.HttpHeader(name, type, t.getAnnotation(Header.class)));
+                } else {
+                    parameters.add(new QueryClientServiceMethodDescriptor.Parameter(name, type));
+                }
             });
 
-            builder.add(new QueryClientServiceMethodDescriptor(executableElement, anno, parameters.build()));
+            builder.add(new QueryClientServiceMethodDescriptor(executableElement, anno, parameters.build(), headers.build()));
 
         }
 
