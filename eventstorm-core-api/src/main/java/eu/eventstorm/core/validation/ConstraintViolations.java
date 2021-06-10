@@ -3,6 +3,8 @@ package eu.eventstorm.core.validation;
 import com.fasterxml.jackson.annotation.JacksonAnnotation;
 import com.google.common.collect.ImmutableMap;
 
+import static com.google.common.collect.ImmutableMap.of;
+
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
@@ -12,7 +14,7 @@ public final class ConstraintViolations  {
     }
 
     public static ConstraintViolation ofNullProperty(String property, String code) {
-        return new NullConstraintViolation(property, code, ImmutableMap.of());
+        return new NullConstraintViolation(property, code, of());
     }
 
     public static ConstraintViolation ofNullProperty(String property, String code, ImmutableMap<String,Object> params) {
@@ -24,7 +26,7 @@ public final class ConstraintViolations  {
     }
 
     public static ConstraintViolation ofProperty(String property, String code, Object value) {
-        return new PropertyConstraintViolation(property, code, value,  ImmutableMap.of());
+        return new PropertyConstraintViolation(property, code, value,  of());
     }
 
     public static ConstraintViolation ofProperty(String property, String code, Object value, ImmutableMap<String,Object> params) {
@@ -32,16 +34,25 @@ public final class ConstraintViolations  {
     }
 
     public static ConstraintViolation ofRule(String code) {
-        return new ConstraintViolations.RuleConstraintViolation(code, ImmutableMap.of());
+        return new ConstraintViolations.RuleConstraintViolation(code, of(), of());
     }
 
     public static ConstraintViolation ofRule(String code, ImmutableMap<String,Object> params) {
-        return new ConstraintViolations.RuleConstraintViolation(code, params);
+        return new ConstraintViolations.RuleConstraintViolation(code, params, of());
+    }
+
+    public static ConstraintViolation ofRule(String code, ImmutableMap<String,Object> params, ImmutableMap<String,String> urls) {
+        return new ConstraintViolations.RuleConstraintViolation(code, params, urls);
     }
 
     private static final class RuleConstraintViolation extends DefaultConstraintViolation {
-        private RuleConstraintViolation(String code, ImmutableMap<String,Object> params) {
+        private final ImmutableMap<String,String> urls;
+        private RuleConstraintViolation(String code, ImmutableMap<String,Object> params, ImmutableMap<String,String> urls) {
             super(code, params);
+            this.urls = urls;
+        }
+        public ImmutableMap<String, String> getUrls() {
+            return urls;
         }
     }
 
@@ -71,7 +82,7 @@ public final class ConstraintViolations  {
         private final Object actual;
         private final Object expected;
         private PropertyAssertionConstraintViolation(String property, String code, Object actual, Object expected) {
-            super(property, code, ImmutableMap.of());
+            super(property, code, of());
             this.actual = actual;
             this.expected = expected;
         }

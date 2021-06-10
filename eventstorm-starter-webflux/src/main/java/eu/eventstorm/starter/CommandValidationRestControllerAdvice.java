@@ -23,7 +23,7 @@ final class CommandValidationRestControllerAdvice {
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandValidationRestControllerAdvice.class);
 
     @ExceptionHandler(CommandValidationException.class)
-    public Mono<ResponseEntity<Problem>> on(CommandValidationException  ex, ServerHttpRequest request) {
+    public Mono<ResponseEntity<Problem>> on(CommandValidationException ex, ServerHttpRequest request) {
 
         LOGGER.info("onCommandValidationException [{}]", ex.getMessage());
 
@@ -41,7 +41,7 @@ final class CommandValidationRestControllerAdvice {
     }
 
     @ExceptionHandler(ValidationException.class)
-    public Mono<ResponseEntity<Problem>> on(ValidationException  ex, ServerHttpRequest request) {
+    public Mono<ResponseEntity<Problem>> on(ValidationException ex, ServerHttpRequest request) {
 
         LOGGER.info("onValidationException [{}]", ex.getMessage());
 
