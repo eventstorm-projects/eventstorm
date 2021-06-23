@@ -300,6 +300,6 @@ public final class QueryJacksonStdSerializerGenerator {
 			return false;
 		}
 
-		throw new IllegalStateException();
+		return false;
 	}
 }

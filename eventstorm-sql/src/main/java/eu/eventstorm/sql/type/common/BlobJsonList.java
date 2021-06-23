@@ -6,6 +6,7 @@ import static eu.eventstorm.sql.type.SqlTypeException.PARAM_CONTENT_OBJECT;
 import java.io.IOException;
 import java.util.List;
 
+import com.google.common.collect.ImmutableList;
 import eu.eventstorm.sql.JsonMapper;
 import eu.eventstorm.sql.type.JsonList;
 import eu.eventstorm.sql.type.SqlTypeException;
@@ -51,4 +52,8 @@ public final class BlobJsonList extends BlobJsonAdaptee implements JsonList {
 		return this.list.size();
 	}
 
+	@Override
+	public <T> List<T> copyOf() {
+		return (List<T>) ImmutableList.copyOf(this.list);
+	}
 }

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.collect.ImmutableList;
 import eu.eventstorm.sql.JsonMapper;
 import eu.eventstorm.sql.type.Json;
 import eu.eventstorm.sql.type.JsonList;
@@ -48,6 +49,11 @@ public final class DefaultJsonList implements Json, JsonList{
 	@Override
 	public int size() {
 		return this.list.size();
+	}
+
+	@Override
+	public <T> List<T> copyOf() {
+		return (List<T>) ImmutableList.copyOf(this.list);
 	}
 
 	@Override
