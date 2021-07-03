@@ -153,6 +153,7 @@ public final class QueryClientServiceGenerator {
         writeNewLine(writer);
         writer.write("                .retrieve()");
         writeNewLine(writer);
+
         if (epd.getMethod().toString().contains("Flux<")) {
             writer.write("              .bodyToFlux(");
         } else {
@@ -268,7 +269,14 @@ public final class QueryClientServiceGenerator {
             }
             writer.write("                .retrieve()");
             writeNewLine(writer);
-            if (epd.getMethod().getReturnType().toString().contains("reactor.core.publisher.Flux<")) {
+
+            if (epd.getMethod().getReturnType().toString().contains("org.springframework.http.ResponseEntity")) {
+                String type = getMonoType(epd);
+                int start = type.indexOf('<');
+                int end = type.indexOf('>');
+                writer.write("                .toEntity(" + type.substring(start+1, end) + ".class);");
+                writeNewLine(writer);
+            } else if (epd.getMethod().getReturnType().toString().contains("reactor.core.publisher.Flux<")) {
                 String type = getFluxType(epd);
                 writer.write("                .bodyToFlux(" + type + ".class);");
                 writeNewLine(writer);

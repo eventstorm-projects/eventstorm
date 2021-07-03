@@ -78,7 +78,9 @@ public final class CommandRestControllerImplementationGenerator {
 
         writer.write("import static org.springframework.core.io.buffer.DataBufferUtils.join;");
         writeNewLine(writer);
-		
+
+		writer.write("import org.springframework.http.MediaType;");
+		writeNewLine(writer);
 		writer.write("import org.springframework.web.bind.annotation.RequestBody;");
 		writeNewLine(writer);
 		writer.write("import org.springframework.web.bind.annotation.RestController;");		
@@ -232,20 +234,20 @@ public final class CommandRestControllerImplementationGenerator {
 		}
 		
 		if (HttpMethod.POST == rcd.getRestController().method()) {
-			writer.write("    @org.springframework.web.bind.annotation.PostMapping(path=\"" + rcd.getRestController().uri() + "\", produces = \""+ type +"\")");
+			writer.write("    @org.springframework.web.bind.annotation.PostMapping(path=\"" + rcd.getRestController().uri() + "\", produces = \""+ type +"\", consumes = MediaType.APPLICATION_JSON_VALUE)");
 			writeNewLine(writer);
 
 			return;
 		}
 
 		if (HttpMethod.PUT == rcd.getRestController().method()) {
-			writer.write("    @org.springframework.web.bind.annotation.PutMapping(path=\"" + rcd.getRestController().uri() + "\", produces = \""+ type +"\")");
+			writer.write("    @org.springframework.web.bind.annotation.PutMapping(path=\"" + rcd.getRestController().uri() + "\", produces = \""+ type +"\", consumes = MediaType.APPLICATION_JSON_VALUE)");
 			writeNewLine(writer);
 			return;
 		}
 
 		if (HttpMethod.DELETE == rcd.getRestController().method()) {
-			writer.write("    @org.springframework.web.bind.annotation.DeleteMapping(path=\"" + rcd.getRestController().uri() + "\", produces = \""+ type +"\")");
+			writer.write("    @org.springframework.web.bind.annotation.DeleteMapping(path=\"" + rcd.getRestController().uri() + "\", produces = \""+ type +"\", consumes = MediaType.APPLICATION_JSON_VALUE)");
 			writeNewLine(writer);
 			return;
 		}
