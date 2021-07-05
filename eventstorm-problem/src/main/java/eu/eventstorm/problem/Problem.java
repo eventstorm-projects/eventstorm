@@ -20,7 +20,7 @@ public interface Problem {
 	
 	URI getType();
 	
-	URI getInstance();
+	String getInstance();
 
 	String getTitle();
 	

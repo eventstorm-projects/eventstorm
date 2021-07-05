@@ -16,6 +16,8 @@ import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,13 +34,12 @@ class ProblemTest {
 		mapper = new ObjectMapper();
 		mapper.registerModule(new ProblemModule());
 	}
-	
-	@SuppressWarnings({ "unchecked" })
+
 	@Test
 	void test() throws IOException {
 		Problem problem = Problem.builder()
 			.withType(URI.create("http://localhost/test/service"))
-			.withInstance(URI.create("http://localhost/error/123456"))
+			.withInstance(URI.create("http://localhost/error/123456").toASCIIString())
 			.withStatus(400)
 			.withTitle("title")
 			.withDetail("detail")
@@ -61,7 +62,7 @@ class ProblemTest {
 
 		Problem problem = Problem.builder()
 			.withType(URI.create("http://localhost"))
-			.withInstance(URI.create("/test/service"))
+			.withInstance(URI.create("/test/service").toASCIIString())
 			.withStatus(400)
 			.withTitle("title")
 			.withDetail("detail")
@@ -112,10 +113,10 @@ class ProblemTest {
 	}
 	
 	@Test
-	void testFullProblem() throws IOException {
+	void testFullProblem() {
 		Problem problem = Problem.builder()
 			.withType(URI.create("http://localhost"))
-			.withInstance(URI.create("/test/service"))
+			.withInstance(URI.create("/test/service").toASCIIString())
 			.withStatus(400)
 			.withTitle("title")
 			.withDetail("detail")
@@ -137,7 +138,7 @@ class ProblemTest {
 	}
 	
 	@Test
-	void testProblemWithHttpServlet() throws IOException {
+	void testProblemWithHttpServlet() {
 		
 		MockHttpServletRequest mockHttpServletRequest = new MockHttpServletRequest();
 		mockHttpServletRequest.setScheme("http");
@@ -152,12 +153,12 @@ class ProblemTest {
 				.build();
 		
 		assertEquals("http://localhost:12345/fake", problem.getType().toASCIIString());
-		assertEquals("http://original/uri", problem.getInstance().toASCIIString());
+		assertEquals("/uri", problem.getInstance());
 		
 	}
 	
 	@Test
-	void testProblemWithHttpServletWithoutErrorRequestUri() throws IOException {
+	void testProblemWithHttpServletWithoutErrorRequestUri() {
 		
 		MockHttpServletRequest mockHttpServletRequest = new MockHttpServletRequest();
 		mockHttpServletRequest.setScheme("http");
@@ -172,7 +173,7 @@ class ProblemTest {
 				.build();
 		
 		assertEquals("http://localhost:12345/fake", problem.getType().toASCIIString());
-		assertEquals("servletPath", problem.getInstance().toASCIIString());
+		assertEquals("servletPath", problem.getInstance());
 		
 		mockHttpServletRequest.setPathInfo("/pathInfo");
 		problem = Problem.builder()
@@ -180,7 +181,7 @@ class ProblemTest {
 				.build();
 		
 		assertEquals("http://localhost:12345/fake", problem.getType().toASCIIString());
-		assertEquals("servletPath/pathInfo", problem.getInstance().toASCIIString());
+		assertEquals("servletPath/pathInfo", problem.getInstance());
 	
 		
 		mockHttpServletRequest.setPathInfo("/pathInfo");
@@ -190,7 +191,7 @@ class ProblemTest {
 				.build();
 		
 		assertEquals("http://localhost:12345/fake", problem.getType().toASCIIString());
-		assertEquals("servletPath/pathInfo?key=value", problem.getInstance().toASCIIString());
+		assertEquals("servletPath/pathInfo?key=value", problem.getInstance());
 	
 	}
 	
@@ -199,7 +200,7 @@ class ProblemTest {
 		
 		Problem problem = Problem.builder()
 				.withType(URI.create("http://localhost"))
-				.withInstance(URI.create("/test/service"))
+				.withInstance(URI.create("/test/service").toASCIIString())
 				.withStatus(400)
 				.withTitle("title")
 				.withDetail("detail")
@@ -215,4 +216,29 @@ class ProblemTest {
 		JSONAssert.assertEquals("{type:\"http://localhost\"}", problem.toString(), false);
 
 	}
+
+	@Test
+	void testReactive01() throws IOException {
+
+		ServerHttpRequest request = MockServerHttpRequest.get("http://localhost/context/service/crit?name=value")
+				.build();
+
+		Problem problem = Problem.builder()
+				.withReactiveRequest(request)
+				.withStatus(400)
+				.withTitle("title")
+				.withDetail("detail")
+				.with(ImmutableMap.of("KEY","VALUE"))
+				.build();
+
+		Map<String,Object> map = this.mapper.readValue(this.mapper.writeValueAsBytes(problem), Map.class);
+
+		assertEquals("/context/service/crit", map.get("instance"));
+		assertEquals("title", map.get("title"));
+		assertEquals("detail", map.get("detail"));
+		assertEquals("VALUE", map.get("KEY"));
+		assertEquals(400, map.get("status"));
+
+	}
+
 }

@@ -15,7 +15,7 @@ final class ProblemImpl implements Problem {
 
 	private final OffsetDateTime timestamp;
 	private final URI type;
-	private final URI instance;
+	private final String instance;
 	private final int status;
 	private final String title;
 	private final String detail;
@@ -39,7 +39,7 @@ final class ProblemImpl implements Problem {
 	}
 	
 	@Override
-	public URI getInstance() {
+	public String getInstance() {
 		return this.instance;
 	}
 

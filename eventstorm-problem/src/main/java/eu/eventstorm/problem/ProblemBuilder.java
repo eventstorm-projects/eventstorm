@@ -28,7 +28,7 @@ public final class ProblemBuilder {
 	String traceId;
 	OffsetDateTime timestamp;
 	URI type;
-	URI instance;
+	String instance;
 	int status;
 	String title;
 	String detail;
@@ -38,7 +38,7 @@ public final class ProblemBuilder {
 	}
 
 	public ProblemBuilder withReactiveRequest(org.springframework.http.server.reactive.ServerHttpRequest req) {
-		this.instance = req.getURI();
+		this.instance = req.getPath().value();
 		return this;
 	}
 	
@@ -48,9 +48,9 @@ public final class ProblemBuilder {
 		String originalUri = (String) req.getAttribute(javax.servlet.RequestDispatcher.ERROR_REQUEST_URI);
 
 		if (originalUri != null) {
-			this.instance = URI.create(originalUri);
+			this.instance = URI.create(originalUri).getPath();
 		} else {
-			this.instance = URI.create(forJava(req.getServletPath()) + (Strings.isEmpty(req.getPathInfo()) ? "" : forJava(req.getPathInfo()))
+			this.instance = forJava(req.getServletPath() + (Strings.isEmpty(req.getPathInfo()) ? "" : forJava(req.getPathInfo()))
 			        + (Strings.isEmpty(req.getQueryString()) ? "" : forJava(req.getQueryString())));
 		}
 		return this;
@@ -71,7 +71,7 @@ public final class ProblemBuilder {
 		return this;
 	}
 
-	public ProblemBuilder withInstance(URI instance) {
+	public ProblemBuilder withInstance(String instance) {
 		this.instance = instance;
 		return this;
 	}

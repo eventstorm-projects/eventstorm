@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 import eu.eventstorm.util.Strings;
 
-@SuppressWarnings("serial")
 final class ProblemStdSerializer extends StdSerializer<Problem> {
 
 	public static final ProblemStdSerializer INSTANCE = new ProblemStdSerializer();
@@ -46,7 +45,7 @@ final class ProblemStdSerializer extends StdSerializer<Problem> {
 		
 		if (value.getInstance() != null) {
 			gen.writeFieldName("instance");
-			gen.writeString(value.getInstance().toASCIIString());
+			gen.writeString(value.getInstance());
 		}
 		
 		// write status

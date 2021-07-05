@@ -23,7 +23,7 @@ final class ProblemStdDeserializer extends StdDeserializer<Problem> {
 
 	private static final Map<String, BiConsumer<ProblemBuilder, String>> READER = ImmutableMap.<String, BiConsumer<ProblemBuilder, String>>builder()
 			.put("type", (builder, value) -> builder.withType(URI.create(value)))
-			.put("instance", (builder, value) -> builder.withInstance(URI.create(value)))
+			.put("instance", ProblemBuilder::withInstance)
 			.put("title", ProblemBuilder::withTitle)
 			.put("detail", ProblemBuilder::withDetail)
 			.put("traceId", ProblemBuilder::withTraceId)
