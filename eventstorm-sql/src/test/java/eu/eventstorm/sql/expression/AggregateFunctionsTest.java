@@ -68,6 +68,20 @@ class AggregateFunctionsTest {
         assertEquals("max(number)", AggregateFunctions.max(number).build(dialect, false));
 
     }
+
+    @Test
+    void testUpper() {
+        SqlColumn number = new SqlSingleColumn(table, "number", false, true, true);
+        assertEquals("upper(a.number)", AggregateFunctions.upper(number).build(dialect, true));
+        assertEquals("upper(number)", AggregateFunctions.upper(number).build(dialect, false));
+    }
+
+    @Test
+    void testLower() {
+        SqlColumn number = new SqlSingleColumn(table, "number", false, true, true);
+        assertEquals("lower(a.number)", AggregateFunctions.lower(number).build(dialect, true));
+        assertEquals("lower(number)", AggregateFunctions.lower(number).build(dialect, false));
+    }
     
     @Test
     void testRowNumber() {

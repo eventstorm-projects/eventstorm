@@ -26,6 +26,14 @@ public final class AggregateFunctions {
     public static AggregateFunction distinct(SqlColumn column) {
         return new SimpleAggregateFunction(column, "distinct");
     }
+
+    public static AggregateFunction upper(SqlColumn column) {
+        return new SimpleAggregateFunction(column, "upper");
+    }
+
+    public static AggregateFunction lower(SqlColumn column) {
+        return new SimpleAggregateFunction(column, "lower");
+    }
     
     public static AggregateFunction rowNumber() {
         return new RowNumberAggregateFunction();
