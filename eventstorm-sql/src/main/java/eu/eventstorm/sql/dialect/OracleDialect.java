@@ -1,6 +1,7 @@
 package eu.eventstorm.sql.dialect;
 
 import eu.eventstorm.sql.Database;
+import eu.eventstorm.sql.desc.SqlColumn;
 import eu.eventstorm.sql.desc.SqlSequence;
 import eu.eventstorm.sql.type.Json;
 import eu.eventstorm.sql.type.Xml;
@@ -130,44 +131,16 @@ final class OracleDialect extends AbstractDialect {
 		return "json_exists(" + col + ",'" + rewritePath + "')";
 	}
 
-	/*
 	@Override
-	public String functionJsonExists(String col, String key, ImmutableList<JsonExpression> values) {
-    	StringBuilder builder = new StringBuilder(256);
-    	builder.append("json_exists(").append(col).append(",'").append(key).append(" ?(");
-    	for (int i =0,n=values.size(); i < n ; i++) {
-    		JsonExpression expression = values.get(i);
-    		builder.append("@.");
-			builder.append(expression.getField());
-
-			switch (expression.getOperation()) {
-				case EQUALS: {
-					builder.append("==");
-					break;
-				}
-				default:
-					builder.append("==");
-			}
-
-			if (expression.getValue() instanceof String) {
-				builder.append('"').append(expression.getValue()).append('"');
-			} else if (expression.getValue() instanceof Number) {
-				builder.append(expression.getValue());
-			} else {
-				throw new IllegalStateException();
-			}
-
-			if (i + 1 < n) {
-				builder.append(" && ");
-			} else {
-				builder.append(')');
-			}
+	public String ilike(SqlColumn column, boolean alias) {
+		StringBuilder builder =  new StringBuilder(32);
+		builder.append("UPPER(");
+		if (alias) {
+			builder.append(column.table().alias()).append('.');
 		}
-    	builder.append("')");
-
+		builder.append(column.name()).append(") LIKE ? UPPER(");
 		return builder.toString();
 	}
-	 */
 
 	@Override
 	public void init() {

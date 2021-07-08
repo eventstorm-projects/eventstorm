@@ -2,6 +2,7 @@ package eu.eventstorm.sql.dialect;
 
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.RawSqlExecutor;
+import eu.eventstorm.sql.desc.SqlColumn;
 import eu.eventstorm.sql.desc.SqlSequence;
 import eu.eventstorm.sql.type.Json;
 import eu.eventstorm.sql.type.Xml;
@@ -85,6 +86,17 @@ final class H2Dialect extends AbstractDialect {
 	@Override
 	public String functionJsonExists(String col, String path) {
 		return "json_exists(" + col + ",'" + path + "')";
+	}
+
+	@Override
+	public String ilike(SqlColumn column, boolean alias) {
+		StringBuilder builder =  new StringBuilder(32);
+		builder.append("UPPER(");
+		if (alias) {
+			builder.append(column.table().alias()).append('.');
+		}
+		builder.append(column.name()).append(") LIKE UPPER(?)");
+		return builder.toString();
 	}
 
 

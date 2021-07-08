@@ -217,4 +217,12 @@ class ExpressionsTest {
         assertEquals("(number=123 OR number=124)", or(eq(number, 123),eq(number, 124)).toString());
     }
 
+
+    @Test
+    void testILike() {
+        SqlColumn number = new SqlSingleColumn(table, "number", false, true, true);
+        assertEquals("UPPER(a.number) LIKE UPPER(?)", Expressions.ilike(number).build(dialect, true));
+        assertEquals("UPPER(number) LIKE UPPER(?)", Expressions.ilike(number).build(dialect, false));
+    }
+
 }

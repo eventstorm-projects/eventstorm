@@ -126,7 +126,11 @@ public final class Expressions {
     public static Expression like(SqlColumn column) {
 		return new LikeExpression(column);
     }
-    
+
+    public static Expression ilike(SqlColumn column) {
+        return new ILikeExpression(column);
+    }
+
     public static Expression raw(String raw) {
   		return (dialect, alias) -> raw;
     }

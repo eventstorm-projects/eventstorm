@@ -19,7 +19,7 @@ import java.sql.SQLException;
  */
 public interface Dialect {
 
-	enum Name {
+    enum Name {
 		H2, ORACLE, POSTGRES
 	}
 
@@ -50,4 +50,5 @@ public interface Dialect {
 
 	String functionJsonExists(String col, String path);
 
+	String ilike(SqlColumn column, boolean alias);
 }
