@@ -20,16 +20,14 @@ public final class JacksonJsonMapper implements JsonMapper{
 		this(new ObjectMapper());
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public Map<String, Object> readMap(byte[] content) throws IOException {
 		return this.objectMapper.readValue(content, Map.class);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public List<Object> readList(byte[] content) throws IOException {
-		return this.objectMapper.readValue(content, List.class);
+	public <T> List<T> readList(byte[] content, Class<T> type) throws IOException {
+		return this.objectMapper.readValue(content, objectMapper.getTypeFactory().constructCollectionType(List.class, type));
 	}
 	
 	@Override
@@ -38,7 +36,7 @@ public final class JacksonJsonMapper implements JsonMapper{
 	}
 
 	@Override
-	public byte[] write(List<Object> list) throws IOException {
+	public byte[] write(List<?> list) throws IOException {
 		return this.objectMapper.writeValueAsBytes(list);
 	}
 

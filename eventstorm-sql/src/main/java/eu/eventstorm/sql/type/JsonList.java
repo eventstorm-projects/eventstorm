@@ -6,16 +6,16 @@ import java.util.List;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-public interface JsonList {
+public interface JsonList<T> {
 
-    <T> T get(int index, Class<T> clazz);
+    T get(int index);
 
-	<T> void add(T value);
+	void add(T value);
 
-    <T> T remove(int index, Class<T> clazz);
+    T remove(int index);
 
 	int size();
 
-	<T> List<T> copyOf();
+	List<T> copyOf();
 
 }

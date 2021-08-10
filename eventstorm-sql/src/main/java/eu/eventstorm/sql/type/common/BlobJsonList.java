@@ -13,11 +13,11 @@ import eu.eventstorm.sql.type.SqlTypeException;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-public final class BlobJsonList extends BlobJsonAdaptee implements JsonList {
+public final class BlobJsonList<T> extends BlobJsonAdaptee implements JsonList<T> {
 
-	private final List<Object> list;
+	private final List<T> list;
 
-    public BlobJsonList(List<Object> list) {
+    public BlobJsonList(List<T> list) {
         setModified();
         this.list = list;
     }
@@ -32,19 +32,19 @@ public final class BlobJsonList extends BlobJsonAdaptee implements JsonList {
 	}
 
 	@Override
-	public <T> T get(int index, Class<T> clazz) {
-	    return clazz.cast(this.list.get(index));
+	public T get(int index) {
+	    return this.list.get(index);
 	}
 
 	@Override
-	public <T> void add(T value) {
+	public void add(T value) {
         setModified();
         this.list.add(value);
 	}
 
 	@Override
-	public <T> T remove(int index, Class<T> clazz) {
-       return  clazz.cast(this.list.remove(index));
+	public T remove(int index) {
+       return  this.list.remove(index);
     }
 
 	@Override
@@ -53,7 +53,7 @@ public final class BlobJsonList extends BlobJsonAdaptee implements JsonList {
 	}
 
 	@Override
-	public <T> List<T> copyOf() {
-		return (List<T>) ImmutableList.copyOf(this.list);
+	public List<T> copyOf() {
+		return ImmutableList.copyOf(this.list);
 	}
 }

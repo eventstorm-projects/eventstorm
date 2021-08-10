@@ -18,32 +18,32 @@ import eu.eventstorm.util.ToStringBuilder;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-public final class DefaultJsonList implements Json, JsonList{
+public final class DefaultJsonList<T> implements Json, JsonList<T> {
 
-	private final List<Object> list;
+	private final List<T> list;
 	
 	public DefaultJsonList() {
 		this.list = new ArrayList<>();
 	}
 	
-	public DefaultJsonList(List<?> list) {
+	public DefaultJsonList(List<T> list) {
 		this.list = new ArrayList<>(list.size());
 		this.list.addAll(list);
 	}
 	
 	@Override
-	public <T> T get(int index, Class<T> clazz) {
-		return clazz.cast(this.list.get(index));
+	public T get(int index) {
+		return this.list.get(index);
 	}
 
 	@Override
-	public <T> void add(T value) {
+	public void add(T value) {
 		this.list.add(value);
 	}
 
 	@Override
-	public <T> T remove(int index, Class<T> clazz) {
-		return clazz.cast(this.list.remove(index));
+	public T remove(int index) {
+		return this.list.remove(index);
 	}
 
 	@Override
@@ -52,8 +52,8 @@ public final class DefaultJsonList implements Json, JsonList{
 	}
 
 	@Override
-	public <T> List<T> copyOf() {
-		return (List<T>) ImmutableList.copyOf(this.list);
+	public List<T> copyOf() {
+		return ImmutableList.copyOf(this.list);
 	}
 
 	@Override
@@ -62,8 +62,8 @@ public final class DefaultJsonList implements Json, JsonList{
 	}
 
 	@Override
-	public JsonList asList() {
-		return this;
+	public <T> JsonList<T> asList(Class<T> type) {
+		return (JsonList<T>) this;
 	}
 
 	@Override

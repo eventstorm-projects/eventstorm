@@ -27,7 +27,7 @@ public final class DefaultJsonMap implements Json, JsonMap{
 	
 	public DefaultJsonMap(Map<String, ?> map) {
 		this.map = new LinkedHashMap<>();
-		map.forEach(this.map::put);
+		this.map.putAll(map);
 	}
 	
 	@Override
@@ -56,7 +56,7 @@ public final class DefaultJsonMap implements Json, JsonMap{
 	}
 
 	@Override
-	public JsonList asList() {
+	public <T> JsonList<T> asList(Class<T> type) {
 		throw new UnsupportedOperationException();
 	}
 

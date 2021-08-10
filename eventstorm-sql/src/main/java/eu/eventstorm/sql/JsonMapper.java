@@ -8,11 +8,11 @@ public interface JsonMapper {
 
 	Map<String, Object> readMap(byte[] content) throws IOException;
 
-	List<Object> readList(byte[] buf) throws IOException;
+	<T> List<T> readList(byte[] buf, Class<T> type) throws IOException;
 	
 	byte[] write(Map<String, Object> map) throws IOException;
 
-	byte[] write(List<Object> list) throws IOException;
+	byte[] write(List<?> list) throws IOException;
 
 
 }

@@ -9,7 +9,7 @@ public interface Json {
 
     JsonMap asMap();
 
-    JsonList asList();
+    <T> JsonList<T> asList(Class<T> type);
 
 	byte[] write(JsonMapper mapper);
 

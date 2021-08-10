@@ -22,7 +22,7 @@ class BlobJsonTest {
 
 		BlobJson json = new BlobJson(mapper, "BAD".getBytes());
 
-		SqlTypeException ex = assertThrows(SqlTypeException.class, () -> json.asMap());
+		SqlTypeException ex = assertThrows(SqlTypeException.class, json::asMap);
 		assertEquals(SqlTypeException.Type.READ_JSON, ex.getType());
 		assertArrayEquals("BAD".getBytes(), (byte[]) ex.getValues().get(SqlTypeException.PARAM_CONTENT));
 	}
@@ -32,7 +32,7 @@ class BlobJsonTest {
 
 		BlobJson json = new BlobJson(mapper, "BAD".getBytes());
 
-		SqlTypeException ex = assertThrows(SqlTypeException.class, () -> json.asList());
+		SqlTypeException ex = assertThrows(SqlTypeException.class, () -> json.asList(String.class));
 		assertEquals(SqlTypeException.Type.READ_JSON, ex.getType());
 		assertArrayEquals("BAD".getBytes(), (byte[]) ex.getValues().get(SqlTypeException.PARAM_CONTENT));
 

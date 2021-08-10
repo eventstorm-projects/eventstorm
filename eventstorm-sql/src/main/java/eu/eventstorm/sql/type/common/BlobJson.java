@@ -55,13 +55,13 @@ public final class BlobJson extends DefaultBlob implements Json {
 	}
 
 	@Override
-	public JsonList asList() {
+	public <T> JsonList<T> asList(Class<T> type) {
 		if (adaptee == null) {
 			if (getBuf() == null || getBuf().length == 0) {
         		this.adaptee = new BlobJsonList(new ArrayList<>());
             } else {
                 try {
-                	this.adaptee = new BlobJsonList(mapper.readList(getBuf()));
+                	this.adaptee = new BlobJsonList(mapper.readList(getBuf(), type));
                 } catch (IOException cause) {
                     throw new SqlTypeException(SqlTypeException.Type.READ_JSON, of(PARAM_CONTENT, getBuf()), cause);
                 }
