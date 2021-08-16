@@ -116,19 +116,30 @@ final class OracleDialect extends AbstractDialect {
 
 	@Override
 	public String functionJsonExists(String col, String path) {
+		String rewritePath = rewritePath(path);
+		return "json_exists(" + col + ",'" + rewritePath + "')";
+	}
+
+	@Override
+	public String functionJsonValue(String col, String path) {
+		String rewritePath = rewritePath(path);
+		return "json_value(" + col + ",'" + rewritePath + "')";
+	}
+
+	private static String rewritePath(String path) {
 		String rewritePath;
 		int index = path.indexOf(".[");
 		if (index > 0) {
 			rewritePath = path.substring(0, index);
 			int indexEnd = path.lastIndexOf(']');
-			rewritePath += path.substring(index + 2 , indexEnd);
+			rewritePath += path.substring(index + 2, indexEnd);
 			if (indexEnd < path.length()) {
 				rewritePath += path.substring(indexEnd + 1);
 			}
 		} else {
 			rewritePath = path;
 		}
-		return "json_exists(" + col + ",'" + rewritePath + "')";
+		return rewritePath;
 	}
 
 	@Override

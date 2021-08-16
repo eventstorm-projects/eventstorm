@@ -89,6 +89,11 @@ final class H2Dialect extends AbstractDialect {
 	}
 
 	@Override
+	public String functionJsonValue(String col, String path) {
+		return "json_value(" + col + ",'" + path + "')";
+	}
+
+	@Override
 	public String ilike(SqlColumn column, boolean alias) {
 		StringBuilder builder =  new StringBuilder(32);
 		builder.append("UPPER(");
