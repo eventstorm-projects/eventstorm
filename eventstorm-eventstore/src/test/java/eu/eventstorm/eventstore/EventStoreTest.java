@@ -1,18 +1,17 @@
 package eu.eventstorm.eventstore;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Stream;
-
+import eu.eventstorm.core.Event;
+import eu.eventstorm.core.EventCandidate;
+import eu.eventstorm.eventstore.ex.UserCreatedEventPayload;
+import eu.eventstorm.eventstore.memory.InMemoryStreamManagerBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import eu.eventstorm.core.Event;
-import eu.eventstorm.eventstore.ex.UserCreatedEventPayload;
-import eu.eventstorm.eventstore.memory.InMemoryStreamManagerBuilder;
+import java.util.Optional;
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 abstract class EventStoreTest {
 	
@@ -23,7 +22,7 @@ abstract class EventStoreTest {
 		
 		StreamManager manager = new InMemoryStreamManagerBuilder()
 				.withDefinition("user")
-				.withPayload(UserCreatedEventPayload.class, UserCreatedEventPayload.getDescriptor(), UserCreatedEventPayload.parser(), () -> UserCreatedEventPayload.newBuilder())
+				.withPayload(UserCreatedEventPayload.class, UserCreatedEventPayload.getDescriptor(), UserCreatedEventPayload.parser(), UserCreatedEventPayload::newBuilder)
 			.and()
 			.build();
 		
@@ -33,12 +32,12 @@ abstract class EventStoreTest {
 	@Test
 	void testAppend() throws Exception {
 		
-		eventStore.appendToStream("user", 
-				"1", UUID.randomUUID().toString(),  UserCreatedEventPayload.newBuilder()
+		eventStore.appendToStream(new EventCandidate<>("user",
+				"1",   UserCreatedEventPayload.newBuilder()
 					.setAge(39)
 					.setName("ja")
 					.setEmail("gmail")
-					.build());
+					.build()), null);
 
 		try (Stream<Event> stream = eventStore.readStream("user", "1")) {
 			Optional<Event> op = stream.findFirst();

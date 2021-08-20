@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 import com.google.protobuf.Message;
+import eu.eventstorm.core.EventCandidate;
 import org.h2.tools.RunScript;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -120,7 +121,7 @@ class DatabaseEventStoreTest extends EventStoreTest {
 		Mockito.when(message.getDescriptorForType()).thenThrow(new RuntimeException("BAD"));
 
 		EventStore eventStore = new DatabaseEventStore(db, new EventStoreProperties(), null);
-		EventStoreException ese = assertThrows(EventStoreException.class , () -> eventStore.appendToStream("user", "1", null, message));
+		EventStoreException ese = assertThrows(EventStoreException.class , () -> eventStore.appendToStream(new EventCandidate<>("user", "1", message), null));
 		assertEquals(EventStoreException.Type.FAILED_TO_SERIALIZE, ese.getType());
 	}
 

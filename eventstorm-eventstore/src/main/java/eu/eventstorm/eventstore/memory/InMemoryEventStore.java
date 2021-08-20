@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import eu.eventstorm.core.EventCandidate;
+import eu.eventstorm.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +33,7 @@ public final class InMemoryEventStore implements EventStore {
 	private final Map<String, Map<String, List<Event>>> map = new HashMap<>();
 
 	private final List<Event> allEvents = new LinkedList<>();
-	
+
 	private final EventStoreProperties eventStoreProperties;
 	
 	public InMemoryEventStore(EventStoreProperties eventStoreProperties) {
@@ -57,37 +59,43 @@ public final class InMemoryEventStore implements EventStore {
 	}
 	 
 	@Override
-	public Event appendToStream(String stream, String streamId, String correlation, Message message) {
+	public <T extends Message> Event appendToStream(EventCandidate<T> candidate, String correlation) {
+
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("store to [{}] with Id [{}]", stream, streamId);
+			LOGGER.debug("store to [{}] with Id [{}]", candidate.getStream(), candidate.getStreamId());
 		}
 
-		Map<String, List<Event>> mapType = this.map.get(stream);
+		Map<String, List<Event>> mapType = this.map.get(candidate.getStream());
 		
 		int revision = 1;
 		
 		if (mapType == null) {
 			mapType = new HashMap<>();
-			map.put(stream, mapType);
+			map.put(candidate.getStream(), mapType);
 		} 
 		
-		List<Event> events = mapType.get(streamId);
+		List<Event> events = mapType.get(candidate.getStreamId());
 		if (events == null) {
 			events = new ArrayList<>();
-			mapType.put(streamId, events);
+			mapType.put(candidate.getStreamId(), events);
 		} else {
 			revision = events.get(events.size() - 1).getRevision() + 1;
 		}
 		
 		// @formatter:off
-		Event event = Event.newBuilder()
-				.setStreamId(streamId)
-				.setStream(stream)
+		Event.Builder builder = Event.newBuilder()
+				.setStreamId(candidate.getStreamId())
+				.setStream(candidate.getStream())
 				.setTimestamp(OffsetDateTime.now().toString())
 				.setRevision(revision)
-				.setCorrelation(correlation)
-				.setData(Any.pack(message,this.eventStoreProperties.getEventDataTypeUrl() + "/" + stream + "/"))
-				.build();
+				.setData(Any.pack(candidate.getMessage(),this.eventStoreProperties.getEventDataTypeUrl() + "/" + candidate.getStream() + "/"))
+				;
+
+		if (!Strings.isEmpty(correlation)) {
+			builder.setCorrelation(correlation);
+		}
+
+		Event event = builder.build();
 		// @formatter:on
 
 		this.allEvents.add(event);

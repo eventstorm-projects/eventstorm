@@ -1,31 +1,34 @@
 package eu.eventstorm.eventstore.db;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
-import java.util.stream.Stream;
-
-import com.google.common.collect.ImmutableMap;
 import com.google.protobuf.Any;
 import com.google.protobuf.Message;
-import com.google.protobuf.util.JsonFormat;
-
 import eu.eventstorm.core.Event;
-import eu.eventstorm.eventstore.*;
+import eu.eventstorm.core.EventCandidate;
+import eu.eventstorm.eventstore.EventStore;
+import eu.eventstorm.eventstore.EventStoreProperties;
+import eu.eventstorm.eventstore.Statistics;
+import eu.eventstorm.eventstore.StreamDefinition;
+import eu.eventstorm.eventstore.StreamManager;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Dialect;
 import eu.eventstorm.sql.jdbc.ResultSetMapper;
 import eu.eventstorm.sql.util.TransactionTemplate;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.util.stream.Stream;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 public class LocalDatabaseEventStore implements EventStore {
 
-	private static final JsonFormat.Printer PRINTER = JsonFormat.printer().omittingInsignificantWhitespace().includingDefaultValueFields();
-	
+	private static final ZoneId SYSTEM_ZONE_ID = ZoneId.systemDefault();
+
 	private final EventStoreProperties eventStoreProperties;
 	
 	private final DatabaseRepository databaseRepository;
@@ -33,51 +36,50 @@ public class LocalDatabaseEventStore implements EventStore {
 	private final TransactionTemplate template;
 	
 	private final StreamManager streamManager;
-	
+
+	private final PayloadManager payloadManager;
+
 	public LocalDatabaseEventStore(Database database, EventStoreProperties eventStoreProperties, StreamManager streamManager) {
+		this(database, eventStoreProperties, streamManager, JsonPayloadManager.INSTANCE);
+	}
+
+	public LocalDatabaseEventStore(Database database, EventStoreProperties eventStoreProperties, StreamManager streamManager, PayloadManager payloadManager) {
 		this.eventStoreProperties = eventStoreProperties;
 		this.databaseRepository = new DatabaseRepository(database);
 		this.template = new TransactionTemplate(database.transactionManager());
 		this.streamManager = streamManager;
+		this.payloadManager = payloadManager;
 	}
 
 	@Override
-	public Event appendToStream(String stream, String streamId, String correlation, Message message) {
-		
-		OffsetDateTime time = OffsetDateTime.now();
+	public <T extends Message> Event appendToStream(EventCandidate<T> candidate, String correlation) {
 
-		String json;
-		try {
-			json = PRINTER.print(message);
-		} catch (Exception cause) {
-			throw new EventStoreException(EventStoreException.Type.FAILED_TO_SERIALIZE, ImmutableMap.of("stream", stream,
-					"streamId", streamId, "message", message), cause);
-		}
-		
-		int revision = this.databaseRepository.lastRevision(stream, streamId);
+		Instant instant = Instant.now();
+
+		int revision = this.databaseRepository.lastRevision(candidate.getStream(), candidate.getStreamId());
 
 		DatabaseEventBuilder builder = new DatabaseEventBuilder()
-						.withStreamId(streamId)
-						.withStream(stream)
-				        .withTime(Timestamp.from(time.toInstant()))
-				        .withPayload(json)
-				        .withRevision(revision + 1)
-				        .withEventType(message.getClass().getSimpleName());
-				        
+				.withStreamId(candidate.getStreamId())
+				.withStream(candidate.getStream())
+				.withTime(Timestamp.from(instant))
+				.withPayload(payloadManager.serialize(candidate))
+				.withRevision(revision + 1)
+				.withEventType(candidate.getMessage().getClass().getSimpleName());
+
 		if (correlation != null) {
 			builder.withCorrelation(correlation);
 		}
-			
+
 		this.databaseRepository.insert(builder.build());
 
 		// @formatter:off
 		return Event.newBuilder()
-					.setStreamId(streamId)
-					.setStream(stream)
-					.setTimestamp(time.toString())
-					.setRevision(revision + 1)
-					.setData(Any.pack(message,this.eventStoreProperties.getEventDataTypeUrl() + "/" + stream + "/"))
-					.build();
+				.setStreamId(candidate.getStreamId())
+				.setStream(candidate.getStream())
+				.setTimestamp(OffsetDateTime.ofInstant(instant, SYSTEM_ZONE_ID).toString())
+				.setRevision(revision + 1)
+				.setData(Any.pack(candidate.getMessage(), this.eventStoreProperties.getEventDataTypeUrl() + "/" + candidate.getStream() + "/"))
+				.build();
 		// @formatter:off
 	}
 
@@ -94,77 +96,6 @@ public class LocalDatabaseEventStore implements EventStore {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-//	@Override
-//	public Stream<Event<EventPayload>> readStream(StreamDefinition definition, String streamId) {
-//	}
-//
-//	//@Override
-//	public <T extends AbstractMessage> Event<T> appendToStream(StreamEvantPayloadDefinition<T> sepd, String streamId, T eventPayload) {
-//		//return appendToStream(sepd, streamId, sepd.getPayloadSerializer().serialize(eventPayload));
-//		return null;
-//	}
-//
-//	@Override
-//	public <T extends AbstractMessage> Event<T> appendToStream(StreamEvantPayloadDefinition<T> sepd, String streamId, byte[] eventPayload) {
-//	
-//		OffsetDateTime time = OffsetDateTime.now();
-//		DatabaseEvent de;
-//		
-//		try (Transaction transaction = database.transactionManager().newTransactionIsolatedReadWrite()) {
-//			try (Stream<DatabaseEvent> events = this.databaseRepository.lock(sepd.getStream(), streamId)) {
-//				Optional<DatabaseEvent> optional = events.findFirst();
-//
-//				DatabaseEventBuilder builder = new DatabaseEventBuilder()
-//						.withStreamId(streamId)
-//						.withStream(sepd.getStream())
-//				        .withTime(Timestamp.from(time.toInstant()))
-//				        .withPayload(Blobs.newBlob(eventPayload))
-//				        //.withEventType(sepd.getPayloadType())
-//				        ;
-//
-//				if (optional.isPresent()) {
-//					// "update"
-//					builder.withRevision(optional.get().getRevision() + 1);
-//				} else {
-//					// "insert"
-//					builder.withRevision(1);
-//				}
-//
-//				de = builder.build();
-//				
-//				this.databaseRepository.insert(de);
-//			}
-//			transaction.commit();
-//		}
-//		
-//		// @formatter:off
-////		return  new EventBuilder<T>()
-////					.withStreamId(StreamIds.from(streamId))
-////					.withStream(sepd.getStream())
-////					.withTimestamp(time)
-////					.withRevision(de.getRevision())
-////					.withPayload(null)
-////					.build();
-//		// @formatter:on
-//	}
-//	
-////	@Override
-////	public <T extends EventPayload> Event<T> appendToStream(String aggregateType, AggregateId id, T payload) {
-////		byte[] content;
-////
-////		try {
-////			content = this.mapper.writeValueAsBytes(payload);
-////		} catch (JsonProcessingException cause) {
-////			throw new EventStoreException(EventStoreException.Type.FAILED_TO_SERILIAZE_PAYLOAD, of("aggregateType", aggregateType, "aggregateId", id, "payload", payload), cause);
-////		}
-////		
-////		return appendToStream(aggregateType, id, payload, content);
-////		
-////		
-////	}
-//
-	private static final ZoneId ZONE_ID = ZoneId.of("UTC");
 
 	private static final class EventResultSetMapper implements ResultSetMapper<Event> {
 		

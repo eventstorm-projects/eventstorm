@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import com.google.protobuf.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,13 +40,13 @@ public final class InMemoryEventStoreClient implements EventStoreClient {
 
 
 	@Override
-	public Event appendToStream(String stream, String streamId, AbstractMessage message) {
+	public Event appendToStream(EventCandidate<? extends Message> candidate) {
 		
 		if (LOGGER.isTraceEnabled()) {
-			LOGGER.trace("appendToStream({},{},{})", stream, streamId, message);
+			LOGGER.trace("appendToStream({})", candidate);
 		}
 		
-		return appendToStream(stream, streamId, UUID.randomUUID(), message);
+		return appendToStream(candidate, null);
 	}
 	
 
@@ -56,30 +57,30 @@ public final class InMemoryEventStoreClient implements EventStoreClient {
 
 
 	@Override
-	public Stream<Event> appendToStream(ImmutableList<EventCandidate<?>> candidates) {
+	public Stream<Event> appendToStream(ImmutableList<EventCandidate<? extends Message>> candidates) {
 		List<Event> events = new ArrayList<>(candidates.size());
-		UUID correlation = UUID.randomUUID();
+		String correlation = UUID.randomUUID().toString();
 		
-		for (EventCandidate<?> candidate : candidates) {
-			events.add(appendToStream(candidate.getStream(), candidate.getStreamId(), correlation, candidate.getMessage()));
+		for (EventCandidate<? extends Message> candidate : candidates) {
+			events.add(appendToStream(candidate, correlation));
 		}
 		
 		return events.stream();
 	}
 
 
-	private Event appendToStream(String stream, String streamId, UUID uuid, AbstractMessage message) {
+	private Event appendToStream(EventCandidate<? extends Message> candidate, String correlation) {
 		
-		StreamDefinition sd = this.streamManager.getDefinition(stream);
+		StreamDefinition sd = this.streamManager.getDefinition(candidate.getStream());
 		
 		if (sd == null) {
-			throw new EventStoreException(EventStoreException.Type.STREAM_NOT_FOUND, of(PARAM_STREAM, stream));
+			throw new EventStoreException(EventStoreException.Type.STREAM_NOT_FOUND, of(PARAM_STREAM, candidate.getStream()));
 		}
 		
 		// if sepd not found => exception.
-		StreamEventDefinition sepd = sd.getStreamEventDefinition(message.getDescriptorForType().getName());
+		StreamEventDefinition sepd = sd.getStreamEventDefinition(candidate.getMessage().getDescriptorForType().getName());
 		
-		return this.inMemoryEventStore.appendToStream(stream, streamId, UUID.randomUUID().toString(), message);
+		return this.inMemoryEventStore.appendToStream(candidate, correlation);
 	}
 	
 

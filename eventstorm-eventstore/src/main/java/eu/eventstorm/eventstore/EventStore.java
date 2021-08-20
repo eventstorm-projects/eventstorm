@@ -1,20 +1,20 @@
 package eu.eventstorm.eventstore;
 
-import java.util.stream.Stream;
-
 import com.google.protobuf.Message;
-
 import eu.eventstorm.core.Event;
+import eu.eventstorm.core.EventCandidate;
+
+import java.util.stream.Stream;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 public interface EventStore {
 
-	Event appendToStream(String stream, String streamId, String correlation, Message message);
-	
-	Stream<Event> readStream(String stream, String streamId);
+    <T extends Message> Event appendToStream(EventCandidate<T> candidate, String correlation);
 
-	Statistics stat(String stream);
+    Stream<Event> readStream(String stream, String streamId);
+
+    Statistics stat(String stream);
 
 }

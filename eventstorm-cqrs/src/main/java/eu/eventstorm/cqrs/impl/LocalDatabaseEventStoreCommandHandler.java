@@ -194,11 +194,11 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
         ImmutableList.Builder<Event> builder = ImmutableList.builder();
 
         try {
-            candidates.forEach(candidate -> builder.add(this.eventStore.appendToStream(
-                    candidate.getStream(),
-                    candidate.getStreamId(),
-                    correlation,
-                    candidate.getMessage())
+            candidates.forEach(candidate -> builder.add(this.eventStore.appendToStream(new EventCandidate<>(
+                        candidate.getStream(),
+                        candidate.getStreamId(),
+                        candidate.getMessage()),
+                    correlation)
             ));
         } catch (EventstormRepositoryException cause) {
             throw new LocalDatabaseStorageException(cause);

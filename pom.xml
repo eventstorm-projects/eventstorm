@@ -295,7 +295,8 @@
 		<module>eventstorm-starter-web</module>
 		<module>eventstorm-starter-webflux</module>
 		<module>eventstorm-bom</module>
-    </modules>
+		<module>eventstorm-saga</module>
+	</modules>
 
 	<profiles>
 		<profile>

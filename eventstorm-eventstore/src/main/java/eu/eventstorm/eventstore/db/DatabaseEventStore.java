@@ -3,6 +3,7 @@ package eu.eventstorm.eventstore.db;
 import com.google.protobuf.Message;
 
 import eu.eventstorm.core.Event;
+import eu.eventstorm.core.EventCandidate;
 import eu.eventstorm.eventstore.EventStoreProperties;
 import eu.eventstorm.eventstore.StreamManager;
 import eu.eventstorm.sql.Database;
@@ -16,15 +17,19 @@ public final class DatabaseEventStore extends LocalDatabaseEventStore {
 	private final Database database;
 	
 	public DatabaseEventStore(Database database, EventStoreProperties eventStoreProperties, StreamManager streamManager) {
+		this(database, eventStoreProperties, streamManager, JsonPayloadManager.INSTANCE);
+	}
+
+	public DatabaseEventStore(Database database, EventStoreProperties eventStoreProperties, StreamManager streamManager, PayloadManager payloadManager) {
 		super(database, eventStoreProperties, streamManager);
 		this.database = database;
 	}
 
 	@Override
-	public Event appendToStream(String stream, String streamId, String correlation, Message message) {
+	public <T extends Message> Event appendToStream(EventCandidate<T> candidate, String correlation) {
 		Event event;
 		try (Transaction transaction = database.transactionManager().newTransactionReadWrite()) {
-			event = super.appendToStream(stream, streamId, correlation, message);
+			event = super.appendToStream(candidate, correlation);
 			transaction.commit();
 		}
 		return event; 
