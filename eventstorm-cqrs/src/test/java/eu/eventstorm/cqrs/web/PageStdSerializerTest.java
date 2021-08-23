@@ -32,7 +32,7 @@ class PageStdSerializerTest {
 	}
 	
 	@Test
-	void testInvalidWrite() throws IOException {
+	void testInvalidWrite() {
 		Page<Toto> page = new PageImpl<>(Stream.of(new Toto()), 1, new Range(0, 0));
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.registerModule(new PageModule());

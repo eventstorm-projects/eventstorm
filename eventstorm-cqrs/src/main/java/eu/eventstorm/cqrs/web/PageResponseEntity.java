@@ -25,7 +25,9 @@ public final class PageResponseEntity<T> extends ResponseEntity<Page<T>> {
 
 	private static <T> MultiValueMap<String, String> getHeaders(Page<T> body) {
 		HttpHeaders headers = new HttpHeaders();
-		if (body.getRange().getEnd() + 1 < body.getTotalElements()) {
+		if (body.getTotalElements() == 0) {
+			headers.set(HttpHeaders.CONTENT_RANGE, "0-0/0");
+		} else if (body.getRange().getEnd() + 1 < body.getTotalElements()) {
 			headers.set(HttpHeaders.CONTENT_RANGE, "" + body.getRange().getStart() + "-" + body.getRange().getEnd() + '/' + body.getTotalElements());
 		} else {
 			headers.set(HttpHeaders.CONTENT_RANGE, "" + body.getRange().getStart() + "-" + (body.getTotalElements() - 1) + '/' + body.getTotalElements());
