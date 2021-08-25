@@ -16,12 +16,18 @@ public final class Dialects {
         return new OracleDialect(database);
     }
 
+    public static Dialect postgres(Database database) {
+        return new PostgresDialect(database);
+    }
+
     public static Dialect dialect(Dialect.Name name, Database database) {
         switch (name) {
             case H2:
                 return h2(database);
             case ORACLE:
                 return oracle(database);
+            case POSTGRES:
+                return postgres(database);
             default:
                 throw new IllegalStateException("invalid dialect name [" + name + "]");
         }

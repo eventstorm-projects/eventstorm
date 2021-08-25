@@ -310,7 +310,11 @@ public final class QueryJacksonStdDeserializerGenerator {
 		writer.write("            if (consumer == null) {");
 		writeNewLine(writer);
 		//writer.write("                throw new DeserializerException(DeserializerException.Type.FIELD_NOT_FOUND, ImmutableMap.of(\"field\",p.currentName(),\"eventPayload\", \""+ cd.simpleName()+"\"));");
-		writer.write("                LOGGER.warn(\"Field [{}] not found -> skip\", p.currentName());");
+		writer.write("                if (LOGGER.isDebugEnabled()) {");
+		writeNewLine(writer);
+		writer.write("                    LOGGER.debug(\"Field [{}] not found -> skip\", p.currentName());");
+		writeNewLine(writer);
+		writer.write("                }");
 		writeNewLine(writer);
 		writer.write("                " + Jsons.class.getName() + ".ignoreField(p);");
 		writeNewLine(writer);
