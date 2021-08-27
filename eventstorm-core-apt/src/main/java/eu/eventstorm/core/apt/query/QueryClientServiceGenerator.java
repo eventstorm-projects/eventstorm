@@ -206,17 +206,20 @@ public final class QueryClientServiceGenerator {
             builder.append(parameter.getName());
             builder.append(",");
 
-            loggerParams.append("{},");
+
 
             if (!(parameter instanceof QueryClientServiceMethodDescriptor.HttpHeader)) {
+                loggerParams.append("{},");
                 loggerParamsValue.append(parameter.getName()).append(',');
             }
 
         });
         if (epd.getParameters().size() > 0) {
             builder.deleteCharAt(builder.length()-1);
-            loggerParams.deleteCharAt(loggerParams.length()-1);
-            loggerParamsValue.deleteCharAt(loggerParamsValue.length()-1);
+            if (loggerParams.length() > 0) {
+                loggerParams.deleteCharAt(loggerParams.length()-1);
+                loggerParamsValue.deleteCharAt(loggerParamsValue.length()-1);
+            }
         }
 
         writer.write(builder.toString());
@@ -226,7 +229,7 @@ public final class QueryClientServiceGenerator {
         writer.write("        if (LOGGER.isDebugEnabled()) {");
         writeNewLine(writer);
         writer.write("            LOGGER.debug(\"" + epd.getMethod().getSimpleName() +"(" + loggerParams.toString() + ")\"");
-        if (epd.getParameters().size() > 0) {
+        if (epd.getParameters().size() > 0 && loggerParamsValue.length() > 0) {
             writer.write(", " + loggerParamsValue);
         }
         writer.write(");");
@@ -257,7 +260,7 @@ public final class QueryClientServiceGenerator {
                 writeNewLine(writer);
             } else {
                 writer.write("                .uri(\"" + ed.element().getAnnotation(CqrsQueryClientService.class).uri() + "/" + epd.getAnnotation().path() + "\"");
-                if (epd.getParameters().size() > 0) {
+                if (epd.getParameters().size() > 0 && loggerParamsValue.length() > 0) {
                     writer.write(", " + loggerParamsValue);
                 }
                 writer.write(")");

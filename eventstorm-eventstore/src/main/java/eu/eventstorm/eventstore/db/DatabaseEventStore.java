@@ -21,7 +21,7 @@ public final class DatabaseEventStore extends LocalDatabaseEventStore {
 	}
 
 	public DatabaseEventStore(Database database, EventStoreProperties eventStoreProperties, StreamManager streamManager, PayloadManager payloadManager) {
-		super(database, eventStoreProperties, streamManager);
+		super(database, eventStoreProperties, streamManager, payloadManager);
 		this.database = database;
 	}
 
