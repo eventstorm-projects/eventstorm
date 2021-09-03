@@ -1,5 +1,6 @@
 package eu.eventstorm.saga;
 
+import eu.eventstorm.cqrs.Command;
 import eu.eventstorm.saga.impl.SagaContextImpl;
 import eu.eventstorm.saga.memory.InMemorySagaDefinitionBuilder;
 import eu.eventstorm.saga.memory.InMemorySagaExecutionCoordinatorFactory;
@@ -16,7 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 class SimpleTest {
 
     @Test
-    void localTest() {
+    void localTest() throws InterruptedException {
 
         SagaParticipant participant_1 = new LogParticipant("part 1");
         SagaParticipant participant_2 = new LogParticipant("part 2");
@@ -29,6 +30,7 @@ class SimpleTest {
                 //  .withParticipant(participant_2)
                 .withParticipant(new CounterParticipant())
                 .withParticipant(new ErrorParticipant())
+                .withParticipant(new CounterParticipant())
              //   .withParticipant(new CounterParticipant())
              //   .withParticipant(new CounterParticipant())
                 .build();
@@ -38,11 +40,17 @@ class SimpleTest {
 
         SagaExecutionCoordinator coordinator = factory.newInstance("createOrder");
 
-        SagaContext context = new SagaContextImpl();
+        Command cmd = new Command() {
+        };
+
+        SagaContext context = new SagaContextImpl(cmd);
         context.put("counter", new AtomicInteger(10));
-        coordinator.execute(context);
+        coordinator.execute(context).block();
 
         LOGGER.info("FINISH");
+
+
+        //Thread.sleep(6000);
 
         AtomicInteger counter = context.get("counter");
         Assertions.assertEquals(10, counter.get());
@@ -54,25 +62,25 @@ class SimpleTest {
     private static final class CounterParticipant implements SagaParticipant {
 
         @Override
-        public Publisher<SagaMessage> execute(SagaContext context) {
+        public Mono<SagaContext> execute(SagaContext context) {
             return Mono.just(context)
                     .publishOn(Schedulers.boundedElastic())
                     .map(ctx -> {
                         AtomicInteger counter = ctx.get("counter");
                         counter.set(counter.get() + 10);
-                        return new SagaMessage();
+                        return ctx;
                     });
         }
 
         @Override
-        public Publisher<SagaMessage> compensate(SagaContext context) {
+        public Mono<SagaContext> compensate(SagaContext context) {
             LOGGER.info("compensate({}) ", context);
             return Mono.just(context)
                     .publishOn(Schedulers.parallel())
                     .map(ctx -> {
                         AtomicInteger counter = ctx.get("counter");
                         counter.set(counter.get() - 10);
-                        return new SagaMessage();
+                        return ctx;
                     });
         }
     }
@@ -86,30 +94,30 @@ class SimpleTest {
         }
 
         @Override
-        public Publisher<SagaMessage> execute(SagaContext context) {
+        public Mono<SagaContext> execute(SagaContext context) {
             LOGGER.info("execute({}) for {}", context, this.name);
-            return Mono.just(new SagaMessage());
+            return Mono.just(context);
         }
 
         @Override
-        public Publisher<SagaMessage> compensate(SagaContext context) {
+        public Mono<SagaContext> compensate(SagaContext context) {
             LOGGER.info("compensate 01");
-            return Mono.just(new SagaMessage());
+            return Mono.just(context);
         }
     }
 
     private static final class ErrorParticipant implements SagaParticipant {
 
         @Override
-        public Publisher<SagaMessage> execute(SagaContext context) {
+        public Mono<SagaContext> execute(SagaContext context) {
             LOGGER.info("execute({}) -> mono.error", context);
             return Mono.error(new IllegalStateException());
         }
 
         @Override
-        public Publisher<SagaMessage> compensate(SagaContext context) {
+        public Mono<SagaContext> compensate(SagaContext context) {
             LOGGER.info("compensate() ");
-            return Mono.just(new SagaMessage());
+            return Mono.just(context);
         }
     }
 }

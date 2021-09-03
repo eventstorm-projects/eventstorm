@@ -1,5 +1,8 @@
 package eu.eventstorm.saga;
 
+import org.reactivestreams.Subscriber;
+import reactor.core.publisher.Mono;
+
 /**
  * The Saga Execution Coordinator (SEC) is the core component for implementing a successful Saga flow.
  * It maintains a Saga log that contains the sequence of events of a particular flow.
@@ -9,6 +12,6 @@ package eu.eventstorm.saga;
  */
 public interface SagaExecutionCoordinator {
 
-    void execute(SagaContext context);
+    Mono<SagaContext> execute(SagaContext context);
 
 }

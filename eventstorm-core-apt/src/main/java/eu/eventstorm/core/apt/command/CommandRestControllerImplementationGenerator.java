@@ -203,8 +203,8 @@ public final class CommandRestControllerImplementationGenerator {
 		writeNewLine(writer);
 		writer.write("                } catch (java.io.IOException cause) {");
 		writeNewLine(writer);
-		//writer.write("                   throw new " + rcd.element().toString() +"Exception(cause);");
-		writer.write("                   throw new RuntimeException(cause);");
+		//writer.write("                   return Mono.error(new " + rcd.element().toString() +"Exception(cause));");
+		writer.write("                   return Mono.error(cause);");
 		writeNewLine(writer);
 		writer.write("                }");
 		writeNewLine(writer);

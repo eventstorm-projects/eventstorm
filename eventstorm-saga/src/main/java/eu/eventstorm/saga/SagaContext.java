@@ -1,12 +1,19 @@
 package eu.eventstorm.saga;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import eu.eventstorm.cloudevents.CloudEvent;
+import eu.eventstorm.cqrs.Command;
+
+import java.util.List;
 
 public interface SagaContext {
 
-    void push(SagaMessage sagaMessage);
+    <E extends Command> E getSagaCommand();
 
     <T> T get(String id);
 
     void put(String id, Object object);
+
+    void push(CloudEvent event);
+
+    List<CloudEvent> getEvents();
 }

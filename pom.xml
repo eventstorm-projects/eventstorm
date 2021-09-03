@@ -291,8 +291,8 @@
 		<module>eventstorm-eventbus</module>
 		<module>eventstorm-batch</module>
 		<module>eventstorm-cqrs</module>
-		<module>eventstorm-core-apt</module>
 		<module>eventstorm-saga</module>
+		<module>eventstorm-core-apt</module>
 		<module>eventstorm-starter-web</module>
 		<module>eventstorm-starter-webflux</module>
 		<module>eventstorm-bom</module>

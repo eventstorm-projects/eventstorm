@@ -66,25 +66,30 @@ final class CloudEventSerializer extends StdSerializer<CloudEvent> {
 
 		gen.writeFieldName("data");
 		gen.writeRaw(":");
-		
-		if (value.data() instanceof Any) {
-			Any any = (Any) value.data();
-			Parser<DynamicMessage> parser = this.descriptors.get(any.getTypeUrl());
-			if (parser == null) {
-				Descriptor descriptor = registry.getDescriptorForTypeUrl(any.getTypeUrl());
-				
-				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("debug [{}] -> [{}] ", any, descriptor);
+
+		if (value.data() != null) {
+			if (value.data() instanceof Any) {
+				Any any = (Any) value.data();
+				Parser<DynamicMessage> parser = this.descriptors.get(any.getTypeUrl());
+				if (parser == null) {
+					Descriptor descriptor = registry.getDescriptorForTypeUrl(any.getTypeUrl());
+
+					if (LOGGER.isDebugEnabled()) {
+						LOGGER.debug("debug [{}] -> [{}] ", any, descriptor);
+					}
+
+					parser = DynamicMessage.getDefaultInstance(descriptor).getParserForType();
+					this.descriptors.put(any.getTypeUrl(), parser);
 				}
-				
-				parser = DynamicMessage.getDefaultInstance(descriptor).getParserForType();
-				this.descriptors.put(any.getTypeUrl(), parser);
+				Message message = parser.parseFrom(any.getValue());
+				gen.writeRaw(printer.print(message));
+			} else {
+				gen.writeRaw(printer.print((MessageOrBuilder) value.data()));
 			}
-			Message message = parser.parseFrom(any.getValue());
-			gen.writeRaw(printer.print(message));
 		} else {
-			gen.writeRaw(printer.print((MessageOrBuilder) value.data()));
+			gen.writeRaw("{}");
 		}
+
 		gen.writeEndObject();
 	}
 

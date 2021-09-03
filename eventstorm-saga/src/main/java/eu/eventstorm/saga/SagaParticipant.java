@@ -1,10 +1,12 @@
 package eu.eventstorm.saga;
 
 import org.reactivestreams.Publisher;
+import reactor.core.publisher.Mono;
 
 public interface SagaParticipant {
 
-    Publisher<SagaMessage> execute(SagaContext context);
+    Mono<SagaContext> execute(SagaContext context);
 
-    Publisher<SagaMessage> compensate(SagaContext context);
+    Mono<SagaContext> compensate(SagaContext context);
+
 }
