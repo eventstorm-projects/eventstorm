@@ -1,6 +1,7 @@
 package eu.eventstorm.cloudevents.json.jackson;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
@@ -65,10 +66,10 @@ final class CloudEventSerializer extends StdSerializer<CloudEvent> {
 		gen.writeString("application/json");
 
 		gen.writeFieldName("data");
-		gen.writeRaw(":");
 
 		if (value.data() != null) {
 			if (value.data() instanceof Any) {
+				gen.writeRaw(":");
 				Any any = (Any) value.data();
 				Parser<DynamicMessage> parser = this.descriptors.get(any.getTypeUrl());
 				if (parser == null) {
@@ -83,8 +84,11 @@ final class CloudEventSerializer extends StdSerializer<CloudEvent> {
 				}
 				Message message = parser.parseFrom(any.getValue());
 				gen.writeRaw(printer.print(message));
-			} else {
+			} else if (value.data() instanceof MessageOrBuilder) {
+				gen.writeRaw(":");
 				gen.writeRaw(printer.print((MessageOrBuilder) value.data()));
+			} else {
+				gen.writeObject(value.data());
 			}
 		} else {
 			gen.writeRaw("{}");

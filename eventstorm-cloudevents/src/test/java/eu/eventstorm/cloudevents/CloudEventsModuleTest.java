@@ -7,6 +7,7 @@ import java.io.StringWriter;
 import java.util.List;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.common.collect.ImmutableMap;
 import eu.eventstorm.cloudevents.json.jackson.CloudEventDeserializerException;
 import eu.eventstorm.test.LoggerInstancePostProcessor;
 import org.junit.jupiter.api.BeforeEach;
@@ -103,5 +104,24 @@ class CloudEventsModuleTest {
 		assertEquals(CloudEventDeserializerException.Type.INVALID_FIELD_VALUE, ex.getType());
 
 	}
-	
+
+	@Test
+	void testSerDeserDataMap() throws Exception {
+
+		CloudEvent event = new CloudEventBuilder()
+				.withAggregateId("1")
+				.withAggregateType("test")
+				.withTimestamp("2011-03-09T18:36:30+02:00")
+				.withVersion(1)
+				.withPayload(ImmutableMap.of("key1","value1", "key2","value2"))
+				.build();
+
+		StringWriter writer = new StringWriter();
+		objectMapper.writeValue(writer, event);
+
+		JSONAssert.assertEquals("{id:\"1\", datacontenttype:\"application/json\"}", writer.toString(), false);
+		JSONAssert.assertEquals("{data:{\"key1\":\"value1\"}}", writer.toString(), false);
+
+		objectMapper.readValue(writer.toString(), CloudEvent.class);
+	}
 }
