@@ -124,4 +124,23 @@ class CloudEventsModuleTest {
 
 		objectMapper.readValue(writer.toString(), CloudEvent.class);
 	}
+
+	@Test
+	void testSerDeserDataNull() throws Exception {
+
+		CloudEvent event = new CloudEventBuilder()
+				.withAggregateId("1")
+				.withAggregateType("test")
+				.withTimestamp("2011-03-09T18:36:30+02:00")
+				.withVersion(1)
+				.build();
+
+		StringWriter writer = new StringWriter();
+		objectMapper.writeValue(writer, event);
+
+		JSONAssert.assertEquals("{id:\"1\", datacontenttype:\"application/json\"}", writer.toString(), false);
+		JSONAssert.assertEquals("{data:{}}", writer.toString(), false);
+
+		objectMapper.readValue(writer.toString(), CloudEvent.class);
+	}
 }

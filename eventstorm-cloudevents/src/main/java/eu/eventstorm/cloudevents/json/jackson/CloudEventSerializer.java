@@ -91,7 +91,7 @@ final class CloudEventSerializer extends StdSerializer<CloudEvent> {
 				gen.writeObject(value.data());
 			}
 		} else {
-			gen.writeRaw("{}");
+			gen.writeRaw(":{}");
 		}
 
 		gen.writeEndObject();
