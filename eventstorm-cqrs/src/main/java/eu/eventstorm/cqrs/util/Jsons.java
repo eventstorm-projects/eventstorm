@@ -71,8 +71,12 @@ public final class Jsons {
                 mapBuilder.put(parser.currentName(), readMapStringObject(parser));
             } else if (token == JsonToken.START_ARRAY) {
                 mapBuilder.put(parser.currentName(), readList(parser));
+            } else if (token == JsonToken.VALUE_TRUE) {
+                mapBuilder.put(parser.currentName(), Boolean.TRUE);
+            } else if (token == JsonToken.VALUE_FALSE) {
+                mapBuilder.put(parser.currentName(), Boolean.FALSE);
             } else {
-                throw new RuntimeException();
+                throw new IOException("Invalid token : [" + token + "]");
             }
             parser.nextToken();
         }

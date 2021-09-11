@@ -60,7 +60,7 @@ class JsonsTest {
     @Test
     void testReadStringObjectSimple() throws IOException {
 
-        String value = "{ \"key1\" : \"value1\",  \"key2\" : \"value2\", \"key3\" : \"value3\"}";
+        String value = "{ \"key1\" : \"value1\",  \"key2\" : \"value2\", \"key3\" : \"value3\", \"key4\" : true, \"key5\" : false, \"key6\" : \"value6\" }";
 
         JsonFactory factory = new JsonFactory();
         JsonParser parser = factory.createParser(value);
@@ -69,6 +69,9 @@ class JsonsTest {
         assertEquals(map.get("key1"), "value1");
         assertEquals(map.get("key2"), "value2");
         assertEquals(map.get("key3"), "value3");
+        assertEquals(map.get("key4"), Boolean.TRUE);
+        assertEquals(map.get("key5"), Boolean.FALSE);
+        assertEquals(map.get("key6"), "value6");
 
         value = "{ \"key1\" : \"value1\",  \"key2\" : \"value2\", \"key3\" : 123456789}";
 

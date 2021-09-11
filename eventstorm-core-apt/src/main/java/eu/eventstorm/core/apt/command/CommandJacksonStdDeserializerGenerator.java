@@ -202,8 +202,8 @@ public final class CommandJacksonStdDeserializerGenerator {
 			    	writer.write("                }");
 			    	writeNewLine(writer);
 		    	}
-		    	
-		    } else if (returnType.startsWith(Map.class.getName())) {
+
+		    } else if (returnType.equals(Map.class.getName() + "<java.lang.String,java.lang.String>")) {
 		    	
 		    	writer.write("				" + ImmutableMap.class.getName() + ".Builder<String,String> mapBuilder = " + ImmutableMap.class.getName() + ".builder();");
 		    	writeNewLine(writer);
@@ -226,8 +226,16 @@ public final class CommandJacksonStdDeserializerGenerator {
 		    	writer.write("				builder.with" + Helper.firstToUpperCase(cpd.name()) + "(mapBuilder.build());");
 		    	writeNewLine(writer);
 		    	
-		    } else {
-		   
+		    } else if (returnType.equals(Map.class.getName() + "<java.lang.String,java.lang.Object>")) {
+				writeNewLine(writer);
+				writer.write("				// FIELD");
+				writeNewLine(writer);
+				writer.write("				parser.nextToken();");
+				writeNewLine(writer);
+				writer.write("				builder.with" + Helper.firstToUpperCase(cpd.name()) + "((java.util.Map<String, Object>) eu.eventstorm.cqrs.util.Jsons.readMapStringObject(parser));");
+				writeNewLine(writer);
+
+			} else {
 		    	writer.write("				builder.with" + Helper.firstToUpperCase(cpd.name()) + "(");
 		    
 			    if ("java.lang.String".equals(returnType)) {
