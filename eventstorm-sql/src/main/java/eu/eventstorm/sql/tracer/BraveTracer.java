@@ -1,12 +1,13 @@
 package eu.eventstorm.sql.tracer;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-
 import brave.ScopedSpan;
 import brave.Tracer;
-import eu.eventstorm.sql.EventstormSqlException;
+import eu.eventstorm.sql.SqlQuery;
 import eu.eventstorm.sql.Transaction;
+import eu.eventstorm.sql.impl.TransactionQueryContext;
+import eu.eventstorm.sql.impl.TraceTransactionQueryContextImpl;
+
+import java.sql.PreparedStatement;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -32,14 +33,9 @@ final class BraveTracer implements TransactionTracer {
 		}
 
 		@Override
-		public void exception(EventstormSqlException cause) {
+		public void exception(Exception cause) {
 			this.scopedSpan.error(cause);
 		}
-
-        @Override
-		public void exception(SQLException cause) {
-			this.scopedSpan.error(cause);
-        }
 
 		@Override
 		public void tag(String key, String value) {
@@ -61,6 +57,11 @@ final class BraveTracer implements TransactionTracer {
 	@Override
 	public PreparedStatement decorate(PreparedStatement prepareStatement) {
 		return new BravePreparedStatement(prepareStatement, this);
+	}
+
+	@Override
+	public TransactionQueryContext newTransactionContext(PreparedStatement ps, SqlQuery query) {
+		return new TraceTransactionQueryContextImpl(ps, query, this);
 	}
 
 	@Override

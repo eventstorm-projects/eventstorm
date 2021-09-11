@@ -44,7 +44,7 @@ class Ex001Test {
 		command.setEmail("jm@mail.org");
 
 		ImmutableList.Builder<Event> builder = ImmutableList.builder();
-		gateway.<Event>dispatch(new DefaultCommandContext(), command).doOnNext(builder::add).blockLast();
+		gateway.<Event>dispatch(new DefaultCommandContext(command)).doOnNext(builder::add).blockLast();
 		
 		assertEquals(1, eventStoreClient.readStream("user", "1").count());
 		Event event = eventStoreClient.readStream("user", "1").findFirst().get();
@@ -70,14 +70,14 @@ class Ex001Test {
 
 		ImmutableList.Builder<Event> builder = ImmutableList.builder();
 		
-		CommandValidationException cve = assertThrows(CommandValidationException.class, () -> gateway.<Event>dispatch(new DefaultCommandContext(),command).doOnNext(builder::add).blockLast());
+		CommandValidationException cve = assertThrows(CommandValidationException.class, () -> gateway.<Event>dispatch(new DefaultCommandContext(command)).doOnNext(builder::add).blockLast());
 		assertEquals(command, cve.getCommand());
 		//assertEquals("mail", cve.getConstraintViolations().get(0).getProperties().get(0));
 	}
 
 	@Test
 	void testCommandExceptionException() {
-		CommandGatewayException cge = assertThrows(CommandGatewayException.class, () -> gateway.<Event>dispatch(new DefaultCommandContext(),new Command(){}).blockLast());
+		CommandGatewayException cge = assertThrows(CommandGatewayException.class, () -> gateway.<Event>dispatch(new DefaultCommandContext(new Command(){})).blockLast());
 		assertEquals(CommandGatewayException.Type.NOT_FOUND, cge.getType());
 	}
 }

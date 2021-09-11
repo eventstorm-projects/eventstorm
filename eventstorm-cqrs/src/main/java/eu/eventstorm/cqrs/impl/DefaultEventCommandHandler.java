@@ -44,13 +44,13 @@ public abstract class DefaultEventCommandHandler<T extends Command> extends Abst
 		this.validator.validate(context, command);
 
 		if (context.hasConstraintViolation()) {
-			throw new CommandValidationException(context, command);
+			throw new CommandValidationException(context);
 		}
 
 		consistencyValidation(context, command);
 
 		if (context.hasConstraintViolation()) {
-			throw new CommandValidationException(context, command);
+			throw new CommandValidationException(context);
 		}
 
 	}

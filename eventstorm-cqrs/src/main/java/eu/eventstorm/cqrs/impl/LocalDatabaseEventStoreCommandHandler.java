@@ -84,9 +84,9 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
         return this.type;
     }
 
-    public final Flux<Event> handle(CommandContext context, T command) {
-        return Mono.just(of(context, command))
-                .doFinally(onFinally(context, command))
+    public final Flux<Event> handle(CommandContext context) {
+        return Mono.just(context)
+                .doFinally(onFinally(context, context.getCommand()))
                 .handle(this::validate)
                 // if exception in the validation -> skip the eventLoop
                 .filterWhen(t -> Mono.just(true))
@@ -95,9 +95,9 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
                 ;
     }
 
-    protected  Mono<ImmutableList<Event>> eventLoopStoreAndEvolution(Tuple2<CommandContext, T> tp) {
-        return Mono.just(tp)
-                .publishOn(eventLoop.get(tp.getT2()))
+    protected  Mono<ImmutableList<Event>> eventLoopStoreAndEvolution(CommandContext ctx) {
+        return Mono.just(ctx)
+                .publishOn(eventLoop.get(ctx.getCommand()))
                 .handle(this::storeAndEvolution)
                 .flatMap(tuple -> Mono.just(tuple)
                         .publishOn(eventLoop.post())
@@ -124,17 +124,17 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
     }
 
 
-    private void validate(Tuple2<CommandContext, T> tuple, SynchronousSink<Tuple2<CommandContext, T>> sink) {
+    private void validate(CommandContext ctx, SynchronousSink<CommandContext> sink) {
         try (Span ignored = this.tracer.start("validate")) {
-            this.validator.validate(tuple.getT1(), tuple.getT2());
-            if (tuple.getT1().hasConstraintViolation()) {
-                sink.error(new CommandValidationException(tuple.getT1(), tuple.getT2()));
+            this.validator.validate(ctx, ctx.getCommand());
+            if (ctx.hasConstraintViolation()) {
+                sink.error(new CommandValidationException(ctx));
                 return;
             }
 
-            transactionTemplate.executeWithReadOnly(() -> consistencyValidation(tuple.getT1(), tuple.getT2()));
-            if (tuple.getT1().hasConstraintViolation()) {
-                sink.error(new CommandValidationException(tuple.getT1(), tuple.getT2()));
+            transactionTemplate.executeWithReadOnly(() -> consistencyValidation(ctx, ctx.getCommand()));
+            if (ctx.hasConstraintViolation()) {
+                sink.error(new CommandValidationException(ctx));
                 return;
             }
 
@@ -144,32 +144,32 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
         }
 
         try {
-            postValidate(tuple.getT1(), tuple.getT2());
-            sink.next(tuple);
+            postValidate(ctx, ctx.getCommand());
+            sink.next(ctx);
         } catch (Exception cause) {
             sink.error(cause);
         }
 
     }
 
-    private void storeAndEvolution(Tuple2<CommandContext, T> tuple, SynchronousSink<Tuple2<CommandContext, ImmutableList<Event>>> sink) {
+    private void storeAndEvolution(CommandContext ctx, SynchronousSink<Tuple2<CommandContext, ImmutableList<Event>>> sink) {
         ImmutableList<Event> events;
         try (Span ignored = this.tracer.start("storeAndEvolution")) {
-            events = doStoreAndEvolution(tuple);
+            events = doStoreAndEvolution(ctx);
         } catch (Exception cause) {
             sink.error(cause);
             return;
         }
-        sink.next(of(tuple.getT1(), events));
+        sink.next(of(ctx, events));
     }
 
-    private ImmutableList<Event> doStoreAndEvolution(Tuple2<CommandContext, T> tuple) {
+    private ImmutableList<Event> doStoreAndEvolution(CommandContext ctx) {
         return transactionTemplate.executeWith(DEFAULT_TRANSACTION_DEFINITION, () -> {
             ImmutableList<Event> events;
             ImmutableList<EventCandidate<?>> candidates;
             try (Span ignored = this.tracer.start("decision")) {
                 // apply the decision function (state,command) => events
-                candidates = decision(tuple.getT1(), tuple.getT2());
+                candidates = decision(ctx, ctx.getCommand());
             }
 
             try (Span ignored = this.tracer.start("store")) {
@@ -189,17 +189,10 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("store [{}]", candidates);
         }
-
         String correlation = candidates.size() > 1 ? UUID.randomUUID().toString() : null;
         ImmutableList.Builder<Event> builder = ImmutableList.builder();
-
         try {
-            candidates.forEach(candidate -> builder.add(this.eventStore.appendToStream(new EventCandidate<>(
-                        candidate.getStream(),
-                        candidate.getStreamId(),
-                        candidate.getMessage()),
-                    correlation)
-            ));
+            candidates.forEach(candidate -> builder.add(this.eventStore.appendToStream(candidate,correlation)));
         } catch (EventstormRepositoryException cause) {
             throw new LocalDatabaseStorageException(cause);
         }

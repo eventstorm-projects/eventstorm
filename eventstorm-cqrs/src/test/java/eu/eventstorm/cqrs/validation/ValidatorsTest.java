@@ -24,7 +24,7 @@ final class ValidatorsTest {
 
 	@Test
 	void testEmpty() {
-		CommandContext validatorContext = new DefaultCommandContext();
+		CommandContext validatorContext = new DefaultCommandContext(new Command() {});
 		Validators.empty().validate(validatorContext, new Command() {});
 		assertFalse(validatorContext.hasConstraintViolation());
 	}

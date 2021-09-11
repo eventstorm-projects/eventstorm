@@ -3,6 +3,9 @@ package eu.eventstorm.sql.tracer;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+import eu.eventstorm.sql.SqlQuery;
+import eu.eventstorm.sql.impl.TransactionQueryContext;
+import eu.eventstorm.sql.impl.TransactionQueryContextImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,14 +25,10 @@ final class DebugTracer implements TransactionTracer {
 			LOGGER.debug("tag({},{})", key, value);
 		}
 		@Override
-		public void exception(EventstormSqlException cause) {
+		public void exception(Exception cause) {
 			LOGGER.debug("exception()", cause);
         }
-         @Override
-		public void exception(SQLException cause) {
-            LOGGER.debug("exception()", cause);
-		}
-		@Override
+    	@Override
 		public void close() {
 			LOGGER.debug("close()");
 		}
@@ -63,6 +62,12 @@ final class DebugTracer implements TransactionTracer {
 	public PreparedStatement decorate( PreparedStatement prepareStatement) {
 		LOGGER.debug("decorate({})", prepareStatement);
 		return prepareStatement;
+	}
+
+	@Override
+	public TransactionQueryContext newTransactionContext(PreparedStatement ps, SqlQuery query) {
+		LOGGER.debug("newTransactionContext({},{}})", ps, query);
+		return new TransactionQueryContextImpl(ps);
 	}
 
 }

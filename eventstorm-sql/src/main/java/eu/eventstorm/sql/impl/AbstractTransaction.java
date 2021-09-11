@@ -245,7 +245,7 @@ abstract class AbstractTransaction implements TransactionSupport {
 			}
 			cache.put(query.sql(), ps);
 		}
-		return new TransactionQueryContextImpl(ps, query, this.transactionManager.getConfiguration());
+		return tracer.newTransactionContext(ps, query);
 	}
 
 	@Override

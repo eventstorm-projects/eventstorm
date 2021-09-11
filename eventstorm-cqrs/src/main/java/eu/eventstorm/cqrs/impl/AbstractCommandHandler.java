@@ -12,12 +12,12 @@ import reactor.core.publisher.Flux;
  */
 abstract class AbstractCommandHandler<T extends Command, R> implements CommandHandler<T, R> {
 	
-	public final Flux<R> handle(CommandContext context, T command) {
+	public final Flux<R> handle(CommandContext context) {
 		// validate the command
-		validate(context, command);
+		validate(context, context.getCommand());
 		
 		// apply the decision function (state,command) => events
-		ImmutableList<R> candidates = decision(context, command);
+		ImmutableList<R> candidates = decision(context, context.getCommand());
 		
 		// apply the evolution function (state,Event) => State
 		evolution(candidates);

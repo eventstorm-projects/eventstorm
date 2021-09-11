@@ -2,6 +2,7 @@ package eu.eventstorm.cqrs.context;
 
 import java.util.Collections;
 
+import eu.eventstorm.cqrs.Command;
 import org.springframework.web.reactive.HandlerMapping;
 import org.springframework.web.server.ServerWebExchange;
 
@@ -12,7 +13,8 @@ public final class ReactiveCommandContext extends DefaultCommandContext {
 
 	private final ServerWebExchange exchange;
 	
-	public ReactiveCommandContext(ServerWebExchange exchange) {
+	public ReactiveCommandContext(Command command, ServerWebExchange exchange) {
+		super(command);
 		this.exchange = exchange;
 	}
 	

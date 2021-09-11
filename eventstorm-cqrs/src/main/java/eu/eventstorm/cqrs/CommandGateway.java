@@ -26,23 +26,23 @@ public final class CommandGateway {
 		this.cache = new ConcurrentHashMap<>();
 	}
 
-	public <E> Flux<E> dispatch(CommandContext ctx, Command command) {
+	public <E> Flux<E> dispatch(CommandContext ctx) {
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("dispatch({})", command);
+			LOGGER.debug("dispatch({})", ctx);
 		}
 
-		String cacheKey = cache.get(command.getClass().getName());
+		String cacheKey = cache.get(ctx.getCommand().getClass().getName());
 
 		if (cacheKey == null) {
-			cacheKey = buildCacheKey(command);
-			this.cache.put(command.getClass().getName(), cacheKey);
+			cacheKey = buildCacheKey(ctx.getCommand());
+			this.cache.put(ctx.getCommand().getClass().getName(), cacheKey);
 		}
 
 		// if the command is not found -> command gateway exception -> no need to check if it's null.
 		CommandHandler<Command,E> commandHandler = (CommandHandler<Command, E>) this.handlers.get(cacheKey);
 
-		return commandHandler.handle(ctx, command);
+		return commandHandler.handle(ctx);
 	}
 
 	private String buildCacheKey(Command command) {

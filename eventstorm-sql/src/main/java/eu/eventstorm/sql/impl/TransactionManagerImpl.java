@@ -1,22 +1,19 @@
 package eu.eventstorm.sql.impl;
 
-import static eu.eventstorm.sql.impl.TransactionException.Type.CONNECTION_ISOLATION;
-import static eu.eventstorm.sql.impl.TransactionException.Type.CREATE;
-import static eu.eventstorm.sql.impl.TransactionException.Type.NO_CURRENT_TRANSACTION;
-
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
-
-import javax.sql.DataSource;
-
+import eu.eventstorm.sql.Transaction;
 import eu.eventstorm.sql.TransactionDefinition;
+import eu.eventstorm.sql.TransactionManager;
 import eu.eventstorm.sql.TransactionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.eventstorm.sql.Transaction;
-import eu.eventstorm.sql.TransactionManager;
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
+
+import static eu.eventstorm.sql.impl.TransactionException.Type.CONNECTION_ISOLATION;
+import static eu.eventstorm.sql.impl.TransactionException.Type.CREATE;
+import static eu.eventstorm.sql.impl.TransactionException.Type.NO_CURRENT_TRANSACTION;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -76,7 +73,7 @@ public final class TransactionManagerImpl implements TransactionManager {
             }
             else {
                 // get TX inside another TX
-                tx = tx.innerTransaction(definition);
+                tx = (tx).innerTransaction(definition);
             }
         } else if (TransactionType.READ_ONLY == definition.getType()) {
             tx = new TransactionReadOnly(this, getConnection(), definition);
@@ -155,11 +152,11 @@ public final class TransactionManagerImpl implements TransactionManager {
 
 	@Override
 	public TransactionContext context() {
-		TransactionContext context = this.transactions.get();
+		Transaction context = this.transactions.get();
 		if (context == null) {
 			throw new TransactionException(NO_CURRENT_TRANSACTION);
 		}
-		return context;
+		return (TransactionContext) context;
 	}
 
 	/*protected void prepareTransactionalConnection(Connection con, TransactionDefinition definition)
@@ -175,7 +172,7 @@ public final class TransactionManagerImpl implements TransactionManager {
 		return this.configuration;
 	}
 	
-	protected final DataSource getDataSource() {
+	protected DataSource getDataSource() {
 		return this.dataSource;
 	}
 

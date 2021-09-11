@@ -31,7 +31,7 @@ public final class ReactiveUserCommandRestController {
 			LOGGER.trace("createUserCommand (reactive/user/create) : [{}]", command);
 		}
 		
-		return Mono.empty().flatMapMany(emtpy -> gateway.dispatch(new ReactiveCommandContext(request), command));
+		return Mono.empty().flatMapMany(emtpy -> gateway.dispatch(new ReactiveCommandContext(command, request)));
 	}
 
 }

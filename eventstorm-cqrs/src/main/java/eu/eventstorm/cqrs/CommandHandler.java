@@ -9,6 +9,6 @@ public interface CommandHandler<C extends Command, T> {
 	
 	Class<C> getType();
 	
-	Flux<T> handle(CommandContext context, C command);
+	Flux<T> handle(CommandContext context);
 
 }

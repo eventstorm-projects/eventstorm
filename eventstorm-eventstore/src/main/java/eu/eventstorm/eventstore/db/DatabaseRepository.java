@@ -24,27 +24,27 @@ import eu.eventstorm.sql.jdbc.ResultSetMappers;
  */
 final class DatabaseRepository extends AbstractDatabaseEventRepository {
 
-	private final SqlQuery findLastRevisionByAggreateTypeAndAggregateId;
+	private final SqlQuery findLastRevisionByAggregateTypeAndAggregateId;
 	
-	private final SqlQuery findByAggreateTypeAndAggregateId;
+	private final SqlQuery findByAggregateTypeAndAggregateId;
 
 	DatabaseRepository(Database database) {
 		super(database);
-		this.findLastRevisionByAggreateTypeAndAggregateId = select(max(REVISION)).from(TABLE).where(and(eq(STREAM), eq(STREAM_ID))).build();
+		this.findLastRevisionByAggregateTypeAndAggregateId = select(max(REVISION)).from(TABLE).where(and(eq(STREAM), eq(STREAM_ID))).build();
 		
-		this.findByAggreateTypeAndAggregateId = select(TIME, REVISION, PAYLOAD, EVENT_TYPE).from(TABLE).where(and(eq(STREAM), eq(STREAM_ID))).orderBy(asc(REVISION))
+		this.findByAggregateTypeAndAggregateId = select(TIME, REVISION, PAYLOAD, EVENT_TYPE).from(TABLE).where(and(eq(STREAM), eq(STREAM_ID))).orderBy(asc(REVISION))
 		        .build();
 	}
 
 	public Integer lastRevision(String stream, String streamId) {
-		return executeSelect(this.findLastRevisionByAggreateTypeAndAggregateId, ps -> {
+		return executeSelect(this.findLastRevisionByAggregateTypeAndAggregateId, ps -> {
 			ps.setString(1, stream);
 			ps.setString(2, streamId);
 		}, ResultSetMappers.INTEGER);
 	}
 	
 	public  <T> Stream<T> findAllByStreamAndStreamId(String stream, String streamId, ResultSetMapper<T> rsm) {
-		return stream(this.findByAggreateTypeAndAggregateId, ps -> {
+		return stream(this.findByAggregateTypeAndAggregateId, ps -> {
 			ps.setString(1, stream);
 			ps.setString(2, streamId);
 		}, rsm);

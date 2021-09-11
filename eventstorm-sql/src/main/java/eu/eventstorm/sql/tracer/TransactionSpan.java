@@ -11,9 +11,7 @@ public interface TransactionSpan extends AutoCloseable {
 	@Override
 	void close();
 
-    void exception(EventstormSqlException cause);
-
-    void exception(SQLException cause);
+    void exception(Exception cause);
 
 	void tag(String key, String value);
 	

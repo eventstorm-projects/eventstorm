@@ -29,7 +29,7 @@ public final class UserCommandRestController {
 		if (LOGGER.isTraceEnabled()) {
 			LOGGER.trace("createUserCommand (command/user/create) : [{}]", command);
 		}
-		gateway.dispatch(new ReactiveCommandContext(request), command).collect(ImmutableList.toImmutableList());
+		gateway.dispatch(new ReactiveCommandContext(command, request)).collect(ImmutableList.toImmutableList());
 	}
 
 }

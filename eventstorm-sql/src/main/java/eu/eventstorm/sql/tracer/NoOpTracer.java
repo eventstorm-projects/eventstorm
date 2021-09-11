@@ -4,7 +4,10 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import eu.eventstorm.sql.EventstormSqlException;
+import eu.eventstorm.sql.SqlQuery;
 import eu.eventstorm.sql.Transaction;
+import eu.eventstorm.sql.impl.TransactionQueryContext;
+import eu.eventstorm.sql.impl.TransactionQueryContextImpl;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -17,12 +20,8 @@ final class NoOpTracer implements TransactionTracer {
 			 // Do nothing because no tracing op
 		}
 		@Override
-		public void exception(EventstormSqlException cause) {
+		public void exception(Exception cause) {
 			// Do nothing because no tracing op
-		}
-        @Override
-		public void exception(SQLException cause) {
-        	// Do nothing because no tracing op
 		}
         @Override
 		public void close() {
@@ -47,6 +46,11 @@ final class NoOpTracer implements TransactionTracer {
 	@Override
 	public PreparedStatement decorate( PreparedStatement prepareStatement) {
 		return prepareStatement;
+	}
+
+	@Override
+	public TransactionQueryContext newTransactionContext(PreparedStatement ps, SqlQuery query) {
+		return new TransactionQueryContextImpl(ps);
 	}
 
 

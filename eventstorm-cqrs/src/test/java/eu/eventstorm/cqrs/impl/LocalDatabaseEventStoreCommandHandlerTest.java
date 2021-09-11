@@ -38,12 +38,13 @@ class LocalDatabaseEventStoreCommandHandlerTest {
     @Autowired
     private TestLocalDatabaseEventStoreFailedCommandHandler handlerFailedValidation;
 
+
     @Test
     void testNormal() {
         TestCommand command = new TestCommand();
-        DefaultCommandContext commandContext = new DefaultCommandContext();
+        DefaultCommandContext commandContext = new DefaultCommandContext(command);
 
-        Flux<Event> flux = handler.handle(commandContext, command);
+        Flux<Event> flux = handler.handle(commandContext);
         List<Event> events = flux.collectList().block();
 
         assertNotNull(events);
@@ -55,9 +56,9 @@ class LocalDatabaseEventStoreCommandHandlerTest {
     void testFailedValidation() {
 
         TestFailedCommand command = new TestFailedCommand();
-        DefaultCommandContext commandContext = new DefaultCommandContext();
+        DefaultCommandContext commandContext = new DefaultCommandContext(command);
 
-        RuntimeException ex =  assertThrows(RuntimeException.class, () -> handlerFailedValidation.handle(commandContext, command).collectList().block());
+        RuntimeException ex =  assertThrows(RuntimeException.class, () -> handlerFailedValidation.handle(commandContext).collectList().block());
         assertEquals("FAILED VALIDATION", ex.getMessage());
         assertEquals(1, command.integer.get());
     }

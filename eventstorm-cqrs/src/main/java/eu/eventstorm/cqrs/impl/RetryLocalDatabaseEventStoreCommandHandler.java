@@ -39,19 +39,19 @@ public abstract class RetryLocalDatabaseEventStoreCommandHandler<T extends Comma
     }
 
     @Override
-    protected  Mono<ImmutableList<Event>> eventLoopStoreAndEvolution(Tuple2<CommandContext, T> tp) {
-        return super.eventLoopStoreAndEvolution(tp)
+    protected  Mono<ImmutableList<Event>> eventLoopStoreAndEvolution(CommandContext ctx) {
+        return super.eventLoopStoreAndEvolution(ctx)
                 .onErrorResume(LocalDatabaseStorageException.class, cause -> {
-                    AtomicInteger counter = tp.getT1().get(LocalDatabaseStorageException.class.getName());
+                    AtomicInteger counter = ctx.get(LocalDatabaseStorageException.class.getName());
                     if (counter == null) {
                         counter = new AtomicInteger(0);
-                        tp.getT1().put(LocalDatabaseStorageException.class.getName(), counter);
+                        ctx.put(LocalDatabaseStorageException.class.getName(), counter);
                     }
                     if (counter.incrementAndGet() > 10) {
                         LOGGER.warn("Max retry [{}] reached -> return last error", this.maxRetry);
                         return Mono.error(cause.getCause());
                     }
-                    return this.eventLoopStoreAndEvolution(tp);
+                    return this.eventLoopStoreAndEvolution(ctx);
                 });
     }
 }

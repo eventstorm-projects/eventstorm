@@ -1,16 +1,13 @@
 package eu.eventstorm.cqrs.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.google.common.collect.ImmutableList;
-
 import eu.eventstorm.core.Event;
 import eu.eventstorm.core.EventCandidate;
 import eu.eventstorm.cqrs.Command;
 import eu.eventstorm.cqrs.CommandContext;
 import eu.eventstorm.cqrs.CommandHandler;
 import eu.eventstorm.cqrs.EventLoop;
-import eu.eventstorm.util.tuple.Tuples;
+import org.springframework.beans.factory.annotation.Autowired;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -22,20 +19,20 @@ abstract class AbstractEventCommandHandler<T extends Command> implements Command
 	@Autowired
 	private EventLoop eventLoop;
 	
-	public final Flux<Event> handle(CommandContext context, T command) {
+	public final Flux<Event> handle(CommandContext context) {
 		
-		return Mono.just(Tuples.of(context,command))
-			.map( tuple -> {
+		return Mono.just(context)
+			.map(ctx -> {
 				// validate the command
-				validate(tuple.getT1(), tuple.getT2());
-				return tuple;
+				validate(ctx, ctx.getCommand());
+				return context;
 			})
-			.map( tuple ->
+			.flatMap(ctx ->
 					// apply the decision function (state,command) => events
-					decision(context, command)
+					Mono.just(decision(ctx, ctx.getCommand()))
+						// publish on event lopp before store
+						.publishOn(eventLoop.get(ctx.getCommand()))
 			)
-			// publish on event lopp before store
-			.publishOn(eventLoop.get(command))
 			// save the to the eventStore
 			.map(this::store)
 			// apply the evolution function (state,Event) => State

@@ -28,13 +28,13 @@ public abstract class AbstractBatchEventCommandHandler<C extends BatchCommand> i
 	}
 
 	@Override
-	public Flux<Event> handle(CommandContext context, C command) {
+	public Flux<Event> handle(CommandContext context) {
 		
-		return Mono.just(Tuples.of(context, command))
+		return Mono.just(context)
 				// validate the command
-				.doOnNext(t -> validate(t.getT1(), t.getT2()))
+				.doOnNext(t -> validate(t, t.getCommand()))
 				// apply the decision function (state,command) => events
-				.map(t -> decision(t.getT1(), t.getT2()))
+				.map(t -> decision(t, t.getCommand()))
 				// push the candidate to the batch
 				.map(this.batch::push)
 				// to flux
