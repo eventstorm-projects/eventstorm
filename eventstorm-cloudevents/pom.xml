@@ -67,6 +67,7 @@
 						</goals>
 						<configuration>
 							<protocVersion>${com.google.protobuf.version}</protocVersion>
+							<protocArtifact>com.google.protobuf:protoc:${com.google.protobuf.version}</protocArtifact>
 							<includeImports>true</includeImports>
 							<includeStdTypes>true</includeStdTypes>
 							<inputDirectories>

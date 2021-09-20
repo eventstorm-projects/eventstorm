@@ -126,6 +126,8 @@
 							<goal>run</goal>
 						</goals>
 						<configuration>
+							<protocVersion>${com.google.protobuf.version}</protocVersion>
+							<protocArtifact>com.google.protobuf:protoc:${com.google.protobuf.version}</protocArtifact>
 							<inputDirectories>
 								<include>src/main/resources</include>
 							</inputDirectories>
@@ -140,6 +142,8 @@
 							<goal>run</goal>
 						</goals>
 						<configuration>
+							<protocVersion>${com.google.protobuf.version}</protocVersion>
+							<protocArtifact>com.google.protobuf:protoc:${com.google.protobuf.version}</protocArtifact>
 							<inputDirectories>
 								<include>src/test/resources</include>
 							</inputDirectories>

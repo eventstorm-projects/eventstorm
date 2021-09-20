@@ -85,7 +85,6 @@
 			<plugin>
 				<groupId>com.github.os72</groupId>
 				<artifactId>protoc-jar-maven-plugin</artifactId>
-				<version>3.11.4</version>
 				<executions>
 					<execution>
 						<id>protobuf-generate-sources</id>
@@ -94,7 +93,8 @@
 							<goal>run</goal>
 						</goals>
 						<configuration>
-							<protocVersion>3.11.4</protocVersion>
+							<protocVersion>${com.google.protobuf.version}</protocVersion>
+							<protocArtifact>com.google.protobuf:protoc:${com.google.protobuf.version}</protocArtifact>
 							<inputDirectories>
 								<include>src/main/resources</include>
 							</inputDirectories>
