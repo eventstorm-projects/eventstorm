@@ -105,7 +105,11 @@ public final class DatabaseBatch implements Batch {
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("onSuccess()");
 			}
-			template.executeWithReadWrite(() -> repository.update(context.getDatabaseExecution()));
+			try {
+				template.executeWithReadWrite(() -> repository.update(context.getDatabaseExecution()));
+			} catch (Exception cause) {
+				LOGGER.warn("Failed to save the database execution", cause);
+			}
 		}
 		
 		@Override
@@ -115,7 +119,11 @@ public final class DatabaseBatch implements Batch {
 			}
 			context.log("onFailure.message", ex.getMessage());
 			context.log("onFailure.exception", Throwables.getStackTraceAsString(ex));
-			template.executeWithReadWrite(() -> repository.update(context.getDatabaseExecution()));
+			try {
+				template.executeWithReadWrite(() -> repository.update(context.getDatabaseExecution()));
+			} catch (Exception cause) {
+				LOGGER.warn("Failed to save the database execution", cause);
+			}
 		}
 	}
 	
