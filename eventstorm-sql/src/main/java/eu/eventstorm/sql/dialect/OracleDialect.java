@@ -75,7 +75,7 @@ final class OracleDialect extends AbstractDialect {
 
 	@Override
 	public void setPreparedStatement(PreparedStatement ps, int index, Json json) throws SQLException {
-		ps.setString(index, new String(json.write(this.getDatabase().jsonMapper()), StandardCharsets.UTF_8));
+		ps.setString(index, new String(json.write(null), StandardCharsets.UTF_8));
 	}
 
 	@Override

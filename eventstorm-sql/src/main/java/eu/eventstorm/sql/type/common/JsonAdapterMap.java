@@ -15,11 +15,11 @@ import eu.eventstorm.sql.type.SqlTypeException;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-public final class BlobJsonMap extends BlobJsonAdaptee implements JsonMap {
+public final class JsonAdapterMap extends JsonAdapter implements JsonMap {
 
 	private final Map<String, Object> map;
 
-    public BlobJsonMap(Map<String, Object> map) {
+    public JsonAdapterMap(Map<String, Object> map) {
         setModified();
         this.map = map;
     }
@@ -42,7 +42,7 @@ public final class BlobJsonMap extends BlobJsonAdaptee implements JsonMap {
 	}
 
 	@Override
-	protected byte[] write(JsonMapper mapper) {
+	public byte[] write(JsonMapper mapper) {
         try {
             return mapper.write(this.map);
         } catch (IOException cause) {

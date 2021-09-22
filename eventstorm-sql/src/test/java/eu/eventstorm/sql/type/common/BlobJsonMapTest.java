@@ -25,14 +25,14 @@ class BlobJsonMapTest {
 	@Test
 	void testJsonMap() {
 		
-		BlobJsonMap map = new BlobJsonMap(new HashMap<>());
+		JsonAdapterMap map = new JsonAdapterMap(new HashMap<>());
 		map.put("test", "value");
 		assertEquals("{\"test\":\"value\"}", new String(map.write(mapper)));
 		
 		Pojo pojo = new Pojo();
 		pojo.setValue("Jacques");
 		pojo.setAge(39);
-		map = new BlobJsonMap(new HashMap<>());
+		map = new JsonAdapterMap(new HashMap<>());
 		map.put("key1", pojo);
 
 		assertEquals("{\"key1\":{\"value\":\"Jacques\",\"age\":39}}", new String(map.write(mapper)));
@@ -42,7 +42,7 @@ class BlobJsonMapTest {
 	@Test
 	void testBadJsonMapWrite() {
 
-		BlobJsonMap map = new BlobJsonMap(new HashMap<>());
+		JsonAdapterMap map = new JsonAdapterMap(new HashMap<>());
 		
 		BadPojo badPojo = new BadPojo();
 		map.put("fake", badPojo);

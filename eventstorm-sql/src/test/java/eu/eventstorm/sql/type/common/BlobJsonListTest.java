@@ -26,7 +26,7 @@ class BlobJsonListTest {
 	@Test
 	void testBadJsonListWrite() {
 
-		BlobJsonList list = new BlobJsonList(new ArrayList<>());
+		JsonAdapterList list = new JsonAdapterList(new ArrayList<>());
 		
 		BadPojo badPojo = new BadPojo();
 		list.add(badPojo);

@@ -13,17 +13,17 @@ import eu.eventstorm.sql.type.SqlTypeException;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-public final class BlobJsonList<T> extends BlobJsonAdaptee implements JsonList<T> {
+public final class JsonAdapterList<T> extends JsonAdapter implements JsonList<T> {
 
 	private final List<T> list;
 
-    public BlobJsonList(List<T> list) {
+    public JsonAdapterList(List<T> list) {
         setModified();
         this.list = list;
     }
 
     @Override
-	protected byte[] write(JsonMapper mapper) {
+	public byte[] write(JsonMapper mapper) {
         try {
             return mapper.write(this.list);
         } catch (IOException cause) {

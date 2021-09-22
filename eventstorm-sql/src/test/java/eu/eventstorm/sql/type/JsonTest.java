@@ -9,8 +9,8 @@ import eu.eventstorm.sql.json.JacksonJsonMapper;
 import eu.eventstorm.sql.model.json.Span;
 import eu.eventstorm.sql.model.json.SpanRepository;
 import eu.eventstorm.sql.type.common.BlobJson;
-import eu.eventstorm.sql.type.common.BlobJsonList;
-import eu.eventstorm.sql.type.common.BlobJsonMap;
+import eu.eventstorm.sql.type.common.JsonAdapterList;
+import eu.eventstorm.sql.type.common.JsonAdapterMap;
 import eu.eventstorm.test.LoggerInstancePostProcessor;
 import org.h2.jdbcx.JdbcConnectionPool;
 import org.junit.jupiter.api.AfterEach;
@@ -175,16 +175,16 @@ class JsonTest {
     @Test
     void mapListException() {
 
-        BlobJson blobJson = new BlobJson(new JacksonJsonMapper(), new BlobJsonMap(new HashMap<>()));
+        BlobJson blobJson = new BlobJson(new JacksonJsonMapper(), new JsonAdapterMap(new HashMap<>()));
 
         SqlTypeException ex = assertThrows(SqlTypeException.class, () -> blobJson.asList(String.class));
         assertEquals(SqlTypeException.Type.AS_LIST_INVALID, ex.getType());
-        assertEquals(BlobJsonMap.class, ex.getValues().get(SqlTypeException.PARAM_ADAPTEE).getClass());
+        assertEquals(JsonAdapterMap.class, ex.getValues().get(SqlTypeException.PARAM_ADAPTEE).getClass());
 
-        BlobJson blobListJson = new BlobJson(new JacksonJsonMapper(), new BlobJsonList(new ArrayList<>()));
+        BlobJson blobListJson = new BlobJson(new JacksonJsonMapper(), new JsonAdapterList(new ArrayList<>()));
         ex = assertThrows(SqlTypeException.class, blobListJson::asMap);
         assertEquals(SqlTypeException.Type.AS_MAP_INVALID, ex.getType());
-        assertEquals(BlobJsonList.class, ex.getValues().get(SqlTypeException.PARAM_ADAPTEE).getClass());
+        assertEquals(JsonAdapterList.class, ex.getValues().get(SqlTypeException.PARAM_ADAPTEE).getClass());
     }
 
     private static class Pojo {

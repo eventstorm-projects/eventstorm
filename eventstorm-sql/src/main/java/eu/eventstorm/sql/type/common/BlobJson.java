@@ -19,64 +19,64 @@ import eu.eventstorm.sql.type.SqlTypeException;
  */
 public final class BlobJson extends DefaultBlob implements Json {
 
-    private BlobJsonAdaptee adaptee;
+    private JsonAdapter adapter;
     private final JsonMapper mapper;
 
 	public BlobJson(JsonMapper mapper, byte[] buf) {
         super(buf);
-        adaptee = null;
+        adapter = null;
         this.mapper = mapper;
     }
 
-    public BlobJson(JsonMapper mapper,BlobJsonAdaptee adaptee) {
+    public BlobJson(JsonMapper mapper, JsonAdapter adaptee) {
         super(DefaultBlob.EMPTY);
-        this.adaptee = adaptee;
+        this.adapter = adaptee;
         this.mapper = mapper;
     }
 
 	@Override
 	public JsonMap asMap() {
-        if (adaptee == null) {
+        if (adapter == null) {
         	if (getBuf() == null || getBuf().length == 0) {
-        		this.adaptee = new BlobJsonMap(new HashMap<>());
+        		this.adapter = new JsonAdapterMap(new HashMap<>());
             } else {
                 try {
-                	this.adaptee = new BlobJsonMap(mapper.readMap(getBuf()));
+                	this.adapter = new JsonAdapterMap(mapper.readMap(getBuf()));
                 } catch (IOException cause) {
                     throw new SqlTypeException(SqlTypeException.Type.READ_JSON, of(PARAM_CONTENT, getBuf()), cause);
                 }
             }
             
         }
-        if (adaptee instanceof JsonMap) {
-            return (JsonMap) adaptee;
+        if (adapter instanceof JsonMap) {
+            return (JsonMap) adapter;
         }
-		throw new SqlTypeException(SqlTypeException.Type.AS_MAP_INVALID, of(PARAM_ADAPTEE, adaptee));
+		throw new SqlTypeException(SqlTypeException.Type.AS_MAP_INVALID, of(PARAM_ADAPTEE, adapter));
 	}
 
 	@Override
 	public <T> JsonList<T> asList(Class<T> type) {
-		if (adaptee == null) {
+		if (adapter == null) {
 			if (getBuf() == null || getBuf().length == 0) {
-        		this.adaptee = new BlobJsonList(new ArrayList<>());
+        		this.adapter = new JsonAdapterList(new ArrayList<>());
             } else {
                 try {
-                	this.adaptee = new BlobJsonList(mapper.readList(getBuf(), type));
+                	this.adapter = new JsonAdapterList(mapper.readList(getBuf(), type));
                 } catch (IOException cause) {
                     throw new SqlTypeException(SqlTypeException.Type.READ_JSON, of(PARAM_CONTENT, getBuf()), cause);
                 }
             }
         }
-        if (adaptee instanceof JsonList) {
-            return (JsonList) adaptee;
+        if (adapter instanceof JsonList) {
+            return (JsonList) adapter;
         }
-		throw new SqlTypeException(SqlTypeException.Type.AS_LIST_INVALID, of(PARAM_ADAPTEE, adaptee));
+		throw new SqlTypeException(SqlTypeException.Type.AS_LIST_INVALID, of(PARAM_ADAPTEE, adapter));
 	}
 
 	@Override
 	public byte[] write(JsonMapper mapper) {
-		if (adaptee != null && this.adaptee.isModified()) {
-			setBuf(this.adaptee.write(mapper));
+		if (adapter != null && this.adapter.isModified()) {
+			setBuf(this.adapter.write(mapper));
 		}
 		return getBuf();
 	}
