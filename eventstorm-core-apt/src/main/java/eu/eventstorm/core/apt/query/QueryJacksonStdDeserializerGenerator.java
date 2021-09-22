@@ -183,15 +183,15 @@ public final class QueryJacksonStdDeserializerGenerator {
 		    
 			    if ("java.lang.String".equals(returnType)) {
 					writer.write("parser.nextTextValue()");
-				} else if ("int".equals(returnType)) {
+				} else if ("int".equals(returnType) || "java.lang.Integer".equals(returnType)) {
 					writer.write("parser.nextIntValue(0)");
-				} else if ("byte".equals(returnType)) {
+				} else if ("byte".equals(returnType) || "java.lang.Byte".equals(returnType)) {
 					writer.write("(byte)parser.nextIntValue(0)");
-				} else if ("short".equals(returnType)) {
+				} else if ("short".equals(returnType) || "java.lang.Short".equals(returnType)) {
 					writer.write("(short)parser.nextIntValue(0)");
-				} else if ("long".equals(returnType)) {
+				} else if ("long".equals(returnType) || "java.lang.Long".equals(returnType)) {
 					writer.write("parser.nextLongValue(0l)");
-				} else if ("boolean".equals(returnType)) {
+				} else if ("boolean".equals(returnType) || "java.lang.Boolean".equals(returnType)) {
 					writer.write("parser.nextBooleanValue()");
 				} else if (OffsetDateTime.class.getName().equals(returnType)) {
 					writer.write("parseOffsetDateTime(parser.nextTextValue())");
