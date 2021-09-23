@@ -15,6 +15,7 @@ import java.sql.Clob;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 
 final class H2Dialect extends AbstractDialect {
 
@@ -60,7 +61,12 @@ final class H2Dialect extends AbstractDialect {
 
 	@Override
 	public void setPreparedStatement(PreparedStatement ps, int index, Json json) throws SQLException {
-		ps.setBytes(index, json.write(this.getDatabase().jsonMapper()));
+		if (json == null) {
+			ps.setNull(index, Types.CLOB);
+		} else {
+			ps.setBytes(index, json.write(this.getDatabase().jsonMapper()));
+		}
+
 	}
 
 	@Override

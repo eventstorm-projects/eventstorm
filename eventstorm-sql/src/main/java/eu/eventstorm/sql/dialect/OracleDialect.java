@@ -24,6 +24,7 @@ import java.sql.Clob;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 
 final class OracleDialect extends AbstractDialect {
 
@@ -75,7 +76,11 @@ final class OracleDialect extends AbstractDialect {
 
 	@Override
 	public void setPreparedStatement(PreparedStatement ps, int index, Json json) throws SQLException {
-		ps.setString(index, new String(json.write(null), StandardCharsets.UTF_8));
+		if (json == null) {
+			ps.setNull(index, Types.CLOB);
+		} else {
+			ps.setString(index, new String(json.write(null), StandardCharsets.UTF_8));
+		}
 	}
 
 	@Override

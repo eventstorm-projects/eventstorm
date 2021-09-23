@@ -295,13 +295,16 @@ final class MapperGenerator implements Generator {
     private static void writePsProperty(Writer writer, PojoPropertyDescriptor ppd, int index) throws IOException {
 
         Column column = ppd.getter().getAnnotation(Column.class);
+        String type = ppd.getter().getReturnType().toString();
 
         if (column != null && column.nullable()) {
-            writer.write("        if (pojo.");
-            writer.write(ppd.getter().getSimpleName().toString());
-            writer.write("() != null) {");
-            Helper.writeNewLine(writer);
-            writer.write("    ");
+            if (!"eu.eventstorm.sql.type.Json".equals(type)) {
+                writer.write("        if (pojo.");
+                writer.write(ppd.getter().getSimpleName().toString());
+                writer.write("() != null) {");
+                Helper.writeNewLine(writer);
+                writer.write("    ");
+            }
         }
         
     	if (("java.sql.Blob".equals(ppd.getter().getReturnType().toString())) ||
@@ -323,16 +326,17 @@ final class MapperGenerator implements Generator {
     	}
 		
         if (column != null && column.nullable()) {
-            Helper.writeNewLine(writer);
-            writer.write("        } else {");
-            Helper.writeNewLine(writer);
-            writer.write("            ps.setNull(");
-            writer.write("" + index);
-            writer.write(", ");
-            writer.write(Helper.nullableType(ppd.getter().getReturnType().toString()));
-            writer.write(");");
-            Helper.writeNewLine(writer);
-            writer.write("        }");
+            if (!"eu.eventstorm.sql.type.Json".equals(type)) {
+                writer.write("        } else {");
+                Helper.writeNewLine(writer);
+                writer.write("            ps.setNull(");
+                writer.write("" + index);
+                writer.write(", ");
+                writer.write(Helper.nullableType(type));
+                writer.write(");");
+                Helper.writeNewLine(writer);
+                writer.write("        }");
+            }
         }
     }
 

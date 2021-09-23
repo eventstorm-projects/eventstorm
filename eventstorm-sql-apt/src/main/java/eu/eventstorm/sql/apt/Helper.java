@@ -341,10 +341,6 @@ public final class Helper {
 			return "java.sql.Types.BOOLEAN";
 		}
 
-		if ("eu.eventstorm.sql.type.Json".equals(type)) {
-			return "java.sql.Types.CLOB";
-		}
-
 		if ("eu.eventstorm.sql.type.Xml".equals(type)) {
 			return "java.sql.Types.SQLXML";
 		}
