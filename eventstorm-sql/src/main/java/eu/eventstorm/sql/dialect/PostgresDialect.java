@@ -62,6 +62,7 @@ final class PostgresDialect extends AbstractDialect {
     public void setPreparedStatement(PreparedStatement ps, int index, Json json) throws SQLException {
         if (json == null) {
             ps.setNull(index, 0,"json");
+            return;
         }
         if (json instanceof JsonPGobject) {
             ps.setObject(index, json);
