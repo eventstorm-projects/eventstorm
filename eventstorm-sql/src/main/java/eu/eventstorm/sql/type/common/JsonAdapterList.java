@@ -56,4 +56,9 @@ public final class JsonAdapterList<T> extends JsonAdapter implements JsonList<T>
 	public List<T> copyOf() {
 		return ImmutableList.copyOf(this.list);
 	}
+
+	@Override
+	public Iterable<T> iterable() {
+		return this.list;
+	}
 }

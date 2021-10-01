@@ -18,4 +18,6 @@ public interface JsonList<T> {
 
 	List<T> copyOf();
 
+	Iterable<T> iterable();
+
 }

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterators;
 import eu.eventstorm.sql.JsonMapper;
 import eu.eventstorm.sql.type.Json;
 import eu.eventstorm.sql.type.JsonList;
@@ -54,6 +55,11 @@ public final class DefaultJsonList<T> implements Json, JsonList<T> {
 	@Override
 	public List<T> copyOf() {
 		return ImmutableList.copyOf(this.list);
+	}
+
+	@Override
+	public Iterable<T> iterable() {
+		return this.list;
 	}
 
 	@Override
