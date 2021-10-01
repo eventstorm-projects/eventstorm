@@ -79,7 +79,7 @@ final class OracleDialect extends AbstractDialect {
 		if (json == null) {
 			ps.setNull(index, Types.CLOB);
 		} else {
-			ps.setString(index, new String(json.write(null), StandardCharsets.UTF_8));
+			ps.setString(index, new String(json.write(getDatabase().jsonMapper()), StandardCharsets.UTF_8));
 		}
 	}
 
