@@ -40,15 +40,15 @@ public final class FileResourceReactiveController {
 		FileChannel channel = FileChannel.open(fileResource.touch(uuid.toString()), StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
 
 		return DataBufferUtils.write(serverRequest.getBody(), channel)
-				.map(DataBufferUtils::release)
-				.reduce((l, r) -> l && r)
-				.doOnNext(t -> {
+				.doFinally(t -> {
 					try {
 						channel.close();
 					} catch (IOException e) {
-						
+
 					}
 				})
+				.map(DataBufferUtils::release)
+				.reduce((l, r) -> l && r)
 				.map(result -> new UploadResponse(uuid.toString()));
 
 	}

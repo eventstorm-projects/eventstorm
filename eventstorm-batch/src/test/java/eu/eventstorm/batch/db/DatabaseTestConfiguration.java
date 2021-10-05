@@ -2,6 +2,7 @@ package eu.eventstorm.batch.db;
 
 import javax.sql.DataSource;
 
+import eu.eventstorm.batch.rest.HttpRequestMetaExtractor;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,7 +10,8 @@ import org.springframework.context.annotation.Profile;
 
 import com.google.protobuf.TypeRegistry;
 
-import eu.eventstorm.batch.rest.CreatedByExtractor;
+import eu.eventstorm.batch.rest.HttpRequestCreatedByExtractor;
+import eu.eventstorm.batch.util.HttpHeaderMetaExtractor;
 import eu.eventstorm.core.id.StreamIdGenerator;
 import eu.eventstorm.core.id.StreamIdGeneratorFactory;
 import eu.eventstorm.core.id.UniversalUniqueIdentifierDefinition;
@@ -44,8 +46,14 @@ public class DatabaseTestConfiguration {
 	
 	@Profile("database")
 	@Bean
-	CreatedByExtractor createdByExtractor() {
+    HttpRequestCreatedByExtractor createdByExtractor() {
 		return request -> "junit";
+	}
+
+	@Profile("database")
+	@Bean
+	HttpRequestMetaExtractor metaExtractor() {
+		return new HttpHeaderMetaExtractor();
 	}
 
 	@Bean

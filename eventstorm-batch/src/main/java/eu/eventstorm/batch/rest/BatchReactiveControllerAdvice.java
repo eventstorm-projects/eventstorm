@@ -1,5 +1,6 @@
 package eu.eventstorm.batch.rest;
 
+import eu.eventstorm.batch.util.MetaExtractorException;
 import eu.eventstorm.problem.Problem;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -25,8 +26,8 @@ public final class BatchReactiveControllerAdvice {
                         .build()));
     }
 
-    @ExceptionHandler(ResourceException.class)
-    public Mono<ResponseEntity<Problem>> on(ResourceException ex, ServerHttpRequest request) {
+    @ExceptionHandler(MetaExtractorException.class)
+    public Mono<ResponseEntity<Problem>> on(MetaExtractorException ex, ServerHttpRequest request) {
         return Mono.just(ResponseEntity.badRequest()
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE)
                 .body(Problem.builder()
