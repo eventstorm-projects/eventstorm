@@ -28,7 +28,7 @@
 		<org.slf4j.version>1.7.32</org.slf4j.version>
 		<org.apache.logging.log4j.version>2.14.1</org.apache.logging.log4j.version>
 
-		<com.google.guava.version>30.1.1-jre</com.google.guava.version>
+		<com.google.guava.version>31.0.1-jre</com.google.guava.version>
 		<com.google.protobuf.version>3.18.0</com.google.protobuf.version>
 
 		<com.fasterxml.jackson.version>2.12.4</com.fasterxml.jackson.version>
@@ -38,13 +38,13 @@
 		<org.owasp.encoder.version>1.2.3</org.owasp.encoder.version>
 		<io.swagger.core.v3.version>2.1.7</io.swagger.core.v3.version>
 
-		<org.springframework.boot.version>2.5.4</org.springframework.boot.version>
-		<org.springframework.version>5.3.9</org.springframework.version>
+		<org.springframework.boot.version>2.5.5</org.springframework.boot.version>
+		<org.springframework.version>5.3.10</org.springframework.version>
 
-		<org.junit.jupiter.version>5.7.2</org.junit.jupiter.version>
+		<org.junit.jupiter.version>5.8.0</org.junit.jupiter.version>
 		<com.h2database.version>1.4.200</com.h2database.version>
-		<org.mockito.version>3.12.1</org.mockito.version>
-		<org.flywaydb.version>7.14.0</org.flywaydb.version>
+		<org.mockito.version>3.12.4</org.mockito.version>
+		<org.flywaydb.version>7.15.0</org.flywaydb.version>
 		<com.zaxxer.version>4.0.3</com.zaxxer.version>
 		<org.skyscreamer.jsonassert.version>1.5.0</org.skyscreamer.jsonassert.version>
 
