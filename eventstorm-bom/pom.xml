@@ -110,6 +110,12 @@
 
 			<dependency>
 				<groupId>eu.eventstorm</groupId>
+				<artifactId>eventstorm-cqrs</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>eu.eventstorm</groupId>
 				<artifactId>eventstorm-saga</artifactId>
 				<version>${project.version}</version>
 			</dependency>
