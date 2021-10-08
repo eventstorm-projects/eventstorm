@@ -84,14 +84,16 @@ public final class QueryJacksonModuleGenerator {
 		writer.write("        super();");
 		writeNewLine(writer);
 		for (QueryDescriptor ed : descriptors) {
-			if (ed instanceof QueryClientDescriptor || ed instanceof PojoQueryDescriptor) {
+			if (ed instanceof QueryClientDescriptor) {
 				writer.write("        addDeserializer(" + ed.fullyQualidiedClassName() + ".class, new " + ed.simpleName() + "StdDeserializer());");
 				writeNewLine(writer);
+			} else {
+				writer.write("        addDeserializer(" + ed.fullyQualidiedClassName() + ".class, new " + ed.simpleName() + "StdDeserializer());");
+				writeNewLine(writer);
+				writer.write("        addSerializer(" + ed.fullyQualidiedClassName() + ".class, new " + ed.simpleName() + "StdSerializer());");
+				writeNewLine(writer);
 			}
-			//else {
-				writer.write("        addSerializer(" + ed.fullyQualidiedClassName() + ".class, new " + ed.simpleName() + "StdSerializer());");				
-			//}
-			writeNewLine(writer);
+
 		}
 		
 		writer.write("    }");
