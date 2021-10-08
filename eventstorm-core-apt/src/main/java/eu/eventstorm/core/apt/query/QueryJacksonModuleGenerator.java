@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.collect.ImmutableList;
 
 import eu.eventstorm.core.apt.SourceCode;
+import eu.eventstorm.core.apt.model.PojoQueryDescriptor;
 import eu.eventstorm.core.apt.model.QueryClientDescriptor;
 import eu.eventstorm.core.apt.model.QueryDescriptor;
 import eu.eventstorm.sql.apt.log.Logger;
@@ -83,11 +84,13 @@ public final class QueryJacksonModuleGenerator {
 		writer.write("        super();");
 		writeNewLine(writer);
 		for (QueryDescriptor ed : descriptors) {
-			if (ed instanceof QueryClientDescriptor) {
+			if (ed instanceof QueryClientDescriptor || ed instanceof PojoQueryDescriptor) {
 				writer.write("        addDeserializer(" + ed.fullyQualidiedClassName() + ".class, new " + ed.simpleName() + "StdDeserializer());");
-			} else {
-				writer.write("        addSerializer(" + ed.fullyQualidiedClassName() + ".class, new " + ed.simpleName() + "StdSerializer());");				
+				writeNewLine(writer);
 			}
+			//else {
+				writer.write("        addSerializer(" + ed.fullyQualidiedClassName() + ".class, new " + ed.simpleName() + "StdSerializer());");				
+			//}
 			writeNewLine(writer);
 		}
 		

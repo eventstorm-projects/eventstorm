@@ -17,8 +17,6 @@ public class QueryClientGeneratorFacade {
 		// Query 
 		new QueryImplementationGenerator().generateClient(processingEnv, sourceCode);
 		new QueryBuilderGenerator().generateClient(processingEnv, sourceCode);
-		
-		new QueryJacksonStdDeserializerGenerator().generate(processingEnv, sourceCode);
 
 		new QueryClientServiceGenerator().generateClient(processingEnv, sourceCode);
 

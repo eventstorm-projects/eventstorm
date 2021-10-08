@@ -59,7 +59,13 @@ public final class QueryJacksonStdDeserializerGenerator {
 				logger.error("Exception for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
 			}
 		});
-	}
+		sourceCode.forEachPojoQueryPackage((pack, list) -> {
+			try {
+				generate(processingEnvironment, pack, list);
+			} catch (Exception cause) {
+				logger.error("Exception for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
+			}
+		});	}
 	
 //	public void generateEmbedded(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
 //		// generate Implementation class;

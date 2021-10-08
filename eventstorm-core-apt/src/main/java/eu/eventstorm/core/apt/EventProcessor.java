@@ -33,6 +33,7 @@ import eu.eventstorm.core.apt.event.EventProtoGenerator;
 
 import eu.eventstorm.core.apt.model.QueryClientServiceDescriptor;
 import eu.eventstorm.core.apt.query.QueryBuilderGenerator;
+import eu.eventstorm.core.apt.query.QueryJacksonStdDeserializerGenerator;
 import eu.eventstorm.core.apt.query.SqlPageRequestDescriptorGenerator;
 import eu.eventstorm.core.apt.query.PageQueryDescriptorsGenerator;
 import eu.eventstorm.core.apt.query.QueryImplementationGenerator;
@@ -231,6 +232,7 @@ public class EventProcessor extends AbstractProcessor {
 		
 		// Query / Database View and Table / Pojo
 		new QueryJacksonStdSerializerGenerator().generate(processingEnv, sourceCode);
+		new QueryJacksonStdDeserializerGenerator().generate(processingEnv, sourceCode);
 		new QueryJacksonModuleGenerator().generate(processingEnv, sourceCode);
 		new SqlPageRequestDescriptorGenerator().generate(processingEnv, sourceCode);
 		new PageQueryDescriptorsGenerator().generate(processingEnv, sourceCode);
