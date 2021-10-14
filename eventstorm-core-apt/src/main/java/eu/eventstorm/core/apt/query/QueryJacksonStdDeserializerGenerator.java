@@ -65,7 +65,9 @@ public final class QueryJacksonStdDeserializerGenerator {
 			} catch (Exception cause) {
 				logger.error("Exception for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
 			}
-		});	}
+		});
+	}
+
 	
 //	public void generateEmbedded(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
 //		// generate Implementation class;

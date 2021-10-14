@@ -6,4 +6,5 @@ package eu.eventstorm.annotation;
 public enum CqrsCommandType {
 
     SERVER, CLIENT
+
 }

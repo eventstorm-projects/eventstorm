@@ -31,6 +31,7 @@ import eu.eventstorm.core.apt.model.QueryClientDescriptor;
 import eu.eventstorm.core.apt.model.QueryClientServiceDescriptor;
 import eu.eventstorm.core.apt.model.QueryDescriptor;
 import eu.eventstorm.core.apt.model.RestControllerDescriptor;
+import eu.eventstorm.core.apt.model.SagaCommandDescriptor;
 import eu.eventstorm.core.apt.query.QueryClientServiceGenerator;
 import eu.eventstorm.sql.apt.log.Logger;
 import eu.eventstorm.sql.apt.log.LoggerFactory;
@@ -43,9 +44,10 @@ public final class SourceCode {
 	private final CqrsConfiguration cqrsConfiguration;
 	
 	private final ImmutableMap<String, CommandDescriptor> commands;
+	private final ImmutableMap<String, SagaCommandDescriptor> sagaCommands;
 	private final ImmutableMap<String, EmbeddedCommandDescriptor> embeddedCommands;
 
-	private final ImmutableMap<String, ImmutableList<CommandDescriptor>> packages;
+	private final ImmutableMap<String, ImmutableList<AbstractCommandDescriptor>> packages;
 	private final ImmutableMap<String, ImmutableList<EmbeddedCommandDescriptor>> embeddedCommandsPackages;
 
 	private final ImmutableMap<String, ImmutableList<AbstractCommandDescriptor>> allCommandsPackages;
@@ -71,25 +73,34 @@ public final class SourceCode {
 
 	
 	SourceCode(ProcessingEnvironment env, CqrsConfiguration cqrsConfiguration,
-			List<CommandDescriptor> commands,
-			List<EmbeddedCommandDescriptor> embeddedCommands,
-			List<EventEvolutionDescriptor> eventEvolutionDescriptors,
-	        List<RestControllerDescriptor> restControllerDescriptors, 
-	        List<ElsQueryDescriptor> queriesElasticSearch,
-	        List<DatabaseViewQueryDescriptor> queriesDatabase,
-			List<DatabaseTableQueryDescriptor> queriesTableDatabase,
-	        List<PojoQueryDescriptor> queriesPojo,
-	        List<QueryClientDescriptor> clientQueries,
-			List<QueryClientServiceDescriptor> cqrsQueryClientServices) {
+			   List<CommandDescriptor> commands,
+			   List<SagaCommandDescriptor> sagaCommands,
+			   List<EmbeddedCommandDescriptor> embeddedCommands,
+			   List<EventEvolutionDescriptor> eventEvolutionDescriptors,
+			   List<RestControllerDescriptor> restControllerDescriptors,
+			   List<ElsQueryDescriptor> queriesElasticSearch,
+			   List<DatabaseViewQueryDescriptor> queriesDatabase,
+			   List<DatabaseTableQueryDescriptor> queriesTableDatabase,
+			   List<PojoQueryDescriptor> queriesPojo,
+			   List<QueryClientDescriptor> clientQueries,
+			   List<QueryClientServiceDescriptor> cqrsQueryClientServices) {
 
 		this.cqrsConfiguration = cqrsConfiguration;
 		this.commands = commands.stream().collect(toImmutableMap(CommandDescriptor::fullyQualidiedClassName, identity()));
+		this.sagaCommands = sagaCommands.stream().collect(toImmutableMap(SagaCommandDescriptor::fullyQualidiedClassName, identity()));
 		this.embeddedCommands = embeddedCommands.stream().collect(toImmutableMap(EmbeddedCommandDescriptor::fullyQualidiedClassName, identity()));
-		this.packages = mapByPackage(env, this.commands);
+		this.packages = mapByPackage(env, ImmutableMap.<String,AbstractCommandDescriptor>builder()
+				.putAll(this.commands)
+				.putAll(this.sagaCommands)
+				.build());
+
 		this.embeddedCommandsPackages = mapByPackage(env, this.embeddedCommands);
 		
-		this.allCommandsPackages = mapByPackage(env, ImmutableMap.<String,AbstractCommandDescriptor>builder().putAll(this.commands).putAll(this.embeddedCommands).build());
-		
+		this.allCommandsPackages = mapByPackage(env, ImmutableMap.<String,AbstractCommandDescriptor>builder()
+				.putAll(this.commands)
+				.putAll(this.embeddedCommands)
+				.putAll(this.sagaCommands)
+				.build());
 		
 		this.eventEvolutionDescriptors = ImmutableList.copyOf(eventEvolutionDescriptors);
 
@@ -121,6 +132,10 @@ public final class SourceCode {
 	public void forEachCommand(Consumer<CommandDescriptor> consumer) {
 		this.commands.values().forEach(consumer);
 	}
+
+	public void forEachSagaCommand(Consumer<SagaCommandDescriptor> consumer) {
+		this.sagaCommands.values().forEach(consumer);
+	}
 	
 	public CommandDescriptor getCommandDescriptor(String fqcn) {
 		return this.commands.get(fqcn);
@@ -134,7 +149,7 @@ public final class SourceCode {
 		return this.embeddedCommands.get(fqcn);
 	}
 	
-	public void forEachCommandPackage(BiConsumer<String, ImmutableList<CommandDescriptor>> consumer) {
+	public void forEachCommandPackage(BiConsumer<String, ImmutableList<AbstractCommandDescriptor>> consumer) {
 		this.packages.forEach(consumer);
 	}
 	

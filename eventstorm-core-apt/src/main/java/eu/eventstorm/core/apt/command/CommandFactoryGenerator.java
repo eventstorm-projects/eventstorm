@@ -15,6 +15,7 @@ import javax.tools.JavaFileObject;
 import com.google.common.collect.ImmutableList;
 
 import eu.eventstorm.core.apt.SourceCode;
+import eu.eventstorm.core.apt.model.AbstractCommandDescriptor;
 import eu.eventstorm.core.apt.model.CommandDescriptor;
 import eu.eventstorm.core.apt.model.PropertyDescriptor;
 import eu.eventstorm.sql.apt.log.Logger;
@@ -40,11 +41,9 @@ public final class CommandFactoryGenerator {
             	logger.error("Exception for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
             }
         });
-
-
     }
 
-    private void generate(ProcessingEnvironment env, String pack, ImmutableList<CommandDescriptor> descriptors) throws IOException {
+    private void generate(ProcessingEnvironment env, String pack, ImmutableList<? extends AbstractCommandDescriptor> descriptors) throws IOException {
         
         // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
         if (env.getElementUtils().getTypeElement(pack + ".CommandFactory") != null) {
@@ -63,10 +62,10 @@ public final class CommandFactoryGenerator {
     }
 
 
-    private static void writeHeader(Writer writer, String pack, ImmutableList<CommandDescriptor> descriptors) throws IOException {
+    private static void writeHeader(Writer writer, String pack, ImmutableList<? extends AbstractCommandDescriptor> descriptors) throws IOException {
         writePackage(writer, pack);
         
-        for (CommandDescriptor descriptor : descriptors) {
+        for (AbstractCommandDescriptor descriptor : descriptors) {
         	 writer.write("import ");
              writer.write(descriptor.fullyQualidiedClassName());
              writer.write(";");
@@ -85,8 +84,8 @@ public final class CommandFactoryGenerator {
         writeNewLine(writer);
     }
 
-    private static void writeMethods(Writer writer, List<CommandDescriptor> descriptors) throws IOException {
-        for (CommandDescriptor descriptor : descriptors) {
+    private static void writeMethods(Writer writer, List<? extends AbstractCommandDescriptor> descriptors) throws IOException {
+        for (AbstractCommandDescriptor descriptor : descriptors) {
         	writeNewLine(writer);
             writer.write("    public static ");
             writer.write(descriptor.simpleName());

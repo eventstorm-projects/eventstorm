@@ -14,6 +14,8 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.collect.ImmutableList;
 
 import eu.eventstorm.core.apt.SourceCode;
+import eu.eventstorm.core.apt.model.DatabaseTableQueryDescriptor;
+import eu.eventstorm.core.apt.model.DatabaseViewQueryDescriptor;
 import eu.eventstorm.core.apt.model.PojoQueryDescriptor;
 import eu.eventstorm.core.apt.model.QueryClientDescriptor;
 import eu.eventstorm.core.apt.model.QueryDescriptor;
@@ -87,7 +89,12 @@ public final class QueryJacksonModuleGenerator {
 			if (ed instanceof QueryClientDescriptor) {
 				writer.write("        addDeserializer(" + ed.fullyQualidiedClassName() + ".class, new " + ed.simpleName() + "StdDeserializer());");
 				writeNewLine(writer);
-			} else {
+			}
+			else if (ed instanceof DatabaseTableQueryDescriptor || ed instanceof DatabaseViewQueryDescriptor) {
+				writer.write("        addSerializer(" + ed.fullyQualidiedClassName() + ".class, new " + ed.simpleName() + "StdSerializer());");
+				writeNewLine(writer);
+			}
+			else {
 				writer.write("        addDeserializer(" + ed.fullyQualidiedClassName() + ".class, new " + ed.simpleName() + "StdDeserializer());");
 				writeNewLine(writer);
 				writer.write("        addSerializer(" + ed.fullyQualidiedClassName() + ".class, new " + ed.simpleName() + "StdSerializer());");

@@ -51,6 +51,13 @@ public final class CommandBuilderGenerator {
             	logger.error("Exception for [" + t + "] -> [" + cause.getMessage() + "]", cause);
             }
         });
+        sourceCode.forEachSagaCommand(t -> {
+            try {
+                generate(processingEnvironment, t);
+            } catch (Exception cause) {
+                logger.error("Exception for [" + t + "] -> [" + cause.getMessage() + "]", cause);
+            }
+        });
     }
     
     public void generateEmbeddedCommand(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {

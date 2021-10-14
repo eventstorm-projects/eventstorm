@@ -18,6 +18,7 @@ import eu.eventstorm.core.apt.analyser.CqrsQueryClientServiceAnalyser;
 import eu.eventstorm.core.apt.analyser.CqrsQueryDatabaseViewAnalyser;
 import eu.eventstorm.core.apt.analyser.CqrsQueryPojoAnalyser;
 import eu.eventstorm.core.apt.analyser.EventEvolutionAnalyser;
+import eu.eventstorm.core.apt.analyser.SagaCommandAnalyser;
 import eu.eventstorm.core.apt.command.CommandBuilderGenerator;
 import eu.eventstorm.core.apt.command.CommandExceptionGenerator;
 import eu.eventstorm.core.apt.command.CommandFactoryGenerator;
@@ -29,9 +30,12 @@ import eu.eventstorm.core.apt.command.CommandOpenApiGenerator;
 import eu.eventstorm.core.apt.command.CommandRestControllerAdviceImplementationGenerator;
 import eu.eventstorm.core.apt.command.CommandRestControllerImplementationGenerator;
 import eu.eventstorm.core.apt.command.CommandValidatorGenerator;
+import eu.eventstorm.core.apt.command.SagaRestControllerImplementationGenerator;
 import eu.eventstorm.core.apt.event.EventProtoGenerator;
 
 import eu.eventstorm.core.apt.model.QueryClientServiceDescriptor;
+import eu.eventstorm.core.apt.model.SagaCommandDescriptor;
+import eu.eventstorm.core.apt.model.SagaControllerDescriptor;
 import eu.eventstorm.core.apt.query.QueryBuilderGenerator;
 import eu.eventstorm.core.apt.query.QueryJacksonStdDeserializerGenerator;
 import eu.eventstorm.core.apt.query.SqlPageRequestDescriptorGenerator;
@@ -130,13 +134,16 @@ public class EventProcessor extends AbstractProcessor {
 
 		List<CommandDescriptor> commandDescriptors= roundEnvironment.getElementsAnnotatedWith(CqrsCommand.class).stream().map(new CqrsCommandAnalyser())
 		        .collect(Collectors.toList());
-		
+
+		List<SagaCommandDescriptor> SagaCommandDescriptors= roundEnvironment.getElementsAnnotatedWith(SagaCommand.class).stream().map(new SagaCommandAnalyser())
+				.collect(Collectors.toList());
+
 		List<EmbeddedCommandDescriptor> embeddedCommandDescriptors = roundEnvironment.getElementsAnnotatedWith(CqrsEmbeddedCommand.class).stream().map(new CqrsEmbeddedCommandAnalyser())
 		        .collect(Collectors.toList());
 		
 		List<RestControllerDescriptor> restControllerDescriptors = roundEnvironment.getElementsAnnotatedWith(CqrsCommandRestController.class).stream().map(new CqrsRestControllerAnalyser())
 		        .collect(Collectors.toList());
-		
+
 		List<EventEvolutionDescriptor> eventEvolutionDescriptors = roundEnvironment.getElementsAnnotatedWith(EventEvolution.class).stream().map(new EventEvolutionAnalyser())
 		        .collect(Collectors.toList());
 
@@ -170,7 +177,8 @@ public class EventProcessor extends AbstractProcessor {
 
 		SourceCode sourceCode = new SourceCode(this.processingEnv, 
 				cqrsConfiguration, 
-				commandDescriptors, 
+				commandDescriptors,
+				SagaCommandDescriptors,
 				embeddedCommandDescriptors,
 				eventEvolutionDescriptors,
 			//	eventDescriptors,
@@ -207,6 +215,7 @@ public class EventProcessor extends AbstractProcessor {
 		
 
 		new CommandRestControllerAdviceImplementationGenerator().generate(processingEnv, sourceCode);
+		new SagaRestControllerImplementationGenerator().generate(processingEnv, sourceCode);
 		
 		new CommandOpenApiGenerator().generate(processingEnv, sourceCode);
 		
