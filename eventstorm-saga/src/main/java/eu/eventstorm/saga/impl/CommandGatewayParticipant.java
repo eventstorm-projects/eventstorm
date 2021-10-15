@@ -13,7 +13,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
-public abstract class CommandGatewayParticipant<T extends Command> implements SagaParticipant {
+public abstract class CommandGatewayParticipant implements SagaParticipant {
 
     private static final String SERVER_WEB_EXCHANGE = ServerWebExchange.class.getName();
 
@@ -23,14 +23,7 @@ public abstract class CommandGatewayParticipant<T extends Command> implements Sa
         this.gateway = gateway;
     }
 
-    @Override
-    public Mono<SagaContext> compensate(SagaContext context) {
-        return Mono.just(context);
-    }
-
-    protected abstract T getCommand(SagaContext context);
-
-    protected final Mono<List<CloudEvent>> executeHandler(T command, SagaContext context) {
+    protected final <T extends Command> Mono<List<CloudEvent>> executeHandler(T command, SagaContext context) {
         ReactiveCommandContext commandContext = new ReactiveCommandContext(command, context.get(SERVER_WEB_EXCHANGE));
         return gateway.<Event>dispatch(commandContext)
                 .map(CloudEvents::to)
@@ -40,4 +33,5 @@ public abstract class CommandGatewayParticipant<T extends Command> implements Sa
                     return events;
                 });
     }
+
 }
