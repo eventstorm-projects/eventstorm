@@ -34,9 +34,19 @@ public class InMemorySagaExecutionCoordinator implements SagaExecutionCoordinato
 
         return Flux.fromIterable(definition.getParticipants())
                 .index()
-                .flatMapSequential(tuple -> tuple.getT2().execute(context)
-                        .onErrorResume(Exception.class, t -> Mono.error(new SagaParticipantException(t, tuple))), 1)
-                .onErrorResume(SagaParticipantException.class, ex -> Flux.fromIterable(definition.getParticipants().subList(0, (int) ex.index + 1).reverse())
+                .flatMapSequential(tuple ->  {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("execute participant [{}]", tuple);
+                    }
+                    return tuple.getT2().execute(context)
+                            .onErrorResume(Exception.class, t -> {
+                                if (LOGGER.isDebugEnabled()) {
+                                    LOGGER.debug("exception on [" + tuple +"]", t);
+                                }
+                                return Mono.error(new SagaParticipantException(t, tuple));
+                            });
+                }, 1)
+                .onErrorResume(SagaParticipantException.class, ex -> Flux.fromIterable(definition.getParticipants().subList(0, (int) ex.index).reverse())
                         .flatMap(p -> p.compensate(context))
                         .collectList()
                         .flatMap(list -> Mono.just(context)))

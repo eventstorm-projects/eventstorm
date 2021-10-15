@@ -15,4 +15,6 @@ public @interface SagaCommand {
 
 	SagaRestController controller();
 
+    String name();
+
 }

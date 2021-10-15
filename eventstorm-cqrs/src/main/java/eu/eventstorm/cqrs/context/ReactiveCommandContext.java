@@ -12,9 +12,12 @@ import org.springframework.web.server.ServerWebExchange;
 public final class ReactiveCommandContext extends DefaultCommandContext {
 
 	private final ServerWebExchange exchange;
-	
+
 	public ReactiveCommandContext(Command command, ServerWebExchange exchange) {
-		super(command);
+		this(command, null, exchange);
+	}
+	public ReactiveCommandContext(Command command, String correlation, ServerWebExchange exchange) {
+		super(command, correlation);
 		this.exchange = exchange;
 	}
 	

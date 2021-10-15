@@ -23,13 +23,18 @@ public @interface SagaRestController {
 	HttpMethod method() default HttpMethod.POST;
 
 	/**
-	 * Return type for this method; if default return type (Void.class) => return CloudEvent
+	 * Return type for this method; if default return type (Void.class) => return CloudEvent.
 	 */
 	Class<?> returnType() default Void.class;
 
 	/**
-	 * response produce media type
+	 * Response produce media type
 	 */
 	String produces() default "application/cloudevents+json";
+
+	/**
+	 * Spring bean's names for SagaListener.
+	 */
+	String[] listeners() default {};
 
 }

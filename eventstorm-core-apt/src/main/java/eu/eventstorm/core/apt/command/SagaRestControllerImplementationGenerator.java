@@ -2,6 +2,7 @@ package eu.eventstorm.core.apt.command;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import eu.eventstorm.annotation.HttpMethod;
 import eu.eventstorm.cloudevents.CloudEvent;
 import eu.eventstorm.cloudevents.CloudEvents;
@@ -20,6 +21,7 @@ import javax.lang.model.type.TypeMirror;
 import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -74,8 +76,8 @@ public final class SagaRestControllerImplementationGenerator {
 		try (Writer writer = object.openWriter()) {
 
 			writeHeader(writer, env, desc);
-			writeVariables(writer, desc.get(0).getRestController().name());
-			writeConstructor(writer, desc, sourceCode);
+			writeVariables(writer, desc);
+			writeConstructor(writer, desc);
 			writeMethods(writer, desc);
 			writer.write("}");
 		}
@@ -114,7 +116,16 @@ public final class SagaRestControllerImplementationGenerator {
 		writeNewLine(writer);
 		writer.write("import " + CloudEvents.class.getName() + ";");
 		writeNewLine(writer);
-		writer.write("import " + ReactiveCommandContext.class.getName() + ";");
+
+		writer.write("import eu.eventstorm.saga.SagaContext;");
+		writeNewLine(writer);
+		writer.write("import eu.eventstorm.saga.SagaExecutionCoordinator;");
+		writeNewLine(writer);
+		writer.write("import eu.eventstorm.saga.SagaExecutionCoordinatorFactory;");
+		writeNewLine(writer);
+		writer.write("import eu.eventstorm.saga.impl.SagaContextImpl;");
+		writeNewLine(writer);
+
 		writeNewLine(writer);
 		
 		writeGenerated(writer, SagaRestControllerImplementationGenerator.class.getName());
@@ -127,33 +138,70 @@ public final class SagaRestControllerImplementationGenerator {
 		writeNewLine(writer);
 	}
 
-	private void writeVariables(Writer writer, String name) throws IOException {
-		writer.write("    private final ");
-		writer.write(CommandGateway.class.getName());
-		writer.write(" gateway;");
+	private void writeVariables(Writer writer, ImmutableList<SagaControllerDescriptor> desc) throws IOException {
+
+		writer.write("    private static final String SERVER_WEB_EXCHANGE = ServerWebExchange.class.getName();");
+		writeNewLine(writer);
+		writer.write("    private final SagaExecutionCoordinatorFactory factory;");
 		writeNewLine(writer);
 		
 		writer.write("    private final ");
 		writer.write(ObjectMapper.class.getName());
 		writer.write(" mapper;");
 		writeNewLine(writer);
-		
+
+		ImmutableSet<String> listeners = desc.stream().map(d -> d.getRestController().listeners())
+				.flatMap(Arrays::stream)
+				.collect(ImmutableSet.toImmutableSet());
+
+		if (!listeners.isEmpty()) {
+			for (String listener : listeners) {
+				writer.write("    private final eu.eventstorm.saga.SagaContextListener ");
+				writer.write(listener);
+				writer.write(";");
+				writeNewLine(writer);
+			}
+		}
+
 		writeNewLine(writer);
 	}
 
-	private void writeConstructor(Writer writer, ImmutableList<SagaControllerDescriptor> desc, SourceCode sourceCode) throws IOException {
+	private void writeConstructor(Writer writer, ImmutableList<SagaControllerDescriptor> desc) throws IOException {
+
+		ImmutableSet<String> listeners = desc.stream().map(d -> d.getRestController().listeners())
+				.flatMap(Arrays::stream)
+				.collect(ImmutableSet.toImmutableSet());
 
 		writer.write("    public ");
 		writer.write(desc.get(0).getRestController().name());
 		writer.write("(");
-		writer.write(CommandGateway.class.getName());
-		writer.write(" gateway, "+ ObjectMapper.class.getName() +" mapper) {");
-		
+		writer.write("SagaExecutionCoordinatorFactory factory, "+ ObjectMapper.class.getName() +" mapper");
+
+		if (listeners.isEmpty()) {
+			writer.write(") {");
+		} else {
+			StringBuilder builder = new StringBuilder();
+			builder.append(',');
+			for (String listener : listeners) {
+				builder.append("\n          @org.springframework.beans.factory.annotation.Qualifier(\"").append(listener).append("\") eu.eventstorm.saga.SagaContextListener " + listener + ",");
+			}
+			builder.deleteCharAt(builder.length()-1);
+			writer.write(builder.toString());
+			writer.write(") {");
+		}
+
 		writeNewLine(writer);
-		writer.write("        this.gateway = gateway;");
+		writer.write("        this.factory = factory;");
 		writeNewLine(writer);
 		writer.write("        this.mapper = mapper;");
 		writeNewLine(writer);
+
+		if (!listeners.isEmpty()) {
+			for (String listener : listeners) {
+				writer.write("        this." + listener +" = " + listener + ";");
+				writeNewLine(writer);
+			}
+		}
 		
 		writer.write("    }");
 		writeNewLine(writer);
@@ -191,7 +239,6 @@ public final class SagaRestControllerImplementationGenerator {
 		writeNewLine(writer);
 		writer.write("                } catch (java.io.IOException cause) {");
 		writeNewLine(writer);
-		//writer.write("                   return Mono.error(new " + rcd.element().toString() +"Exception(cause));");
 		writer.write("                   return Mono.error(cause);");
 		writeNewLine(writer);
 		writer.write("                }");
@@ -199,9 +246,24 @@ public final class SagaRestControllerImplementationGenerator {
 		writer.write("            })");
 		writeNewLine(writer);
 		if (Void.class.getName().equals(returnType)) {
-			writer.write("            .flatMapMany(command -> gateway.<"+ Event.class.getName() + ">dispatch(new ReactiveCommandContext(command, exchange)))");
+			writer.write("            .flatMap(command -> {");
 			writeNewLine(writer);
-			writer.write("            .map(CloudEvents::to);");
+			writer.write("                SagaExecutionCoordinator coordinator = factory.newInstance(\""+ rcd.getCommand().name() +"\");");
+			writeNewLine(writer);
+			writer.write("                SagaContext context = new SagaContextImpl(command);");
+			writeNewLine(writer);
+			writer.write("                context.put(SERVER_WEB_EXCHANGE, exchange);");
+			writeNewLine(writer);
+			for (String listener : rcd.getCommand().controller().listeners()) {
+				writer.write("                " + listener + ".init(exchange,context);");
+				writeNewLine(writer);
+			}
+			writer.write("                return coordinator.execute(context);");
+			writeNewLine(writer);
+			writer.write("            })");
+			writeNewLine(writer);
+
+			writer.write("             .flatMapMany(ctx -> Flux.fromIterable(ctx.getEvents()));");
 			writeNewLine(writer);			
 		} else {
 			writer.write("            .flatMapMany(command -> gateway.dispatch(new ReactiveCommandContext(command, exchange)));");

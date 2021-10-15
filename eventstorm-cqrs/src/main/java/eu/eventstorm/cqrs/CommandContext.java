@@ -9,4 +9,6 @@ public interface CommandContext extends ValidatorContext {
 
     <T extends Command> T getCommand();
 
+    String getCorrelation();
+
 }

@@ -126,7 +126,6 @@ public abstract class ReactiveLocalDatabaseEventStoreCommandHandler<T extends Co
             sink.next(of(ctx,doStoreAndEvolution(ctx)));
         } catch (Exception cause) {
             sink.error(cause);
-            return;
         }
     }
 
@@ -141,7 +140,7 @@ public abstract class ReactiveLocalDatabaseEventStoreCommandHandler<T extends Co
 
             try (Span ignored = this.tracer.start("store")) {
                 // save to the eventStore
-                events = store(candidates);
+                events = store(candidates, ctx.getCorrelation());
             }
 
             try (Span ignored = this.tracer.start("evolution")) {
@@ -178,12 +177,14 @@ public abstract class ReactiveLocalDatabaseEventStoreCommandHandler<T extends Co
      */
     protected abstract ImmutableList<EventCandidate<?>> decision(CommandContext context);
 
-    private ImmutableList<Event> store(ImmutableList<EventCandidate<?>> candidates) {
+    private ImmutableList<Event> store(ImmutableList<EventCandidate<?>> candidates, String correlation) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("store [{}]", candidates);
         }
-        String correlation = candidates.size() > 1 ? UUID.randomUUID().toString() : null;
         ImmutableList.Builder<Event> builder = ImmutableList.builder();
+        if (correlation == null && candidates.size() > 1) {
+            correlation = UUID.randomUUID().toString();
+        }
         try {
             for (EventCandidate<?> candidate : candidates) {
                 builder.add(this.eventStore.appendToStream(candidate, correlation));

@@ -1,10 +1,24 @@
 package eu.eventstorm.core.apt.command;
 
-import static eu.eventstorm.sql.apt.Helper.getReturnType;
-import static eu.eventstorm.sql.apt.Helper.writeGenerated;
-import static eu.eventstorm.sql.apt.Helper.writeNewLine;
-import static eu.eventstorm.sql.apt.Helper.writePackage;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import eu.eventstorm.core.apt.SourceCode;
+import eu.eventstorm.core.apt.model.AbstractCommandDescriptor;
+import eu.eventstorm.core.apt.model.CommandDescriptor;
+import eu.eventstorm.core.apt.model.PropertyDescriptor;
+import eu.eventstorm.core.json.DeserializerException;
+import eu.eventstorm.sql.apt.Helper;
+import eu.eventstorm.sql.apt.log.Logger;
+import eu.eventstorm.sql.apt.log.LoggerFactory;
+import eu.eventstorm.util.Dates;
+import eu.eventstorm.util.TriConsumer;
 
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.Writer;
 import java.time.LocalDate;
@@ -13,30 +27,10 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.Element;
-import javax.lang.model.type.DeclaredType;
-import javax.lang.model.type.TypeKind;
-import javax.lang.model.type.TypeMirror;
-import javax.lang.model.util.Types;
-import javax.tools.JavaFileObject;
-
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-
-import eu.eventstorm.core.apt.SourceCode;
-import eu.eventstorm.core.apt.model.AbstractCommandDescriptor;
-import eu.eventstorm.core.apt.model.PropertyDescriptor;
-import eu.eventstorm.sql.apt.Helper;
-import eu.eventstorm.sql.apt.log.Logger;
-import eu.eventstorm.sql.apt.log.LoggerFactory;
-import eu.eventstorm.core.json.DeserializerException;
-import eu.eventstorm.util.Dates;
-import eu.eventstorm.util.TriConsumer;
+import static eu.eventstorm.sql.apt.Helper.getReturnType;
+import static eu.eventstorm.sql.apt.Helper.writeGenerated;
+import static eu.eventstorm.sql.apt.Helper.writeNewLine;
+import static eu.eventstorm.sql.apt.Helper.writePackage;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -49,7 +43,7 @@ public final class CommandJacksonStdDeserializerGenerator {
 		// generate Implementation class;
 		sourceCode.forEachCommandPackage((pack, list) -> {
 			try {
-				generate(processingEnvironment, pack, list);
+				generate(processingEnvironment, pack, list, sourceCode);
 			} catch (Exception cause) {
 				LOGGER.error("Exception for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
 			}
@@ -60,7 +54,7 @@ public final class CommandJacksonStdDeserializerGenerator {
 		// generate Implementation class;
 		sourceCode.forEachEmbeddedCommandPackage((pack, list) -> {
 			try {
-				generate(processingEnvironment, pack, list);
+				generate(processingEnvironment, pack, list, sourceCode);
 			} catch (Exception cause) {
 				LOGGER.error("Exception for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
 			}
@@ -69,7 +63,7 @@ public final class CommandJacksonStdDeserializerGenerator {
 	
 	
 
-	private void generate(ProcessingEnvironment env, String pack, ImmutableList<? extends AbstractCommandDescriptor> descriptors) throws IOException {
+	private void generate(ProcessingEnvironment env, String pack, ImmutableList<? extends AbstractCommandDescriptor> descriptors, SourceCode sourceCode) throws IOException {
 
 		for (AbstractCommandDescriptor cd : descriptors) {
 		    
@@ -83,7 +77,7 @@ public final class CommandJacksonStdDeserializerGenerator {
 			Writer writer = object.openWriter();
 
 			writeHeader(writer, pack + ".json", cd);
-			writeStatic(writer, cd);
+			writeStatic(writer, cd, sourceCode);
 		    writeConstructor(writer, cd);
 			writeMethod(writer, cd);
 
@@ -141,7 +135,7 @@ public final class CommandJacksonStdDeserializerGenerator {
         }
 	}
 	
-	private void writeStatic(Writer writer, AbstractCommandDescriptor cd) throws IOException {
+	private void writeStatic(Writer writer, AbstractCommandDescriptor cd, SourceCode sourceCode) throws IOException {
 
 		writeNewLine(writer);
 		writer.write("    private static final ImmutableMap<String, TriConsumer<JsonParser,DeserializationContext," + cd.simpleName() + "Builder>> FIELDS;");
@@ -236,29 +230,39 @@ public final class CommandJacksonStdDeserializerGenerator {
 				writeNewLine(writer);
 
 			} else {
-		    	writer.write("				builder.with" + Helper.firstToUpperCase(cpd.name()) + "(");
-		    
-			    if ("java.lang.String".equals(returnType)) {
-					writer.write("parser.nextTextValue()");
-				} else if ("byte".equals(returnType) || "java.lang.Byte".equals(returnType)) {
-					writer.write("(byte)parser.nextIntValue(0)");
-				} else if ("int".equals(returnType) || "java.lang.Integer".equals(returnType)) {
-					writer.write("parser.nextIntValue(0)");
-				} else if ("long".equals(returnType) || "java.lang.Long".equals(returnType)) {
-					writer.write("parser.nextLongValue(0l)");
-				} else if ("boolean".equals(returnType)) {
-					writer.write("parser.nextBooleanValue()");
-				} else if (OffsetDateTime.class.getName().equals(returnType)) {
-					writer.write("parseOffsetDateTime(parser.nextTextValue())");
-				} else if (LocalDate.class.getName().equals(returnType)) {
-	                writer.write("parseLocalDate(parser.nextTextValue())");
-	            } else if (LocalTime.class.getName().equals(returnType)) {
-	                writer.write("parseLocalTime(parser.nextTextValue())");
-	            } else if (Helper.isEnum(cpd.getter().getReturnType())) {
-					writer.write(cpd.getter().getReturnType().toString() +".valueOf(parser.nextTextValue())");
+
+				CommandDescriptor desc = sourceCode.getCommandDescriptor(returnType);
+				if (desc != null) {
+					writer.write("				parser.nextToken();");
+					writeNewLine(writer);
+					writer.write("				builder.with" + Helper.firstToUpperCase(cpd.name()) + "(");
+					writer.write("parser.readValueAs("+returnType+".class)");
 				} else {
-				    throw new UnsupportedOperationException("Type not supported [" + returnType + "]");
+					writer.write("				builder.with" + Helper.firstToUpperCase(cpd.name()) + "(");
+
+					if ("java.lang.String".equals(returnType)) {
+						writer.write("parser.nextTextValue()");
+					} else if ("byte".equals(returnType) || "java.lang.Byte".equals(returnType)) {
+						writer.write("(byte)parser.nextIntValue(0)");
+					} else if ("int".equals(returnType) || "java.lang.Integer".equals(returnType)) {
+						writer.write("parser.nextIntValue(0)");
+					} else if ("long".equals(returnType) || "java.lang.Long".equals(returnType)) {
+						writer.write("parser.nextLongValue(0l)");
+					} else if ("boolean".equals(returnType)) {
+						writer.write("parser.nextBooleanValue()");
+					} else if (OffsetDateTime.class.getName().equals(returnType)) {
+						writer.write("parseOffsetDateTime(parser.nextTextValue())");
+					} else if (LocalDate.class.getName().equals(returnType)) {
+						writer.write("parseLocalDate(parser.nextTextValue())");
+					} else if (LocalTime.class.getName().equals(returnType)) {
+						writer.write("parseLocalTime(parser.nextTextValue())");
+					} else if (Helper.isEnum(cpd.getter().getReturnType())) {
+						writer.write(cpd.getter().getReturnType().toString() +".valueOf(parser.nextTextValue())");
+					} else {
+						throw new UnsupportedOperationException("Type not supported [" + returnType + "]");
+					}
 				}
+
 			    writer.write(");");
 				writeNewLine(writer);
 		    }

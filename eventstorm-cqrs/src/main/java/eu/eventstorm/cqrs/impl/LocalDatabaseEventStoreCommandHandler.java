@@ -174,7 +174,7 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 
             try (Span ignored = this.tracer.start("store")) {
                 // save the to the eventStore
-                events = store(candidates);
+                events = store(candidates, ctx.getCorrelation());
             }
 
             try (Span ignored = this.tracer.start("evolution")) {
@@ -185,11 +185,10 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
         });
     }
 
-    private ImmutableList<Event> store(ImmutableList<EventCandidate<?>> candidates) {
+    private ImmutableList<Event> store(ImmutableList<EventCandidate<?>> candidates, String correlation) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("store [{}]", candidates);
         }
-        String correlation = candidates.size() > 1 ? UUID.randomUUID().toString() : null;
         ImmutableList.Builder<Event> builder = ImmutableList.builder();
         try {
             candidates.forEach(candidate -> builder.add(this.eventStore.appendToStream(candidate,correlation)));
