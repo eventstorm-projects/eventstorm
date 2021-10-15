@@ -111,6 +111,16 @@ class ExpressionsTest {
     }
 
     @Test
+    void testIsNull() {
+
+        SqlColumn number = new SqlSingleColumn(table, "number", false, true, true);
+
+        assertEquals("a.number IS NULL", Expressions.isNull(number).build(dialect, true));
+        assertEquals("number IS NULL", Expressions.isNull(number).build(dialect, false));
+        assertEquals("number IS NULL", Expressions.isNull(number).toString());
+    }
+
+        @Test
     void testLe() {
 
         SqlColumn number = new SqlSingleColumn(table, "number", false, true, true);

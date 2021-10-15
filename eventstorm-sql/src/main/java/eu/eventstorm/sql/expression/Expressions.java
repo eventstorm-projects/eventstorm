@@ -59,6 +59,10 @@ public final class Expressions {
         return (dialect, alias) -> "not (" + expression.build(dialect,alias) + ")";
     }
 
+    public static Expression isNull(SqlColumn column) {
+        return new IsNullExpression(column);
+    }
+
     public static Expression ge(SqlColumn column) {
 		return new ParameterSimpleExpression(column, ">=");
     }
