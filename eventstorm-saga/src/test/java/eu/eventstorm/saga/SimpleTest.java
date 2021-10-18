@@ -45,7 +45,11 @@ class SimpleTest {
 
         SagaContext context = new SagaContextImpl(cmd);
         context.put("counter", new AtomicInteger(10));
-        coordinator.execute(context).block();
+
+        coordinator.execute(context)
+                .onErrorResume(SagaParticipantException.class, (t) -> {
+                    return Mono.just(new SagaContextImpl(null));
+                }).block();
 
         LOGGER.info("FINISH");
 

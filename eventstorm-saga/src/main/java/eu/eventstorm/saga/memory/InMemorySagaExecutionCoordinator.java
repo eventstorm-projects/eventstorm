@@ -4,6 +4,7 @@ import eu.eventstorm.saga.SagaContext;
 import eu.eventstorm.saga.SagaDefinition;
 import eu.eventstorm.saga.SagaExecutionCoordinator;
 import eu.eventstorm.saga.SagaParticipant;
+import eu.eventstorm.saga.SagaParticipantException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
@@ -44,45 +45,12 @@ public class InMemorySagaExecutionCoordinator implements SagaExecutionCoordinato
                                 return Mono.error(new SagaParticipantException(t, tuple, definition, context));
                             });
                 }, 1)
-                .onErrorResume(SagaParticipantException.class, ex -> Flux.fromIterable(definition.getParticipants().subList(0, (int) ex.index).reverse())
+                .onErrorResume(SagaParticipantException.class, ex -> Flux.fromIterable(definition.getParticipants().subList(0, (int) ex.getIndex()).reverse())
                         .flatMap(p -> p.compensate(context))
                         .collectList()
                         .flatMap(list -> Mono.error(ex)))
                 .collectList()
                 .flatMap(t -> Mono.just(context));
-    }
-
-    private static class SagaParticipantException extends RuntimeException {
-
-        private final long index;
-        private final SagaParticipant participant;
-        private final SagaDefinition definition;
-        private final SagaContext context;
-
-        public SagaParticipantException(Exception cause, Tuple2<Long, SagaParticipant> tuple, SagaDefinition definition, SagaContext context) {
-            super(cause);
-            this.index = tuple.getT1();
-            this.participant = tuple.getT2();
-            this.definition = definition;
-            this.context = context;
-        }
-
-        public long getIndex() {
-            return index;
-        }
-
-        public SagaParticipant getParticipant() {
-            return participant;
-        }
-
-        public SagaDefinition getDefinition() {
-            return definition;
-        }
-
-        public SagaContext getContext() {
-            return context;
-        }
-
     }
 
 }
