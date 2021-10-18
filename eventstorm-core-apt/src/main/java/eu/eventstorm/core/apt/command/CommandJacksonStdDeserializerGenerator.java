@@ -248,7 +248,7 @@ public final class CommandJacksonStdDeserializerGenerator {
 						writer.write("parser.nextIntValue(0)");
 					} else if ("long".equals(returnType) || "java.lang.Long".equals(returnType)) {
 						writer.write("parser.nextLongValue(0l)");
-					} else if ("boolean".equals(returnType)) {
+					} else if ("boolean".equals(returnType) || "java.lang.Boolean".equals(returnType)) {
 						writer.write("parser.nextBooleanValue()");
 					} else if (OffsetDateTime.class.getName().equals(returnType)) {
 						writer.write("parseOffsetDateTime(parser.nextTextValue())");
