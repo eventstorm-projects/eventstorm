@@ -1,26 +1,23 @@
 package eu.eventstorm.sql.apt;
 
-import static eu.eventstorm.sql.apt.Helper.writeNewLine;
+import eu.eventstorm.sql.Dialect;
+import eu.eventstorm.sql.annotation.AutoIncrement;
+import eu.eventstorm.sql.annotation.Column;
+import eu.eventstorm.sql.apt.log.Logger;
+import eu.eventstorm.sql.apt.log.LoggerFactory;
+import eu.eventstorm.sql.apt.model.PojoDescriptor;
+import eu.eventstorm.sql.apt.model.PojoPropertyDescriptor;
+import eu.eventstorm.sql.jdbc.Mapper;
+import eu.eventstorm.sql.jdbc.MapperWithAutoIncrement;
+import eu.eventstorm.sql.type.Json;
 
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.Writer;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.tools.JavaFileObject;
-
-import eu.eventstorm.sql.apt.log.Logger;
-import eu.eventstorm.sql.apt.log.LoggerFactory;
-import eu.eventstorm.sql.apt.model.PojoDescriptor;
-import eu.eventstorm.sql.apt.model.PojoPropertyDescriptor;
-import eu.eventstorm.sql.Dialect;
-import eu.eventstorm.sql.annotation.AutoIncrement;
-import eu.eventstorm.sql.annotation.Column;
-import eu.eventstorm.sql.jdbc.Mapper;
-import eu.eventstorm.sql.jdbc.MapperWithAutoIncrement;
-import eu.eventstorm.sql.type.Json;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
