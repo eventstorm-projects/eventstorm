@@ -7,6 +7,9 @@ import eu.eventstorm.saga.SagaParticipant;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
+ */
 public final class InMemorySagaDefinitionBuilder {
 
     private String identifier;

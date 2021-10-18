@@ -4,6 +4,9 @@ import com.google.common.collect.ImmutableList;
 import eu.eventstorm.saga.SagaDefinition;
 import eu.eventstorm.saga.SagaParticipant;
 
+/**
+ * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
+ */
 final class InMemorySagaDefinition implements SagaDefinition {
 
     private final String identifier;

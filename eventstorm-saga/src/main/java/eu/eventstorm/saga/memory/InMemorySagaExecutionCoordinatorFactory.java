@@ -2,12 +2,14 @@ package eu.eventstorm.saga.memory;
 
 import eu.eventstorm.saga.SagaDefinition;
 import eu.eventstorm.saga.SagaExecutionCoordinator;
-import eu.eventstorm.saga.SagaInstance;
 import eu.eventstorm.saga.SagaExecutionCoordinatorFactory;
 
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
+ */
 public final class InMemorySagaExecutionCoordinatorFactory implements SagaExecutionCoordinatorFactory {
 
     private final Map<String, SagaDefinition> definitions = new HashMap<>();

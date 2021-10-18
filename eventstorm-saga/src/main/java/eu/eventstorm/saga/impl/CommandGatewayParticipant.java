@@ -13,6 +13,9 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
+/**
+ * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
+ */
 public abstract class CommandGatewayParticipant implements SagaParticipant {
 
     private static final String SERVER_WEB_EXCHANGE = ServerWebExchange.class.getName();

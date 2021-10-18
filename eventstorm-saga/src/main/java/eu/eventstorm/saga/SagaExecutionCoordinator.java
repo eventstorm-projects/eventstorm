@@ -1,6 +1,5 @@
 package eu.eventstorm.saga;
 
-import org.reactivestreams.Subscriber;
 import reactor.core.publisher.Mono;
 
 /**
