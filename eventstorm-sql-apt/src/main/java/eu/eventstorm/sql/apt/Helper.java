@@ -391,7 +391,11 @@ public final class Helper {
 		}
 		return name;
 	}
-	
+
+	public static boolean isNumber(String type) {
+		return "java.lang.Integer".equals(type) || "java.lang.Long".equals(type) || "java.lang.Short".equals(type) || "java.lang.Byte".equals(type);
+	}
+
 	public static boolean isInteger(String type) {
 		return ("int".equals(type) || "java.lang.Integer".equals(type));
 	}

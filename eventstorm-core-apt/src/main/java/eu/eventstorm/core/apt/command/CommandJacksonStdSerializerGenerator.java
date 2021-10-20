@@ -227,7 +227,12 @@ public final class CommandJacksonStdSerializerGenerator {
 		
 		for (PropertyDescriptor propertyDescriptor : cd.properties() ) {
 			String type = Helper.getReturnType(propertyDescriptor.getter());
-			
+
+			if (Helper.isNumber(type)) {
+				// check if null ...
+				writer.write("        if (null != pojo." + propertyDescriptor.getter().getSimpleName()+"())");
+			}
+
 			if (Helper.isInteger(type) || Helper.isLong(type) ||Helper.isShort(type) ||Helper.isByte(type)) {
 				writer.write("        gen.writeNumberField(\"" + propertyDescriptor.name() + "\", pojo." + propertyDescriptor.getter().getSimpleName()+"());");
 			} else if (Helper.isString(type)) {
