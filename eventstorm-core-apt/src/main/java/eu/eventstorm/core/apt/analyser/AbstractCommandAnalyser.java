@@ -9,6 +9,9 @@ import eu.eventstorm.sql.apt.log.LoggerFactory;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeMirror;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -47,12 +50,29 @@ abstract class AbstractCommandAnalyser<T extends AbstractCommandDescriptor> impl
 		logger.info("Analyse " + element);
 
 		List<PropertyDescriptor> properties = new ArrayList<>();
+		read(element, properties);
 
+
+
+		TypeElement parent = (TypeElement)element;
+
+		parent.getInterfaces().forEach(typeMirror -> {
+			if (!"eu.eventstorm.cqrs.Command".equals(typeMirror.toString())) {
+				// skip
+				read(((DeclaredType) typeMirror).asElement(), properties);
+			}
+		});
+
+
+		return newInstance(element, properties);
+	}
+
+	private void read(Element element, List<PropertyDescriptor> properties) {
 		for (Element method : element.getEnclosedElements()) {
 
 			if (ElementKind.METHOD != method.getKind()) {
 				logger.error("element [" + method + "] in [" + element + "] is not a method, it's [" + element.getKind() + "]");
-				return null;
+				return;
 			}
 
 			ExecutableElement executableElement = (ExecutableElement) method;
@@ -63,10 +83,7 @@ abstract class AbstractCommandAnalyser<T extends AbstractCommandDescriptor> impl
 			}
 
 			throw new IllegalStateException("method [" + method + "] doesn't start with 'get'");
-
 		}
-
-		return newInstance(element, properties);
 	}
 
 	protected abstract T newInstance(Element element, List<PropertyDescriptor> properties);
