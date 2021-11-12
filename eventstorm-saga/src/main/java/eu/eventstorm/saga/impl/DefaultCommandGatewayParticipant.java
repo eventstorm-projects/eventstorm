@@ -37,7 +37,7 @@ public abstract class DefaultCommandGatewayParticipant extends CommandGatewayPar
     }
 
     @Override
-    public Mono<SagaContext> compensate(SagaContext context) {
+    public final Mono<SagaContext> compensate(SagaContext context) {
         Command originalCommand = getOriginalCommand(context);
         if (originalCommand == null) {
             if (logger.isDebugEnabled()) {
