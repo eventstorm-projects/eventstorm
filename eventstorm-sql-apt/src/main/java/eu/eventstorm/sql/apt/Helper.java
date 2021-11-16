@@ -333,6 +333,10 @@ public final class Helper {
 			return "java.sql.Types.TINYINT";
 		}
 
+		if ("java.sql.Date".equals(type)) {
+			return "java.sql.Types.DATE";
+		}
+
 		if ("java.sql.Timestamp".equals(type)) {
 			return "java.sql.Types.TIMESTAMP";
 		}
