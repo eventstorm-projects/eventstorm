@@ -172,6 +172,7 @@ public final class SelectBuilder extends AbstractBuilder {
 		appendSelect(builder);
 		appendFrom(builder);
 		appendWherePage(builder, pageRequest);
+        appendGroupBy(builder);
 		appendOrderPage(builder, pageRequest);
 
 		builder.append(' ').append(this.database().dialect().range(pageRequest.getOffset(), pageRequest.getSize()));
