@@ -85,10 +85,15 @@ public abstract class ReactiveLocalDatabaseEventStoreCommandHandler<T extends Co
 
     public final Flux<Event> handle(CommandContext context) {
         return this.validate(context)
+                .flatMap(this::init)
                 .flatMap(this::eventLoopStoreAndEvolution)
                 .flatMap(this::post)
                 .flatMap(this::publish)
                 .flatMapMany(r -> Flux.fromIterable(r.getT2()));
+    }
+
+    protected Mono<CommandContext> init(CommandContext ctx) {
+        return Mono.just(ctx);
     }
 
     private Mono<Tuple2<CommandContext, ImmutableList<Event>>> post(Tuple2<CommandContext, ImmutableList<Event>> tuple) {
