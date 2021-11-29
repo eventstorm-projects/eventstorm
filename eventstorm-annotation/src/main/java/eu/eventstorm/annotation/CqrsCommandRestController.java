@@ -31,9 +31,9 @@ public @interface CqrsCommandRestController {
 	HttpMethod method() default HttpMethod.POST;
 	
 	/**
-	 * Return type for this method; if default return type (Void.class) => return CloudEvent
+	 * Return type for this method; if default return type (Object.class) => return CloudEvent
 	 */
-	Class<?> returnType() default Void.class;
+	Class<?> returnType() default Object.class;
 	
 	/**
 	 * response produce media type

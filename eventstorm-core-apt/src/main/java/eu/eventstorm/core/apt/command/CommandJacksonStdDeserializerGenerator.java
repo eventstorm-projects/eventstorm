@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableMap;
 import eu.eventstorm.core.apt.SourceCode;
 import eu.eventstorm.core.apt.model.AbstractCommandDescriptor;
 import eu.eventstorm.core.apt.model.CommandDescriptor;
+import eu.eventstorm.core.apt.model.EmbeddedCommandDescriptor;
 import eu.eventstorm.core.apt.model.PropertyDescriptor;
 import eu.eventstorm.core.json.DeserializerException;
 import eu.eventstorm.sql.apt.Helper;
@@ -232,7 +233,8 @@ public final class CommandJacksonStdDeserializerGenerator {
 			} else {
 
 				CommandDescriptor desc = sourceCode.getCommandDescriptor(returnType);
-				if (desc != null) {
+				EmbeddedCommandDescriptor embeddedDesc = sourceCode.getEmbeddedCommandDescriptor(returnType);
+				if (desc != null ||embeddedDesc != null) {
 					writer.write("				parser.nextToken();");
 					writeNewLine(writer);
 					writer.write("				builder.with" + Helper.firstToUpperCase(cpd.name()) + "(");
