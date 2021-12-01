@@ -13,6 +13,7 @@ import java.sql.Clob;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -53,4 +54,8 @@ public interface Dialect {
 	String functionJsonValue(String col, String path);
 
 	String ilike(SqlColumn column, boolean alias);
+
+	default int getBooleanType() {
+		return Types.BOOLEAN;
+	}
 }

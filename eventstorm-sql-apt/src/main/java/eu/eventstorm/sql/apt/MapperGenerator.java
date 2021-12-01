@@ -324,12 +324,17 @@ final class MapperGenerator implements Generator {
 		
         if (column != null && column.nullable()) {
             if (!"eu.eventstorm.sql.type.Json".equals(type)) {
+                Helper.writeNewLine(writer);
                 writer.write("        } else {");
                 Helper.writeNewLine(writer);
                 writer.write("            ps.setNull(");
                 writer.write("" + index);
                 writer.write(", ");
-                writer.write(Helper.nullableType(type));
+                if ("java.lang.Boolean".equals(type)) {
+                    writer.write("dialect.getBooleanType()");
+                } else {
+                    writer.write(Helper.nullableType(type));
+                }
                 writer.write(");");
                 Helper.writeNewLine(writer);
                 writer.write("        }");

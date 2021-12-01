@@ -163,4 +163,8 @@ final class OracleDialect extends AbstractDialect {
     	// nothing to init -> skip.
 	}
 
+	@Override
+	public int getBooleanType() {
+		return Types.INTEGER;
+	}
 }
