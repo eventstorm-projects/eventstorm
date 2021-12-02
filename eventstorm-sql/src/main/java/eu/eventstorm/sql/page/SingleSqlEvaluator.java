@@ -22,6 +22,9 @@ public final class SingleSqlEvaluator implements EvaluatorDefinition {
         EXPRESSIONS.put(Operator.EQUALS, (col, filter) -> Expressions.eq(col));
         EXPRESSIONS.put(Operator.IN, (col, filter) -> Expressions.in(col, filter.getValues().size()));
         EXPRESSIONS.put(Operator.GREATER_EQUALS, (col, filter) -> Expressions.ge(col));
+        EXPRESSIONS.put(Operator.GREATER, (col, filter) -> Expressions.gt(col));
+        EXPRESSIONS.put(Operator.LESSER_EQUALS, (col, filter) -> Expressions.le(col));
+        EXPRESSIONS.put(Operator.LESSER, (col, filter) -> Expressions.lt(col));
         EXPRESSIONS.put(Operator.CONTAINS, (col, filter) -> Expressions.like(col));
     }
 

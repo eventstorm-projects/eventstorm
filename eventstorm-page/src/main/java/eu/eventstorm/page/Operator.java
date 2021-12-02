@@ -10,6 +10,9 @@ public enum Operator {
     EQUALS,
     IN,
     GREATER_EQUALS,
+    GREATER,
+    LESSER_EQUALS,
+    LESSER,
     CONTAINS
     ;
 
@@ -20,6 +23,9 @@ public enum Operator {
                 .put("[eq]", Operator.EQUALS)
                 .put("[in]", Operator.IN)
                 .put("[ge]", Operator.GREATER_EQUALS)
+                .put("[gt]", Operator.GREATER)
+                .put("[lt]", Operator.LESSER)
+                .put("[le]", Operator.LESSER_EQUALS)
                 .put("[cnt]", Operator.CONTAINS)
                 .build();
     }
