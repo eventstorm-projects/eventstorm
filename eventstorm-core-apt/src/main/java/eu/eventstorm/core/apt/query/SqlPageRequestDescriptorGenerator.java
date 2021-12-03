@@ -8,6 +8,7 @@ import static eu.eventstorm.sql.apt.Helper.writePackage;
 import java.io.IOException;
 import java.io.Writer;
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.function.Function;
 
 import javax.annotation.processing.ProcessingEnvironment;
@@ -152,6 +153,8 @@ public final class SqlPageRequestDescriptorGenerator {
 				writer.write("            .put(\"" + property.name() + "\", filter -> (ps,index) -> { for (String value : filter.getValues()) { ps.setByte(index++, Byte.valueOf(value));} return index; })");
 			} else if (Helper.isString(type)) {
 				writer.write("            .put(\"" + property.name() + "\", filter -> (ps,index) -> { for (String value : filter.getValues()) { ps.setString(index++, value); } return index; })");
+			} else if (Date.class.getName().equals(type)) {
+				writer.write("            .put(\"" + property.name() + "\", filter -> (ps,index) -> { for (String value : filter.getValues()) { ps.setDate(index, "+ Dates.class.getName()+".convertDate(value)); } return index; })");
 			} else if (Timestamp.class.getName().equals(type)) {
 				writer.write("            .put(\"" + property.name() + "\", filter -> (ps,index) -> { for (String value : filter.getValues()) { ps.setTimestamp(index, "+ Dates.class.getName()+".convertTimestamp(value)); } return index; })");
 			} else if (Json.class.equals(type)) {
