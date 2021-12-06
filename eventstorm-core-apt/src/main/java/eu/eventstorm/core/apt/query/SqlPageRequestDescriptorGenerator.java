@@ -154,9 +154,9 @@ public final class SqlPageRequestDescriptorGenerator {
 			} else if (Helper.isString(type)) {
 				writer.write("            .put(\"" + property.name() + "\", filter -> (ps,index) -> { for (String value : filter.getValues()) { ps.setString(index++, value); } return index; })");
 			} else if (Date.class.getName().equals(type)) {
-				writer.write("            .put(\"" + property.name() + "\", filter -> (ps,index) -> { for (String value : filter.getValues()) { ps.setDate(index, "+ Dates.class.getName()+".convertDate(value)); } return index; })");
+				writer.write("            .put(\"" + property.name() + "\", filter -> (ps,index) -> { for (String value : filter.getValues()) { ps.setDate(index++, "+ Dates.class.getName()+".convertDate(value)); } return index; })");
 			} else if (Timestamp.class.getName().equals(type)) {
-				writer.write("            .put(\"" + property.name() + "\", filter -> (ps,index) -> { for (String value : filter.getValues()) { ps.setTimestamp(index, "+ Dates.class.getName()+".convertTimestamp(value)); } return index; })");
+				writer.write("            .put(\"" + property.name() + "\", filter -> (ps,index) -> { for (String value : filter.getValues()) { ps.setTimestamp(index++, "+ Dates.class.getName()+".convertTimestamp(value)); } return index; })");
 			} else if (Json.class.getName().equals(type)) {
 				writer.write("            // json");
 			} else {
