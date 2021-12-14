@@ -32,6 +32,15 @@ public final class JsonAdapterList<T> extends JsonAdapter implements JsonList<T>
 	}
 
 	@Override
+	public String writeAsString(JsonMapper mapper) {
+		try {
+			return mapper.writeAsString(this.list);
+		} catch (IOException cause) {
+			throw new SqlTypeException(SqlTypeException.Type.WRITE_JSON, of(PARAM_CONTENT_OBJECT, list), cause);
+		}
+	}
+
+	@Override
 	public T get(int index) {
 	    return this.list.get(index);
 	}

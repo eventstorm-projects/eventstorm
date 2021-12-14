@@ -51,6 +51,15 @@ public final class JsonAdapterMap extends JsonAdapter implements JsonMap {
 	}
 
 	@Override
+	public String writeAsString(JsonMapper mapper) {
+		try {
+			return mapper.writeAsString(this.map);
+		} catch (IOException cause) {
+			throw new SqlTypeException(SqlTypeException.Type.WRITE_JSON, of(PARAM_CONTENT_OBJECT, map), cause);
+		}
+	}
+
+	@Override
 	public <T> T get(String key, Class<T> clazz) {
 		return clazz.cast(this.map.get(key));
 	}

@@ -9,6 +9,7 @@ import eu.eventstorm.sql.type.common.AbstractBlob;
 import eu.eventstorm.sql.type.common.AbstractClob;
 import eu.eventstorm.sql.type.common.BlobJson;
 import eu.eventstorm.sql.type.common.BlobXml;
+import eu.eventstorm.sql.type.common.StringJson;
 import eu.eventstorm.util.FastByteArrayInputStream;
 import eu.eventstorm.util.Streams;
 import eu.eventstorm.util.Strings;
@@ -55,12 +56,11 @@ final class OracleDialect extends AbstractDialect {
     
 	@Override
 	public Json fromJdbcJson(ResultSet rs, int index) throws SQLException {
-		//TODO .. to improve
 		String value = rs.getString(index);
 		if (Strings.isEmpty(value)) {
 			return null;
 		} else {
-			return new BlobJson(getDatabase().jsonMapper(), value.getBytes(StandardCharsets.UTF_8));	
+			return new StringJson(getDatabase().jsonMapper(), value);
 		}
 	}
 
@@ -79,7 +79,7 @@ final class OracleDialect extends AbstractDialect {
 		if (json == null) {
 			ps.setNull(index, Types.CLOB);
 		} else {
-			ps.setString(index, new String(json.write(getDatabase().jsonMapper()), StandardCharsets.UTF_8));
+			ps.setString(index, json.writeAsString(getDatabase().jsonMapper()));
 		}
 	}
 

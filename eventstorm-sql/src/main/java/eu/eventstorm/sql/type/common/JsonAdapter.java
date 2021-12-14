@@ -19,4 +19,6 @@ public abstract class JsonAdapter {
 
     public abstract byte[] write(JsonMapper mapper);
 
+    public abstract String writeAsString(JsonMapper mapper);
+
 }

@@ -26,13 +26,28 @@ public final class JacksonJsonMapper implements JsonMapper{
 	}
 
 	@Override
+	public Map<String, Object> readMap(String content) throws IOException {
+		return this.objectMapper.readValue(content, Map.class);
+	}
+
+	@Override
 	public <T> List<T> readList(byte[] content, Class<T> type) throws IOException {
 		return this.objectMapper.readValue(content, objectMapper.getTypeFactory().constructCollectionType(List.class, type));
 	}
-	
+
+	@Override
+	public <T> List<T> readList(String content, Class<T> type) throws IOException {
+		return this.objectMapper.readValue(content, objectMapper.getTypeFactory().constructCollectionType(List.class, type));
+	}
+
 	@Override
 	public byte[] write(Map<String, Object> map) throws IOException {
 		return this.objectMapper.writeValueAsBytes(map);
+	}
+
+	@Override
+	public String writeAsString(Map<String, Object> map) throws IOException {
+		return this.objectMapper.writeValueAsString(map);
 	}
 
 	@Override
@@ -40,4 +55,8 @@ public final class JacksonJsonMapper implements JsonMapper{
 		return this.objectMapper.writeValueAsBytes(list);
 	}
 
+	@Override
+	public String writeAsString(List<?> list) throws IOException {
+		return this.objectMapper.writeValueAsString(list);
+	}
 }

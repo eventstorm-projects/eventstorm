@@ -13,4 +13,6 @@ public interface Json {
 
 	byte[] write(JsonMapper mapper);
 
+    String writeAsString(JsonMapper mapper);
+
 }

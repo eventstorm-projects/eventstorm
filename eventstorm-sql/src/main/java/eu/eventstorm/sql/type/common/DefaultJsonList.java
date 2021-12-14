@@ -82,6 +82,15 @@ public final class DefaultJsonList<T> implements Json, JsonList<T> {
 	}
 
 	@Override
+	public String writeAsString(JsonMapper mapper) {
+		try {
+			return mapper.writeAsString(this.list);
+		} catch (IOException cause) {
+			throw new SqlTypeException(SqlTypeException.Type.WRITE_JSON, of(PARAM_CONTENT_OBJECT, list), cause);
+		}
+	}
+
+	@Override
 	public String toString() {
 		return new ToStringBuilder(this, false)
 				.append("list" , this.list)

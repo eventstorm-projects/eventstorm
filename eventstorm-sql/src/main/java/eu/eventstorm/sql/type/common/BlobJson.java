@@ -5,6 +5,7 @@ import static eu.eventstorm.sql.type.SqlTypeException.PARAM_ADAPTEE;
 import static eu.eventstorm.sql.type.SqlTypeException.PARAM_CONTENT;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -80,5 +81,13 @@ public final class BlobJson extends DefaultBlob implements Json {
 		}
 		return getBuf();
 	}
+
+    @Override
+    public String writeAsString(JsonMapper mapper) {
+        if (adapter != null && this.adapter.isModified()) {
+            setBuf(this.adapter.write(mapper));
+        }
+        return new String(getBuf(), StandardCharsets.UTF_8);
+    }
 
 }

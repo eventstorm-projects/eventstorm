@@ -79,6 +79,11 @@ public final class JsonPGobject extends PGobject implements Json {
     }
 
     @Override
+    public String writeAsString(JsonMapper mapper) {
+        return getValue();
+    }
+
+    @Override
     public String getValue() {
         if (adapter != null && adapter.isModified()) {
             this.value = new String(adapter.write(mapper), StandardCharsets.UTF_8);

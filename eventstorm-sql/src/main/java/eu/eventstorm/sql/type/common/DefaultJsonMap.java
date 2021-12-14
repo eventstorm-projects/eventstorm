@@ -69,4 +69,13 @@ public final class DefaultJsonMap implements Json, JsonMap{
         }
 	}
 
+	@Override
+	public String writeAsString(JsonMapper mapper) {
+		try {
+			return mapper.writeAsString(this.map);
+		} catch (IOException cause) {
+			throw new SqlTypeException(SqlTypeException.Type.WRITE_JSON, of(PARAM_CONTENT_OBJECT, map), cause);
+		}
+	}
+
 }
