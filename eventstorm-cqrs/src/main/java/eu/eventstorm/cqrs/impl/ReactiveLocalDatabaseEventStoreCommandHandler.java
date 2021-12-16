@@ -25,7 +25,6 @@ import reactor.core.publisher.SynchronousSink;
 import reactor.util.function.Tuple2;
 
 import java.util.UUID;
-import java.util.function.Consumer;
 
 import static reactor.util.function.Tuples.of;
 
@@ -35,10 +34,6 @@ import static reactor.util.function.Tuples.of;
 public abstract class ReactiveLocalDatabaseEventStoreCommandHandler<T extends Command> implements CommandHandler<T, Event> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReactiveLocalDatabaseEventStoreCommandHandler.class);
-
-    private static final Consumer<Tuple2<CommandContext, ImmutableList<Event>>> DEFAULT_ON_POST = tuple -> {
-
-    };
 
     private final Class<T> type;
 
@@ -96,11 +91,10 @@ public abstract class ReactiveLocalDatabaseEventStoreCommandHandler<T extends Co
         return Mono.just(ctx);
     }
 
-    private Mono<Tuple2<CommandContext, ImmutableList<Event>>> post(Tuple2<CommandContext, ImmutableList<Event>> tuple) {
+    protected Mono<Tuple2<CommandContext, ImmutableList<Event>>> post(Tuple2<CommandContext, ImmutableList<Event>> tuple) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("post");
         }
-        onPost().accept(tuple);
         return Mono.just(tuple);
     }
 
@@ -128,7 +122,7 @@ public abstract class ReactiveLocalDatabaseEventStoreCommandHandler<T extends Co
 
     private void storeAndEvolution(CommandContext ctx, SynchronousSink<Tuple2<CommandContext, ImmutableList<Event>>> sink) {
         try (Span ignored = this.tracer.start("storeAndEvolution")) {
-            sink.next(of(ctx,doStoreAndEvolution(ctx)));
+            sink.next(of(ctx, doStoreAndEvolution(ctx)));
         } catch (Exception cause) {
             sink.error(cause);
         }
@@ -171,10 +165,6 @@ public abstract class ReactiveLocalDatabaseEventStoreCommandHandler<T extends Co
                             });
                 });
 
-    }
-
-    protected Consumer<Tuple2<CommandContext, ImmutableList<Event>>> onPost() {
-        return DEFAULT_ON_POST;
     }
 
     /**

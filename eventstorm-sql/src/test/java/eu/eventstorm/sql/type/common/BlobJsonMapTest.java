@@ -38,7 +38,6 @@ class BlobJsonMapTest {
 		assertEquals("{\"key1\":{\"value\":\"Jacques\",\"age\":39}}", new String(map.write(mapper)));
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	void testBadJsonMapWrite() {
 

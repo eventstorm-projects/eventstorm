@@ -6,7 +6,7 @@
     <parent>
         <artifactId>eventstorm</artifactId>
         <groupId>eu.eventstorm</groupId>
-        <version>0.12.0-SNAPSHOT</version>
+        <version>1.0.0</version>
     </parent>
 
     <artifactId>eventstorm-page</artifactId>
