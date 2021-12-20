@@ -63,7 +63,7 @@ public final class DatabaseExecutionReactiveController {
 				.map(databaseExecution -> databaseExecution.getLog().write(null));
 	}
 
-	@GetMapping(path = "${eu.eventstorm.batch.execution.context-path:}/date/{date}", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
+	@GetMapping(path = "${eu.eventstorm.batch.execution.context-path:}/date/{date}", produces = MediaType.APPLICATION_NDJSON_VALUE)
 	public Flux<DatabaseExecution> getAllByDate(@PathVariable("date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date)  {
 
 		if (LOGGER.isDebugEnabled()) {
@@ -74,7 +74,7 @@ public final class DatabaseExecutionReactiveController {
 				.flatMapMany(d-> transactionTemplate.flux(() -> databaseExecutionRepository.findAllByDate(d)));
 	}
 
-	@GetMapping(path = "${eu.eventstorm.batch.execution.context-path:}/today", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
+	@GetMapping(path = "${eu.eventstorm.batch.execution.context-path:}/today", produces = MediaType.APPLICATION_NDJSON_VALUE)
 	public Flux<DatabaseExecution> getAllFromToday()  {
 
 		if (LOGGER.isDebugEnabled()) {
