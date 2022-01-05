@@ -48,6 +48,9 @@
 		<com.zaxxer.version>4.0.3</com.zaxxer.version>
 		<org.skyscreamer.jsonassert.version>1.5.0</org.skyscreamer.jsonassert.version>
 
+		<sonar.organization>eventstorm-projects</sonar.organization>
+		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
+
 	</properties>
 
 	<distributionManagement>
