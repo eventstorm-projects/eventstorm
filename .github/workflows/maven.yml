@@ -23,4 +23,9 @@ jobs:
         distribution: 'adopt'
         cache: maven
     - name: Build with Maven
-      run: mvn -B package --file pom.xml -Pcoverage -Dmaven.javadoc.skip=true -Dgpg.skip=true 
+      run: mvn -B org.jacoco:jacoco-maven-plugin:prepare-agent compile sonar:sonar --file pom.xml -Pcoverage -Dmaven.javadoc.skip=true -Dgpg.skip=true
+    - name: SonarCloud Scan
+      uses: sonarsource/sonarcloud-github-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
