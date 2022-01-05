@@ -22,4 +22,4 @@ jobs:
         distribution: 'zulu'
         cache: maven
     - name: Build
-      run: mvn -B compile test --file pom.xml -Pcoverage -Dmaven.javadoc.skip=true -Dgpg.skip=true
+      run: mvn -B clean compile test --file pom.xml -Pcoverage -Dmaven.javadoc.skip=true -Dgpg.skip=true
