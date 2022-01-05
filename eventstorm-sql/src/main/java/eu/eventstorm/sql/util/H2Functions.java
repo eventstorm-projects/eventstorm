@@ -43,7 +43,7 @@ public final class H2Functions {
         try {
              object = JsonPath.parse(json).read(path);
         } catch (Exception ex) {
-            ex.printStackTrace();
+            LOGGER.error("Failed to parse JSON ["+json+"]", ex);
         }
 
         if (LOGGER.isDebugEnabled()) {

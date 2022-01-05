@@ -42,6 +42,9 @@ public final class CommandGateway {
 		// if the command is not found -> command gateway exception -> no need to check if it's null.
 		CommandHandler<Command,E> commandHandler = (CommandHandler<Command, E>) this.handlers.get(cacheKey);
 
+		if (commandHandler == null) {
+			throw new CommandGatewayException(CommandGatewayException.Type.NOT_FOUND, of("command", ctx.getCommand()));
+		}
 		return commandHandler.handle(ctx);
 	}
 

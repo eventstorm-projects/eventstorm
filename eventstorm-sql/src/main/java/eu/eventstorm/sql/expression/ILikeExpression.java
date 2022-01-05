@@ -25,7 +25,7 @@ final class ILikeExpression implements Expression {
 
     @Override
     public String toString() {
-        return build(null, false);
+        return "ilike " + column.toSql();
     }
 
 }

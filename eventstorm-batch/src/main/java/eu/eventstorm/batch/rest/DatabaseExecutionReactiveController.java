@@ -100,8 +100,6 @@ public final class DatabaseExecutionReactiveController {
 	@GetMapping(path = "${eu.eventstorm.batch.execution.context-path:}")
 	public Mono<ResponseEntity<Page<DatabaseExecutionQuery>>> page(@HttpPageRequest PageRequest pageRequest) {
 
-		LOGGER.info("PageRequest=[{}]", pageRequest);
-
 		return Mono.just(pageRequest)
 				.flatMap(p -> Mono.just(this.transactionTemplate.page(() -> databaseExecutionQueryRepository.findBy(p))))
 				.map(PageResponseEntity::new);
