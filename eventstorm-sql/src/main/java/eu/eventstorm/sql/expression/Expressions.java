@@ -63,6 +63,11 @@ public final class Expressions {
         return new IsNullExpression(column);
     }
 
+    public static Expression isNotNull(SqlColumn column) {
+        return new IsNotNullExpression(column);
+    }
+
+
     public static Expression ge(SqlColumn column) {
 		return new ParameterSimpleExpression(column, ">=");
     }

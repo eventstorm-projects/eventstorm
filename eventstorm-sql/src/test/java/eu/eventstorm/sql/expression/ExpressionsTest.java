@@ -120,6 +120,16 @@ class ExpressionsTest {
         assertEquals("number IS NULL", Expressions.isNull(number).toString());
     }
 
+    @Test
+    void testIsNotNull() {
+
+        SqlColumn number = new SqlSingleColumn(table, "number", false, true, true);
+
+        assertEquals("a.number IS NOT NULL", Expressions.isNotNull(number).build(dialect, true));
+        assertEquals("number IS NOT NULL", Expressions.isNotNull(number).build(dialect, false));
+        assertEquals("number IS NOT NULL", Expressions.isNotNull(number).toString());
+    }
+
         @Test
     void testLe() {
 

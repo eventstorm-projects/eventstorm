@@ -6,11 +6,11 @@ import eu.eventstorm.sql.desc.SqlColumn;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-final class IsNullExpression implements Expression {
+final class IsNotNullExpression implements Expression {
 
     private final SqlColumn column;
 
-    IsNullExpression(SqlColumn column) {
+    IsNotNullExpression(SqlColumn column) {
         this.column = column;
     }
 
@@ -25,7 +25,7 @@ final class IsNullExpression implements Expression {
             builder.append(column.table().alias()).append('.');
         }
 
-        builder.append(column.name()).append(" IS NULL");
+        builder.append(column.name()).append(" IS NOT NULL");
         return builder.toString();
     }
 
