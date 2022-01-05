@@ -76,7 +76,7 @@ import eu.eventstorm.sql.annotation.Table;
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 @SupportedAnnotationTypes({ "eu.eventstorm.annotation.CqrsCommand", "eu.eventstorm.annotation.CqrsQuery"
 		, "eu.eventstorm.annotation.CqrsQueryPojo", "eu.eventstorm.annotation.CqrsQueryClient"
-		, "eu.eventstorm.annotation.CqrsBatchCommand"})
+		, "eu.eventstorm.annotation.CqrsBatchCommand", "eu.eventstorm.annotation.CqrsQueryDatabaseView"})
 public class EventProcessor extends AbstractProcessor {
 
 	private boolean firstTime = false;

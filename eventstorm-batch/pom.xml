@@ -19,6 +19,13 @@
 
 		<dependency>
 			<groupId>eu.eventstorm</groupId>
+			<artifactId>eventstorm-cqrs</artifactId>
+			<version>${project.version}</version>
+			<optional>true</optional>
+		</dependency>
+
+		<dependency>
+			<groupId>eu.eventstorm</groupId>
 			<artifactId>eventstorm-problem</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -42,6 +49,13 @@
 		<dependency>
 			<groupId>eu.eventstorm</groupId>
 			<artifactId>eventstorm-sql-apt</artifactId>
+			<version>${project.version}</version>
+			<optional>true</optional>
+		</dependency>
+
+		<dependency>
+			<groupId>eu.eventstorm</groupId>
+			<artifactId>eventstorm-core-apt</artifactId>
 			<version>${project.version}</version>
 			<optional>true</optional>
 		</dependency>

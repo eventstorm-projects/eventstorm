@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import java.net.URI;
 import java.util.stream.Stream;
 
+import com.google.common.collect.ImmutableList;
 import eu.eventstorm.cqrs.PageQueryDescriptor;
 import eu.eventstorm.cqrs.PageQueryDescriptors;
 import eu.eventstorm.page.Page;
@@ -34,7 +35,7 @@ class HttpPageRequestHandlerMethodArgumentResolverTest {
 		PageQueryDescriptors queryDescriptors = mock(PageQueryDescriptors.class);
 		when(queryDescriptors.get("java.lang.String")).thenReturn(mock(PageQueryDescriptor.class));
 
-		HttpPageRequestHandlerMethodArgumentResolver resolver = new HttpPageRequestHandlerMethodArgumentResolver(queryDescriptors);
+		HttpPageRequestHandlerMethodArgumentResolver resolver = new HttpPageRequestHandlerMethodArgumentResolver(ImmutableList.of(queryDescriptors));
 		MethodParameter methodParameter = new MethodParameter(HttpPageRequestHandlerMethodArgumentResolverTest.class.getMethod("find", PageRequest.class), 0);
 
 		assertTrue(resolver.supportsParameter(methodParameter));

@@ -17,7 +17,8 @@ public final class PageResponseEntity<T> extends ResponseEntity<Page<T>> {
 	}
 
 	private static <T> HttpStatus getStatus(Page<T> body) {
-		if (body.getRange().getStart() == 0 && body.getRange().getEnd() + 1 == body.getTotalElements() || body.getTotalElements() == 0) {
+		if (body.getRange().getStart() == 0 && (body.getRange().getEnd() > body.getTotalElements() ||
+				body.getRange().getEnd()  + 1 == body.getTotalElements()) || body.getTotalElements() == 0) {
 			return HttpStatus.OK;
 		}
 		return HttpStatus.PARTIAL_CONTENT;

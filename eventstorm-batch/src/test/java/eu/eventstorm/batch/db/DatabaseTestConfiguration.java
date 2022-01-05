@@ -30,10 +30,11 @@ import eu.eventstorm.sql.tracer.TransactionTracers;
 public class DatabaseTestConfiguration {
 
 	@Bean
-	Database database(DataSource dataSource, TransactionManager transactionManager) {
+	Database database(TransactionManager transactionManager) {
 		return DatabaseBuilder.from(Dialect.Name.H2)
 				.withTransactionManager(transactionManager)
 				.withModule(new eu.eventstorm.batch.db.Module("eventstorm-batch",""))
+				.withModule(new eu.eventstorm.batch.db.QueryViewModule("eventstorm-batch-query",""))
 		        .build();
 	}
 	

@@ -23,7 +23,7 @@ final class H2Dialect extends AbstractDialect {
         super(database);
     }
 
-	@Override
+    @Override
     protected String aliasSeparator() {
         return " ";
     }
@@ -34,81 +34,81 @@ final class H2Dialect extends AbstractDialect {
     }
 
     @Override
-	public String limit(int limit) {
-    	return "LIMIT " + limit;
-	}
-    
+    public String limit(int limit) {
+        return "LIMIT " + limit;
+    }
+
     @Override
     public String range(int offset, int limit) {
-        return "LIMIT " + limit + " OFFSET " + offset;
+        return "OFFSET " + offset + " ROWS FETCH FIRST " + limit + " ROWS ONLY";
     }
-    
-	@Override
-	public Json fromJdbcJson(ResultSet rs, int index) throws SQLException {
-		return new BlobJson(getDatabase().jsonMapper(), rs.getBytes(index));
-	}
 
-	@Override
-	public Xml fromJdbcXml(ResultSet rs, int index) throws SQLException {
-		return new BlobXml(rs.getBytes(index));
-	}
+    @Override
+    public Json fromJdbcJson(ResultSet rs, int index) throws SQLException {
+        return new BlobJson(getDatabase().jsonMapper(), rs.getBytes(index));
+    }
 
-	@Override
-	public Xml createXml(FastByteArrayInputStream fbais) {
-		return new BlobXml(fbais.readAll());
-	}
-	
+    @Override
+    public Xml fromJdbcXml(ResultSet rs, int index) throws SQLException {
+        return new BlobXml(rs.getBytes(index));
+    }
 
-	@Override
-	public void setPreparedStatement(PreparedStatement ps, int index, Json json) throws SQLException {
-		if (json == null) {
-			ps.setNull(index, Types.CLOB);
-		} else {
-			ps.setBytes(index, json.write(this.getDatabase().jsonMapper()));
-		}
+    @Override
+    public Xml createXml(FastByteArrayInputStream fbais) {
+        return new BlobXml(fbais.readAll());
+    }
 
-	}
 
-	@Override
-	public void setPreparedStatement(PreparedStatement ps, int index, Blob blob) throws SQLException {
-		ps.setBlob(index, blob);
-	}
+    @Override
+    public void setPreparedStatement(PreparedStatement ps, int index, Json json) throws SQLException {
+        if (json == null) {
+            ps.setNull(index, Types.CLOB);
+        } else {
+            ps.setBytes(index, json.write(this.getDatabase().jsonMapper()));
+        }
 
-	@Override
-	public void setPreparedStatement(PreparedStatement ps, int index, Clob clob) throws SQLException {
-		ps.setClob(index, clob);
-	}
+    }
+
+    @Override
+    public void setPreparedStatement(PreparedStatement ps, int index, Blob blob) throws SQLException {
+        ps.setBlob(index, blob);
+    }
+
+    @Override
+    public void setPreparedStatement(PreparedStatement ps, int index, Clob clob) throws SQLException {
+        ps.setClob(index, clob);
+    }
 
     public void init() {
-    	RawSqlExecutor sql = getDatabase().rawSqlExecutor();
-    	try {
-			sql.execute("CREATE ALIAS IF NOT EXISTS json_exists FOR \" eu.eventstorm.sql.util.H2Functions.json_exists\";");
-			sql.execute("CREATE ALIAS IF NOT EXISTS json_value FOR \" eu.eventstorm.sql.util.H2Functions.json_value\";");
-		} catch (SQLException cause) {
-			throw new IllegalStateException(cause);
-		}
-	}
+        RawSqlExecutor sql = getDatabase().rawSqlExecutor();
+        try {
+            sql.execute("CREATE ALIAS IF NOT EXISTS json_exists FOR \" eu.eventstorm.sql.util.H2Functions.json_exists\";");
+            sql.execute("CREATE ALIAS IF NOT EXISTS json_value FOR \" eu.eventstorm.sql.util.H2Functions.json_value\";");
+        } catch (SQLException cause) {
+            throw new IllegalStateException(cause);
+        }
+    }
 
-	@Override
-	public String functionJsonExists(String col, String path) {
-		return "json_exists(" + col + ",'" + path + "')";
-	}
+    @Override
+    public String functionJsonExists(String col, String path) {
+        return "json_exists(" + col + ",'" + path + "')";
+    }
 
-	@Override
-	public String functionJsonValue(String col, String path) {
-		return "json_value(" + col + ",'" + path + "')";
-	}
+    @Override
+    public String functionJsonValue(String col, String path) {
+        return "json_value(" + col + ",'" + path + "')";
+    }
 
-	@Override
-	public String ilike(SqlColumn column, boolean alias) {
-		StringBuilder builder =  new StringBuilder(32);
-		builder.append("UPPER(");
-		if (alias) {
-			builder.append(column.table().alias()).append('.');
-		}
-		builder.append(column.name()).append(") LIKE UPPER(?)");
-		return builder.toString();
-	}
+    @Override
+    public String ilike(SqlColumn column, boolean alias) {
+        StringBuilder builder = new StringBuilder(32);
+        builder.append("UPPER(");
+        if (alias) {
+            builder.append(column.table().alias()).append('.');
+        }
+        builder.append(column.name()).append(") LIKE UPPER(?)");
+        return builder.toString();
+    }
 
 
 /*	@Override

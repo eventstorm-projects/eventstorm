@@ -9,6 +9,7 @@ import java.io.Writer;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.Element;
 import javax.tools.JavaFileObject;
 
 import com.google.common.collect.ImmutableMap;
@@ -50,7 +51,7 @@ public final class PageQueryDescriptorsGenerator {
 			logger.info("No Database Queries found => skip");
 			return;
 		}
-        
+
         try {
         	JavaFileObject object = env.getFiler().createSourceFile(fcqn);
         	Writer writer = object.openWriter();

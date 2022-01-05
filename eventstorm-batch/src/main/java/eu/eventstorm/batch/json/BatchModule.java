@@ -13,7 +13,6 @@ public final class BatchModule extends SimpleModule {
 		super();
 		addSerializer(BatchJobCreated.class, new BatchJobCreatedSerializer());
 		addSerializer(DatabaseResourceQuery.class, new DatabaseResourceQueryStdSerializer());
-		addSerializer(DatabaseExecution.class, new DatabaseExecutionSerializer());
 	}
 	
 }

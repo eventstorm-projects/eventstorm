@@ -143,12 +143,36 @@ public final class QueryJacksonStdSerializerGenerator {
 				if (isNullable(epd)) {
 					writer.write("        if (payload." +  epd.getter().getSimpleName()+ "() != null) {");
 					writeNewLine(writer);
+
+					if (epd.getter().getAnnotation(CqrsQueryDatabaseProperty.class) != null) {
+						eu.eventstorm.annotation.Json json = epd.getter().getAnnotation(CqrsQueryDatabaseProperty.class).json();
+						if (json.raw()) {
+
+							writer.write("            gen.writeFieldName(\"" + epd.name() + "\");");
+							writeNewLine(writer);
+							writer.write("            gen.writeRawValue(payload."+ epd.getter().getSimpleName() +"());");
+							writeNewLine(writer);
+							continue;
+						}
+					}
+
 					writer.write("            gen.writeStringField(\"" + epd.name() + "\", payload."+ epd.getter().getSimpleName() +"());");
 					writeNewLine(writer);
 					writer.write("        }");
 					writeNewLine(writer);
 
 				} else {
+					if (epd.getter().getAnnotation(CqrsQueryDatabaseProperty.class) != null) {
+						eu.eventstorm.annotation.Json json = epd.getter().getAnnotation(CqrsQueryDatabaseProperty.class).json();
+						if (json.raw()) {
+
+							writer.write("        gen.writeFieldName(\"" + epd.name() + "\");");
+							writeNewLine(writer);
+							writer.write("        gen.writeRawValue(payload."+ epd.getter().getSimpleName() +"());");
+							writeNewLine(writer);
+							continue;
+						}
+					}
 					writer.write("        gen.writeStringField(\"" + epd.name() + "\", payload."+ epd.getter().getSimpleName() +"());");
 					writeNewLine(writer);
 				}

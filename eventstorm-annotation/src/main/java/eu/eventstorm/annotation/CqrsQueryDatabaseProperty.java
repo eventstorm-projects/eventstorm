@@ -17,5 +17,7 @@ import eu.eventstorm.sql.annotation.ViewColumn;
 public @interface CqrsQueryDatabaseProperty {
 
 	ViewColumn column();
-	
+
+	Json json() default @Json;
+
 }

@@ -4,6 +4,7 @@ import com.jayway.jsonpath.JsonPath;
 import eu.eventstorm.batch.BatchAutoConfiguration;
 import eu.eventstorm.core.EventCandidate;
 import eu.eventstorm.cqrs.batch.BatchJobCreated;
+import eu.eventstorm.page.PageRequest;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Transaction;
 import eu.eventstorm.test.LoggerInstancePostProcessor;
@@ -53,14 +54,14 @@ class DatabaseExecutionReactiveControllerTest {
 	@Test
 	void testNoUuid() {
 		webClient.get()
-			.uri("/batch/123456")
-			.exchange()
+				.uri("/batch/123456")
+				.exchange()
 				.expectBody()
 				.jsonPath("$.status").isEqualTo(400)
 				.jsonPath("$.title").isEqualTo("DatabaseExecutionNotFoundException")
 				.jsonPath("$.params.uuid").isEqualTo("123456")
 				.jsonPath("$.traceId").isEqualTo("noTraceId")
-				;
+		;
 	}
 
 	@Test
@@ -80,13 +81,14 @@ class DatabaseExecutionReactiveControllerTest {
 				.expectStatus().isOk()
 				.expectHeader().contentType(MediaType.APPLICATION_JSON)
 				.expectBody()
+				.consumeWith(System.out::println)
 				.jsonPath("$.uuid").isEqualTo("123")
 				.jsonPath("$.name").isEqualTo("junit-stream")
 				.jsonPath("$.event.name").isEqualTo("junit-name")
 				.jsonPath("$.status").isEqualTo("COMPLETED")
 				.jsonPath("$.createdBy").isEqualTo("junit")
 				.jsonPath("$.log").doesNotExist()
-				;
+		;
 
 		webClient.get()
 				.uri("/batch/date/{date}", LocalDate.now())
@@ -100,7 +102,7 @@ class DatabaseExecutionReactiveControllerTest {
 				.jsonPath("$.status").isEqualTo("COMPLETED")
 				.jsonPath("$.createdBy").isEqualTo("junit")
 				.jsonPath("$.log").doesNotExist()
-				;
+		;
 
 		webClient.get()
 				.uri("/batch/today")
@@ -142,6 +144,29 @@ class DatabaseExecutionReactiveControllerTest {
 		assertEquals(2, execs.size());
 		assertEquals("1234", JsonPath.parse(execs.get(0)).read("$.uuid"));
 		assertEquals("123", JsonPath.parse(execs.get(1)).read("$.uuid"));
+
+	}
+
+	@Test
+	void testPageOk() throws InterruptedException {
+		BatchJobCreated bjc = BatchJobCreated.newBuilder()
+				.setName("junit-name")
+				.setCreatedBy("junit")
+				.build();
+
+		batch.push(new EventCandidate<>("junit-stream", "1234", bjc));
+
+		Thread.sleep(500);
+
+		webClient.get()
+				.uri("/batch?range=0-9")
+				.exchange()
+				.expectStatus().isOk()
+				.expectHeader().contentType(MediaType.APPLICATION_JSON)
+				.expectBody()
+				.jsonPath("$.content.length()").isEqualTo(1)
+				;
+
 
 	}
 }

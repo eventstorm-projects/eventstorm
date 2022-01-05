@@ -15,6 +15,7 @@ import reactor.core.publisher.Mono;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -34,11 +35,11 @@ public final class HttpPageRequestHandlerMethodArgumentResolver implements Handl
 		}
 	}
 	
-	private final PageQueryDescriptors queryDescriptors;
+	private final List<PageQueryDescriptors> queryDescriptors;
 	
 	private final ConcurrentHashMap<Method, PageQueryDescriptor> descriptors;
 	
-	public HttpPageRequestHandlerMethodArgumentResolver(PageQueryDescriptors queryDescriptors) {
+	public HttpPageRequestHandlerMethodArgumentResolver(List<PageQueryDescriptors> queryDescriptors) {
 		this.queryDescriptors = queryDescriptors;
 		this.descriptors = new ConcurrentHashMap<>();
 	}
@@ -107,7 +108,13 @@ public final class HttpPageRequestHandlerMethodArgumentResolver implements Handl
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Method clazz [{}]" , clazz);
 			}
-			queryDescriptor = queryDescriptors.get(clazz.getName());
+
+			for (PageQueryDescriptors descriptors : queryDescriptors) {
+				queryDescriptor = descriptors.get(clazz.getName());
+				if (queryDescriptor != null) {
+					break;
+				}
+			}
 			this.descriptors.put(method, queryDescriptor);
 		}
 		
