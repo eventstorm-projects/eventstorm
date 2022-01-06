@@ -1,5 +1,6 @@
 package eu.eventstorm.sql.expression;
 
+import eu.eventstorm.sql.Dialect;
 import eu.eventstorm.sql.desc.SqlColumn;
 
 /**
@@ -12,7 +13,7 @@ final class SimpleNumericExpression extends SimpleExpression<Number> {
 	}
 
 	@Override
-	protected void buildValue(StringBuilder builder, Number value) {
+	protected void buildValue(StringBuilder builder, Dialect dialect, Number value) {
 		builder.append(value);
 	}
 

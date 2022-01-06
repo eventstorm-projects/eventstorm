@@ -1,5 +1,6 @@
 package eu.eventstorm.sql.expression;
 
+import eu.eventstorm.sql.Dialect;
 import eu.eventstorm.sql.desc.SqlColumn;
 
 /**
@@ -12,7 +13,7 @@ final class ParameterSimpleExpression extends SimpleExpression<Void> {
     }
 
 	@Override
-	protected void buildValue(StringBuilder builder, Void value) {
+	protected void buildValue(StringBuilder builder, Dialect dialect, Void value) {
         throw new IllegalStateException();
 	}
 

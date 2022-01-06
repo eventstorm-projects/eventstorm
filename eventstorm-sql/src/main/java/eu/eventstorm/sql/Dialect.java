@@ -1,6 +1,5 @@
 package eu.eventstorm.sql;
 
-import com.google.common.collect.ImmutableList;
 import eu.eventstorm.sql.desc.SqlColumn;
 import eu.eventstorm.sql.desc.SqlSequence;
 import eu.eventstorm.sql.desc.SqlTable;
@@ -58,4 +57,6 @@ public interface Dialect {
 	default int getBooleanType() {
 		return Types.BOOLEAN;
 	}
+
+	String toSql(Boolean value);
 }

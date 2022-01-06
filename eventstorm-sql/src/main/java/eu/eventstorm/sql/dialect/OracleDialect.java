@@ -167,4 +167,13 @@ final class OracleDialect extends AbstractDialect {
 	public int getBooleanType() {
 		return Types.INTEGER;
 	}
+
+	@Override
+	public String toSql(Boolean value) {
+		if (value == null || Boolean.FALSE == value) {
+			return "0";
+		} else {
+			return "1";
+		}
+	}
 }

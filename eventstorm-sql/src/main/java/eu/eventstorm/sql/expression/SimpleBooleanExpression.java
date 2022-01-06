@@ -1,5 +1,6 @@
 package eu.eventstorm.sql.expression;
 
+import eu.eventstorm.sql.Dialect;
 import eu.eventstorm.sql.desc.SqlColumn;
 
 /**
@@ -12,8 +13,13 @@ final class SimpleBooleanExpression extends SimpleExpression<Boolean> {
 	}
 
 	@Override
-	protected void buildValue(StringBuilder builder, Boolean value) {
-		builder.append(value.toString());
+	protected void buildValue(StringBuilder builder, Dialect dialect, Boolean value) {
+		if (dialect != null) {
+			builder.append(dialect.toSql(value));
+		} else {
+			builder.append(value);
+		}
+
 	}
 
 	@Override

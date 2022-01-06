@@ -109,4 +109,13 @@ final class PostgresDialect extends AbstractDialect {
         // nothing to init -> skip.
     }
 
+    @Override
+    public String toSql(Boolean value) {
+        if (value == null || Boolean.FALSE == value) {
+            return "0";
+        } else {
+            return "1";
+        }
+    }
+
 }

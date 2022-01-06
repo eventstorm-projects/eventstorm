@@ -48,7 +48,7 @@ abstract class SimpleExpression<T> implements Expression {
     	if (value == null) {
     		builder.append('?');
     	} else {
-    		buildValue(builder, value);
+    		buildValue(builder, dialect, value);
     	}
     	return builder.toString();
     }
@@ -58,6 +58,6 @@ abstract class SimpleExpression<T> implements Expression {
     	return build(null, false);
     }
 
-    protected abstract void buildValue(StringBuilder builder, T value);
+    protected abstract void buildValue(StringBuilder builder, Dialect dialect, T value);
 
 }
