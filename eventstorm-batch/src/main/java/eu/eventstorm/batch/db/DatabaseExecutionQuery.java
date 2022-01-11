@@ -31,7 +31,7 @@ public interface DatabaseExecutionQuery {
 	String getCreatedBy();
 
 	@CqrsQueryDatabaseProperty(column = @ViewColumn("created_at"))
-	OffsetDateTime getCreatedAt();
+	Timestamp getCreatedAt();
 
 	@CqrsQueryDatabaseProperty(column = @ViewColumn(value = "started_at", nullable = true))
 	Timestamp getStartedAt();
