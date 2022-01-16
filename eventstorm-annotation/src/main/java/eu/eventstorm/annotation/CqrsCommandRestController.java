@@ -38,6 +38,6 @@ public @interface CqrsCommandRestController {
 	/**
 	 * response produce media type
 	 */
-	String produces() default "application/cloudevents+json";
+	String[] produces() default "application/cloudevents+json";
 	
 }

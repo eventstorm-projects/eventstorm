@@ -226,30 +226,42 @@ public final class CommandRestControllerImplementationGenerator {
     private static void writeSpring(Writer writer, RestControllerDescriptor rcd) throws IOException {
         String returnType = getReturnTypeClassname(rcd);
 
-        String type = "application/cloudevents+json";
+        String[] type = {"application/cloudevents+json"};
         if (!Object.class.getName().equals(returnType)) {
             type = rcd.getRestController().produces();
         }
 
         if (HttpMethod.POST == rcd.getRestController().method()) {
-            writer.write("    @org.springframework.web.bind.annotation.PostMapping(path=\"" + rcd.getRestController().uri() + "\", produces = \"" + type + "\", consumes = MediaType.APPLICATION_JSON_VALUE)");
+            writer.write("    @org.springframework.web.bind.annotation.PostMapping(path=\"" + rcd.getRestController().uri() + "\", produces = " + getProduces(type) + ", consumes = MediaType.APPLICATION_JSON_VALUE)");
             writeNewLine(writer);
 
             return;
         }
 
         if (HttpMethod.PUT == rcd.getRestController().method()) {
-            writer.write("    @org.springframework.web.bind.annotation.PutMapping(path=\"" + rcd.getRestController().uri() + "\", produces = \"" + type + "\", consumes = MediaType.APPLICATION_JSON_VALUE)");
+            writer.write("    @org.springframework.web.bind.annotation.PutMapping(path=\"" + rcd.getRestController().uri() + "\", produces = " + getProduces(type) + ", consumes = MediaType.APPLICATION_JSON_VALUE)");
             writeNewLine(writer);
             return;
         }
 
         if (HttpMethod.DELETE == rcd.getRestController().method()) {
-            writer.write("    @org.springframework.web.bind.annotation.DeleteMapping(path=\"" + rcd.getRestController().uri() + "\", produces = \"" + type + "\", consumes = MediaType.APPLICATION_JSON_VALUE)");
+            writer.write("    @org.springframework.web.bind.annotation.DeleteMapping(path=\"" + rcd.getRestController().uri() + "\", produces = " + getProduces(type) + ", consumes = MediaType.APPLICATION_JSON_VALUE)");
             writeNewLine(writer);
             return;
         }
 
+    }
+
+    private static String getProduces(String[] type) {
+        String result = "{";
+        for (int i = 0 ; i < type.length; i++) {
+            result += "\"" + type[i] + "\"";
+            if (i + 1 != type.length) {
+                result+=",";
+            }
+        }
+        result+="}";
+        return result;
     }
 
     private static String getReturnTypeClassname(RestControllerDescriptor rcd) {
