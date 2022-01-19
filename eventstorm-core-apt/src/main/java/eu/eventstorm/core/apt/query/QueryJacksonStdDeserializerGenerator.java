@@ -218,6 +218,9 @@ public final class QueryJacksonStdDeserializerGenerator {
 	            } else if (Timestamp.class.getName().equals(returnType)) {
 					writer.write("				builder.with" + Helper.firstToUpperCase(cpd.name()) + "(" + Timestamp.class.getName() + ".valueOf(parseOffsetDateTime(parser.nextTextValue()).toLocalDateTime()));");
 				} else if (Json.class.getName().equals(returnType)) {
+
+					writer.write("				parser.nextToken();");
+					writeNewLine(writer);
 					writer.write("				" + Jsons.class.getName() + ".ignoreField(parser);");
 				} else if (Helper.isEnum(cpd.getter().getReturnType())) {
 					CqrsQueryPropertyFactory factory = cpd.getter().getAnnotation(CqrsQueryPropertyFactory.class);
