@@ -134,6 +134,15 @@ abstract class AbstractTransaction implements TransactionSupport {
 	}
 
 	@Override
+	public boolean isActive() {
+		try {
+			return this.active && !connection.isClosed();
+		} catch (SQLException e) {
+			throw new TransactionException(NOT_ACTIVE);
+		}
+	}
+
+	@Override
 	public final void rollback() {
 		
 		if (LOGGER.isDebugEnabled()) {

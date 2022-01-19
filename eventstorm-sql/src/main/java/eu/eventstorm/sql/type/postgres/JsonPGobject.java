@@ -70,7 +70,7 @@ public final class JsonPGobject extends PGobject implements Json {
     }
 
     @Override
-    public byte[] write(JsonMapper mapper) {
+    public byte[] write() {
         String value = getValue();
         if (value == null) {
             return null;
@@ -79,7 +79,7 @@ public final class JsonPGobject extends PGobject implements Json {
     }
 
     @Override
-    public String writeAsString(JsonMapper mapper) {
+    public String writeAsString() {
         return getValue();
     }
 

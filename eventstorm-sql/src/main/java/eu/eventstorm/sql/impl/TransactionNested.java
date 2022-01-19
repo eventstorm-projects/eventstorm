@@ -113,7 +113,12 @@ final class TransactionNested implements TransactionSupport {
 	public boolean isMain() {
 		return false;
 	}
-	
+
+	@Override
+	public boolean isActive() {
+		return true;
+	}
+
 	@Override
 	public int hashCode() {
 		return this.main.hashCode() + this.count;

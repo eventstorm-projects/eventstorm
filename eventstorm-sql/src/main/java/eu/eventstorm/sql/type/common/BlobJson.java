@@ -75,7 +75,7 @@ public final class BlobJson extends DefaultBlob implements Json {
 	}
 
 	@Override
-	public byte[] write(JsonMapper mapper) {
+	public byte[] write() {
 		if (adapter != null && this.adapter.isModified()) {
 			setBuf(this.adapter.write(mapper));
 		}
@@ -83,7 +83,7 @@ public final class BlobJson extends DefaultBlob implements Json {
 	}
 
     @Override
-    public String writeAsString(JsonMapper mapper) {
+    public String writeAsString() {
         if (adapter != null && this.adapter.isModified()) {
             setBuf(this.adapter.write(mapper));
         }

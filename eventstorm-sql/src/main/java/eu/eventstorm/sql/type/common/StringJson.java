@@ -78,7 +78,7 @@ public final class StringJson implements Json {
 	}
 
 	@Override
-	public byte[] write(JsonMapper mapper) {
+	public byte[] write() {
 		if (adapter != null && this.adapter.isModified()) {
 			content = this.adapter.writeAsString(mapper);
 		}
@@ -90,7 +90,7 @@ public final class StringJson implements Json {
 	}
 
     @Override
-    public String writeAsString(JsonMapper mapper) {
+    public String writeAsString() {
         if (adapter != null && this.adapter.isModified()) {
             content = this.adapter.writeAsString(mapper);
         }

@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import eu.eventstorm.sql.JsonMapper;
+import eu.eventstorm.sql.json.JacksonJsonMapper;
 import eu.eventstorm.sql.type.Json;
 import eu.eventstorm.sql.type.JsonList;
 import eu.eventstorm.sql.type.JsonMap;
@@ -20,14 +21,20 @@ import eu.eventstorm.sql.type.SqlTypeException;
 public final class DefaultJsonMap implements Json, JsonMap{
 
 	private final Map<String, Object> map;
+	private final JsonMapper mapper;
 	
 	public DefaultJsonMap() {
-		this.map = new LinkedHashMap<>();
+		this(new LinkedHashMap<>(), new JacksonJsonMapper());
 	}
 	
 	public DefaultJsonMap(Map<String, ?> map) {
+		this(map, new JacksonJsonMapper());
+	}
+
+	public DefaultJsonMap(Map<String, ?> map, JsonMapper jsonMapper) {
 		this.map = new LinkedHashMap<>();
 		this.map.putAll(map);
+		this.mapper = jsonMapper;
 	}
 	
 	@Override
@@ -61,7 +68,7 @@ public final class DefaultJsonMap implements Json, JsonMap{
 	}
 
 	@Override
-	public byte[] write(JsonMapper mapper) {
+	public byte[] write() {
 		try {
             return mapper.write(this.map);
         } catch (IOException cause) {
@@ -70,7 +77,7 @@ public final class DefaultJsonMap implements Json, JsonMap{
 	}
 
 	@Override
-	public String writeAsString(JsonMapper mapper) {
+	public String writeAsString() {
 		try {
 			return mapper.writeAsString(this.map);
 		} catch (IOException cause) {

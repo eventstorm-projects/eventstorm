@@ -68,6 +68,13 @@ public final class TransactionManagerImpl implements TransactionManager {
         }
 
         if (tx != null) {
+            if (!tx.isActive()) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("newTransaction : current Transaction no more active ({}) ? -> restart new one", tx);
+                }
+                transactions.remove();
+                return newTransaction(definition);
+            }
             if (TransactionType.ISOLATED_READ_WRITE == definition.getType()) {
                 tx = new TransactionIsolatedReadWrite(this, getConnection(), tx, definition);
             }

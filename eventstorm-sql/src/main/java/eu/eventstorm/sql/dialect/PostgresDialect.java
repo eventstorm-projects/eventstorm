@@ -49,7 +49,7 @@ final class PostgresDialect extends AbstractDialect {
     }
 
     @Override
-    public Xml fromJdbcXml(ResultSet rs, int index) throws SQLException {
+    public Xml fromJdbcXml(ResultSet rs, int index) {
         throw new UnsupportedOperationException("to implement");
     }
 
@@ -69,7 +69,7 @@ final class PostgresDialect extends AbstractDialect {
         } else {
             PGobject jsonObject = new PGobject();
             jsonObject.setType("json");
-            jsonObject.setValue(new String(json.write(getDatabase().jsonMapper()), StandardCharsets.UTF_8));
+            jsonObject.setValue(new String(json.write(), StandardCharsets.UTF_8));
             ps.setObject(index, jsonObject);
         }
     }

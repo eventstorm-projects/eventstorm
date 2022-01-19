@@ -64,7 +64,7 @@ final class H2Dialect extends AbstractDialect {
         if (json == null) {
             ps.setNull(index, Types.CLOB);
         } else {
-            ps.setBytes(index, json.write(this.getDatabase().jsonMapper()));
+            ps.setBytes(index, json.write());
         }
 
     }

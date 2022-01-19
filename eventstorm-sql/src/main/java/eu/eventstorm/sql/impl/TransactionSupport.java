@@ -8,5 +8,6 @@ interface TransactionSupport extends TransactionContext, Transaction {
 	TransactionSupport innerTransaction(TransactionDefinition definition);
 	
 	boolean isMain();
-	
+
+	boolean isActive();
 }

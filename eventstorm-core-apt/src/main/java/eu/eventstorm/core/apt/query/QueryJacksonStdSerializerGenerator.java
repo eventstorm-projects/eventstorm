@@ -295,7 +295,7 @@ public final class QueryJacksonStdSerializerGenerator {
 		writeNewLine(writer);
 		//writer.write(space + "        String " + var + " = ");
 		//writeNewLine(writer);
-		writer.write(space + "        gen.writeRawValue(payload." + epd.getter().getSimpleName() +"().writeAsString(null));");
+		writer.write(space + "        gen.writeRawValue(payload." + epd.getter().getSimpleName() +"().writeAsString());");
 		writeNewLine(writer);
 		
 		if (isNullable(epd)) {
