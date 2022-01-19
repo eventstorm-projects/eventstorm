@@ -7,6 +7,7 @@ import static eu.eventstorm.sql.apt.Helper.writePackage;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
@@ -36,6 +37,7 @@ import eu.eventstorm.sql.apt.Helper;
 import eu.eventstorm.sql.apt.log.Logger;
 import eu.eventstorm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.core.json.DeserializerException;
+import eu.eventstorm.sql.type.Json;
 import eu.eventstorm.util.Dates;
 import eu.eventstorm.util.TriConsumer;
 
@@ -53,6 +55,13 @@ public final class QueryJacksonStdDeserializerGenerator {
 	public void generate(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
 		// generate Implementation class;
 		sourceCode.forEachQueryClientPackage((pack, list) -> {
+			try {
+				generate(processingEnvironment, pack, list);
+			} catch (Exception cause) {
+				logger.error("Exception for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
+			}
+		});
+		sourceCode.forEachDatabaseTableQueryPackage((pack, list) -> {
 			try {
 				generate(processingEnvironment, pack, list);
 			} catch (Exception cause) {
@@ -134,6 +143,7 @@ public final class QueryJacksonStdDeserializerGenerator {
 		writeImport(writer, cd, OffsetDateTime.class.getName(), Dates.class.getName() + ".parseOffsetDateTime");
 		writeImport(writer, cd, LocalDate.class.getName(), Dates.class.getName() + ".parseLocalDate");
 		writeImport(writer, cd, LocalTime.class.getName(), Dates.class.getName() + ".parseLocalTime");
+		writeImport(writer, cd, Timestamp.class.getName(), Dates.class.getName() + ".parseOffsetDateTime");
 
 		writeGenerated(writer, QueryJacksonStdDeserializerGenerator.class.getName());
 		
@@ -186,45 +196,46 @@ public final class QueryJacksonStdDeserializerGenerator {
 		    	writeNewLine(writer);
 		    	
 		    } else {
-		   
-		    	writer.write("				builder.with" + Helper.firstToUpperCase(cpd.name()) + "(");
-		    
+
 			    if ("java.lang.String".equals(returnType)) {
-					writer.write("parser.nextTextValue()");
+					writer.write("				builder.with" + Helper.firstToUpperCase(cpd.name()) + "(parser.nextTextValue());");
 				} else if ("int".equals(returnType) || "java.lang.Integer".equals(returnType)) {
-					writer.write("parser.nextIntValue(0)");
+					writer.write("				builder.with" + Helper.firstToUpperCase(cpd.name()) + "(parser.nextIntValue(0));");
 				} else if ("byte".equals(returnType) || "java.lang.Byte".equals(returnType)) {
-					writer.write("(byte)parser.nextIntValue(0)");
+					writer.write("				builder.with" + Helper.firstToUpperCase(cpd.name()) + "((byte)parser.nextIntValue(0));");
 				} else if ("short".equals(returnType) || "java.lang.Short".equals(returnType)) {
-					writer.write("(short)parser.nextIntValue(0)");
+					writer.write("				builder.with" + Helper.firstToUpperCase(cpd.name()) + "((short)parser.nextIntValue(0));");
 				} else if ("long".equals(returnType) || "java.lang.Long".equals(returnType)) {
-					writer.write("parser.nextLongValue(0l)");
+					writer.write("				builder.with" + Helper.firstToUpperCase(cpd.name()) + "(parser.nextLongValue(0l));");
 				} else if ("boolean".equals(returnType) || "java.lang.Boolean".equals(returnType)) {
-					writer.write("parser.nextBooleanValue()");
+					writer.write("				builder.with" + Helper.firstToUpperCase(cpd.name()) + "(parser.nextBooleanValue());");
 				} else if (OffsetDateTime.class.getName().equals(returnType)) {
-					writer.write("parseOffsetDateTime(parser.nextTextValue())");
+					writer.write("				builder.with" + Helper.firstToUpperCase(cpd.name()) + "(parseOffsetDateTime(parser.nextTextValue()));");
 				} else if (LocalDate.class.getName().equals(returnType)) {
-	                writer.write("parseLocalDate(parser.nextTextValue())");
+	                writer.write("				builder.with" + Helper.firstToUpperCase(cpd.name()) + "(parseLocalDate(parser.nextTextValue()));");
 	            } else if (LocalTime.class.getName().equals(returnType)) {
-	                writer.write("parseLocalTime(parser.nextTextValue())");
-	            } else if (Helper.isEnum(cpd.getter().getReturnType())) {
+	                writer.write("				builder.with" + Helper.firstToUpperCase(cpd.name()) + "(parseLocalTime(parser.nextTextValue()));");
+	            } else if (Timestamp.class.getName().equals(returnType)) {
+					writer.write("				builder.with" + Helper.firstToUpperCase(cpd.name()) + "(" + Timestamp.class.getName() + ".valueOf(parseOffsetDateTime(parser.nextTextValue()).toLocalDateTime()));");
+				} else if (Json.class.getName().equals(returnType)) {
+					writer.write("				" + Jsons.class.getName() + ".ignoreField(parser);");
+				} else if (Helper.isEnum(cpd.getter().getReturnType())) {
 					CqrsQueryPropertyFactory factory = cpd.getter().getAnnotation(CqrsQueryPropertyFactory.class);
 					if (factory == null) {
-						writer.write(cpd.getter().getReturnType().toString() +".valueOf(parser.nextTextValue())");
+						writer.write("				builder.with" + Helper.firstToUpperCase(cpd.name()) + "(" + cpd.getter().getReturnType().toString() +".valueOf(parser.nextTextValue()));");
 					} else {
 						if (PropertyFactoryType.STRING == factory.type()) {
-							writer.write(cpd.name().toUpperCase() + "_FACTORY.apply(parser.nextTextValue())");
+							writer.write("				builder.with" + Helper.firstToUpperCase(cpd.name()) + "(" + cpd.name().toUpperCase() + "_FACTORY.apply(parser.nextTextValue()));");
 						} else if  (PropertyFactoryType.INTEGER == factory.type()) {
-							writer.write(cpd.name().toUpperCase() + "_FACTORY.apply(parser.nextIntValue(0))");
+							writer.write("				builder.with" + Helper.firstToUpperCase(cpd.name()) + "("+ cpd.name().toUpperCase() + "_FACTORY.apply(parser.nextIntValue(0)));");
 						} else {
-							writer.write(cpd.name().toUpperCase() + "_FACTORY.apply(parser.nextLongValue(0l))");
+							writer.write("				builder.with" + Helper.firstToUpperCase(cpd.name()) + "(" + cpd.name().toUpperCase() + "_FACTORY.apply(parser.nextLongValue(0l)));");
 						}
 					}
 				}
 	            else {
 				    throw new UnsupportedOperationException("Type not supported [" + returnType + "]");
 				}
-			    writer.write(");");
 				writeNewLine(writer);
 		    }
 			
