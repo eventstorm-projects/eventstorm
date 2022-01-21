@@ -7,6 +7,7 @@ import static eu.eventstorm.sql.apt.Helper.writePackage;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -142,6 +143,7 @@ public final class QueryJacksonStdDeserializerGenerator {
 		
 		writeImport(writer, cd, OffsetDateTime.class.getName(), Dates.class.getName() + ".parseOffsetDateTime");
 		writeImport(writer, cd, LocalDate.class.getName(), Dates.class.getName() + ".parseLocalDate");
+		writeImport(writer, cd, Date.class.getName(), Dates.class.getName() + ".parseLocalDate");
 		writeImport(writer, cd, LocalTime.class.getName(), Dates.class.getName() + ".parseLocalTime");
 		writeImport(writer, cd, Timestamp.class.getName(), Dates.class.getName() + ".parseOffsetDateTime");
 
@@ -217,6 +219,8 @@ public final class QueryJacksonStdDeserializerGenerator {
 	                writer.write("				builder.with" + Helper.firstToUpperCase(cpd.name()) + "(parseLocalTime(parser.nextTextValue()));");
 	            } else if (Timestamp.class.getName().equals(returnType)) {
 					writer.write("				builder.with" + Helper.firstToUpperCase(cpd.name()) + "(" + Timestamp.class.getName() + ".valueOf(parseOffsetDateTime(parser.nextTextValue()).toLocalDateTime()));");
+				} else if (Date.class.getName().equals(returnType)) {
+					writer.write("				builder.with" + Helper.firstToUpperCase(cpd.name()) + "(" + Date.class.getName() + ".valueOf(parseLocalDate(parser.nextTextValue()));");
 				} else if (Json.class.getName().equals(returnType)) {
 
 					writer.write("				parser.nextToken();");
