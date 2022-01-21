@@ -58,6 +58,14 @@ class ToStringBuilderTest {
         builder = new ToStringBuilder(false);
         builder.append("test", "mili");
         assertEquals("{\"test\":\"mili\"}", builder.toString());
+
+        builder = new ToStringBuilder(false);
+        builder.append("test", "mili", 2);
+        assertEquals("{\"test\":\"mi\"}", builder.toString());
+
+        builder = new ToStringBuilder(false);
+        builder.append("test", "mili", 5);
+        assertEquals("{\"test\":\"mili\"}", builder.toString());
     }
 
     @Test
