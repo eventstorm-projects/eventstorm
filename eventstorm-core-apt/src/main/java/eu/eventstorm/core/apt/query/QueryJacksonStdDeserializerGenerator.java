@@ -220,7 +220,7 @@ public final class QueryJacksonStdDeserializerGenerator {
 	            } else if (Timestamp.class.getName().equals(returnType)) {
 					writer.write("				builder.with" + Helper.firstToUpperCase(cpd.name()) + "(" + Timestamp.class.getName() + ".valueOf(parseOffsetDateTime(parser.nextTextValue()).toLocalDateTime()));");
 				} else if (Date.class.getName().equals(returnType)) {
-					writer.write("				builder.with" + Helper.firstToUpperCase(cpd.name()) + "(" + Date.class.getName() + ".valueOf(parseLocalDate(parser.nextTextValue()));");
+					writer.write("				builder.with" + Helper.firstToUpperCase(cpd.name()) + "(" + Date.class.getName() + ".valueOf(parseLocalDate(parser.nextTextValue())));");
 				} else if (Json.class.getName().equals(returnType)) {
 
 					writer.write("				parser.nextToken();");
