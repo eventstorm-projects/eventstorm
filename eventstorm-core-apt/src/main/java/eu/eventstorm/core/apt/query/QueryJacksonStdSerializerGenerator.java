@@ -218,12 +218,12 @@ public final class QueryJacksonStdSerializerGenerator {
 		if (isNullable(epd)) {
 			writer.write("        if (payload." +  epd.getter().getSimpleName()+ "() != null) {");
 			writeNewLine(writer);
-			writer.write("            gen.writeStringField(\"" + epd.name() + "\", "+ Dates.class.getName()+".format(payload."+ epd.getter().getSimpleName() +"().toLocalDate()));");
+			writer.write("            gen.writeStringField(\"" + epd.name() + "\", payload."+ epd.getter().getSimpleName() +"().toLocalDate().toString());");
 			writeNewLine(writer);
 			writer.write("        }");
 			writeNewLine(writer);
 		} else {
-			writer.write("        gen.writeStringField(\"" + epd.name() + "\", "+ Dates.class.getName()+".format(payload."+ epd.getter().getSimpleName() +"().toLocalDate()));");
+			writer.write("        gen.writeStringField(\"" + epd.name() + "\", payload."+ epd.getter().getSimpleName() +"().toLocalDate().toString());");
 			writeNewLine(writer);
 		}
 	}
