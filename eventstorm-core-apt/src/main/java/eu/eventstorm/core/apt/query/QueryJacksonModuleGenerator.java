@@ -90,17 +90,12 @@ public final class QueryJacksonModuleGenerator {
 				writer.write("        addDeserializer(" + ed.fullyQualidiedClassName() + ".class, new " + ed.simpleName() + "StdDeserializer());");
 				writeNewLine(writer);
 			}
-			else if (ed instanceof DatabaseViewQueryDescriptor) {
-				writer.write("        addSerializer(" + ed.fullyQualidiedClassName() + ".class, new " + ed.simpleName() + "StdSerializer());");
-				writeNewLine(writer);
-			}
 			else {
 				writer.write("        addDeserializer(" + ed.fullyQualidiedClassName() + ".class, new " + ed.simpleName() + "StdDeserializer());");
 				writeNewLine(writer);
 				writer.write("        addSerializer(" + ed.fullyQualidiedClassName() + ".class, new " + ed.simpleName() + "StdSerializer());");
 				writeNewLine(writer);
 			}
-
 		}
 		
 		writer.write("    }");
