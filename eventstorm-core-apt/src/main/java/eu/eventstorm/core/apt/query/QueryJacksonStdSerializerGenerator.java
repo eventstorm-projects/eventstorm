@@ -6,6 +6,7 @@ import static eu.eventstorm.sql.apt.Helper.writePackage;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -190,6 +191,8 @@ public final class QueryJacksonStdSerializerGenerator {
 				writeLocalDate(writer, epd);
 			} else if (Json.class.getName().equals(epd.getter().getReturnType().toString())) {
 				writeJson(writer, epd);
+			} else if (Date.class.getName().equals(epd.getter().getReturnType().toString())) {
+				writeDate(writer, epd);
 			} else if (Timestamp.class.getName().equals(epd.getter().getReturnType().toString())) {
 				writeTimestamp(writer, epd);
 			} else if (Boolean.class.getName().equals(epd.getter().getReturnType().toString())) {
@@ -209,6 +212,20 @@ public final class QueryJacksonStdSerializerGenerator {
 		writeNewLine(writer);
 		writer.write("    }");
 		writeNewLine(writer);
+	}
+
+	private void writeDate(Writer writer, QueryPropertyDescriptor epd) throws IOException {
+		if (isNullable(epd)) {
+			writer.write("        if (payload." +  epd.getter().getSimpleName()+ "() != null) {");
+			writeNewLine(writer);
+			writer.write("            gen.writeStringField(\"" + epd.name() + "\", "+ Dates.class.getName()+".format(payload."+ epd.getter().getSimpleName() +"().toLocalDate()));");
+			writeNewLine(writer);
+			writer.write("        }");
+			writeNewLine(writer);
+		} else {
+			writer.write("        gen.writeStringField(\"" + epd.name() + "\", "+ Dates.class.getName()+".format(payload."+ epd.getter().getSimpleName() +"().toLocalDate()));");
+			writeNewLine(writer);
+		}
 	}
 
 	private void writeTimestamp(Writer writer, QueryPropertyDescriptor epd) throws IOException {
