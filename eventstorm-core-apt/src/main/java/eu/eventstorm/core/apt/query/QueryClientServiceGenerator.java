@@ -1,6 +1,7 @@
 package eu.eventstorm.core.apt.query;
 
 import eu.eventstorm.annotation.CqrsQueryClientService;
+import eu.eventstorm.annotation.Headers;
 import eu.eventstorm.core.apt.SourceCode;
 import eu.eventstorm.core.apt.model.QueryClientServiceDescriptor;
 import eu.eventstorm.core.apt.model.QueryClientServiceMethodDescriptor;
@@ -9,9 +10,13 @@ import eu.eventstorm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.util.Strings;
 
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.type.MirroredTypeException;
+import javax.lang.model.type.TypeMirror;
 import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import static eu.eventstorm.sql.apt.Helper.writeGenerated;
@@ -23,18 +28,18 @@ import static eu.eventstorm.sql.apt.Helper.writePackage;
  */
 public final class QueryClientServiceGenerator {
 
-	private static final Logger LOGGER = LoggerFactory.getInstance().getLogger(QueryClientServiceGenerator.class);
+    private static final Logger LOGGER = LoggerFactory.getInstance().getLogger(QueryClientServiceGenerator.class);
 
-	public void generateClient(ProcessingEnvironment processingEnv, SourceCode sourceCode) {
+    public void generateClient(ProcessingEnvironment processingEnv, SourceCode sourceCode) {
 
-	    sourceCode.forEachQueryClientService(t -> {
-			try {
-				generate(processingEnv, t);
-			} catch (Exception cause) {
+        sourceCode.forEachQueryClientService(t -> {
+            try {
+                generate(processingEnv, t);
+            } catch (Exception cause) {
                 LOGGER.error("Exception for [" + t + "] -> [" + cause.getMessage() + "]", cause);
-			}
-		});
-	}
+            }
+        });
+    }
 
     private void generate(ProcessingEnvironment env, QueryClientServiceDescriptor descriptor) throws IOException {
 
@@ -111,11 +116,11 @@ public final class QueryClientServiceGenerator {
             if (Strings.isEmpty(m.getAnnotation().cacheFactoryBean())) {
                 return;
             }
-            builder.append("@Qualifier(\""+ m.getAnnotation().cacheFactoryBean() + "\") QueryServiceClientCacheFactory<String, " + getMonoType(m) + "> ").append(m.getAnnotation().cacheFactoryBean()).append(',');
+            builder.append("@Qualifier(\"" + m.getAnnotation().cacheFactoryBean() + "\") QueryServiceClientCacheFactory<String, " + getMonoType(m) + "> ").append(m.getAnnotation().cacheFactoryBean()).append(',');
         });
         if (builder.length() > 1) {
             writer.write(", ");
-            builder.deleteCharAt(builder.length()-1);
+            builder.deleteCharAt(builder.length() - 1);
             writer.write(builder.toString());
         }
 
@@ -169,10 +174,33 @@ public final class QueryClientServiceGenerator {
         }
     }
 
+    private static String getHeaderConsumerVariable(QueryClientServiceMethodDescriptor.HttpHeaderConsumer httpHeaderConsumer) {
+        int last = httpHeaderConsumer.getType().lastIndexOf('.');
+        return httpHeaderConsumer.getType().substring(last + 1).toUpperCase();
+    }
+
     private static void writeVariables(Writer writer, QueryClientServiceDescriptor descriptor) throws IOException {
         writeNewLine(writer);
-        writer.write("    private static final Logger LOGGER = LoggerFactory.getLogger(" + descriptor.element().getSimpleName() + "Impl.class);" );
+        writer.write("    private static final Logger LOGGER = LoggerFactory.getLogger(" + descriptor.element().getSimpleName() + "Impl.class);");
         writeNewLine(writer);
+
+        List<String> classes = new ArrayList<>();
+        descriptor.getMethods().forEach(m -> {
+            m.getHeadersConsumers().forEach(httpHeaderConsumer -> {
+                TypeMirror val = getHeaderConsumerClass(httpHeaderConsumer.getHeaders());
+                if (classes.contains(val.toString())) {
+                    return;
+                }
+                try {
+                    writer.write("    private static final " + val + " " + getHeaderConsumerVariable(httpHeaderConsumer) + " = ");
+                    writer.write("new " + val + "();");
+                    writeNewLine(writer);
+                } catch (IOException e) {
+                    LOGGER.error("failed to write HeaderConsumer", e);
+                }
+                classes.add(val.toString());
+            });
+        });
 
         writer.write("    private final WebClient webClient;");
         writeNewLine(writer);
@@ -182,7 +210,7 @@ public final class QueryClientServiceGenerator {
                 return;
             }
             try {
-                writer.write("    private final LoadingCache<String, " + getMonoType(m) + "> "+ m.getMethod().getSimpleName()+";");
+                writer.write("    private final LoadingCache<String, " + getMonoType(m) + "> " + m.getMethod().getSimpleName() + ";");
                 writeNewLine(writer);
 
             } catch (IOException cause) {
@@ -207,18 +235,24 @@ public final class QueryClientServiceGenerator {
             builder.append(",");
 
 
-
-            if (!(parameter instanceof QueryClientServiceMethodDescriptor.HttpHeader)) {
-                loggerParams.append("{},");
-                loggerParamsValue.append(parameter.getName()).append(',');
+            if (parameter instanceof QueryClientServiceMethodDescriptor.HttpHeader) {
+                return;
             }
+
+            if (parameter instanceof QueryClientServiceMethodDescriptor.HttpHeaderConsumer) {
+                return;
+            }
+
+            loggerParams.append("{},");
+            loggerParamsValue.append(parameter.getName()).append(',');
+
 
         });
         if (epd.getParameters().size() > 0) {
-            builder.deleteCharAt(builder.length()-1);
+            builder.deleteCharAt(builder.length() - 1);
             if (loggerParams.length() > 0) {
-                loggerParams.deleteCharAt(loggerParams.length()-1);
-                loggerParamsValue.deleteCharAt(loggerParamsValue.length()-1);
+                loggerParams.deleteCharAt(loggerParams.length() - 1);
+                loggerParamsValue.deleteCharAt(loggerParamsValue.length() - 1);
             }
         }
 
@@ -228,7 +262,7 @@ public final class QueryClientServiceGenerator {
         writeNewLine(writer);
         writer.write("        if (LOGGER.isDebugEnabled()) {");
         writeNewLine(writer);
-        writer.write("            LOGGER.debug(\"" + epd.getMethod().getSimpleName() +"(" + loggerParams.toString() + ")\"");
+        writer.write("            LOGGER.debug(\"" + epd.getMethod().getSimpleName() + "(" + loggerParams.toString() + ")\"");
         if (epd.getParameters().size() > 0 && loggerParamsValue.length() > 0) {
             writer.write(", " + loggerParamsValue);
         }
@@ -248,11 +282,11 @@ public final class QueryClientServiceGenerator {
                 String uri = ed.element().getAnnotation(CqrsQueryClientService.class).uri();
                 writer.write("                    uriBuilder.scheme(\"" + uri.substring(0, uri.indexOf("://")) + "\");");
                 writeNewLine(writer);
-                writer.write("                    uriBuilder.host(\"" + uri.substring(uri.indexOf("://")+3) + "\");");
+                writer.write("                    uriBuilder.host(\"" + uri.substring(uri.indexOf("://") + 3) + "\");");
                 writeNewLine(writer);
                 writer.write("                    uriBuilder.path(\"" + epd.getAnnotation().path() + "\");");
                 writeNewLine(writer);
-                writer.write("                    " + epd.getParameters().get(epd.getParameters().size()-1).getName() + ".forEach((key,value) -> uriBuilder.queryParam(key,value));");
+                writer.write("                    " + epd.getParameters().get(epd.getParameters().size() - 1).getName() + ".forEach((key,value) -> uriBuilder.queryParam(key,value));");
                 writeNewLine(writer);
                 writer.write("                    return uriBuilder.build();");
                 writeNewLine(writer);
@@ -270,6 +304,10 @@ public final class QueryClientServiceGenerator {
                 writer.write("                .header(\"" + h.getHeader().name() + "\", " + h.getName() + ")");
                 writeNewLine(writer);
             }
+            for (QueryClientServiceMethodDescriptor.HttpHeaderConsumer h : epd.getHeadersConsumers()) {
+                writer.write("                .headers(httpHeaders -> " + getHeaderConsumerVariable(h) +".accept(httpHeaders, " + h.getName() + "))");
+                writeNewLine(writer);
+            }
             writer.write("                .retrieve()");
             writeNewLine(writer);
 
@@ -277,7 +315,7 @@ public final class QueryClientServiceGenerator {
                 String type = getMonoType(epd);
                 int start = type.indexOf('<');
                 int end = type.indexOf('>');
-                writer.write("                .toEntity(" + type.substring(start+1, end) + ".class);");
+                writer.write("                .toEntity(" + type.substring(start + 1, end) + ".class);");
                 writeNewLine(writer);
             } else if (epd.getMethod().getReturnType().toString().contains("reactor.core.publisher.Flux<")) {
                 String type = getFluxType(epd);
@@ -296,10 +334,10 @@ public final class QueryClientServiceGenerator {
         }
 
 
-
         writer.write("    }");
         writeNewLine(writer);
     }
+
     private static String getFluxType(QueryClientServiceMethodDescriptor epd) {
         String type = epd.getMethod().getReturnType().toString();
         type = type.substring(28);
@@ -324,8 +362,16 @@ public final class QueryClientServiceGenerator {
         });
     }
 
-
     private static boolean hasCache(QueryClientServiceDescriptor descriptor) {
         return descriptor.getMethods().stream().anyMatch(s -> !Strings.isEmpty(s.getAnnotation().cacheFactoryBean()));
+    }
+
+    private static TypeMirror getHeaderConsumerClass(Headers headers) {
+        try {
+            headers.value(); // this should throw
+        } catch (MirroredTypeException mte) {
+            return mte.getTypeMirror();
+        }
+        return null; // can this ever happen ??
     }
 }

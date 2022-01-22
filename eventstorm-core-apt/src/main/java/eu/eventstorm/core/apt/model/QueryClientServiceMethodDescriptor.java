@@ -3,6 +3,7 @@ package eu.eventstorm.core.apt.model;
 import com.google.common.collect.ImmutableList;
 import eu.eventstorm.annotation.CqrsQueryClientServiceMethod;
 import eu.eventstorm.annotation.Header;
+import eu.eventstorm.annotation.Headers;
 
 import javax.lang.model.element.ExecutableElement;
 
@@ -12,14 +13,17 @@ public final class QueryClientServiceMethodDescriptor {
     private final CqrsQueryClientServiceMethod annotation;
     private final ImmutableList<Parameter> parameters;
     private final ImmutableList<HttpHeader> headers;
+    private final ImmutableList<HttpHeaderConsumer> headersConsumers;
 
     public QueryClientServiceMethodDescriptor(ExecutableElement executableElement, CqrsQueryClientServiceMethod annotation,
                                               ImmutableList<Parameter> parameters,
-                                              ImmutableList<HttpHeader> headers) {
+                                              ImmutableList<HttpHeader> headers,
+                                              ImmutableList<HttpHeaderConsumer> headersConsumers) {
         this.method = executableElement;
         this.annotation = annotation;
         this.parameters = parameters;
         this.headers = headers;
+        this.headersConsumers = headersConsumers;
     }
 
     public ExecutableElement getMethod() {
@@ -36,6 +40,10 @@ public final class QueryClientServiceMethodDescriptor {
 
     public ImmutableList<HttpHeader> getHeaders() {
         return headers;
+    }
+
+    public ImmutableList<HttpHeaderConsumer> getHeadersConsumers() {
+        return headersConsumers;
     }
 
     public static class Parameter {
@@ -61,6 +69,17 @@ public final class QueryClientServiceMethodDescriptor {
         }
         public Header getHeader() {
             return header;
+        }
+    }
+
+    public static class HttpHeaderConsumer extends Parameter {
+        private final Headers headers;
+        public HttpHeaderConsumer(String name, String type, Headers headers) {
+            super(name, type);
+            this.headers = headers;
+        }
+        public Headers getHeaders() {
+            return headers;
         }
     }
 }
