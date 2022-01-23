@@ -66,7 +66,7 @@ public final class SqlTable {
         }
 
         if (o instanceof SqlTable) {
-            return Objects.equals(name(), ((SqlTable) o).name());
+            return Objects.equals(name(), ((SqlTable) o).name()) && Objects.equals(alias(), ((SqlTable) o).alias());
         }
 
         return false;
