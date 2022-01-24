@@ -8,6 +8,7 @@ request
 	: range	
 	| range '&' filter
 	| range '&' filter '&' sort
+	| range '&' sort '&' filter
 	| range '&' sort
 	| filter '&' sort
 	| filter
