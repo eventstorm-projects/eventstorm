@@ -76,6 +76,14 @@ class PageRequestsTest {
 		assertEquals(2, pr.getSorts().size());
 		assertEquals(true, pr.getSorts().get(0).isAscending());
 		assertEquals(false, pr.getSorts().get(1).isAscending());
+
+		pr = PageRequests.parse("range=0-9&sort=+code,-type&filter=code[eq]'ab'", evaluator);
+		assertEquals(0, pr.getOffset());
+		assertEquals(10, pr.getSize());
+		assertEquals(1, pr.getFilters().size());
+		assertEquals(2, pr.getSorts().size());
+		assertEquals(true, pr.getSorts().get(0).isAscending());
+		assertEquals(false, pr.getSorts().get(1).isAscending());
 	}
 
 	@Test
