@@ -116,7 +116,7 @@ public final class QueryClientServiceGenerator {
             if (Strings.isEmpty(m.getAnnotation().cacheFactoryBean())) {
                 return;
             }
-            builder.append("@Qualifier(\"" + m.getAnnotation().cacheFactoryBean() + "\") QueryServiceClientCacheFactory<String, " + getMonoType(m) + "> ").append(m.getAnnotation().cacheFactoryBean()).append(',');
+            builder.append("@Qualifier(\"" + m.getAnnotation().cacheFactoryBean() + "\") QueryServiceClientCacheFactory<String, " +m.getMethod().getReturnType().toString() + "> ").append(m.getAnnotation().cacheFactoryBean()).append(',');
         });
         if (builder.length() > 1) {
             writer.write(", ");
@@ -167,10 +167,12 @@ public final class QueryClientServiceGenerator {
 
             writer.write("                .bodyToMono(" + type + ".class)");
             writeNewLine(writer);
-            writer.write("                .toFuture()");
+            writer.write("                .cache()");
             writeNewLine(writer);
-            writer.write("                .get()");
-            writeNewLine(writer);
+            //writer.write("                .toFuture()");
+            //writeNewLine(writer);
+            //writer.write("                .get()");
+            //writeNewLine(writer);
         }
     }
 
@@ -210,7 +212,7 @@ public final class QueryClientServiceGenerator {
                 return;
             }
             try {
-                writer.write("    private final LoadingCache<String, " + getMonoType(m) + "> " + m.getMethod().getSimpleName() + ";");
+                writer.write("    private final LoadingCache<String, " + m.getMethod().getReturnType().toString() + "> " + m.getMethod().getSimpleName() + ";");
                 writeNewLine(writer);
 
             } catch (IOException cause) {
@@ -329,7 +331,7 @@ public final class QueryClientServiceGenerator {
                 writeNewLine(writer);
             }
         } else {
-            writer.write("        return reactor.core.publisher.Mono.justOrEmpty(this." + epd.getMethod().getSimpleName().toString() + ".get(" + loggerParamsValue + "));");
+            writer.write("        return this." + epd.getMethod().getSimpleName().toString() + ".get(" + loggerParamsValue + ");");
             writeNewLine(writer);
         }
 
