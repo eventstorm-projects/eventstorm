@@ -7,6 +7,7 @@ import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.SqlQuery;
 import eu.eventstorm.sql.SqlQueryPageable;
 import eu.eventstorm.sql.builder.Order;
+import eu.eventstorm.sql.expression.Expressions;
 
 import java.sql.Date;
 import java.time.LocalDate;
@@ -20,6 +21,8 @@ import static eu.eventstorm.batch.db.DatabaseExecutionQueryDescriptor.VIEW;
 import static eu.eventstorm.sql.expression.Expressions.and;
 import static eu.eventstorm.sql.expression.Expressions.eq;
 import static eu.eventstorm.sql.expression.Expressions.ge;
+import static eu.eventstorm.sql.expression.Expressions.le;
+import static eu.eventstorm.sql.expression.Expressions.lt;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -41,7 +44,7 @@ public final class DatabaseExecutionQueryRepository extends eu.eventstorm.sql.Re
                 .build();
 
         this.findAllByDate = select(ALL).from(VIEW)
-                .where(ge(STARTED_AT))
+                .where(and(ge(STARTED_AT), lt(STARTED_AT)))
                 .orderBy(Order.desc(STARTED_AT))
                 .build();
 
@@ -58,6 +61,7 @@ public final class DatabaseExecutionQueryRepository extends eu.eventstorm.sql.Re
     public Stream<DatabaseExecutionQuery> findAllByDate(LocalDate date) {
         return stream(this.findAllByDate, ps -> {
             ps.setDate(1, Date.valueOf(date));
+            ps.setDate(2, Date.valueOf(date.plusDays(1)));
         }, QueryViewMappers.DATABASE_EXECUTION_QUERY);
     }
 

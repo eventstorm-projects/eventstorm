@@ -12,7 +12,7 @@ public final class CloudEventsModule extends SimpleModule {
 	public CloudEventsModule(TypeRegistry registry) {
 		super();
 		addSerializer(CloudEvent.class, new CloudEventSerializer(registry));
-		addDeserializer(CloudEvent.class, new CloudEventDeserializer());
+		addDeserializer(CloudEvent.class, new CloudEventDeserializer(registry));
 	}
 
 	

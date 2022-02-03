@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ImmutableMap;
 import eu.eventstorm.cloudevents.json.jackson.CloudEventDeserializerException;
 import eu.eventstorm.test.LoggerInstancePostProcessor;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -65,6 +66,7 @@ class CloudEventsModuleTest {
 				.withAggregateType("test")
 				.withTimestamp("2011-03-09T18:36:30+02:00")
 				.withVersion(1)
+				.withSubject("type.googleapis.com/" + SimpleMessage.getDescriptor().getFullName())
 				.withPayload(Any.pack(SimpleMessage.newBuilder().setName("Jacques").build()))
 				.build();
 		
@@ -74,12 +76,18 @@ class CloudEventsModuleTest {
 		JSONAssert.assertEquals("{id:\"1\", datacontenttype:\"application/json\"}", writer.toString(), false);
 		JSONAssert.assertEquals("{data:{\"name\":\"Jacques\"}}", writer.toString(), false);
 		
-		objectMapper.readValue(writer.toString(), CloudEvent.class);
+		CloudEvent cloudEvent = objectMapper.readValue(writer.toString(), CloudEvent.class);
+
+		SimpleMessage simpleMessage = (SimpleMessage) cloudEvent.data();
+		assertEquals("Jacques", simpleMessage.getName());
+
+		cloudEvent = objectMapper.readValue(writer.toString(), CloudEvent.class);
+		assertEquals("Jacques", simpleMessage.getName());
 	}
 	
 	@Test
 	void testSerDeserList() throws Exception {
-		
+
 		CloudEvent event = new CloudEventBuilder()
 				.withAggregateId("1")
 				.withAggregateType("test")
@@ -122,7 +130,9 @@ class CloudEventsModuleTest {
 		JSONAssert.assertEquals("{id:\"1\", datacontenttype:\"application/json\"}", writer.toString(), false);
 		JSONAssert.assertEquals("{data:{\"key1\":\"value1\"}}", writer.toString(), false);
 
-		objectMapper.readValue(writer.toString(), CloudEvent.class);
+		CloudEvent ev = objectMapper.readValue(writer.toString(), CloudEvent.class);
+
+		System.out.println(ev.data());
 	}
 
 	@Test

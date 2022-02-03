@@ -62,8 +62,9 @@ public final class CloudEventBuilder {
         this.dataContentType = dataContentType;
         return this;
     }
-    
-    
 
-    
+    public String getSubject() {
+        return this.subject;
+    }
+
 }
