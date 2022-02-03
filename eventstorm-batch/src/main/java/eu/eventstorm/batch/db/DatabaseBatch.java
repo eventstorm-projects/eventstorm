@@ -3,6 +3,7 @@ package eu.eventstorm.batch.db;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.util.HashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,7 +76,7 @@ public final class DatabaseBatch implements Batch {
 				.withUuid(candidate.getStreamId())
 				.withStartedAt(Timestamp.from(Instant.now()))
 				.withCreatedBy(candidate.getMessage().getCreatedBy())
-				.withLog(Jsons.createMap())
+				.withLog(Jsons.createMap(new HashMap<>(), database.jsonMapper()))
 				.build();
 			
 		this.template.executeWithReadWrite(() -> repository.insert(batchExecution));
