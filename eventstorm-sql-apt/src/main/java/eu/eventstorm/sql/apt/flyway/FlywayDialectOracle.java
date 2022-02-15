@@ -79,10 +79,10 @@ final class FlywayDialectOracle implements FlywayDialect {
 		}
 		
 		if (Json.class.getName().equals(javaType)) {
-			if (column.length() == 255) {
+			if (column.length() != 255) {
 				return "VARCHAR2(" + column.length() + ")";
 			} else {
-				return "BLOB";	
+				return "CLOB";
 			}
 		}
 		

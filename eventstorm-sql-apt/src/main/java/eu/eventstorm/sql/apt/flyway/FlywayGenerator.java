@@ -217,6 +217,9 @@ public final class FlywayGenerator {
 				for (int i = columnName.length() ; i < 24 ; i++) {
 					builder.append(' ');
 				}
+				if (columnName.length() >= 24) {
+					builder.append(' ');
+				}
 				
 				Column anno = col.getter().getAnnotation(Column.class);
 				String type = fd.toSqlType(col.getter().getReturnType().toString(), anno);
