@@ -29,7 +29,7 @@
 		<ch.qos.logback.version>1.2.10</ch.qos.logback.version>
 
 		<com.google.guava.version>31.0.1-jre</com.google.guava.version>
-		<com.google.protobuf.version>3.19.3</com.google.protobuf.version>
+		<com.google.protobuf.version>3.19.4</com.google.protobuf.version>
 
 		<com.fasterxml.jackson.version>2.13.1</com.fasterxml.jackson.version>
 		<io.zipkin.brave.version>5.13.7</io.zipkin.brave.version>
@@ -39,12 +39,12 @@
 		<io.swagger.core.v3.version>2.1.11</io.swagger.core.v3.version>
 
 		<org.springframework.boot.version>2.6.3</org.springframework.boot.version>
-		<org.springframework.version>5.3.15</org.springframework.version>
+		<org.springframework.version>5.3.16</org.springframework.version>
 
 		<org.junit.jupiter.version>5.8.2</org.junit.jupiter.version>
-		<com.h2database.version>2.0.206</com.h2database.version>
-		<org.mockito.version>4.2.0</org.mockito.version>
-		<org.flywaydb.version>8.4.2</org.flywaydb.version>
+		<com.h2database.version>2.1.210</com.h2database.version>
+		<org.mockito.version>4.3.1</org.mockito.version>
+		<org.flywaydb.version>8.4.4</org.flywaydb.version>
 		<com.zaxxer.version>4.0.3</com.zaxxer.version>
 		<org.skyscreamer.jsonassert.version>1.5.0</org.skyscreamer.jsonassert.version>
 
