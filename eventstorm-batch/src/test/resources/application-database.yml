@@ -17,3 +17,5 @@ spring:
     ## table: refe_schema_history
     locations:
     - classpath:db/migration/batch/h2
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration

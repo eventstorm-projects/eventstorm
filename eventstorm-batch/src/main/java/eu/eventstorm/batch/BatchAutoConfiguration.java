@@ -6,8 +6,10 @@ import eu.eventstorm.batch.db.json.QueryModule;
 import eu.eventstorm.batch.file.FileResource;
 import eu.eventstorm.cqrs.PageQueryDescriptors;
 import eu.eventstorm.cqrs.web.HttpPageRequestHandlerMethodArgumentResolver;
+import eu.eventstorm.sql.util.TransactionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
@@ -47,6 +49,13 @@ public class BatchAutoConfiguration implements WebFluxConfigurer {
 
 	public BatchAutoConfiguration(Optional<List<PageQueryDescriptors>> pageQueryDescriptors) {
 		this.pageQueryDescriptors = pageQueryDescriptors;
+	}
+
+	@ConditionalOnMissingBean
+	@ConditionalOnProperty(prefix = "eu.eventstorm.batch", name = "type", havingValue = "DATABASE")
+	@Bean
+	TransactionTemplate transactionTemplate(Database database) {
+		return new TransactionTemplate(database.transactionManager());
 	}
 
 	@Bean

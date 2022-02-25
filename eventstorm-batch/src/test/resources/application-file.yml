@@ -6,4 +6,8 @@ eu:
         context-path: toto
         rest-enabled: true
         
-spring:  autoconfigure:    exclude:    - org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration
+spring:
+  autoconfigure:
+    exclude:
+    - org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration
+    - org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration
