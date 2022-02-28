@@ -2,6 +2,8 @@ package eu.eventstorm.batch;
 
 import eu.eventstorm.annotation.CqrsConfiguration;
 import eu.eventstorm.batch.config.BatchExecutionProperties;
+import eu.eventstorm.batch.db.DatabaseExecutionQuery;
+import eu.eventstorm.batch.db.DatabaseExecutionQueryRepository;
 import eu.eventstorm.batch.db.json.QueryModule;
 import eu.eventstorm.batch.file.FileResource;
 import eu.eventstorm.cqrs.PageQueryDescriptors;
@@ -56,6 +58,20 @@ public class BatchAutoConfiguration implements WebFluxConfigurer {
 	@Bean
 	TransactionTemplate transactionTemplate(Database database) {
 		return new TransactionTemplate(database.transactionManager());
+	}
+
+	@ConditionalOnMissingBean
+	@ConditionalOnProperty(prefix = "eu.eventstorm.batch", name = "type", havingValue = "DATABASE")
+	@Bean
+	DatabaseExecutionQueryRepository databaseExecutionQueryRepository(Database database) {
+		return new DatabaseExecutionQueryRepository(database);
+	}
+
+	@ConditionalOnMissingBean
+	@ConditionalOnProperty(prefix = "eu.eventstorm.batch", name = "type", havingValue = "DATABASE")
+	@Bean
+	DatabaseExecutionRepository databaseExecutionRepository(Database database) {
+		return new DatabaseExecutionRepository(database);
 	}
 
 	@Bean

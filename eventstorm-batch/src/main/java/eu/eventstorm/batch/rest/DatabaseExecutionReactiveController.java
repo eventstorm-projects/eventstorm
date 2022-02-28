@@ -7,7 +7,6 @@ import eu.eventstorm.cqrs.web.HttpPageRequest;
 import eu.eventstorm.cqrs.web.PageResponseEntity;
 import eu.eventstorm.page.Page;
 import eu.eventstorm.page.PageRequest;
-import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.util.TransactionTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,10 +38,10 @@ public final class DatabaseExecutionReactiveController {
     private final DatabaseExecutionQueryRepository databaseExecutionQueryRepository;
     private final TransactionTemplate transactionTemplate;
 
-    public DatabaseExecutionReactiveController(Database database) {
-        this.databaseExecutionRepository = new DatabaseExecutionRepository(database);
-        this.databaseExecutionQueryRepository = new DatabaseExecutionQueryRepository(database);
-        this.transactionTemplate = new TransactionTemplate(database.transactionManager());
+    public DatabaseExecutionReactiveController(DatabaseExecutionRepository databaseExecutionRepository, DatabaseExecutionQueryRepository databaseExecutionQueryRepository, TransactionTemplate transactionTemplate) {
+        this.databaseExecutionRepository = databaseExecutionRepository;
+        this.databaseExecutionQueryRepository = databaseExecutionQueryRepository;
+        this.transactionTemplate = transactionTemplate;
     }
 
     @GetMapping(path = "${eu.eventstorm.batch.execution.context-path:}/{uuid}", produces = MediaType.APPLICATION_JSON_VALUE)
