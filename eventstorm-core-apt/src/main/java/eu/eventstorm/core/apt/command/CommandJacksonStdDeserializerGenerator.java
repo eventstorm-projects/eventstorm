@@ -189,7 +189,7 @@ public final class CommandJacksonStdDeserializerGenerator {
 					writeNewLine(writer);
 					writer.write("                    parser.nextToken();");
 					writeNewLine(writer);
-					writer.write("                    if (parser.currentToken() == JsonToken.VALUE_INT) {");
+					writer.write("                    if (parser.currentToken() == JsonToken.VALUE_NUMBER_INT) {");
 					writeNewLine(writer);
 					writer.write("                        childBuilder.add(parser.getIntValue());");
 					writeNewLine(writer);
