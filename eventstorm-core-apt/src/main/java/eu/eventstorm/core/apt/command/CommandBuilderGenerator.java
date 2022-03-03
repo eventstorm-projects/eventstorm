@@ -129,7 +129,18 @@ public final class CommandBuilderGenerator {
             		writer.write(ImmutableList.class.getName());
             		writer.write(".Builder<String> ");
             		newInstance = " = " + ImmutableList.class.getName() + ".builder();";
-            	} else {
+            	}
+                else if (Helper.isInteger(target)) {
+                    writer.write(ImmutableList.class.getName());
+                    writer.write(".Builder<Integer> ");
+                    newInstance = " = " + ImmutableList.class.getName() + ".builder();";
+                }
+                else if (Helper.isLong(target)) {
+                    writer.write(ImmutableList.class.getName());
+                    writer.write(".Builder<Long> ");
+                    newInstance = " = " + ImmutableList.class.getName() + ".builder();";
+                }
+                else {
             		String classname =  cd.simpleName() + "__" + target.substring(target.lastIndexOf('.') + 1) + "__Builder<"+ parent + ">";
                 	writer.write(classname);
                 	newInstance = " = new " + classname + "(this);";
@@ -210,7 +221,15 @@ public final class CommandBuilderGenerator {
         	if (Helper.isString(subtype)) {
         		newBuilder = ImmutableList.class.getName() + ".Builder<String>";
         		writer.write(newBuilder);
-        	} else {
+        	} else if (Helper.isInteger(subtype)) {
+                newBuilder = ImmutableList.class.getName() + ".Builder<Integer>";
+                writer.write(newBuilder);
+            } else if (Helper.isLong(subtype)) {
+                newBuilder = ImmutableList.class.getName() + ".Builder<Long>";
+                writer.write(newBuilder);
+            }
+
+            else {
         		newBuilder = genereteJoinBuilder(cd, cpd, subtype);
         		writer.write(newBuilder);
             	writer.write("<" + returnType);
