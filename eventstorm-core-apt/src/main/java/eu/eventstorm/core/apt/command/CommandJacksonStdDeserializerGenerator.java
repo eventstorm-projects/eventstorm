@@ -177,7 +177,49 @@ public final class CommandJacksonStdDeserializerGenerator {
 			    	writer.write("                }");
 			    	writeNewLine(writer);
 			    	
-		    	} else {
+		    	}
+				else if (fcqnTarget.equals("java.lang.Integer")) {
+
+					String fcqnTargetSimpleName = fcqnTarget.substring(fcqnTarget.lastIndexOf('.') + 1);
+					writer.write(ImmutableList.class.getName() + ".Builder<"+ fcqnTargetSimpleName + "> childBuilder = builder.with" + Helper.firstToUpperCase(cpd.name()) + "();");
+					writeNewLine(writer);
+					writer.write("				parser.nextToken();");
+					writeNewLine(writer);
+					writer.write("                while (parser.currentToken() != JsonToken.END_ARRAY) {");
+					writeNewLine(writer);
+					writer.write("                    parser.nextToken();");
+					writeNewLine(writer);
+					writer.write("                    if (parser.currentToken() == JsonToken.VALUE_INT) {");
+					writeNewLine(writer);
+					writer.write("                        childBuilder.add(parser.getIntValue());");
+					writeNewLine(writer);
+					writer.write("                    }");
+					writeNewLine(writer);
+					writer.write("                }");
+					writeNewLine(writer);
+
+				}
+				else if (fcqnTarget.equals("java.lang.Long")) {
+
+					String fcqnTargetSimpleName = fcqnTarget.substring(fcqnTarget.lastIndexOf('.') + 1);
+					writer.write(ImmutableList.class.getName() + ".Builder<"+ fcqnTargetSimpleName + "> childBuilder = builder.with" + Helper.firstToUpperCase(cpd.name()) + "();");
+					writeNewLine(writer);
+					writer.write("				parser.nextToken();");
+					writeNewLine(writer);
+					writer.write("                while (parser.currentToken() != JsonToken.END_ARRAY) {");
+					writeNewLine(writer);
+					writer.write("                    parser.nextToken();");
+					writeNewLine(writer);
+					writer.write("                    if (parser.currentToken() == JsonToken.VALUE_INT) {");
+					writeNewLine(writer);
+					writer.write("                        childBuilder.add(parser.getLongValue());");
+					writeNewLine(writer);
+					writer.write("                    }");
+					writeNewLine(writer);
+					writer.write("                }");
+					writeNewLine(writer);
+
+				}else {
 
 		    		String fcqnTargetSimpleName = fcqnTarget.substring(fcqnTarget.lastIndexOf('.') + 1);
 			    	writer.write(cd.fullyQualidiedClassName() + "__"+fcqnTargetSimpleName + "__Builder childBuilder = builder.with" + Helper.firstToUpperCase(cpd.name()) + "();");
