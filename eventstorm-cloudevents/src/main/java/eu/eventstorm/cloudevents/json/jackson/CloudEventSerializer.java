@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import eu.eventstorm.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +64,11 @@ final class CloudEventSerializer extends StdSerializer<CloudEvent> {
 		gen.writeString(value.id());
 
 		gen.writeFieldName("datacontenttype");
-		gen.writeString("application/json");
+		if (Strings.isEmpty(value.dataContentType())) {
+			gen.writeString("application/json");
+		} else {
+			gen.writeString(value.dataContentType());
+		}
 
 		gen.writeFieldName("data");
 
