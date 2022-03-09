@@ -26,7 +26,6 @@ import eu.eventstorm.core.apt.command.CommandImplementationGenerator;
 import eu.eventstorm.core.apt.command.CommandJacksonModuleGenerator;
 import eu.eventstorm.core.apt.command.CommandJacksonStdDeserializerGenerator;
 import eu.eventstorm.core.apt.command.CommandJacksonStdSerializerGenerator;
-import eu.eventstorm.core.apt.command.CommandOpenApiGenerator;
 import eu.eventstorm.core.apt.command.CommandRestControllerAdviceImplementationGenerator;
 import eu.eventstorm.core.apt.command.CommandRestControllerImplementationGenerator;
 import eu.eventstorm.core.apt.command.CommandValidatorGenerator;
@@ -217,7 +216,7 @@ public class EventProcessor extends AbstractProcessor {
 		new CommandRestControllerAdviceImplementationGenerator().generate(processingEnv, sourceCode);
 		new SagaRestControllerImplementationGenerator().generate(processingEnv, sourceCode);
 		
-		new CommandOpenApiGenerator().generate(processingEnv, sourceCode);
+		//new CommandOpenApiGenerator().generate(processingEnv, sourceCode);
 		
 		// EVENTS .....
 		new EventProtoGenerator().generate(processingEnv, sourceCode);

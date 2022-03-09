@@ -79,12 +79,18 @@ public final class CommandRestControllerImplementationGenerator {
 
         writer.write("import org.springframework.http.MediaType;");
         writeNewLine(writer);
-        writer.write("import org.springframework.web.bind.annotation.RequestBody;");
-        writeNewLine(writer);
         writer.write("import org.springframework.web.bind.annotation.RestController;");
         writeNewLine(writer);
         writer.write("import org.springframework.web.server.ServerWebExchange;");
         writeNewLine(writer);
+
+        writer.write("import io.swagger.v3.oas.annotations.media.Content;");
+        writeNewLine(writer);
+        writer.write("import io.swagger.v3.oas.annotations.media.Schema;");
+        writeNewLine(writer);
+        writer.write("import io.swagger.v3.oas.annotations.parameters.RequestBody;");
+        writeNewLine(writer);
+
 
         writer.write("import reactor.core.publisher.Flux;");
         writeNewLine(writer);
@@ -181,9 +187,12 @@ public final class CommandRestControllerImplementationGenerator {
 	}
 */
 
+    //
     private static void writeMethodRestAsync(Writer writer, RestControllerDescriptor rcd) throws IOException {
         String returnType = getReturnTypeClassname(rcd);
 
+        writer.write("    @RequestBody(required = true, content = @Content(schema = @Schema(implementation = " + rcd.element().toString() + ".class)))");
+        writeNewLine(writer);
         if (Object.class.getName().equals(returnType)) {
             writer.write("    public Flux<CloudEvent> on" + rcd.element().getSimpleName() + "(ServerWebExchange exchange) {");
         } else {
@@ -222,6 +231,32 @@ public final class CommandRestControllerImplementationGenerator {
         writeNewLine(writer);
 
     }
+
+    /*
+    private static void writeMethodRestAsync(Writer writer, RestControllerDescriptor rcd) throws IOException {
+        String returnType = getReturnTypeClassname(rcd);
+
+        if (Object.class.getName().equals(returnType)) {
+            writer.write("    public Flux<CloudEvent> on" + rcd.element().getSimpleName() + "(@RequestBody Mono<" +  rcd.element().toString() + "> cmd, ServerWebExchange exchange) {");
+        } else {
+            writer.write("    public Flux<" + returnType + "> on" + rcd.element().getSimpleName() + "(@RequestBody Mono<"+ rcd.element().toString() + "> cmd, ServerWebExchange exchange) {");
+        }
+        writeNewLine(writer);
+
+        if (Object.class.getName().equals(returnType)) {
+            writer.write("        return cmd.flatMapMany(command -> gateway.<" + Event.class.getName() + ">dispatch(new ReactiveCommandContext(command, exchange)))");
+            writeNewLine(writer);
+            writer.write("            .map(CloudEvents::to);");
+            writeNewLine(writer);
+        } else {
+            writer.write("        return cmd.flatMapMany(command -> gateway.dispatch(new ReactiveCommandContext(command, exchange)));");
+            writeNewLine(writer);
+        }
+
+        writer.write("    }");
+        writeNewLine(writer);
+
+    }*/
 
     private static void writeSpring(Writer writer, RestControllerDescriptor rcd) throws IOException {
         String returnType = getReturnTypeClassname(rcd);
