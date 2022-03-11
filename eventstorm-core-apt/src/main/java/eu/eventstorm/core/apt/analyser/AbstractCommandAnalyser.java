@@ -1,7 +1,6 @@
 package eu.eventstorm.core.apt.analyser;
 
 import eu.eventstorm.core.apt.model.AbstractCommandDescriptor;
-import eu.eventstorm.core.apt.model.CommandDescriptor;
 import eu.eventstorm.core.apt.model.PropertyDescriptor;
 import eu.eventstorm.sql.apt.log.Logger;
 import eu.eventstorm.sql.apt.log.LoggerFactory;
@@ -11,7 +10,6 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
-import javax.lang.model.type.TypeMirror;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -49,25 +47,14 @@ abstract class AbstractCommandAnalyser<T extends AbstractCommandDescriptor> impl
 
 		logger.info("Analyse " + element);
 
-		List<PropertyDescriptor> properties = new ArrayList<>();
-		read(element, properties);
-
-
-
 		TypeElement parent = (TypeElement)element;
-
-		parent.getInterfaces().forEach(typeMirror -> {
-			if (!"eu.eventstorm.cqrs.Command".equals(typeMirror.toString())) {
-				// skip
-				read(((DeclaredType) typeMirror).asElement(), properties);
-			}
-		});
-
+		List<PropertyDescriptor> properties = new ArrayList<>();
+		read(parent, properties);
 
 		return newInstance(element, properties);
 	}
 
-	private void read(Element element, List<PropertyDescriptor> properties) {
+	private void read(TypeElement element, List<PropertyDescriptor> properties) {
 		for (Element method : element.getEnclosedElements()) {
 
 			if (ElementKind.METHOD != method.getKind()) {
@@ -84,6 +71,13 @@ abstract class AbstractCommandAnalyser<T extends AbstractCommandDescriptor> impl
 
 			throw new IllegalStateException("method [" + method + "] doesn't start with 'get'");
 		}
+
+		element.getInterfaces().forEach(typeMirror -> {
+			if (!"eu.eventstorm.cqrs.Command".equals(typeMirror.toString())) {
+				// skip
+				read((TypeElement) ((DeclaredType) typeMirror).asElement(), properties);
+			}
+		});
 	}
 
 	protected abstract T newInstance(Element element, List<PropertyDescriptor> properties);
