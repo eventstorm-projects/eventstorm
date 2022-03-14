@@ -182,8 +182,8 @@ public final class QueryJacksonStdSerializerGenerator {
 					|| "short".equals(epd.getter().getReturnType().toString()) || "byte".equals(epd.getter().getReturnType().toString())) {
 				writer.write("        gen.writeNumberField(\"" + epd.name() + "\", payload."+ epd.getter().getSimpleName() +"());");
 				writeNewLine(writer);	
-			} else if (Integer.class.equals(epd.getter().getReturnType().toString()) || Long.class.equals(epd.getter().getReturnType().toString())
-					|| Short.class.equals(epd.getter().getReturnType().toString()) || Byte.class.equals(epd.getter().getReturnType().toString())) {
+			} else if (Integer.class.getName().equals(epd.getter().getReturnType().toString()) || Long.class.getName().equals(epd.getter().getReturnType().toString())
+					|| Short.class.getName().equals(epd.getter().getReturnType().toString()) || Byte.class.getName().equals(epd.getter().getReturnType().toString())) {
 				writeNumber(writer, epd);
 			} else if (OffsetDateTime.class.getName().equals(epd.getter().getReturnType().toString())) {
 				writeOffsetDateTime(writer, epd);
