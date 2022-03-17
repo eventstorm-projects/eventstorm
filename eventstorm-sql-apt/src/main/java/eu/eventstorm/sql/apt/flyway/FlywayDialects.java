@@ -18,7 +18,7 @@ final class FlywayDialects {
 		case ORACLE:
 			return FlywayDialectOracle.INSTANCE;
 		case POSTGRES:
-			return FlywayDialectH2.INSTANCE;
+			return FlywayDialectPostgres.INSTANCE;
 		}
 		
 		throw new IllegalStateException();
