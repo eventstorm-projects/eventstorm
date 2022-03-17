@@ -26,7 +26,7 @@ import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 @Configuration
-@ComponentScan(basePackageClasses = ApiRestController.class)
+@ComponentScan(basePackageClasses = ApiRestReadController.class)
 @EnableWebFlux
 @EnableAutoConfiguration
 class ApiRestControllerTestConfiguration implements WebFluxConfigurer {

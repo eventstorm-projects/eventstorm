@@ -13,7 +13,7 @@ message Event {
   string        stream   		= 2;   	// entity-name
   int32         revision 		= 3;   	// revision
   string        timestamp 		= 4;  	// timestamp
-  string		correlation		= 5;
+  string		    correlation		= 5;
   google.protobuf.Any           data = 6;       // JSON data
    
 }

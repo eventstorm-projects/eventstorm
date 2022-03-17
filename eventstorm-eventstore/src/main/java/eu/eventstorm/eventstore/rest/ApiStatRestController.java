@@ -3,6 +3,7 @@ package eu.eventstorm.eventstore.rest;
 import org.owasp.encoder.Encode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,6 +13,7 @@ import eu.eventstorm.eventstore.EventStore;
 import reactor.core.publisher.Mono;
 
 @RestController
+@ConditionalOnProperty(prefix = "eu.eventstorm.eventstore.api", name = "stats", havingValue = "true")
 public final class ApiStatRestController {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ApiStatRestController.class);

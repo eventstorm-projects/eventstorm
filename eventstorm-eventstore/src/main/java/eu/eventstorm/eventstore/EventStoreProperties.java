@@ -14,5 +14,7 @@ public class EventStoreProperties {
 	public void setEventDataTypeUrl(String eventDataTypeUrl) {
 		this.eventDataTypeUrl = eventDataTypeUrl;
 	}
+
+
 	
 }
