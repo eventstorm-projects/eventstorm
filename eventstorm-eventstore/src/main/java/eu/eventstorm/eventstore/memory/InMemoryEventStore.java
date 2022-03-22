@@ -57,7 +57,12 @@ public final class InMemoryEventStore implements EventStore {
 
 		return events.stream();
 	}
-	 
+
+	@Override
+	public Stream<Event> readRawStream(String stream, String streamId) {
+		return readStream(stream, streamId);
+	}
+
 	@Override
 	public <T extends Message> Event appendToStream(EventCandidate<T> candidate, String correlation) {
 

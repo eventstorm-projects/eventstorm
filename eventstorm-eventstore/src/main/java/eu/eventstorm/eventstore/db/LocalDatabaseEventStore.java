@@ -1,6 +1,7 @@
 package eu.eventstorm.eventstore.db;
 
 import com.google.protobuf.Any;
+import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;
 import eu.eventstorm.core.Event;
 import eu.eventstorm.core.EventCandidate;
@@ -27,100 +28,132 @@ import java.util.stream.Stream;
  */
 public class LocalDatabaseEventStore implements EventStore {
 
-	private static final ZoneId SYSTEM_ZONE_ID = ZoneId.systemDefault();
+    private static final ZoneId SYSTEM_ZONE_ID = ZoneId.systemDefault();
 
-	private final EventStoreProperties eventStoreProperties;
-	
-	private final DatabaseRepository databaseRepository;
-	
-	private final TransactionTemplate template;
-	
-	private final StreamManager streamManager;
+    private final EventStoreProperties eventStoreProperties;
 
-	private final PayloadManager payloadManager;
+    private final DatabaseRepository databaseRepository;
 
-	public LocalDatabaseEventStore(Database database, EventStoreProperties eventStoreProperties, StreamManager streamManager) {
-		this(database, eventStoreProperties, streamManager, JsonPayloadManager.INSTANCE);
-	}
+    private final TransactionTemplate template;
 
-	public LocalDatabaseEventStore(Database database, EventStoreProperties eventStoreProperties, StreamManager streamManager, PayloadManager payloadManager) {
-		this.eventStoreProperties = eventStoreProperties;
-		this.databaseRepository = new DatabaseRepository(database);
-		this.template = new TransactionTemplate(database.transactionManager());
-		this.streamManager = streamManager;
-		this.payloadManager = payloadManager;
-	}
+    private final StreamManager streamManager;
 
-	@Override
-	public <T extends Message> Event appendToStream(EventCandidate<T> candidate, String correlation) {
+    private final PayloadManager payloadManager;
 
-		Instant instant = Instant.now();
+    public LocalDatabaseEventStore(Database database, EventStoreProperties eventStoreProperties, StreamManager streamManager) {
+        this(database, eventStoreProperties, streamManager, JsonPayloadManager.INSTANCE);
+    }
 
-		int revision = this.databaseRepository.lastRevision(candidate.getStream(), candidate.getStreamId());
+    public LocalDatabaseEventStore(Database database, EventStoreProperties eventStoreProperties, StreamManager streamManager, PayloadManager payloadManager) {
+        this.eventStoreProperties = eventStoreProperties;
+        this.databaseRepository = new DatabaseRepository(database);
+        this.template = new TransactionTemplate(database.transactionManager());
+        this.streamManager = streamManager;
+        this.payloadManager = payloadManager;
+    }
 
-		DatabaseEventBuilder builder = new DatabaseEventBuilder()
-				.withStreamId(candidate.getStreamId())
-				.withStream(candidate.getStream())
-				.withTime(Timestamp.from(instant))
-				.withPayload(payloadManager.serialize(candidate))
-				.withRevision(revision + 1)
-				.withEventType(candidate.getMessage().getClass().getSimpleName());
+    @Override
+    public <T extends Message> Event appendToStream(EventCandidate<T> candidate, String correlation) {
 
-		if (correlation != null) {
-			builder.withCorrelation(correlation);
-		}
+        Instant instant = Instant.now();
 
-		this.databaseRepository.insert(builder.build());
+        int revision = this.databaseRepository.lastRevision(candidate.getStream(), candidate.getStreamId());
 
-		// @formatter:off
-		return Event.newBuilder()
-				.setStreamId(candidate.getStreamId())
-				.setStream(candidate.getStream())
-				.setTimestamp(OffsetDateTime.ofInstant(instant, SYSTEM_ZONE_ID).toString())
-				.setRevision(revision + 1)
-				.setData(Any.pack(candidate.getMessage(), this.eventStoreProperties.getEventDataTypeUrl() + "/" + candidate.getStream() + "/"))
-				.build();
-		// @formatter:off
-	}
+        DatabaseEventBuilder builder = new DatabaseEventBuilder()
+                .withStreamId(candidate.getStreamId())
+                .withStream(candidate.getStream())
+                .withTime(Timestamp.from(instant))
+                .withPayload(payloadManager.serialize(candidate))
+                .withRevision(revision + 1)
+                .withEventType(candidate.getMessage().getClass().getSimpleName());
 
-	@Override
-	public Stream<Event> readStream(String stream, String streamId) {
-		StreamDefinition definition = streamManager.getDefinition(stream);
-		return template.stream(() -> 
-		this.databaseRepository.findAllByStreamAndStreamId(stream, streamId, new EventResultSetMapper(streamId, definition)));
+        if (correlation != null) {
+            builder.withCorrelation(correlation);
+        }
 
-	}
+        this.databaseRepository.insert(builder.build());
 
-	@Override
-	public Statistics stat(String stream) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+        // @formatter:off
+        return Event.newBuilder()
+                .setStreamId(candidate.getStreamId())
+                .setStream(candidate.getStream())
+                .setTimestamp(OffsetDateTime.ofInstant(instant, SYSTEM_ZONE_ID).toString())
+                .setRevision(revision + 1)
+                .setData(Any.pack(candidate.getMessage(), this.eventStoreProperties.getEventDataTypeUrl() + "/" + candidate.getStream() + "/"))
+                .build();
+        // @formatter:off
+    }
 
-	private static final class EventResultSetMapper implements ResultSetMapper<Event> {
-		
-		private final StreamDefinition definition;
-		private final String streamId;
+    @Override
+    public Stream<Event> readStream(String stream, String streamId) {
+        StreamDefinition definition = streamManager.getDefinition(stream);
+        return template.stream(() ->
+                this.databaseRepository.findAllByStreamAndStreamId(stream, streamId, new EventResultSetMapper(streamId, definition)));
 
-		private EventResultSetMapper(String streamId, StreamDefinition definition) {
-			this.streamId = streamId;
-			this.definition = definition;
-		}
+    }
 
-		@Override
-		public Event map(Dialect dialect, ResultSet rs) throws SQLException {
-			Message message = definition.getStreamEventDefinition(rs.getString(4)).jsonParse(rs.getString(3));
-			// @formatter:off
-			return Event.newBuilder()
-					.setStreamId(streamId)
-					.setStream(definition.getName())
-					//.setTimestamp(OffsetDateTime.ofInstant(rs.getTimestamp(DatabaseEventDescriptor.INDEX__TIME).toInstant(), ZONE_ID).toString())
-					.setRevision(rs.getInt(2))
-					.setData(Any.pack(message,"event"))
-					.build();
-			// @formatter:on
-		}
-	}
+    @Override
+    public Stream<Event> readRawStream(String stream, String streamId) {
+        StreamDefinition definition = streamManager.getDefinition(stream);
+        return template.stream(() ->
+                this.databaseRepository.findAllByStreamAndStreamId(stream, streamId, new EventRawResultSetMapper(stream, definition)));
+
+    }
+
+    @Override
+    public Statistics stat(String stream) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    private static final class EventRawResultSetMapper implements ResultSetMapper<Event> {
+
+        private final StreamDefinition definition;
+        private final String streamId;
+
+        private EventRawResultSetMapper(String streamId, StreamDefinition definition) {
+            this.streamId = streamId;
+            this.definition = definition;
+        }
+
+        @Override
+        public Event map(Dialect dialect, ResultSet rs) throws SQLException {
+            return Event.newBuilder()
+                    .setStreamId(streamId)
+                    .setStream(definition.getName())
+                    .setTimestamp(OffsetDateTime.ofInstant(rs.getTimestamp(1).toInstant(), ZoneId.systemDefault()).toString())
+                    .setRevision(rs.getInt(2))
+                    .setData(Any.newBuilder()
+                            .setTypeUrl(definition.getStreamEventDefinition(rs.getString(4)).getEventType())
+                            .setValue(ByteString.copyFromUtf8(rs.getString(3)))
+                            .build())
+                    .build();
+        }
+
+    }
+
+    private static final class EventResultSetMapper implements ResultSetMapper<Event> {
+
+        private final StreamDefinition definition;
+        private final String streamId;
+
+        private EventResultSetMapper(String streamId, StreamDefinition definition) {
+            this.streamId = streamId;
+            this.definition = definition;
+        }
+
+        @Override
+        public Event map(Dialect dialect, ResultSet rs) throws SQLException {
+            Message message = definition.getStreamEventDefinition(rs.getString(4)).jsonParse(rs.getString(3));
+            return Event.newBuilder()
+                    .setStreamId(streamId)
+                    .setStream(definition.getName())
+                    .setTimestamp(OffsetDateTime.ofInstant(rs.getTimestamp(1).toInstant(), ZoneId.systemDefault()).toString())
+                    .setRevision(rs.getInt(2))
+                    .setData(Any.pack(message, "event"))
+                    .build();
+        }
+    }
 //
 //	@Override
 //	public Statistics stat(String stream) {

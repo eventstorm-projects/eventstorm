@@ -15,6 +15,8 @@ public interface EventStore {
 
     Stream<Event> readStream(String stream, String streamId);
 
+    Stream<Event> readRawStream(String stream, String streamId);
+
     Statistics stat(String stream);
 
 }
