@@ -1,7 +1,6 @@
 package eu.eventstorm.cqrs.validation;
 
 import eu.eventstorm.core.validation.ValidationException;
-import eu.eventstorm.core.validation.ValidatorContext;
 import eu.eventstorm.cqrs.Command;
 import eu.eventstorm.cqrs.CommandContext;
 
@@ -10,12 +9,12 @@ import eu.eventstorm.cqrs.CommandContext;
  */
 public final class CommandValidationException extends ValidationException {
 
-	private final transient Command command;
+    private final transient Command command;
 
-	public CommandValidationException(CommandContext commandContext) {
-		super(commandContext);
-		this.command = commandContext.getCommand();
-	}
+    public CommandValidationException(CommandContext commandContext) {
+        super(commandContext);
+        this.command = commandContext.getCommand();
+    }
 
     public Command getCommand() {
         return command;

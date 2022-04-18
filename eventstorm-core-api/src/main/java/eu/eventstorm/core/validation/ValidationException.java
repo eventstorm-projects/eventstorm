@@ -1,8 +1,6 @@
 package eu.eventstorm.core.validation;
 
 import com.google.common.collect.ImmutableList;
-import eu.eventstorm.core.validation.ConstraintViolation;
-import eu.eventstorm.core.validation.ValidatorContext;
 
 
 /**
@@ -10,30 +8,33 @@ import eu.eventstorm.core.validation.ValidatorContext;
  */
 public class ValidationException extends RuntimeException {
 
-	private final transient ValidatorContext validatorContext;
+    private final transient ValidatorContext validatorContext;
 
-	public ValidationException(ValidatorContext validatorContext) {
-		super(build(validatorContext));
-		this.validatorContext = validatorContext;
-	}
+    public ValidationException(ValidatorContext validatorContext) {
+        super(build(validatorContext));
+        this.validatorContext = validatorContext;
+    }
 
-	public ImmutableList<ConstraintViolation> getConstraintViolations() {
-		ImmutableList.Builder<ConstraintViolation> builder = ImmutableList.builder();
-		validatorContext.forEach(builder::add);
-		return builder.build();
-	}
+    public ImmutableList<ConstraintViolation> getConstraintViolations() {
+        ImmutableList.Builder<ConstraintViolation> builder = ImmutableList.builder();
+        validatorContext.forEach(builder::add);
+        return builder.build();
+    }
 
-	private static String build(ValidatorContext validatorContext) {
-		StringBuilder builder = new StringBuilder();
-		//builder.append(" : ").append(constraintViolations.size());
-		validatorContext.forEach(v -> {
-			builder.append("\n\t");
-			v.buildMessage(builder);
-		});
-		return builder.toString();
-	}
+    private static String build(ValidatorContext validatorContext) {
+        StringBuilder builder = new StringBuilder();
+        validatorContext.forEach(v -> {
+            v.buildMessage(builder);
+            builder.append(", ");
+        });
+        if (builder.length() > 2) {
+            builder.deleteCharAt(builder.length() - 1);
+            builder.deleteCharAt(builder.length() - 1);
+        }
+        return builder.toString();
+    }
 
-	public String getCode() {
-		return validatorContext.getCode();
-	}
+    public String getCode() {
+        return validatorContext.getCode();
+    }
 }
