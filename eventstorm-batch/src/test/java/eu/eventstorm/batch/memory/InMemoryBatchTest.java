@@ -3,7 +3,10 @@ package eu.eventstorm.batch.memory;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 
+import com.google.protobuf.Struct;
+import com.google.protobuf.Value;
 import eu.eventstorm.test.LoggerInstancePostProcessor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,17 +37,17 @@ class InMemoryBatchTest {
 
 		batch.push(new EventCandidate<>("read","123", BatchJobCreated.newBuilder()
 				.setName("Test")
-				.setCommand("[{\"uuid\":\""+ java.util.UUID.randomUUID() +"\"}]")
+				.setCommand(Struct.newBuilder().putFields("uuid", Value.newBuilder().setStringValue(UUID.randomUUID().toString()).build()))
 				.build()));
 		
 		batch.push(new EventCandidate<>("read","456", BatchJobCreated.newBuilder()
 				.setName("Test")
-				.setCommand("[{\"uuid\":\""+ java.util.UUID.randomUUID() +"\"}]")
+				.setCommand(Struct.newBuilder().putFields("uuid", Value.newBuilder().setStringValue(UUID.randomUUID().toString()).build()))
 				.build()));
 		
 		batch.push(new EventCandidate<>("read","789", BatchJobCreated.newBuilder()
 				.setName("Test")
-				.setCommand("[{\"uuid\":\""+ java.util.UUID.randomUUID() +"\"}]")
+				.setCommand(Struct.newBuilder().putFields("uuid", Value.newBuilder().setStringValue(UUID.randomUUID().toString()).build()))
 				.build()));
 		
 		Thread.sleep(1500);

@@ -142,6 +142,11 @@
 						<configuration>
 							<protocVersion>${com.google.protobuf.version}</protocVersion>
 							<protocArtifact>com.google.protobuf:protoc:${com.google.protobuf.version}</protocArtifact>
+							<includeImports>true</includeImports>
+							<!-- let compiler use well defined types from protobuf itself. -->
+							<includeStdTypes>true</includeStdTypes>
+							<!-- always recompile. True (default) means: Only recompile if changed. -->
+							<optimizeCodegen>true</optimizeCodegen>
 							<inputDirectories>
 								<include>src/main/resources</include>
 							</inputDirectories>
