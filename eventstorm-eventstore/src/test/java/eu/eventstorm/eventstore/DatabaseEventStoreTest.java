@@ -41,7 +41,7 @@ class DatabaseEventStoreTest extends EventStoreTest {
 	@BeforeEach
 	void init() throws Exception{
 		HikariConfig config = new HikariConfig();
-		config.setJdbcUrl("jdbc:h2:mem:test_event_store;DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1");
+		config.setJdbcUrl("jdbc:h2:mem:test_event_store_2;DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1");
 		config.setUsername("sa");
 		config.setPassword("");
 
