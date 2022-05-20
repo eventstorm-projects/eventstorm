@@ -29,22 +29,22 @@
 		<ch.qos.logback.version>1.2.11</ch.qos.logback.version>
 
 		<com.google.guava.version>31.1-jre</com.google.guava.version>
-		<com.google.protobuf.version>3.20.0</com.google.protobuf.version>
+		<com.google.protobuf.version>3.20.1</com.google.protobuf.version>
 
-		<com.fasterxml.jackson.version>2.13.2.1</com.fasterxml.jackson.version>
-		<io.zipkin.brave.version>5.13.8</io.zipkin.brave.version>
+		<com.fasterxml.jackson.version>2.13.3</com.fasterxml.jackson.version>
+		<io.zipkin.brave.version>5.13.9</io.zipkin.brave.version>
 		<org.antlr.version>4.9.3</org.antlr.version>
 		<javax.servlet.version>4.0.1</javax.servlet.version>
 		<org.owasp.encoder.version>1.2.3</org.owasp.encoder.version>
 		<io.swagger.core.v3.version>2.1.13</io.swagger.core.v3.version>
 
-		<org.springframework.boot.version>2.6.7</org.springframework.boot.version>
-		<org.springframework.version>5.3.19</org.springframework.version>
+		<org.springframework.boot.version>2.6.8</org.springframework.boot.version>
+		<org.springframework.version>5.3.20</org.springframework.version>
 
 		<org.junit.jupiter.version>5.8.2</org.junit.jupiter.version>
-		<com.h2database.version>2.1.210</com.h2database.version>
+		<com.h2database.version>2.1.212</com.h2database.version>
 		<org.mockito.version>4.4.0</org.mockito.version>
-		<org.flywaydb.version>8.5.9</org.flywaydb.version>
+		<org.flywaydb.version>8.5.11</org.flywaydb.version>
 		<com.zaxxer.version>4.0.3</com.zaxxer.version>
 		<org.skyscreamer.jsonassert.version>1.5.0</org.skyscreamer.jsonassert.version>
 
