@@ -86,13 +86,14 @@ final class PostgresDialect extends AbstractDialect {
 
     @Override
     public String functionJsonExists(String col, String path) {
-        throw new UnsupportedOperationException("to implement");
+        return "jsonb_path_exists(" + col + ",'" + path + "')";
     }
 
     @Override
     public String functionJsonValue(String col, String path) {
-        throw new UnsupportedOperationException("to implement");
+        return col + rewritePath(path);
     }
+
 
     @Override
     public String ilike(SqlColumn column, boolean alias) {
@@ -118,4 +119,24 @@ final class PostgresDialect extends AbstractDialect {
         }
     }
 
+
+    static String rewritePath(String path) {
+        String[] splits = path.split("\\.");
+        StringBuilder builder = new StringBuilder();
+        if (splits.length > 0) {
+            if (!splits[0].equals("$")) {
+                throw new IllegalStateException();
+            }
+            for (int i = 1 ; i < splits.length - 1; i++) {
+                builder.append("->'");
+                builder.append(splits[i]);
+                builder.append('\'');
+            }
+            builder.append("->>'");
+            builder.append(splits[splits.length-1]);
+            builder.append('\'');
+            return builder.toString();
+        }
+        throw new IllegalStateException();
+    }
 }
