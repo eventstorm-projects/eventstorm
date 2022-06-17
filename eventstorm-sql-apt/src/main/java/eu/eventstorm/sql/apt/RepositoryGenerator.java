@@ -19,6 +19,8 @@ import javax.tools.JavaFileObject;
 
 import com.google.common.collect.ImmutableList;
 
+import eu.eventstorm.sql.annotation.ColumnFormat;
+import eu.eventstorm.sql.annotation.PrimaryKey;
 import eu.eventstorm.sql.apt.log.Logger;
 import eu.eventstorm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.sql.apt.model.PojoDescriptor;
@@ -436,19 +438,31 @@ final class RepositoryGenerator implements Generator {
         StringBuilder ps = new StringBuilder();
         int i = 1;
         for (PojoPropertyDescriptor id : descriptor.ids()) {
+
+            PrimaryKey primaryKey = id.getter().getAnnotation(PrimaryKey.class);
+
         	builder.append(id.getter().getReturnType().toString());
         	builder.append(' ');
         	builder.append(id.name());
         	builder.append(',');
 
-        	ps.append("           ");
-        	ps.append("ps.");
-        	ps.append(preparedStatementSetter(id.getter().getReturnType().toString()));
-        	ps.append("(");
-        	ps.append(i++);
-        	ps.append(", ");
-        	ps.append(id.name());
-        	ps.append(");\n");
+            ps.append("           ");
+            if (ColumnFormat.UUID.equals(primaryKey.format())) {
+                ps.append("dialect().setPreparedStatement(ps, " + i++ + ",");
+                ps.append(id.name());
+                ps.append(");\n");
+            } else {
+                ps.append("ps.");
+                ps.append(preparedStatementSetter(id.getter().getReturnType().toString()));
+                ps.append("(");
+                ps.append(i++);
+                ps.append(", ");
+                ps.append(id.name());
+                ps.append(");\n");
+            }
+
+
+
         }
         builder.deleteCharAt(builder.length() - 1);
 

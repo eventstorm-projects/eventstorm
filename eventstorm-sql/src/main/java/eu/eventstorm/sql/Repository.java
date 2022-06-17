@@ -81,13 +81,19 @@ public abstract class Repository {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Repository.class);
 
 	private final Database database;
+	private final Dialect dialect;
 
 	protected Repository(Database database) {
 		this.database = database;
+		this.dialect = database.dialect();
 	}
 
 	protected final Database database() {
 		return this.database;
+	}
+
+	protected final Dialect dialect() {
+		return this.dialect;
 	}
 
 	protected final SelectBuilder select(ImmutableList<SqlColumn> columns) {
