@@ -3,6 +3,8 @@ package eu.eventstorm.sql.apt;
 import eu.eventstorm.sql.Dialect;
 import eu.eventstorm.sql.annotation.AutoIncrement;
 import eu.eventstorm.sql.annotation.Column;
+import eu.eventstorm.sql.annotation.ColumnFormat;
+import eu.eventstorm.sql.annotation.PrimaryKey;
 import eu.eventstorm.sql.apt.log.Logger;
 import eu.eventstorm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.sql.apt.model.PojoDescriptor;
@@ -292,6 +294,7 @@ final class MapperGenerator implements Generator {
     private static void writePsProperty(Writer writer, PojoPropertyDescriptor ppd, int index) throws IOException {
 
         Column column = ppd.getter().getAnnotation(Column.class);
+        PrimaryKey primaryKey = ppd.getter().getAnnotation(PrimaryKey.class);
         String type = ppd.getter().getReturnType().toString();
 
         if (column != null && column.nullable()) {
@@ -304,9 +307,12 @@ final class MapperGenerator implements Generator {
             }
         }
         
-    	if (("java.sql.Blob".equals(ppd.getter().getReturnType().toString())) ||
-    			("java.sql.Clob".equals(ppd.getter().getReturnType().toString())) || 
-    			(Json.class.getName().equals(ppd.getter().getReturnType().toString()))){
+    	if (("java.sql.Blob".equals(type)) ||
+    			("java.sql.Clob".equals(type)) ||
+    			(Json.class.getName().equals(type)) ||
+                (String.class.getName().equals(type) &&
+                        (column != null && ColumnFormat.UUID.equals(column.format())) || (primaryKey != null && ColumnFormat.UUID.equals(primaryKey.format())))
+        ){
     		writer.write("        dialect.setPreparedStatement(ps, " + index+", pojo." );
 			writer.write(ppd.getter().getSimpleName().toString());
 	        writer.write("());");
@@ -332,6 +338,8 @@ final class MapperGenerator implements Generator {
                 writer.write(", ");
                 if ("java.lang.Boolean".equals(type)) {
                     writer.write("dialect.getBooleanType()");
+                } else if  (String.class.getName().equals(type) && ColumnFormat.UUID.equals(column.format())) {
+                    writer.write("dialect.getUuidType()");
                 } else {
                     writer.write(Helper.nullableType(type));
                 }

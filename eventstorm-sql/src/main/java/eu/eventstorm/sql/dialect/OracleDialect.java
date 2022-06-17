@@ -118,6 +118,15 @@ final class OracleDialect extends AbstractDialect {
     }
 
     @Override
+    public void setPreparedStatement(PreparedStatement ps, int index, String uuid) throws SQLException {
+        if (Strings.isEmpty(uuid)) {
+            ps.setNull(index, Types.VARCHAR);
+        } else {
+            ps.setString(index, uuid);
+        }
+    }
+
+    @Override
     public String functionJsonExists(String col, String path) {
         String rewritePath = rewritePath(path);
         return "json_exists(" + col + ",'" + rewritePath + "')";

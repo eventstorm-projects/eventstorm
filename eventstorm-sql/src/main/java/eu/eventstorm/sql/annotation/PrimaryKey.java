@@ -18,6 +18,8 @@ public @interface PrimaryKey {
      */
     String value();
 
-    
     int length() default 0;
+
+    ColumnFormat format() default ColumnFormat.NONE;
+
 }

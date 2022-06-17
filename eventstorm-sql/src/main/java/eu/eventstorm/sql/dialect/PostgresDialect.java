@@ -7,6 +7,7 @@ import eu.eventstorm.sql.type.Json;
 import eu.eventstorm.sql.type.Xml;
 import eu.eventstorm.sql.type.postgres.JsonPGobject;
 import eu.eventstorm.util.FastByteArrayInputStream;
+import eu.eventstorm.util.Strings;
 import org.postgresql.util.PGobject;
 
 import java.nio.charset.StandardCharsets;
@@ -15,6 +16,7 @@ import java.sql.Clob;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 
 final class PostgresDialect extends AbstractDialect {
 
@@ -75,6 +77,15 @@ final class PostgresDialect extends AbstractDialect {
     }
 
     @Override
+    public void setPreparedStatement(PreparedStatement ps, int index, String uuid) throws SQLException {
+        if (Strings.isEmpty(uuid)) {
+            ps.setNull(index, Types.OTHER);
+        } else {
+            ps.setObject(index, uuid, Types.OTHER);
+        }
+    }
+
+    @Override
     public void setPreparedStatement(PreparedStatement ps, int index, Blob blob) throws SQLException {
         ps.setBlob(index, blob);
     }
@@ -119,6 +130,10 @@ final class PostgresDialect extends AbstractDialect {
         }
     }
 
+    @Override
+    public int getUuidType() {
+        return Types.OTHER;
+    }
 
     static String rewritePath(String path) {
         String[] splits = path.split("\\.");

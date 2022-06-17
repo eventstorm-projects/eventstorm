@@ -48,6 +48,8 @@ public interface Dialect {
 	
 	void setPreparedStatement(PreparedStatement ps, int index, Clob clob) throws SQLException;
 
+	void setPreparedStatement(PreparedStatement ps, int index, String uuid) throws SQLException;
+
 	String functionJsonExists(String col, String path);
 
 	String functionJsonValue(String col, String path);
@@ -57,6 +59,8 @@ public interface Dialect {
 	default int getBooleanType() {
 		return Types.BOOLEAN;
 	}
+
+	default int getUuidType() { return Types.VARCHAR; }
 
 	String toSql(Boolean value);
 }

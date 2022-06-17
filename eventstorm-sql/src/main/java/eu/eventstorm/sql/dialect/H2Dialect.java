@@ -9,6 +9,7 @@ import eu.eventstorm.sql.type.Xml;
 import eu.eventstorm.sql.type.common.BlobJson;
 import eu.eventstorm.sql.type.common.BlobXml;
 import eu.eventstorm.util.FastByteArrayInputStream;
+import eu.eventstorm.util.Strings;
 
 import java.sql.Blob;
 import java.sql.Clob;
@@ -77,6 +78,15 @@ final class H2Dialect extends AbstractDialect {
     @Override
     public void setPreparedStatement(PreparedStatement ps, int index, Clob clob) throws SQLException {
         ps.setClob(index, clob);
+    }
+
+    @Override
+    public void setPreparedStatement(PreparedStatement ps, int index, String uuid) throws SQLException {
+        if (Strings.isEmpty(uuid)) {
+            ps.setNull(index, Types.VARCHAR);
+        } else {
+            ps.setString(index, uuid);
+        }
     }
 
     public void init() {

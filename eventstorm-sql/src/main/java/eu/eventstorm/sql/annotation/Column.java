@@ -39,5 +39,11 @@ public @interface Column {
      * (Optional) The column length. (Applies only if a string-valued column is used.)
      */
     int length() default 255;
-    
+
+    /**
+     *
+     * (Optional) the column format (ex: UUID if it's ref an uuid)
+     */
+    ColumnFormat format() default ColumnFormat.NONE;
+
 }
