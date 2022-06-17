@@ -26,7 +26,7 @@ import java.sql.SQLException;
  */
 final class MapperGenerator implements Generator {
 
-    private final Logger logger;
+    private static Logger logger;
 
 	MapperGenerator() {
 		logger = LoggerFactory.getInstance().getLogger(MapperGenerator.class);
@@ -306,7 +306,7 @@ final class MapperGenerator implements Generator {
                 writer.write("    ");
             }
         }
-        
+
     	if (("java.sql.Blob".equals(type)) ||
     			("java.sql.Clob".equals(type)) ||
     			(Json.class.getName().equals(type)) ||
