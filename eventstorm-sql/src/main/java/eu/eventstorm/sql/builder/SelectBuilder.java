@@ -115,7 +115,9 @@ public final class SelectBuilder extends AbstractBuilder {
 		appendFrom(builder);
         appendJoins(builder);
         appendWherePage(builder, pageRequest);
-        appendOrder(this.orderBy, builder);
+
+        // don't need the order to calculate the count
+        //appendOrder(this.orderBy, builder);
 		
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("SQL Pageable Count [{}]", builder);
