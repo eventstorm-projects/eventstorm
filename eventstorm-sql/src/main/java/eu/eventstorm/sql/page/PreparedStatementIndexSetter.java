@@ -1,5 +1,7 @@
 package eu.eventstorm.sql.page;
 
+import eu.eventstorm.sql.Dialect;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
@@ -9,6 +11,6 @@ import java.sql.SQLException;
 @FunctionalInterface
 public interface PreparedStatementIndexSetter {
 
-    int set(PreparedStatement ps, int index) throws SQLException;
+    int set(Dialect dialect, PreparedStatement ps, int index) throws SQLException;
 
 }

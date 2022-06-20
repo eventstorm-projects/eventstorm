@@ -378,7 +378,7 @@ public abstract class Repository {
 				pss.set(ps);
 				int i = query.getIndex();
 				for (Filter filter : pageRequest.getFilters()) {
-					i = descriptor.getPreparedStatementIndexSetter(filter).set(ps,i);
+					i = descriptor.getPreparedStatementIndexSetter(filter).set(dialect, ps,i);
 				}
 			};
 		}

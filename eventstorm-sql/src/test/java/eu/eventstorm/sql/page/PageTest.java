@@ -85,7 +85,7 @@ class PageTest {
 			}
 			@Override
 			public PreparedStatementIndexSetter getPreparedStatementIndexSetter(Filter filter) {
-				return (ps, index) -> {
+				return (dialect, ps, index) -> {
 					ps.setString(index, filter.getRaw());
 					return index+1;
 				};
