@@ -644,7 +644,13 @@ final class RepositoryGenerator implements Generator {
         writeNewLine(writer);
         int i = 1;
         for (PojoPropertyDescriptor desc : descriptor.ids()) {
-        	 writer.write("            ps."  + Helper.preparedStatementSetter(Helper.getReturnType(desc.getter())) + "(" + (i++) +"," + desc.name() + ");");
+            if (ColumnFormat.UUID.equals(desc.getter().getAnnotation(PrimaryKey.class).format())) {
+                writer.write("            dialect().setPreparedStatement(ps, " + i++ + ",");
+                writer.write(desc.name());
+                writer.write(");");
+            } else {
+                writer.write("            ps."  + Helper.preparedStatementSetter(Helper.getReturnType(desc.getter())) + "(" + (i++) +"," + desc.name() + ");");
+            }
         	 writeNewLine(writer);
         }
         writer.write("        });");
