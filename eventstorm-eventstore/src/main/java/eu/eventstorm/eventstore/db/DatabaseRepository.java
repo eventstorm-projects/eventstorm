@@ -39,14 +39,14 @@ final class DatabaseRepository extends AbstractDatabaseEventRepository {
 	public Integer lastRevision(String stream, String streamId) {
 		return executeSelect(this.findLastRevisionByAggregateTypeAndAggregateId, ps -> {
 			ps.setString(1, stream);
-			ps.setString(2, streamId);
+			dialect().setPreparedStatement(ps, 2, streamId);
 		}, ResultSetMappers.INTEGER);
 	}
 	
 	public  <T> Stream<T> findAllByStreamAndStreamId(String stream, String streamId, ResultSetMapper<T> rsm) {
 		return stream(this.findByAggregateTypeAndAggregateId, ps -> {
 			ps.setString(1, stream);
-			ps.setString(2, streamId);
+			dialect().setPreparedStatement(ps, 2, streamId);
 		}, rsm);
 	}
 
