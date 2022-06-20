@@ -3,6 +3,7 @@ package eu.eventstorm.eventstore.db;
 import java.sql.Timestamp;
 
 import eu.eventstorm.sql.annotation.Column;
+import eu.eventstorm.sql.annotation.ColumnFormat;
 import eu.eventstorm.sql.annotation.PrimaryKey;
 import eu.eventstorm.sql.annotation.Table;
 
@@ -17,7 +18,7 @@ public interface DatabaseEvent {
 
 	void setStream(String stream);
 	
-	@PrimaryKey(value = "stream_id", length = 64)
+	@PrimaryKey(value = "stream_id", length = 36, format = ColumnFormat.UUID)
 	String getStreamId();
 
 	void setStreamId(String streamId);
@@ -27,7 +28,7 @@ public interface DatabaseEvent {
 	
 	void setRevision(int revision);
 	
-	@Column(value = "correlation", length = 36, nullable = true)
+	@Column(value = "correlation", length = 36, nullable = true, format = ColumnFormat.UUID)
 	String getCorrelation();
 
 	void setCorrelation(String correlation);
