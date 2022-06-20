@@ -20,6 +20,8 @@ import com.google.common.collect.ImmutableMap;
 import eu.eventstorm.core.apt.SourceCode;
 import eu.eventstorm.core.apt.model.QueryDescriptor;
 import eu.eventstorm.core.apt.model.QueryPropertyDescriptor;
+import eu.eventstorm.sql.annotation.Column;
+import eu.eventstorm.sql.annotation.ColumnFormat;
 import eu.eventstorm.sql.apt.Helper;
 import eu.eventstorm.sql.apt.log.Logger;
 import eu.eventstorm.sql.apt.log.LoggerFactory;
@@ -152,7 +154,13 @@ public final class SqlPageRequestDescriptorGenerator {
 			} else if (Helper.isByte(type)) {
 				writer.write("            .put(\"" + property.name() + "\", filter -> (dialect,ps,index) -> { for (String value : filter.getValues()) { ps.setByte(index++, Byte.valueOf(value));} return index; })");
 			} else if (Helper.isString(type)) {
-				writer.write("            .put(\"" + property.name() + "\", filter -> (dialect,ps,index) -> { for (String value : filter.getValues()) { ps.setString(index++, value); } return index; })");
+				Column column = property.getter().getAnnotation(Column.class);
+				if (column != null && ColumnFormat.UUID.equals(column.format())) {
+					writer.write("            .put(\"" + property.name() + "\", filter -> (dialect,ps,index) -> { for (String value : filter.getValues()) { dialect.setPreparedStatement(ps,index++, value); } return index; })");
+				} else {
+					writer.write("            .put(\"" + property.name() + "\", filter -> (dialect,ps,index) -> { for (String value : filter.getValues()) { ps.setString(index++, value); } return index; })");
+				}
+
 			} else if (Date.class.getName().equals(type)) {
 				writer.write("            .put(\"" + property.name() + "\", filter -> (dialect,ps,index) -> { for (String value : filter.getValues()) { ps.setDate(index++, "+ Dates.class.getName()+".convertDate(value)); } return index; })");
 			} else if (Timestamp.class.getName().equals(type)) {
