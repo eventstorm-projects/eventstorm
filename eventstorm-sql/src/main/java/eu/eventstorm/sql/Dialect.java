@@ -3,6 +3,7 @@ package eu.eventstorm.sql;
 import eu.eventstorm.sql.desc.SqlColumn;
 import eu.eventstorm.sql.desc.SqlSequence;
 import eu.eventstorm.sql.desc.SqlTable;
+import eu.eventstorm.sql.expression.JsonPathExpression;
 import eu.eventstorm.sql.type.Json;
 import eu.eventstorm.sql.type.Xml;
 import eu.eventstorm.util.FastByteArrayInputStream;
@@ -63,4 +64,7 @@ public interface Dialect {
 	default int getUuidType() { return Types.VARCHAR; }
 
 	String toSql(Boolean value);
+
+	String toSql(JsonPathExpression expression);
+
 }

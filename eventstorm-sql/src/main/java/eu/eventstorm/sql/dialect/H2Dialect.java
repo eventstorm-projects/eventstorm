@@ -4,6 +4,7 @@ import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.RawSqlExecutor;
 import eu.eventstorm.sql.desc.SqlColumn;
 import eu.eventstorm.sql.desc.SqlSequence;
+import eu.eventstorm.sql.expression.JsonPathExpression;
 import eu.eventstorm.sql.type.Json;
 import eu.eventstorm.sql.type.Xml;
 import eu.eventstorm.sql.type.common.BlobJson;
@@ -127,6 +128,11 @@ final class H2Dialect extends AbstractDialect {
         } else {
             return "true";
         }
+    }
+
+    @Override
+    public String toSql(JsonPathExpression expression) {
+        return null;
     }
 
     /*	@Override

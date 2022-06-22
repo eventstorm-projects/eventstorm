@@ -3,6 +3,9 @@ package eu.eventstorm.sql.dialect;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.desc.SqlColumn;
 import eu.eventstorm.sql.desc.SqlSequence;
+import eu.eventstorm.sql.expression.JsonPathArrayExpression;
+import eu.eventstorm.sql.expression.JsonPathExpression;
+import eu.eventstorm.sql.expression.JsonPathFieldsExpression;
 import eu.eventstorm.sql.type.Json;
 import eu.eventstorm.sql.type.Xml;
 import eu.eventstorm.sql.type.postgres.JsonPGobject;
@@ -135,6 +138,13 @@ final class PostgresDialect extends AbstractDialect {
         return Types.OTHER;
     }
 
+    @Override
+    public String toSql(JsonPathExpression expression) {
+        PGJsonPathVisitor visitor = new PGJsonPathVisitor();
+        expression.accept(visitor);
+        return visitor.toString();
+    }
+
     static String rewritePath(String path) {
         String[] splits = path.split("\\.");
         StringBuilder builder = new StringBuilder();
@@ -153,5 +163,18 @@ final class PostgresDialect extends AbstractDialect {
             return builder.toString();
         }
         throw new IllegalStateException();
+    }
+
+    private static class PGJsonPathVisitor extends AbstractJsonPathVisitor {
+        @Override
+        public void visit(JsonPathFieldsExpression expression) {
+            getBuilder().append("?");
+            expression.getExpression().accept(this);
+        }
+        @Override
+        public void visit(JsonPathArrayExpression expression) {
+            getBuilder().append("$[*]");
+            expression.getExpression().accept(this);
+        }
     }
 }

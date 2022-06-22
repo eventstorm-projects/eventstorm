@@ -3,6 +3,9 @@ package eu.eventstorm.sql.dialect;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.desc.SqlColumn;
 import eu.eventstorm.sql.desc.SqlSequence;
+import eu.eventstorm.sql.expression.JsonPathArrayExpression;
+import eu.eventstorm.sql.expression.JsonPathExpression;
+import eu.eventstorm.sql.expression.JsonPathFieldsExpression;
 import eu.eventstorm.sql.type.Json;
 import eu.eventstorm.sql.type.Xml;
 import eu.eventstorm.sql.type.common.AbstractBlob;
@@ -181,6 +184,26 @@ final class OracleDialect extends AbstractDialect {
             return "0";
         } else {
             return "1";
+        }
+    }
+
+    @Override
+    public String toSql(JsonPathExpression expression) {
+        OracleJsonPathVisitor visitor = new OracleJsonPathVisitor();
+        expression.accept(visitor);
+        return visitor.toString();
+    }
+
+    private static class OracleJsonPathVisitor extends AbstractJsonPathVisitor {
+        @Override
+        public void visit(JsonPathFieldsExpression expression) {
+            getBuilder().append(".");
+            expression.getExpression().accept(this);
+        }
+        @Override
+        public void visit(JsonPathArrayExpression expression) {
+            getBuilder().append("$");
+            expression.getExpression().accept(this);
         }
     }
 }
