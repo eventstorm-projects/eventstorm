@@ -192,7 +192,6 @@ final class OracleDialect extends AbstractDialect {
         }
         @Override
         public void visit(JsonPathArrayExpression expression) {
-            getBuilder().append("$");
             expression.getExpression().accept(this);
         }
 

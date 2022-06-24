@@ -1,19 +1,18 @@
 package eu.eventstorm.sql.expression;
 
+/**
+ * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
+ */
 public abstract class JsonPathFieldExpression extends JsonPathField implements JsonPathExpression {
 
-    public enum Operation {
-        EQUALS, GREATER, LESSER
-    }
+    private final JsonPathFieldOperation op;
 
-    private final Operation op;
-
-    JsonPathFieldExpression(String field, Operation op) {
+    JsonPathFieldExpression(String field, JsonPathFieldOperation op) {
         super(field);
         this.op = op;
     }
 
-    public Operation getOp() {
+    public JsonPathFieldOperation getOp() {
         return op;
     }
 

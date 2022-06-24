@@ -193,7 +193,7 @@ final class PostgresDialect extends AbstractDialect {
         }
         @Override
         public void visit(JsonPathArrayExpression expression) {
-            getBuilder().append("$[*]");
+            getBuilder().append("[*]");
             expression.getExpression().accept(this);
         }
 

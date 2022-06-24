@@ -10,7 +10,7 @@ import static eu.eventstorm.sql.expression.JsonPathExpressions.and;
 import static eu.eventstorm.sql.expression.JsonPathExpressions.array;
 import static eu.eventstorm.sql.expression.JsonPathExpressions.field;
 import static eu.eventstorm.sql.expression.JsonPathExpressions.fields;
-import static eu.eventstorm.sql.expression.JsonPathFieldExpression.Operation.EQUALS;
+import static eu.eventstorm.sql.expression.JsonPathFieldOperation.EQUALS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class JsonExpressionsTest {
@@ -38,10 +38,10 @@ class JsonExpressionsTest {
         );
 
         Dialect dialect = Dialects.postgres(Mockito.mock(Database.class));
-        assertEquals("$[*]?((@.type==\"votingSpace\") && (@.value==\"1ebd58f8-5995-6430-5c05-29fffa970b01\"))",dialect.toSql(ep));
+        assertEquals("[*]?((@.type==\"votingSpace\") && (@.value==\"1ebd58f8-5995-6430-5c05-29fffa970b01\"))",dialect.toSql(ep));
 
         dialect = Dialects.oracle(Mockito.mock(Database.class));
-        assertEquals("$.((@.type==\"votingSpace\") && (@.value==\"1ebd58f8-5995-6430-5c05-29fffa970b01\"))", dialect.toSql(ep));
+        assertEquals(".((@.type==\"votingSpace\") && (@.value==\"1ebd58f8-5995-6430-5c05-29fffa970b01\"))", dialect.toSql(ep));
 
     }
 

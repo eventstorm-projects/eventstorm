@@ -1,11 +1,11 @@
 package eu.eventstorm.sql.expression;
 
-public class JsonPathFieldsExpression implements JsonPathExpression {
+public final class JsonPathFieldsExpression implements JsonPathExpression {
 
     private final JsonPathExpression expression;
 
 
-    public JsonPathFieldsExpression(JsonPathExpression expression) {
+    JsonPathFieldsExpression(JsonPathExpression expression) {
         this.expression = expression;
     }
 

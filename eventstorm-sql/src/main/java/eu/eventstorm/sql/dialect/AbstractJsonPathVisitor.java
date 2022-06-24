@@ -1,6 +1,7 @@
 package eu.eventstorm.sql.dialect;
 
 import eu.eventstorm.sql.expression.JsonPathFieldExpression;
+import eu.eventstorm.sql.expression.JsonPathFieldOperation;
 import eu.eventstorm.sql.expression.JsonPathFieldStringExpression;
 import eu.eventstorm.sql.expression.JsonPathLogicalExpression;
 import eu.eventstorm.sql.expression.JsonPathRootExpression;
@@ -50,11 +51,11 @@ abstract class AbstractJsonPathVisitor implements JsonPathVisitor {
     }
 
 
-    protected static String op(JsonPathFieldExpression.Operation op) {
-        if (JsonPathFieldExpression.Operation.EQUALS == op) {
+    protected static String op(JsonPathFieldOperation op) {
+        if (JsonPathFieldOperation.EQUALS == op) {
             return "==";
         }
-        if (JsonPathFieldExpression.Operation.GREATER == op) {
+        if (JsonPathFieldOperation.GREATER == op) {
             return ">";
         }
         return "<";

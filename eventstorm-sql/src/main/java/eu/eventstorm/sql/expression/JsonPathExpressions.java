@@ -10,7 +10,7 @@ public class JsonPathExpressions {
     }
 
     public static JsonPathExpression root(JsonPathExpression expression) {
-        return new JsonPathArrayExpression(expression);
+        return new JsonPathRootExpression(expression);
     }
 
     public static JsonPathDeepExpression path(String ... fields) {
@@ -31,7 +31,7 @@ public class JsonPathExpressions {
     }
 
 
-    public static JsonPathFieldExpression field(String field, JsonPathFieldExpression.Operation op, String value) {
+    public static JsonPathFieldExpression field(String field, JsonPathFieldOperation op, String value) {
         return new JsonPathFieldStringExpression(field, op, value);
     }
 

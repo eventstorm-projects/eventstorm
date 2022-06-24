@@ -4,8 +4,7 @@ import com.google.common.collect.ImmutableList;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.builder.SelectBuilder;
 import eu.eventstorm.sql.expression.Expression;
-import eu.eventstorm.sql.expression.JsonPathFieldExpression;
-import eu.eventstorm.sql.expression.JsonPathFieldExpression.Operation;
+import eu.eventstorm.sql.expression.JsonPathFieldOperation;
 import eu.eventstorm.sql.jdbc.PreparedStatementSetters;
 import eu.eventstorm.sql.jdbc.ResultSetMapper;
 
@@ -22,6 +21,7 @@ import static eu.eventstorm.sql.expression.Expressions.jsonExists;
 import static eu.eventstorm.sql.expression.JsonPathExpressions.fields;
 import static eu.eventstorm.sql.expression.JsonPathExpressions.field;
 import static eu.eventstorm.sql.expression.JsonPathExpressions.root;
+import static eu.eventstorm.sql.expression.JsonPathFieldOperation.EQUALS;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -40,7 +40,7 @@ public final class DatabaseResourceRepository extends AbstractDatabaseResourceRe
 			// $.[?(@.expensive==10)]
 			//builder.add(jsonExists(META, "$.[?(@."+ key +"==\""+ value +"\")]"));
 			//"$.[?(@."+ key +"==\""+ value +"\")]"));
-			builder.add(jsonExists(META, root(fields(field(key, Operation.EQUALS, value)))));
+			builder.add(jsonExists(META, root(fields(field(key, EQUALS, value)))));
 		});
 		ImmutableList<Expression> expressions = builder.build();
 
