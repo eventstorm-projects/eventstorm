@@ -144,12 +144,12 @@ public final class Expressions {
   		return (dialect, alias) -> raw;
     }
 
-    public static Expression jsonExists(SqlColumn column, String path) {
-        return new JsonExistsExpression(column, path);
+    public static Expression jsonExists(SqlColumn column, JsonPathExpression expression) {
+        return new JsonExistsExpression(column, expression);
     }
 
-    public static Expression jsonValue(SqlColumn column, String path) {
-        return new JsonValueExpression(column, path);
+    public static Expression jsonValue(SqlColumn column, JsonPathDeepExpression expression) {
+        return new JsonValueExpression(column, expression);
     }
 
 }

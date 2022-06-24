@@ -4,13 +4,19 @@ import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.RawSqlExecutor;
 import eu.eventstorm.sql.desc.SqlColumn;
 import eu.eventstorm.sql.desc.SqlSequence;
+import eu.eventstorm.sql.expression.JsonPathArrayExpression;
+import eu.eventstorm.sql.expression.JsonPathDeepExpression;
 import eu.eventstorm.sql.expression.JsonPathExpression;
+import eu.eventstorm.sql.expression.JsonPathFieldStringExpression;
+import eu.eventstorm.sql.expression.JsonPathFieldsExpression;
 import eu.eventstorm.sql.type.Json;
 import eu.eventstorm.sql.type.Xml;
 import eu.eventstorm.sql.type.common.BlobJson;
 import eu.eventstorm.sql.type.common.BlobXml;
 import eu.eventstorm.util.FastByteArrayInputStream;
 import eu.eventstorm.util.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Blob;
 import java.sql.Clob;
@@ -20,6 +26,8 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 final class H2Dialect extends AbstractDialect {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(H2Dialect.class);
 
     public H2Dialect(Database database) {
         super(database);
@@ -101,12 +109,12 @@ final class H2Dialect extends AbstractDialect {
     }
 
     @Override
-    public String functionJsonExists(String col, String path) {
-        return "json_exists(" + col + ",'" + path + "')";
+    public String functionJsonExists(String col, JsonPathExpression path) {
+        return "json_exists(" + col + ",'" + toSql(path) + "')";
     }
 
     @Override
-    public String functionJsonValue(String col, String path) {
+    public String functionJsonValue(String col, JsonPathDeepExpression path) {
         return "json_value(" + col + ",'" + path + "')";
     }
 
@@ -132,46 +140,38 @@ final class H2Dialect extends AbstractDialect {
 
     @Override
     public String toSql(JsonPathExpression expression) {
-        return null;
+        H2JsonPathVisitor visitor = new H2JsonPathVisitor();
+        expression.accept(visitor);
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("toSql()->[{}]",visitor);
+        }
+
+        return visitor.toString();
     }
 
-    /*	@Override
-	public String functionJsonExists(String col, String key, ImmutableList<JsonExpression> values) {
-		StringBuilder builder = new StringBuilder(256);
-		builder.append("json_exists_2(").append(col).append(",'").append(key).append("','");
-		if (values.size() > 1) {
-			builder.append("?(");
-		}
-		for (int i =0,n=values.size(); i < n ; i++) {
-			JsonExpression expression = values.get(i);
-			builder.append("@.");
-			builder.append(expression.getField());
+    private static class H2JsonPathVisitor extends AbstractJsonPathVisitor {
+        @Override
+        public void visit(JsonPathFieldsExpression expression) {
+            getBuilder().append(".[");
+            expression.getExpression().accept(this);
+            getBuilder().append("]");
+        }
+        @Override
+        public void visit(JsonPathArrayExpression expression) {
+            getBuilder().append("$");
+            expression.getExpression().accept(this);
+        }
 
-			switch (expression.getOperation()) {
-				case EQUALS: {
-					builder.append("==");
-					break;
-				}
-				default:
-					builder.append("==");
-			}
+        @Override
+        public void visit(JsonPathFieldStringExpression expression) {
+            getBuilder().append("?(@.");
+            getBuilder().append(expression.getField());
+            getBuilder().append(op(expression.getOp()));
+            getBuilder().append("\"");
+            getBuilder().append(expression.getValue());
+            getBuilder().append("\")");
+        }
+    }
 
-			if (expression.getValue() instanceof String) {
-				builder.append('"').append(expression.getValue()).append('"');
-			} else if (expression.getValue() instanceof Number) {
-				builder.append(expression.getValue());
-			} else {
-				throw new IllegalStateException();
-			}
-
-			if (i + 1 < n) {
-				builder.append(" && ");
-			} else {
-				builder.append(')');
-			}
-		}
-		builder.append("')");
-		return builder.toString();
-	}
-*/
 }

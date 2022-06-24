@@ -6,9 +6,9 @@ import eu.eventstorm.sql.desc.SqlColumn;
 final class JsonValueAggregateFunction implements AggregateFunction {
 
     private final SqlColumn column;
-    private final String path;
+    private final JsonPathDeepExpression path;
 
-    public JsonValueAggregateFunction(SqlColumn column, String path) {
+    public JsonValueAggregateFunction(SqlColumn column, JsonPathDeepExpression path) {
         this.column = column;
         this.path = path;
     }

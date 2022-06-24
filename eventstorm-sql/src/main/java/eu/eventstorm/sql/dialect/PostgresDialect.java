@@ -4,6 +4,7 @@ import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.desc.SqlColumn;
 import eu.eventstorm.sql.desc.SqlSequence;
 import eu.eventstorm.sql.expression.JsonPathArrayExpression;
+import eu.eventstorm.sql.expression.JsonPathDeepExpression;
 import eu.eventstorm.sql.expression.JsonPathExpression;
 import eu.eventstorm.sql.expression.JsonPathFieldsExpression;
 import eu.eventstorm.sql.type.Json;
@@ -99,13 +100,32 @@ final class PostgresDialect extends AbstractDialect {
     }
 
     @Override
-    public String functionJsonExists(String col, String path) {
-        return "jsonb_path_exists(" + col + ",'" + path + "')";
+    public String functionJsonExists(String col, JsonPathExpression path) {
+        return "jsonb_path_exists(" + col + ",'" + toSql(path) + "')";
     }
 
     @Override
-    public String functionJsonValue(String col, String path) {
-        return col + rewritePath(path);
+    public String functionJsonValue(String col, JsonPathDeepExpression expression) {
+        StringBuilder builder = new StringBuilder();
+        builder.append(col);
+        String[] fields = expression.getFields();
+        if (fields.length == 1) {
+            builder.append("->>'");
+            builder.append(fields[0]);
+            builder.append('\'');
+
+        } else {
+            int i = 0;
+            for (;i < fields.length - 1; i++) {
+                builder.append("->'");
+                builder.append(fields[i]);
+                builder.append('\'');
+            }
+            builder.append("->>'");
+            builder.append(fields[i]);
+            builder.append('\'');
+        }
+        return builder.toString();
     }
 
 
@@ -145,7 +165,7 @@ final class PostgresDialect extends AbstractDialect {
         return visitor.toString();
     }
 
-    static String rewritePath(String path) {
+  /*  static String rewritePath(String path) {
         String[] splits = path.split("\\.");
         StringBuilder builder = new StringBuilder();
         if (splits.length > 0) {
@@ -163,7 +183,7 @@ final class PostgresDialect extends AbstractDialect {
             return builder.toString();
         }
         throw new IllegalStateException();
-    }
+    }*/
 
     private static class PGJsonPathVisitor extends AbstractJsonPathVisitor {
         @Override
@@ -176,5 +196,7 @@ final class PostgresDialect extends AbstractDialect {
             getBuilder().append("$[*]");
             expression.getExpression().accept(this);
         }
+
     }
+
 }

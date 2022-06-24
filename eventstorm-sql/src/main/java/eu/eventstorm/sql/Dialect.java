@@ -3,6 +3,7 @@ package eu.eventstorm.sql;
 import eu.eventstorm.sql.desc.SqlColumn;
 import eu.eventstorm.sql.desc.SqlSequence;
 import eu.eventstorm.sql.desc.SqlTable;
+import eu.eventstorm.sql.expression.JsonPathDeepExpression;
 import eu.eventstorm.sql.expression.JsonPathExpression;
 import eu.eventstorm.sql.type.Json;
 import eu.eventstorm.sql.type.Xml;
@@ -51,9 +52,9 @@ public interface Dialect {
 
 	void setPreparedStatement(PreparedStatement ps, int index, String uuid) throws SQLException;
 
-	String functionJsonExists(String col, String path);
+	String functionJsonExists(String col, JsonPathExpression path);
 
-	String functionJsonValue(String col, String path);
+	String functionJsonValue(String col, JsonPathDeepExpression path);
 
 	String ilike(SqlColumn column, boolean alias);
 

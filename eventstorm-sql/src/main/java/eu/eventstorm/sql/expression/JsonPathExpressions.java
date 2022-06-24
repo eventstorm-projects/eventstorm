@@ -9,7 +9,19 @@ public class JsonPathExpressions {
         return new JsonPathArrayExpression(expression);
     }
 
+    public static JsonPathExpression root(JsonPathExpression expression) {
+        return new JsonPathArrayExpression(expression);
+    }
+
+    public static JsonPathDeepExpression path(String ... fields) {
+        return new JsonPathDeepExpression(fields);
+    }
+
     public static JsonPathExpression fields(JsonPathLogicalExpression expression) {
+        return new JsonPathFieldsExpression(expression);
+    }
+
+    public static JsonPathExpression fields(JsonPathFieldExpression expression) {
         return new JsonPathFieldsExpression(expression);
     }
 

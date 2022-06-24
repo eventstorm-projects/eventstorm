@@ -9,11 +9,11 @@ import eu.eventstorm.sql.desc.SqlColumn;
 final class JsonValueExpression implements Expression {
 
     private final SqlColumn column;
-    private final String path;
+    private final JsonPathDeepExpression expression;
 
-    public JsonValueExpression(SqlColumn column, String path) {
+    public JsonValueExpression(SqlColumn column, JsonPathDeepExpression expression) {
         this.column = column;
-        this.path = path;
+        this.expression = expression;
     }
 
     @Override
@@ -24,7 +24,7 @@ final class JsonValueExpression implements Expression {
         }
         col += column.name();
 
-        return dialect.functionJsonValue(col, path) + "= ?";
+        return dialect.functionJsonValue(col, expression) + "= ?";
     }
 
 }

@@ -3,6 +3,7 @@ package eu.eventstorm.sql.dialect;
 import eu.eventstorm.sql.expression.JsonPathFieldExpression;
 import eu.eventstorm.sql.expression.JsonPathFieldStringExpression;
 import eu.eventstorm.sql.expression.JsonPathLogicalExpression;
+import eu.eventstorm.sql.expression.JsonPathRootExpression;
 import eu.eventstorm.sql.expression.JsonPathVisitor;
 
 abstract class AbstractJsonPathVisitor implements JsonPathVisitor {
@@ -24,12 +25,18 @@ abstract class AbstractJsonPathVisitor implements JsonPathVisitor {
 
     @Override
     public void visit(JsonPathFieldStringExpression expression) {
-        builder.append("@.");
+        builder.append("(@.");
         builder.append(expression.getField());
         builder.append(op(expression.getOp()));
         builder.append("\"");
         builder.append(expression.getValue());
-        builder.append("\"");
+        builder.append("\")");
+    }
+
+    @Override
+    public void visit(JsonPathRootExpression expression) {
+        builder.append("$");
+        expression.getExpression().accept(this);
     }
 
     @Override
@@ -43,7 +50,7 @@ abstract class AbstractJsonPathVisitor implements JsonPathVisitor {
     }
 
 
-    private String op(JsonPathFieldExpression.Operation op) {
+    protected static String op(JsonPathFieldExpression.Operation op) {
         if (JsonPathFieldExpression.Operation.EQUALS == op) {
             return "==";
         }

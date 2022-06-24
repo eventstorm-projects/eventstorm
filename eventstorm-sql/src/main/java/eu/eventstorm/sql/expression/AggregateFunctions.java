@@ -43,8 +43,8 @@ public final class AggregateFunctions {
         return new RowNumberAggregateFunction(overPartition);
     }
 
-    public static AggregateFunction jsonValue(SqlColumn column, String path) {
-        return new JsonValueAggregateFunction(column, path);
-    }
+    //public static AggregateFunction jsonValue(SqlColumn column, String path) {
+    //    return new JsonValueAggregateFunction(column, path);
+    //}
 
 }

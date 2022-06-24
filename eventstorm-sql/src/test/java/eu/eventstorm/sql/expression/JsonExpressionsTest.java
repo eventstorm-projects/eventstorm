@@ -22,10 +22,10 @@ class JsonExpressionsTest {
                 field("value", EQUALS, "1ebd58f8-5995-6430-5c05-29fffa970b01")));
 
         Dialect dialect = Dialects.postgres(Mockito.mock(Database.class));
-        assertEquals("?(@.type==\"votingSpace\" && @.value==\"1ebd58f8-5995-6430-5c05-29fffa970b01\")",dialect.toSql(ep));
+        assertEquals("?((@.type==\"votingSpace\") && (@.value==\"1ebd58f8-5995-6430-5c05-29fffa970b01\"))",dialect.toSql(ep));
 
         dialect = Dialects.oracle(Mockito.mock(Database.class));
-        assertEquals(".(@.type==\"votingSpace\" && @.value==\"1ebd58f8-5995-6430-5c05-29fffa970b01\")", dialect.toSql(ep));
+        assertEquals(".((@.type==\"votingSpace\") && (@.value==\"1ebd58f8-5995-6430-5c05-29fffa970b01\"))", dialect.toSql(ep));
     }
 
 
@@ -38,10 +38,10 @@ class JsonExpressionsTest {
         );
 
         Dialect dialect = Dialects.postgres(Mockito.mock(Database.class));
-        assertEquals("$[*]?(@.type==\"votingSpace\" && @.value==\"1ebd58f8-5995-6430-5c05-29fffa970b01\")",dialect.toSql(ep));
+        assertEquals("$[*]?((@.type==\"votingSpace\") && (@.value==\"1ebd58f8-5995-6430-5c05-29fffa970b01\"))",dialect.toSql(ep));
 
         dialect = Dialects.oracle(Mockito.mock(Database.class));
-        assertEquals("$.(@.type==\"votingSpace\" && @.value==\"1ebd58f8-5995-6430-5c05-29fffa970b01\")", dialect.toSql(ep));
+        assertEquals("$.((@.type==\"votingSpace\") && (@.value==\"1ebd58f8-5995-6430-5c05-29fffa970b01\"))", dialect.toSql(ep));
 
     }
 

@@ -8,5 +8,8 @@ public interface JsonPathVisitor {
 
     void visit(JsonPathFieldsExpression expression);
 
-    void visit(JsonPathArrayExpression jsonPathArray);
+    void visit(JsonPathArrayExpression expression);
+
+    void visit(JsonPathRootExpression expression);
+
 }

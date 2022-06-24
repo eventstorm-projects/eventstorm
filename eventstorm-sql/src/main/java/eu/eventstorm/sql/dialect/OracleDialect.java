@@ -4,6 +4,7 @@ import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.desc.SqlColumn;
 import eu.eventstorm.sql.desc.SqlSequence;
 import eu.eventstorm.sql.expression.JsonPathArrayExpression;
+import eu.eventstorm.sql.expression.JsonPathDeepExpression;
 import eu.eventstorm.sql.expression.JsonPathExpression;
 import eu.eventstorm.sql.expression.JsonPathFieldsExpression;
 import eu.eventstorm.sql.type.Json;
@@ -130,31 +131,20 @@ final class OracleDialect extends AbstractDialect {
     }
 
     @Override
-    public String functionJsonExists(String col, String path) {
-        String rewritePath = rewritePath(path);
-        return "json_exists(" + col + ",'" + rewritePath + "')";
+    public String functionJsonExists(String col, JsonPathExpression path) {
+    //    String rewritePath = rewritePath(path);
+        return "json_exists(" + col + ",'" + toSql(path) + "')";
     }
 
     @Override
-    public String functionJsonValue(String col, String path) {
-        String rewritePath = rewritePath(path);
-        return "json_value(" + col + ",'" + rewritePath + "')";
-    }
-
-    private static String rewritePath(String path) {
-        String rewritePath;
-        int index = path.indexOf(".[");
-        if (index > 0) {
-            rewritePath = path.substring(0, index);
-            int indexEnd = path.lastIndexOf(']');
-            rewritePath += path.substring(index + 2, indexEnd);
-            if (indexEnd < path.length()) {
-                rewritePath += path.substring(indexEnd + 1);
-            }
-        } else {
-            rewritePath = path;
+    public String functionJsonValue(String col, JsonPathDeepExpression expression) {
+        StringBuilder builder = new StringBuilder();
+        builder.append('$');
+        String[] fields = expression.getFields();
+        for (String field : fields) {
+            builder.append('.').append(field);
         }
-        return rewritePath;
+        return "json_exists(" + col + ",'" + builder + "')";
     }
 
     @Override
@@ -205,5 +195,6 @@ final class OracleDialect extends AbstractDialect {
             getBuilder().append("$");
             expression.getExpression().accept(this);
         }
+
     }
 }

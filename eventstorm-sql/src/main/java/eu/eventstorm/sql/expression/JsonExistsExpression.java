@@ -9,9 +9,9 @@ import eu.eventstorm.sql.desc.SqlColumn;
 final class JsonExistsExpression implements Expression {
 
     private final SqlColumn column;
-    private final String path;
+    private final JsonPathExpression path;
 
-    public JsonExistsExpression(SqlColumn column, String path) {
+    public JsonExistsExpression(SqlColumn column, JsonPathExpression path) {
         this.column = column;
         this.path = path;
     }
