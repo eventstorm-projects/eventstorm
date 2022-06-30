@@ -144,7 +144,7 @@ final class OracleDialect extends AbstractDialect {
         for (String field : fields) {
             builder.append('.').append(field);
         }
-        return "json_exists(" + col + ",'" + builder + "')";
+        return "json_value(" + col + ",'" + builder + "')";
     }
 
     @Override
