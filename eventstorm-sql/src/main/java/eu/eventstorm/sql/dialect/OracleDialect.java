@@ -187,8 +187,9 @@ final class OracleDialect extends AbstractDialect {
     private static class OracleJsonPathVisitor extends AbstractJsonPathVisitor {
         @Override
         public void visit(JsonPathFieldsExpression expression) {
-            getBuilder().append(".");
+            getBuilder().append(".[?");
             expression.getExpression().accept(this);
+            getBuilder().append("]");
         }
         @Override
         public void visit(JsonPathArrayExpression expression) {

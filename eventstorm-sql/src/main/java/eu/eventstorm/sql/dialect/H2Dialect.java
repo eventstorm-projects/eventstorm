@@ -153,9 +153,14 @@ final class H2Dialect extends AbstractDialect {
     private static class H2JsonPathVisitor extends AbstractJsonPathVisitor {
         @Override
         public void visit(JsonPathFieldsExpression expression) {
-            getBuilder().append(".[?");
-            expression.getExpression().accept(this);
-            getBuilder().append("]");
+            if (getBuilder().charAt(getBuilder().length()-1) == '[') {
+                getBuilder().append("?");
+                expression.getExpression().accept(this);
+            } else {
+                getBuilder().append(".[?");
+                expression.getExpression().accept(this);
+                getBuilder().append("]");
+            }
         }
         @Override
         public void visit(JsonPathArrayExpression expression) {
