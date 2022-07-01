@@ -27,7 +27,7 @@ class JsonExpressionsTest {
         assertEquals("?((@.type==\"votingSpace\") && (@.value==\"1ebd58f8-5995-6430-5c05-29fffa970b01\"))",dialect.toSql(ep));
 
         dialect = Dialects.oracle(Mockito.mock(Database.class));
-        assertEquals(".[?((@.type==\"votingSpace\") && (@.value==\"1ebd58f8-5995-6430-5c05-29fffa970b01\"))]", dialect.toSql(ep));
+        assertEquals("?((@.type==\"votingSpace\") && (@.value==\"1ebd58f8-5995-6430-5c05-29fffa970b01\"))", dialect.toSql(ep));
     }
 
 
@@ -43,7 +43,7 @@ class JsonExpressionsTest {
         assertEquals("[*]?((@.type==\"votingSpace\") && (@.value==\"1ebd58f8-5995-6430-5c05-29fffa970b01\"))",dialect.toSql(ep));
 
         dialect = Dialects.oracle(Mockito.mock(Database.class));
-        assertEquals(".[?((@.type==\"votingSpace\") && (@.value==\"1ebd58f8-5995-6430-5c05-29fffa970b01\"))]", dialect.toSql(ep));
+        assertEquals("?((@.type==\"votingSpace\") && (@.value==\"1ebd58f8-5995-6430-5c05-29fffa970b01\"))", dialect.toSql(ep));
 
     }
 
@@ -59,11 +59,11 @@ class JsonExpressionsTest {
         dialect = Dialects.oracle(Mockito.mock(Database.class));
 
 
-        assertEquals("$.[?((@.type==\"TYPE01\") && (@.value==\"VALUE01\"))]", dialect.toSql(ep));
+        assertEquals("$?((@.type==\"TYPE01\") && (@.value==\"VALUE01\"))", dialect.toSql(ep));
 
 
         ep = root(array(fields(field("name", EQUALS,"jacques"))));
-        assertEquals("$.[?(@.name==\"jacques\")]", dialect.toSql(ep));
+        assertEquals("$?(@.name==\"jacques\")", dialect.toSql(ep));
 
     }
 
