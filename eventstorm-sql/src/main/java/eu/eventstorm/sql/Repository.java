@@ -112,11 +112,11 @@ public abstract class Repository {
 		return new InsertBuilder(this.database, table, keys, columns);
 	}
 
-	protected final UpdateBuilder update(SqlTable table, ImmutableList<SqlSingleColumn> columns) {
+	protected final UpdateBuilder update(SqlTable table, ImmutableList<SqlColumn> columns) {
 		return new UpdateBuilder(this.database, table, columns);
 	}
 
-	protected final UpdateBuilder update(SqlTable table, ImmutableList<SqlSingleColumn> columns, ImmutableList<SqlPrimaryKey> keys) {
+	protected final UpdateBuilder update(SqlTable table, ImmutableList<? extends SqlColumn> columns, ImmutableList<SqlPrimaryKey> keys) {
 		UpdateBuilder updateBuilder = new UpdateBuilder(this.database, table, columns);
 		if (keys.size() == 1) {
 			return updateBuilder.where(Expressions.eq(keys.get(0)));

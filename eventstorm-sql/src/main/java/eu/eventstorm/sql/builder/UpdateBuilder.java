@@ -1,5 +1,6 @@
 package eu.eventstorm.sql.builder;
 
+import eu.eventstorm.sql.desc.SqlColumn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,10 +25,10 @@ public final class UpdateBuilder extends AbstractBuilder {
 
     private final Database database;
     private final SqlTable table;
-    private final ImmutableList<SqlSingleColumn> columns;
+    private final ImmutableList<? extends SqlColumn> columns;
     private Expression where;
 
-    public UpdateBuilder(Database database, SqlTable table, ImmutableList<SqlSingleColumn> columns) {
+    public UpdateBuilder(Database database, SqlTable table, ImmutableList<? extends SqlColumn> columns) {
         super(database);
         this.database = database;
         this.table = table;
@@ -61,10 +62,17 @@ public final class UpdateBuilder extends AbstractBuilder {
 
     private void builderSetValues(StringBuilder builder, Dialect dialect) {
         builder.append(" SET ");
-        for (SqlSingleColumn column : this.columns) {
-            if (column.isUpdatable()) {
+        for (SqlColumn column : this.columns) {
+            if (column instanceof SqlSingleColumn && ((SqlSingleColumn)column).isUpdatable()) {
                 dialect.wrap(builder, column, false);
                 builder.append("=?,");
+                continue;
+            }
+            if (column instanceof UpdateColumn) {
+                dialect.wrap(builder, column, false);
+                builder.append('=');
+                builder.append(((UpdateColumn)column).updateSql(dialect));
+                builder.append(',');
             }
 
         }
