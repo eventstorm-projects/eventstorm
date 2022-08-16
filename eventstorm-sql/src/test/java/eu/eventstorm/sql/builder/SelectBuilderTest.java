@@ -71,7 +71,7 @@ class SelectBuilderTest {
         SelectBuilder builder = new SelectBuilder(database, of(COL_T1_01, COL_T1_02, COL_T1_03));
         builder.from(TABLE_T1);
         builder.limit(5);
-        assertEquals("SELECT col_T1_01,col_T1_02,col_T1_03 FROM T1 LIMIT 5", builder.<SqlQuery>build().sql());
+        assertEquals("SELECT col_T1_01,col_T1_02,col_T1_03 FROM T1 FETCH FIRST 5 ROWS ONLY", builder.<SqlQuery>build().sql());
     }
 
     @Test

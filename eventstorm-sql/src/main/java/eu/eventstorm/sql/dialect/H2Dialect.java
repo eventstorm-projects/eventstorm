@@ -45,7 +45,7 @@ final class H2Dialect extends AbstractDialect {
 
     @Override
     public String limit(int limit) {
-        return "LIMIT " + limit;
+        return "FETCH FIRST " + limit + " ROWS ONLY";
     }
 
     @Override
@@ -115,7 +115,13 @@ final class H2Dialect extends AbstractDialect {
 
     @Override
     public String functionJsonValue(String col, JsonPathDeepExpression path) {
-        return "json_value(" + col + ",'" + path + "')";
+        StringBuilder builder = new StringBuilder();
+        builder.append('$');
+        String[] fields = path.getFields();
+        for (String field : fields) {
+            builder.append('.').append(field);
+        }
+        return "json_value(" + col + ",'" + builder + "')";
     }
 
     @Override
