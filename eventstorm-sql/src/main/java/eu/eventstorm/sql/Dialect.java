@@ -52,6 +52,10 @@ public interface Dialect {
 
 	void setPreparedStatement(PreparedStatement ps, int index, String uuid) throws SQLException;
 
+	void setPreparedStatementJsonBinary(PreparedStatement ps, int index, String json) throws SQLException;
+
+	void setPreparedStatementJsonBinaryNull(PreparedStatement ps, int index) throws SQLException;
+
 	String functionJsonExists(String col, JsonPathExpression path);
 
 	String functionJsonValue(String col, JsonPathDeepExpression path);

@@ -86,6 +86,16 @@ final class OracleDialect extends AbstractDialect {
     }
 
     @Override
+    public void setPreparedStatementJsonBinary(PreparedStatement ps, int index, String json) throws SQLException {
+        ps.setString(index, json);
+    }
+
+    @Override
+    public void setPreparedStatementJsonBinaryNull(PreparedStatement ps, int index) throws SQLException {
+        ps.setNull(index, Types.VARCHAR);
+    }
+
+    @Override
     public void setPreparedStatement(PreparedStatement ps, int index, Blob blob) throws SQLException {
         Blob oracleBlob;
         if (blob instanceof AbstractBlob) {

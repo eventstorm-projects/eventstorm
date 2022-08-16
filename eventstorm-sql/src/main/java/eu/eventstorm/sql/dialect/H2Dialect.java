@@ -7,7 +7,6 @@ import eu.eventstorm.sql.desc.SqlSequence;
 import eu.eventstorm.sql.expression.JsonPathArrayExpression;
 import eu.eventstorm.sql.expression.JsonPathDeepExpression;
 import eu.eventstorm.sql.expression.JsonPathExpression;
-import eu.eventstorm.sql.expression.JsonPathFieldStringExpression;
 import eu.eventstorm.sql.expression.JsonPathFieldsExpression;
 import eu.eventstorm.sql.type.Json;
 import eu.eventstorm.sql.type.Xml;
@@ -18,6 +17,7 @@ import eu.eventstorm.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.charset.StandardCharsets;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.PreparedStatement;
@@ -76,7 +76,16 @@ final class H2Dialect extends AbstractDialect {
         } else {
             ps.setBytes(index, json.write());
         }
+    }
 
+    @Override
+    public void setPreparedStatementJsonBinary(PreparedStatement ps, int index, String json) throws SQLException {
+        ps.setBytes(index, json.getBytes(StandardCharsets.UTF_8));
+    }
+
+    @Override
+    public void setPreparedStatementJsonBinaryNull(PreparedStatement ps, int index) throws SQLException {
+        ps.setNull(index, Types.VARCHAR);
     }
 
     @Override

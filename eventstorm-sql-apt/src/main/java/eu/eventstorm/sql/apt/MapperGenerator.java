@@ -312,12 +312,18 @@ final class MapperGenerator implements Generator {
     			(Json.class.getName().equals(type)) ||
                 (String.class.getName().equals(type) &&
                         (column != null && ColumnFormat.UUID.equals(column.format())) || (primaryKey != null && ColumnFormat.UUID.equals(primaryKey.format())))
+
         ){
     		writer.write("        dialect.setPreparedStatement(ps, " + index+", pojo." );
 			writer.write(ppd.getter().getSimpleName().toString());
 	        writer.write("());");
 	        Helper.writeNewLine(writer);
-    	} else {
+    	} else if (String.class.getName().equals(type) && (column != null && ColumnFormat.JSONB.equals(column.format()))) {
+            writer.write("        dialect.setPreparedStatementJsonBinary(ps, " + index+", pojo." );
+            writer.write(ppd.getter().getSimpleName().toString());
+            writer.write("());");
+            Helper.writeNewLine(writer);
+        } else {
     		writer.write("        ps.");
             writer.write(Helper.preparedStatementSetter(ppd.getter().getReturnType().toString()));
             writer.write("(");
@@ -329,7 +335,15 @@ final class MapperGenerator implements Generator {
     	}
 		
         if (column != null && column.nullable()) {
-            if (!"eu.eventstorm.sql.type.Json".equals(type)) {
+            if  (String.class.getName().equals(type) && ColumnFormat.JSONB.equals(column.format())) {
+                Helper.writeNewLine(writer);
+                writer.write("        } else {");
+                Helper.writeNewLine(writer);
+                writer.write("            dialect.setPreparedStatementJsonBinary(ps, " + index+");");
+                Helper.writeNewLine(writer);
+                writer.write("        }");
+            }
+            else if (!"eu.eventstorm.sql.type.Json".equals(type)) {
                 Helper.writeNewLine(writer);
                 writer.write("        } else {");
                 Helper.writeNewLine(writer);
@@ -340,7 +354,10 @@ final class MapperGenerator implements Generator {
                     writer.write("dialect.getBooleanType()");
                 } else if  (String.class.getName().equals(type) && ColumnFormat.UUID.equals(column.format())) {
                     writer.write("dialect.getUuidType()");
-                } else {
+                } else if  (String.class.getName().equals(type) && ColumnFormat.JSONB.equals(column.format())) {
+                    writer.write("dialect.getJsonBinaryType()");
+                }
+                else {
                     writer.write(Helper.nullableType(type));
                 }
                 writer.write(");");

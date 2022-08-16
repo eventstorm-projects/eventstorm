@@ -38,7 +38,7 @@ public interface DatabaseEvent {
 	
 	void setTime(Timestamp time);
 	
-	@Column(value = "event_type", length = 128)
+	@Column(value = "event_type", length = 128, format = ColumnFormat.JSONB)
 	String getEventType();
 
 	void setEventType(String type);

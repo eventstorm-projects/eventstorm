@@ -81,6 +81,19 @@ final class PostgresDialect extends AbstractDialect {
     }
 
     @Override
+    public void setPreparedStatementJsonBinary(PreparedStatement ps, int index, String json) throws SQLException {
+        PGobject jsonObject = new PGobject();
+        jsonObject.setType("jsonb");
+        jsonObject.setValue(json);
+        ps.setObject(index, jsonObject);
+    }
+
+    @Override
+    public void setPreparedStatementJsonBinaryNull(PreparedStatement ps, int index) throws SQLException {
+        ps.setNull(index, 0,"jsonb");
+    }
+
+    @Override
     public void setPreparedStatement(PreparedStatement ps, int index, String uuid) throws SQLException {
         if (Strings.isEmpty(uuid)) {
             ps.setNull(index, Types.OTHER);
