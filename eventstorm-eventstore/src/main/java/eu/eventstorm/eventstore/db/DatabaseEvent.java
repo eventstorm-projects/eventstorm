@@ -38,12 +38,12 @@ public interface DatabaseEvent {
 	
 	void setTime(Timestamp time);
 	
-	@Column(value = "event_type", length = 128, format = ColumnFormat.JSONB)
+	@Column(value = "event_type", length = 128)
 	String getEventType();
 
 	void setEventType(String type);
 	
-	@Column(value = "payload")
+	@Column(value = "payload", format = ColumnFormat.JSONB)
 	String getPayload();
 	
 	void setPayload(String payload);
