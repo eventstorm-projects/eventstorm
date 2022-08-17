@@ -93,10 +93,16 @@ class SelectBuilderFromSubSelectTest {
 		builder.from(TABLE_T1);
 		builder.innerJoin(TABLE_T2, COL_T2_01, COL_T1_01);
 		
-		SelectBuilderFromSubSelect sbuilder = new SelectBuilderFromSubSelect(database, SubSelects.from(builder.build(), "toto"));
+		SelectBuilderFromSubSelect sbuilder = new SelectBuilderFromSubSelect(database, SubSelects.from(builder.build()));
 		sbuilder.where(Expressions.raw("maxRowNumber = 1"));
 		
 		assertEquals("SELECT * FROM (SELECT a.col_T1_01,a.col_T1_02,a.col_T1_03 alias_03,ROW_NUMBER() OVER (PARTITION BY a.col_T1_03) maxRowNumber FROM T1 a INNER JOIN T2 b ON b.col_T2_01=a.col_T1_01) WHERE maxRowNumber = 1",
+				sbuilder.build().sql());
+
+		sbuilder = new SelectBuilderFromSubSelect(database, SubSelects.from(builder.build(),"toto"));
+		sbuilder.where(Expressions.raw("toto.maxRowNumber = 1"));
+
+		assertEquals("SELECT * FROM (SELECT a.col_T1_01,a.col_T1_02,a.col_T1_03 alias_03,ROW_NUMBER() OVER (PARTITION BY a.col_T1_03) maxRowNumber FROM T1 a INNER JOIN T2 b ON b.col_T2_01=a.col_T1_01) toto WHERE toto.maxRowNumber = 1",
 				sbuilder.build().sql());
 	}
 

@@ -1,5 +1,6 @@
 package eu.eventstorm.sql.builder;
 
+import eu.eventstorm.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +31,9 @@ public final class SelectBuilderFromSubSelect extends AbstractBuilder {
 		StringBuilder builder = new StringBuilder(2048);
 
 		builder.append("SELECT * FROM (").append(subSelect.sql()).append(')');
+		if (!Strings.isEmpty(subSelect.alias())) {
+			builder.append(' ').append(subSelect.alias());
+		}
 		if (where != null) {
 			builder.append(" WHERE ");
 			builder.append(where.build(database().dialect(), true));
