@@ -20,7 +20,7 @@ public interface DatabaseExecution {
 
 	void setUuid(String uuid);
 	
-	@Column(value = "event")
+	@Column(value = "event", format = ColumnFormat.JSONB)
 	String getEvent();
 
 	void setEvent(String event);
