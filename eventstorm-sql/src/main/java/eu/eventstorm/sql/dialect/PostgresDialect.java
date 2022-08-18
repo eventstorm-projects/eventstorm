@@ -160,9 +160,9 @@ final class PostgresDialect extends AbstractDialect {
     @Override
     public String toSql(Boolean value) {
         if (value == null || Boolean.FALSE == value) {
-            return "0";
+            return "false";
         } else {
-            return "1";
+            return "true";
         }
     }
 
