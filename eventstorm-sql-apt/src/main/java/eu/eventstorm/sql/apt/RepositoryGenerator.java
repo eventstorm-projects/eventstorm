@@ -19,6 +19,7 @@ import javax.tools.JavaFileObject;
 
 import com.google.common.collect.ImmutableList;
 
+import eu.eventstorm.sql.annotation.Column;
 import eu.eventstorm.sql.annotation.ColumnFormat;
 import eu.eventstorm.sql.annotation.PrimaryKey;
 import eu.eventstorm.sql.apt.log.Logger;
@@ -422,8 +423,11 @@ final class RepositoryGenerator implements Generator {
         generateMethodUnlink(writer, descriptor);
     }
 
-
     private static void generateMethodFindById(Writer writer, PojoDescriptor descriptor) throws IOException {
+        generateMethodFindById(writer, descriptor, "findById");
+    }
+
+    private static void generateMethodFindById(Writer writer, PojoDescriptor descriptor, String method) throws IOException {
 
     	if (descriptor.ids().size() == 0) {
     		return;
@@ -432,7 +436,7 @@ final class RepositoryGenerator implements Generator {
         writeNewLine(writer);
         writer.write("    public final ");
         writer.write(descriptor.element().toString());
-        writer.write(" findById(");
+        writer.write(" "+method+"(");
 
         StringBuilder builder = new StringBuilder();
         StringBuilder ps = new StringBuilder();
@@ -469,7 +473,7 @@ final class RepositoryGenerator implements Generator {
         writer.write(builder.toString());
         writer.write(") {");
         writeNewLine(writer);
-        writer.write("        return executeSelect(this.findById, ps -> {");
+        writer.write("        return executeSelect(this."+ method+", ps -> {");
 
         writeNewLine(writer);
         writer.write(ps.toString());
@@ -489,64 +493,8 @@ final class RepositoryGenerator implements Generator {
     	if (!checkCUD(descriptor)) {
     		return;
     	}
-    	
-    	if (descriptor.ids().size() == 0) {
-    		return;
-    	}
 
-        writeNewLine(writer);
-		writer.write("    public final ");
-		writer.write(descriptor.element().toString());
-		writer.write(" findByIdForUpdate(");
-
-		if (descriptor.ids().size() == 1) {
-			writer.write(descriptor.ids().get(0).getter().getReturnType().toString());
-			writer.write(" id");
-		} else {
-			int max = descriptor.ids().size();
-			for (int i = 0; i < max; i++) {
-				PojoPropertyDescriptor ppd = descriptor.ids().get(i);
-				writer.write(ppd.getter().getReturnType().toString());
-				writer.write(" ");
-				writer.write(ppd.name());
-				if (i < max - 1) {
-					writer.write(", ");
-				}
-			}
-		}
-
-		writer.write(") {");
-		writeNewLine(writer);
-		writer.write("        return executeSelect(this.findByIdForUpdate, ps -> ");
-
-		if (descriptor.ids().size() == 1) {
-			PojoPropertyDescriptor ppd = descriptor.ids().get(0);
-			writer.write("ps.");
-			writer.write(preparedStatementSetter(ppd.getter().getReturnType().toString()));
-			writer.write("(1, id)");
-		} else {
-			writer.write("{ ");
-			for (int i = 0; i < descriptor.ids().size(); i++) {
-				PojoPropertyDescriptor ppd = descriptor.ids().get(i);
-				writer.write("ps.");
-				writer.write(preparedStatementSetter(ppd.getter().getReturnType().toString()));
-				writer.write("(");
-				int foo = i + 1;
-				writer.write("" + foo);
-				writer.write(", ");
-				writer.write(ppd.name());
-				writer.write("); ");
-			}
-			writer.write("}");
-		}
-		writer.write(", Mappers.");
-		writer.write(toUpperCase(descriptor.element().getSimpleName().toString()));
-		writer.write(");");
-
-		writeNewLine(writer);
-		writer.write("    }");
-		writeNewLine(writer);
-
+        generateMethodFindById(writer, descriptor, "findByIdForUpdate");
     }
 
     private static boolean checkCUD(PojoDescriptor descriptor) {
@@ -770,16 +718,21 @@ final class RepositoryGenerator implements Generator {
             writeNewLine(writer);
             for (int i = 0; i < businessKeys.size(); i++) {
                 writer.write("            ");
-                writer.write("ps.");
-                writer.write(preparedStatementSetter(businessKeys.get(i).getter().getReturnType().toString()));
-                writer.write('(');
-                writer.write("" + (i + 1));
-                writer.write(", ");
-                writer.write(businessKeys.get(i).name());
-                writer.write(");");
+                if (ColumnFormat.UUID.equals(businessKeys.get(0).getter().getAnnotation(Column.class).format())) {
+                    writer.append("dialect().setPreparedStatement(ps, " + (i+1) + ",");
+                    writer.write(businessKeys.get(i).name());
+                    writer.append(");");
+                } else {
+                    writer.write("ps.");
+                    writer.write(preparedStatementSetter(businessKeys.get(i).getter().getReturnType().toString()));
+                    writer.write('(');
+                    writer.write("" + (i + 1));
+                    writer.write(", ");
+                    writer.write(businessKeys.get(i).name());
+                    writer.write(");");
+                }
                 writeNewLine(writer);
             }
-            writeNewLine(writer);
             writer.write("        }");
         }
 
