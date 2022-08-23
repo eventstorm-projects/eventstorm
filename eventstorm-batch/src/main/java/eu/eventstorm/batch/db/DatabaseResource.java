@@ -4,6 +4,7 @@ import java.sql.Blob;
 import java.sql.Timestamp;
 
 import eu.eventstorm.sql.annotation.Column;
+import eu.eventstorm.sql.annotation.ColumnFormat;
 import eu.eventstorm.sql.annotation.CreateTimestamp;
 import eu.eventstorm.sql.annotation.PrimaryKey;
 import eu.eventstorm.sql.annotation.Table;
@@ -15,7 +16,7 @@ import eu.eventstorm.sql.type.Json;
 @Table(value = "batch_resource")
 public interface DatabaseResource {
 
-	@PrimaryKey(value = "id", length = 36)
+	@PrimaryKey(value = "id", length = 36, format = ColumnFormat.UUID)
 	String getId();
 
 	void setId(String uuid);
