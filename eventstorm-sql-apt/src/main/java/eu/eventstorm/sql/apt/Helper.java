@@ -243,6 +243,10 @@ public final class Helper {
 			return "setTimestamp";
 		}
 
+		if ("byte[]".equals(type)) {
+			return "setBytes";
+		}
+
 		throw new UnsupportedOperationException("Helper.preparedStatementSetter -> type not supported -> [" + type + "]");
 	}
 
@@ -302,6 +306,10 @@ public final class Helper {
 		
 		if (Json.class.getName().equals(type)) {
 			return "getString";
+		}
+
+		if ("byte[]".equals(type)) {
+			return "getBytes";
 		}
 		throw new UnsupportedOperationException("Helper.preparedStatementGetter -> type not supported -> [" + type + "]");
 	}

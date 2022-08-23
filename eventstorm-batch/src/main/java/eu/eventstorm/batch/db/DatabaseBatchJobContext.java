@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.base.Throwables;
+import eu.eventstorm.util.FastByteArrayInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,13 +97,7 @@ final class DatabaseBatchJobContext implements BatchJobContext {
 
 		@Override
 		public InputStream getContent() {
-			return transactionTemplate.executeWithReadOnly(() -> {
-				try {
-					return repository.findById(uuid).getContent().getBinaryStream();
-				} catch (SQLException cause) {
-					throw new IllegalStateException(cause);
-				}
-			});
+			return transactionTemplate.executeWithReadOnly(() -> new FastByteArrayInputStream(repository.findById(uuid).getContent()));
 		}
 		
 	}

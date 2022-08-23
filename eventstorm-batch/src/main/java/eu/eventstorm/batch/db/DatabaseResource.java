@@ -27,9 +27,9 @@ public interface DatabaseResource {
 	void setMeta(Json value);
 	
 	@Column(value = "content")
-	Blob getContent();
+	byte[] getContent();
 
-	void setContent(Blob content);
+	void setContent(byte[] content);
 	
 	@Column(value = "created_by", length = 64)
 	String getCreatedBy();

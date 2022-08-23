@@ -7,8 +7,6 @@ import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.SqlQuery;
 import eu.eventstorm.sql.SqlQueryPageable;
 import eu.eventstorm.sql.builder.Order;
-import eu.eventstorm.sql.expression.Expressions;
-import eu.eventstorm.sql.jdbc.PreparedStatementSetters;
 
 import java.sql.Date;
 import java.time.LocalDate;
@@ -22,7 +20,6 @@ import static eu.eventstorm.batch.db.DatabaseExecutionQueryDescriptor.VIEW;
 import static eu.eventstorm.sql.expression.Expressions.and;
 import static eu.eventstorm.sql.expression.Expressions.eq;
 import static eu.eventstorm.sql.expression.Expressions.ge;
-import static eu.eventstorm.sql.expression.Expressions.le;
 import static eu.eventstorm.sql.expression.Expressions.lt;
 import static eu.eventstorm.sql.jdbc.PreparedStatementSetters.setSingleUuid;
 

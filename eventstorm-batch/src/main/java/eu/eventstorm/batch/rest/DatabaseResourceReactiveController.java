@@ -8,6 +8,7 @@ import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.type.Jsons;
 import eu.eventstorm.sql.type.common.Lobs;
 import eu.eventstorm.sql.util.TransactionTemplate;
+import eu.eventstorm.util.FastByteArrayInputStream;
 import eu.eventstorm.util.FastByteArrayOutputStream;
 import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
@@ -17,6 +18,7 @@ import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -69,7 +71,7 @@ public final class DatabaseResourceReactiveController {
                     DatabaseResource br = new DatabaseResourceBuilder()
                             .withId(streamId)
                             .withMeta(Jsons.createMap(httpRequestMetaExtractor.extract(serverRequest)))
-                            .withContent(Lobs.newBlob(baos))
+                            .withContent(baos.getByteArray())
                             .withCreatedBy(httpRequestCreatedByExtractor.extract(serverRequest))
                             .build();
                     databaseResourceRepository.insert(br);
@@ -98,7 +100,7 @@ public final class DatabaseResourceReactiveController {
         Publisher<? extends DataBuffer> body = Mono
                 .fromSupplier(() -> this.transactionTemplate.executeWithReadOnly(() -> databaseResourceRepository.findById(uuid)))
                 .flux()
-                .flatMap(res -> DataBufferUtils.readInputStream(() -> res.getContent().getBinaryStream(), response.bufferFactory(), 2048));
+                .flatMap(res -> DataBufferUtils.readInputStream(() -> new FastByteArrayInputStream(res.getContent()), response.bufferFactory(), 2048));
 
         return response.writeWith(body);
     }
