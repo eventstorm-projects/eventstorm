@@ -8,6 +8,7 @@ import eu.eventstorm.sql.SqlQuery;
 import eu.eventstorm.sql.SqlQueryPageable;
 import eu.eventstorm.sql.builder.Order;
 import eu.eventstorm.sql.expression.Expressions;
+import eu.eventstorm.sql.jdbc.PreparedStatementSetters;
 
 import java.sql.Date;
 import java.time.LocalDate;
@@ -23,6 +24,7 @@ import static eu.eventstorm.sql.expression.Expressions.eq;
 import static eu.eventstorm.sql.expression.Expressions.ge;
 import static eu.eventstorm.sql.expression.Expressions.le;
 import static eu.eventstorm.sql.expression.Expressions.lt;
+import static eu.eventstorm.sql.jdbc.PreparedStatementSetters.setSingleUuid;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -66,9 +68,7 @@ public final class DatabaseExecutionQueryRepository extends eu.eventstorm.sql.Re
     }
 
     public DatabaseExecutionQuery findById(java.lang.String uuid) {
-        return executeSelect(this.findById, ps -> {
-            ps.setString(1, uuid);
-        }, QueryViewMappers.DATABASE_EXECUTION_QUERY);
+        return executeSelect(this.findById, setSingleUuid(dialect(), uuid), QueryViewMappers.DATABASE_EXECUTION_QUERY);
     }
 
     public Page<DatabaseExecutionQuery> findBy(PageRequest pageRequest) {
