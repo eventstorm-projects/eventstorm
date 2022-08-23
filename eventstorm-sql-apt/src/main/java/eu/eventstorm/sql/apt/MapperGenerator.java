@@ -17,6 +17,7 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.Writer;
+import java.sql.Blob;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -155,13 +156,21 @@ final class MapperGenerator implements Generator {
                     writer.write("(rs,");
                     writer.write("" + index++);
                     writer.write("));");
-                } else {
+                }
+                else {
+                    writer.write("rs.");
+                    writer.write(Helper.preparedStatementGetter(ppd.getter().getReturnType().toString()));
+                    writer.write("(");
+                    writer.write("" + index++);
+                    writer.write("));");
+                }
+                /*else {
                     writer.write("new javax.sql.rowset.serial.SerialBlob(rs.");
                     writer.write(Helper.preparedStatementGetter(ppd.getter().getReturnType().toString()));
                     writer.write("(");
                     writer.write("" + index++);
                     writer.write(")));");
-                }
+                }*/
                 Helper.writeNewLine(writer);
                 if (ppd.getter().getAnnotation(Column.class).nullable()
                         && !isAPrimitive(ppd.getter().getReturnType().toString())) {
