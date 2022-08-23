@@ -104,7 +104,7 @@ final class PostgresDialect extends AbstractDialect {
 
     @Override
     public void setPreparedStatement(PreparedStatement ps, int index, Blob blob) throws SQLException {
-        ps.setBlob(index, blob);
+        ps.setBinaryStream(index, blob.getBinaryStream());
     }
 
     @Override
