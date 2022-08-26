@@ -81,7 +81,7 @@ final class FlywayDialectPostgres implements FlywayDialect {
 			return "JSONB";
 		}
 		
-		if (Blob.class.getName().equals(javaType)) {
+		if (Blob.class.getName().equals(javaType)|| "byte[]".equals(javaType)) {
 			return "BLOB";
 		}
 		

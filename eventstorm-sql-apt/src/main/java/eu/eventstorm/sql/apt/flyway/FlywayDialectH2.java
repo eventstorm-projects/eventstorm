@@ -84,7 +84,7 @@ final class FlywayDialectH2 implements FlywayDialect {
 			return "JSON";
 		}
 		
-		if (Blob.class.getName().equals(javaType)) {
+		if (Blob.class.getName().equals(javaType) || "byte[]".equals(javaType)) {
 			return "BLOB";
 		}
 		

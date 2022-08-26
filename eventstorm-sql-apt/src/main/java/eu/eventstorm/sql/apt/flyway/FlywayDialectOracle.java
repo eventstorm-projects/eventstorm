@@ -86,7 +86,7 @@ final class FlywayDialectOracle implements FlywayDialect {
 			}
 		}
 		
-		if (Blob.class.getName().equals(javaType)) {
+		if (Blob.class.getName().equals(javaType) || "byte[]".equals(javaType)) {
 			return "BLOB";
 		}
 		
