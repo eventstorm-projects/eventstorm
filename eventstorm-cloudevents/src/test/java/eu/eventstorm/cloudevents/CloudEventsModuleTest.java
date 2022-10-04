@@ -46,7 +46,7 @@ class CloudEventsModuleTest {
 
 		try {
 			Object o = typeRegistry.getDescriptorForTypeUrl("https://www/test/SimpleMessage");
-			System.out.println(o);
+			System.out.println(typeRegistry);
 		} catch (InvalidProtocolBufferException e) {
 			throw new RuntimeException(e);
 		}
