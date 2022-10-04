@@ -75,6 +75,10 @@ public final class Expressions {
     public static Expression ge(SqlColumn column, Number value) {
 		return new SimpleNumericExpression(column, ">=", value);
     }
+
+    public static Expression ge(SqlColumn left, SqlColumn right) {
+        return new DoubleColumnExpression(left, ">=", right);
+    }
     
     public static Expression le(SqlColumn column) {
 		return new ParameterSimpleExpression(column, "<=");
@@ -82,6 +86,10 @@ public final class Expressions {
     
     public static Expression le(SqlColumn column, Number value) {
 		return new SimpleNumericExpression(column, "<=", value);
+    }
+
+    public static Expression le(SqlColumn left, SqlColumn right) {
+        return new DoubleColumnExpression(left, "<=", right);
     }
     
     public static Expression gt(SqlColumn column) {
@@ -92,6 +100,10 @@ public final class Expressions {
 		return new SimpleNumericExpression(column, ">", value);
     }
 
+    public static Expression gt(SqlColumn left, SqlColumn right) {
+        return new DoubleColumnExpression(left, ">", right);
+    }
+
     public static Expression lt(SqlColumn column) {
 		return new ParameterSimpleExpression(column, "<");
     }
@@ -99,7 +111,11 @@ public final class Expressions {
     public static Expression lt(SqlColumn column, Number value) {
 		return new SimpleNumericExpression(column, "<", value);
     }
-    
+
+    public static Expression lt(SqlColumn left, SqlColumn right) {
+        return new DoubleColumnExpression(left, "<", right);
+    }
+
     public static Expression and(Expression left, Expression right) {
         return new LogicalExpression("AND", ImmutableList.of(left, right));
     }
