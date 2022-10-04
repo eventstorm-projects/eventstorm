@@ -157,6 +157,11 @@ final class CloudEventDeserializer extends StdDeserializer<CloudEvent> {
         Descriptors.Descriptor descriptor;
         try {
             descriptor = registry.getDescriptorForTypeUrl(subject);
+
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("subject [{}] -> descriptor [{}]", subject, descriptor);
+            }
+
         } catch (InvalidProtocolBufferException cause) {
             throw new CloudEventDeserializerException(PARSE_ERROR, of(FIELD, "data"), cause);
         }
@@ -166,6 +171,11 @@ final class CloudEventDeserializer extends StdDeserializer<CloudEvent> {
         } else {
             try {
                 String fcqn = descriptor.getFullName();
+
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("descriptor fullname =[{}]", fcqn);
+                }
+
                 if (!fcqn.contains(".")) {
                     fcqn = descriptor.getFile().toProto().getOptions().getJavaPackage();
                     fcqn += "." + descriptor.getFullName();
@@ -173,9 +183,13 @@ final class CloudEventDeserializer extends StdDeserializer<CloudEvent> {
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug("try fcqn =[{}]", fcqn);
                     }
-
                 }
                 Method method = ReflectionUtils.findMethod(ClassUtils.forName(fcqn, Thread.currentThread().getContextClassLoader()), "newBuilder");
+
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("find method [{}] -> [{}]", fcqn, method);
+                }
+
                 BUILDER_FACTORY_CACHE.put(subject, () -> method);
             } catch (ClassNotFoundException cause) {
                 throw new CloudEventDeserializerException(PARSE_ERROR, of(FIELD, "data"), cause);

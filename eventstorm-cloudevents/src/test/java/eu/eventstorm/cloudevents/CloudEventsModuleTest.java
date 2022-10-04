@@ -8,10 +8,13 @@ import java.util.List;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ImmutableMap;
+import com.google.protobuf.InvalidProtocolBufferException;
 import eu.eventstorm.cloudevents.json.jackson.CloudEventDeserializerException;
+import eu.eventstorm.core.Event;
 import eu.eventstorm.test.LoggerInstancePostProcessor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -31,11 +34,23 @@ class CloudEventsModuleTest {
 	
 	@BeforeEach
 	void beforeEach() {
+
+		System.out.println(SimpleMessage.getDescriptor().getFullName());
+		System.out.println(SimpleMessage.getDescriptor().getName());
+
 		TypeRegistry typeRegistry = TypeRegistry.newBuilder()
 				.add(SimpleMessage.getDescriptor())
 				.build();
 		objectMapper = new ObjectMapper();
 		objectMapper.registerModule(new CloudEventsModule(typeRegistry));
+
+		try {
+			Object o = typeRegistry.getDescriptorForTypeUrl("https://www/test/SimpleMessage");
+			System.out.println(o);
+		} catch (InvalidProtocolBufferException e) {
+			throw new RuntimeException(e);
+		}
+
 	}
 	
 	@Test

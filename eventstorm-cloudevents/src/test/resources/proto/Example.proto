@@ -1,6 +1,5 @@
 syntax = "proto3";
 
-package eu.eventstorm.cloudevents;
 
 option java_multiple_files = true;
 option java_package = "eu.eventstorm.cloudevents";
