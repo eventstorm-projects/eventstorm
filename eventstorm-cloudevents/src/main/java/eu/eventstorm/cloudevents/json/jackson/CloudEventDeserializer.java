@@ -159,7 +159,7 @@ final class CloudEventDeserializer extends StdDeserializer<CloudEvent> {
             descriptor = registry.getDescriptorForTypeUrl(subject);
 
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("subject [{}] -> descriptor [{}] -> registry [{}]", subject, descriptor, registry);
+                LOGGER.debug("subject [{}] -> descriptor [{}]", subject, descriptor);
             }
 
         } catch (InvalidProtocolBufferException cause) {
