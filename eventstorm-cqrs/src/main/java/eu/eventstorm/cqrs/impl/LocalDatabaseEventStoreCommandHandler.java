@@ -40,8 +40,6 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalDatabaseEventStoreCommandHandler.class);
 
-    private static final TransactionDefinition DEFAULT_TRANSACTION_DEFINITION = TransactionDefinitions.readWrite(10);
-
     private static final Consumer<SignalType> DEFAULT_SIGNAL_TYPE_CONSUMER = signalType -> {
     };
 
@@ -164,7 +162,7 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
     }
 
     private ImmutableList<Event> doStoreAndEvolution(CommandContext ctx) {
-        return transactionTemplate.executeWith(DEFAULT_TRANSACTION_DEFINITION, () -> {
+        return transactionTemplate.executeWithReadWrite(() -> {
             ImmutableList<Event> events;
             ImmutableList<EventCandidate<?>> candidates;
             try (Span ignored = this.tracer.start("decision")) {
