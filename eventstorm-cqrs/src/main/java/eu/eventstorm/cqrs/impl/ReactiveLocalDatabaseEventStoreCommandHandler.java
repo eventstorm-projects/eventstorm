@@ -121,7 +121,7 @@ public abstract class ReactiveLocalDatabaseEventStoreCommandHandler<T extends Co
 
 
     private void storeAndEvolution(CommandContext ctx, SynchronousSink<Tuple2<CommandContext, ImmutableList<Event>>> sink) {
-        try (Span ignored = this.tracer.start("storeAndEvolution")) {
+        try (Span ignored = this.tracer.start("decision-store-evolution")) {
             sink.next(of(ctx, doStoreAndEvolution(ctx)));
         } catch (Exception cause) {
             sink.error(cause);
@@ -188,5 +188,9 @@ public abstract class ReactiveLocalDatabaseEventStoreCommandHandler<T extends Co
             throw new LocalDatabaseEventStoreCommandHandler.LocalDatabaseStorageException(cause);
         }
         return builder.build();
+    }
+
+    protected final Tracer getTracer() {
+        return tracer;
     }
 }

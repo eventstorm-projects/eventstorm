@@ -10,6 +10,8 @@ import eu.eventstorm.core.apt.SourceCode;
 import eu.eventstorm.core.apt.model.RestControllerDescriptor;
 import eu.eventstorm.cqrs.CommandGateway;
 import eu.eventstorm.cqrs.context.ReactiveCommandContext;
+import eu.eventstorm.cqrs.tracer.Span;
+import eu.eventstorm.cqrs.tracer.Tracer;
 import eu.eventstorm.sql.apt.log.Logger;
 import eu.eventstorm.sql.apt.log.LoggerFactory;
 
@@ -107,6 +109,10 @@ public final class CommandRestControllerImplementationGenerator {
         writeNewLine(writer);
         writer.write("import " + ReactiveCommandContext.class.getName() + ";");
         writeNewLine(writer);
+        writer.write("import " + Tracer.class.getName() + ";");
+        writeNewLine(writer);
+        writer.write("import " + Span.class.getName() + ";");
+        writeNewLine(writer);
 
         writeGenerated(writer, CommandRestControllerImplementationGenerator.class.getName());
         writer.write("@RestController");
@@ -129,6 +135,11 @@ public final class CommandRestControllerImplementationGenerator {
         writer.write(" mapper;");
         writeNewLine(writer);
 
+        writer.write("    private final ");
+        writer.write(Tracer.class.getName());
+        writer.write(" tracer;");
+        writeNewLine(writer);
+
         writeNewLine(writer);
     }
 
@@ -138,12 +149,14 @@ public final class CommandRestControllerImplementationGenerator {
         writer.write(desc.get(0).getRestController().name());
         writer.write("(");
         writer.write(CommandGateway.class.getName());
-        writer.write(" gateway, " + ObjectMapper.class.getName() + " mapper) {");
+        writer.write(" gateway, " + ObjectMapper.class.getName() + " mapper, " + Tracer.class.getName() + " tracer) {");
 
         writeNewLine(writer);
         writer.write("        this.gateway = gateway;");
         writeNewLine(writer);
         writer.write("        this.mapper = mapper;");
+        writeNewLine(writer);
+        writer.write("        this.tracer = tracer;");
         writeNewLine(writer);
 
         writer.write("    }");
@@ -204,6 +217,8 @@ public final class CommandRestControllerImplementationGenerator {
         writeNewLine(writer);
         writer.write("            .flatMap(buffer -> {");
         writeNewLine(writer);
+        writer.write("                try (Span ignored = this.tracer.start(\"convert-payload-to-"+rcd.element().toString()+"\")) {");
+        writeNewLine(writer);
         writer.write("                try (java.io.InputStream is = buffer.asInputStream(true)) {");
         writeNewLine(writer);
         writer.write("                    return Mono.just(mapper.readValue(is, " + rcd.element().toString() + ".class));");
@@ -212,6 +227,8 @@ public final class CommandRestControllerImplementationGenerator {
         writeNewLine(writer);
         //writer.write("                   return Mono.error(new " + rcd.element().toString() +"Exception(cause));");
         writer.write("                   return Mono.error(cause);");
+        writeNewLine(writer);
+        writer.write("                }");
         writeNewLine(writer);
         writer.write("                }");
         writeNewLine(writer);
