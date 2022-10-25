@@ -217,7 +217,7 @@ public final class CommandRestControllerImplementationGenerator {
         writeNewLine(writer);
         writer.write("            .flatMap(buffer -> {");
         writeNewLine(writer);
-        writer.write("                try (Span ignored = this.tracer.start(\"convert-payload-to-"+rcd.element().toString()+"\")) {");
+        writer.write("                try (Span ignored = this.tracer.start(\"convert-payload-to-"+rcd.element().getSimpleName().toString()+"\")) {");
         writeNewLine(writer);
         writer.write("                try (java.io.InputStream is = buffer.asInputStream(true)) {");
         writeNewLine(writer);
