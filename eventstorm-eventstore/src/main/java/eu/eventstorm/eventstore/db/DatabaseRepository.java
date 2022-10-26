@@ -16,6 +16,7 @@ import java.util.stream.Stream;
 
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.SqlQuery;
+import eu.eventstorm.sql.builder.Order;
 import eu.eventstorm.sql.jdbc.ResultSetMapper;
 import eu.eventstorm.sql.jdbc.ResultSetMappers;
 
@@ -30,7 +31,7 @@ final class DatabaseRepository extends AbstractDatabaseEventRepository {
 
 	DatabaseRepository(Database database) {
 		super(database);
-		this.findLastRevisionByAggregateTypeAndAggregateId = select(max(REVISION)).from(TABLE).where(and(eq(STREAM), eq(STREAM_ID))).build();
+		this.findLastRevisionByAggregateTypeAndAggregateId = select(REVISION).from(TABLE).where(and(eq(STREAM), eq(STREAM_ID))).orderBy(Order.desc(REVISION)).limit(1).build();
 		
 		this.findByAggregateTypeAndAggregateId = select(TIME, REVISION, PAYLOAD, EVENT_TYPE).from(TABLE).where(and(eq(STREAM), eq(STREAM_ID))).orderBy(asc(REVISION))
 		        .build();

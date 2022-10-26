@@ -57,7 +57,11 @@ public class LocalDatabaseEventStore implements EventStore {
 
         Instant instant = Instant.now();
 
-        int revision = this.databaseRepository.lastRevision(candidate.getStream(), candidate.getStreamId());
+        Integer revision = this.databaseRepository.lastRevision(candidate.getStream(), candidate.getStreamId());
+
+        if (revision == null) {
+            revision = 0;
+        }
 
         DatabaseEventBuilder builder = new DatabaseEventBuilder()
                 .withStreamId(candidate.getStreamId())
