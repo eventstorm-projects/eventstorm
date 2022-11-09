@@ -77,7 +77,6 @@ public class LocalDatabaseEventStore implements EventStore {
 
         this.databaseRepository.insert(builder.build());
 
-        // @formatter:off
         return Event.newBuilder()
                 .setStreamId(candidate.getStreamId())
                 .setStream(candidate.getStream())
@@ -85,7 +84,6 @@ public class LocalDatabaseEventStore implements EventStore {
                 .setRevision(revision + 1)
                 .setData(Any.pack(candidate.getMessage(), this.eventStoreProperties.getEventDataTypeUrl() + "/" + candidate.getStream() + "/"))
                 .build();
-        // @formatter:off
     }
 
     @Override

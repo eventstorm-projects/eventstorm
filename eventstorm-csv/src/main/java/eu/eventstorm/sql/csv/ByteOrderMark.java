@@ -90,19 +90,23 @@ public enum ByteOrderMark {
     }
 
     public static ByteOrderMark read(ByteBuffer buffer) {
-        if (buffer.position() != 0) {
+        // due to java 11 : https://stackoverflow.com/questions/61267495/exception-in-thread-main-java-lang-nosuchmethoderror-java-nio-bytebuffer-flip
+        // noinspection RedundantCast
+        if (((java.nio.Buffer)buffer).position() != 0) {  // explicitly casting
             return null;
         }
 
         byte[] potentialBom;
-        if (buffer.remaining() < 5) {
-            potentialBom = new byte[buffer.remaining()];
+        // noinspection RedundantCast
+        if (((java.nio.Buffer)buffer).remaining() < 5) {
+            // noinspection RedundantCast
+            potentialBom = new byte[((java.nio.Buffer)buffer).remaining()]; // explicitly casting
         } else {
             potentialBom = new byte[5];
         }
 
-        buffer.get(potentialBom);
-        buffer.position(0);
+        buffer.get(potentialBom); // explicitly casting
+        ((java.nio.Buffer)buffer).position(0); // explicitly casting
         return findBom(potentialBom);
     }
 
