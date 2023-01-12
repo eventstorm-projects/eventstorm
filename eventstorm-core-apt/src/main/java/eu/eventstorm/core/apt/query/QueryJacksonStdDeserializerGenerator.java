@@ -189,14 +189,14 @@ public final class QueryJacksonStdDeserializerGenerator {
 		    String returnType = getReturnType(cpd.getter());
 		    
 		    if (returnType.startsWith(List.class.getName())) {
-				if (returnType.equals(List.class.getName()+ "<String>")) {
+				if (returnType.equals(List.class.getName()+ "<java.lang.String>")) {
 					writer.write("				builder.with" + Helper.firstToUpperCase(cpd.name()) + "(" + eu.eventstorm.cqrs.util.Jsons.class.getName() + ".readListString(parser));");
 				} else{
 					writer.write("				builder.with" + Helper.firstToUpperCase(cpd.name()) + "(" + eu.eventstorm.cqrs.util.Jsons.class.getName() + ".readList(parser, " + returnType.substring(15, returnType.length()-1)  +".class));");
 				}
 				writeNewLine(writer);
 		    } else if (returnType.startsWith(Map.class.getName())) {
-				if (returnType.equals(Map.class.getName()+ "<String,String>")) {
+				if (returnType.equals(Map.class.getName()+ "<java.lang.String,java.lang.String>")) {
 					writer.write("				builder.with" + Helper.firstToUpperCase(cpd.name()) + "(" + eu.eventstorm.cqrs.util.Jsons.class.getName() + ".readMapStringString(parser));");
 				} else{
 					writer.write("				builder.with" + Helper.firstToUpperCase(cpd.name()) + "(("+
