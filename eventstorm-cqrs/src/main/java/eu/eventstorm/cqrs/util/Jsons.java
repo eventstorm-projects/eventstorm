@@ -113,6 +113,9 @@ public final class Jsons {
     public static List<String> readListString(JsonParser parser) throws IOException {
         com.google.common.collect.ImmutableList.Builder<String> builder = com.google.common.collect.ImmutableList.builder();
         parser.nextToken();
+        if (parser.currentToken() == JsonToken.START_ARRAY) {
+            parser.nextToken();
+        }
         while (parser.currentToken() != JsonToken.END_ARRAY) {
             if (parser.currentToken() == JsonToken.VALUE_STRING) {
                 builder.add(parser.getText());

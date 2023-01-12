@@ -166,6 +166,31 @@ class JsonsTest {
         assertEquals(10, infos.get(0).getRank());
     }
 
+    @Test
+    void testReadListString() throws IOException{
+
+        String value = "{\"roles\": [\"id\", \"00001745-05fc-6f45-0000-100000001000\",\"name\", \"Jacques\",\"rank\", \"10\"]}";
+
+        JsonFactory factory = new ObjectMapper().getFactory();
+        JsonParser parser = factory.createParser(value);
+
+        // Start object
+        parser.nextToken();
+        // String
+        parser.nextToken();
+
+        Assertions.assertEquals("roles", parser.currentName());
+        List<String> infos = Jsons.readListString(parser);
+        assertEquals(6, infos.size());
+        assertEquals("id", infos.get(0));
+        assertEquals("00001745-05fc-6f45-0000-100000001000", infos.get(1));
+        assertEquals("name", infos.get(2));
+        assertEquals("Jacques", infos.get(3));
+        assertEquals("rank", infos.get(4));
+        assertEquals("10", infos.get(5));
+
+    }
+
     private static class Info {
         private String id;
         private String name;
