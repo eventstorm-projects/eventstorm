@@ -31,17 +31,17 @@
 		<com.google.guava.version>31.1-jre</com.google.guava.version>
 		<com.google.protobuf.version>3.21.12</com.google.protobuf.version>
 
-		<com.fasterxml.jackson.version>2.13.4</com.fasterxml.jackson.version>
+		<com.fasterxml.jackson.version>2.14.1</com.fasterxml.jackson.version>
 		<io.zipkin.brave.version>5.14.1</io.zipkin.brave.version>
 		<org.antlr.version>4.9.3</org.antlr.version>
 		<javax.servlet.version>4.0.1</javax.servlet.version>
 		<org.owasp.encoder.version>1.2.3</org.owasp.encoder.version>
 		<io.swagger.core.v3.version>2.1.13</io.swagger.core.v3.version>
 
-		<org.springframework.boot.version>2.7.7</org.springframework.boot.version>
+		<org.springframework.boot.version>2.7.8</org.springframework.boot.version>
 		<org.springframework.version>5.3.25</org.springframework.version>
 
-		<org.junit.jupiter.version>5.9.1</org.junit.jupiter.version>
+		<org.junit.jupiter.version>5.9.2</org.junit.jupiter.version>
 		<com.h2database.version>2.1.214</com.h2database.version>
 		<org.mockito.version>4.11.0</org.mockito.version>
 		<org.flywaydb.version>8.5.13</org.flywaydb.version>
