@@ -42,6 +42,11 @@ public final class InsertBuilder extends AbstractBuilder {
         return this;
     }
 
+    public InsertBuilder returning(SubSelect subSelect) {
+        this.subSelect = subSelect;
+        return this;
+    }
+
     public SqlQuery build() {
         StringBuilder builder = new StringBuilder(2048);
         builder.append("INSERT INTO ");
