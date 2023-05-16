@@ -254,7 +254,7 @@ public final class CommandValidatorGenerator {
     }
 
     private void writeMethodPartSize(Writer writer, AbstractCommandDescriptor descriptor, PropertyDescriptor ppd, AnnotationMirror am) throws IOException {
-    	Size size = (Size) am.getAnnotationType().asElement();
+		Size size = ppd.getter().getAnnotation(Size.class);
         writeNewLine(writer);
         writer.write("        // validate property " + ppd.name() + " from " + am.toString());
     	writeNewLine(writer);
