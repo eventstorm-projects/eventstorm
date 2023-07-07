@@ -42,7 +42,7 @@
         <org.springframework.version>5.3.27</org.springframework.version>
 
         <org.junit.jupiter.version>5.9.2</org.junit.jupiter.version>
-        <com.h2database.version>2.1.214</com.h2database.version>
+        <com.h2database.version>2.2.220</com.h2database.version>
         <org.mockito.version>5.2.0</org.mockito.version>
         <org.flywaydb.version>8.5.13</org.flywaydb.version>
         <com.zaxxer.version>5.0.1</com.zaxxer.version>
