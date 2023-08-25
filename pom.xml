@@ -28,8 +28,8 @@
         <org.slf4j.version>1.7.36</org.slf4j.version>
         <ch.qos.logback.version>1.2.12</ch.qos.logback.version>
 
-        <com.google.guava.version>32.1.1-jre</com.google.guava.version>
-        <com.google.protobuf.version>3.22.4</com.google.protobuf.version>
+        <com.google.guava.version>32.1.2-jre</com.google.guava.version>
+        <com.google.protobuf.version>3.24.1</com.google.protobuf.version>
 
         <com.fasterxml.jackson.version>2.14.2</com.fasterxml.jackson.version>
         <io.zipkin.brave.version>5.16.0</io.zipkin.brave.version>
@@ -38,8 +38,8 @@
         <org.owasp.encoder.version>1.2.3</org.owasp.encoder.version>
         <io.swagger.core.v3.version>2.1.13</io.swagger.core.v3.version>
 
-        <org.springframework.boot.version>2.7.13</org.springframework.boot.version>
-        <org.springframework.version>5.3.28</org.springframework.version>
+        <org.springframework.boot.version>2.7.15</org.springframework.boot.version>
+        <org.springframework.version>5.3.29</org.springframework.version>
 
         <org.junit.jupiter.version>5.9.3</org.junit.jupiter.version>
         <com.h2database.version>2.2.220</com.h2database.version>
