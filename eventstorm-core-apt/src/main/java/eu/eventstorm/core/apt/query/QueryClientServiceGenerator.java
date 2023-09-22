@@ -6,7 +6,6 @@ import eu.eventstorm.core.apt.SourceCode;
 import eu.eventstorm.core.apt.model.QueryClientServiceDescriptor;
 import eu.eventstorm.core.apt.model.QueryClientServiceMethodDescriptor;
 import eu.eventstorm.sql.apt.log.Logger;
-import eu.eventstorm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.util.Strings;
 
 import javax.annotation.processing.ProcessingEnvironment;
@@ -28,24 +27,28 @@ import static eu.eventstorm.sql.apt.Helper.writePackage;
  */
 public final class QueryClientServiceGenerator {
 
-    private static final Logger LOGGER = LoggerFactory.getInstance().getLogger(QueryClientServiceGenerator.class);
+    private static Logger logger;
 
     public void generateClient(ProcessingEnvironment processingEnv, SourceCode sourceCode) {
 
-        sourceCode.forEachQueryClientService(t -> {
-            try {
-                generate(processingEnv, t);
-            } catch (Exception cause) {
-                LOGGER.error("Exception for [" + t + "] -> [" + cause.getMessage() + "]", cause);
-            }
-        });
+        try (Logger l = Logger.getLogger(processingEnv, "eu.eventstorm.event.query", "QueryClientServiceGenerator")) {
+            logger = l;
+            sourceCode.forEachQueryClientService(t -> {
+                try {
+                    generate(processingEnv, t);
+                } catch (Exception cause) {
+                    logger.error("Exception for [" + t + "] -> [" + cause.getMessage() + "]", cause);
+                }
+            });
+        }
+
     }
 
     private void generate(ProcessingEnvironment env, QueryClientServiceDescriptor descriptor) throws IOException {
 
         // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
         if (env.getElementUtils().getTypeElement(descriptor.fullyQualifiedClassName() + "Impl") != null) {
-            LOGGER.info("Java SourceCode already exist [" + descriptor.fullyQualifiedClassName() + "Impl]");
+            logger.info("Java SourceCode already exist [" + descriptor.fullyQualifiedClassName() + "Impl]");
             return;
         }
 
@@ -116,7 +119,7 @@ public final class QueryClientServiceGenerator {
             if (Strings.isEmpty(m.getAnnotation().cacheFactoryBean())) {
                 return;
             }
-            builder.append("@Qualifier(\"" + m.getAnnotation().cacheFactoryBean() + "\") QueryServiceClientCacheFactory<String, " +m.getMethod().getReturnType().toString() + "> ").append(m.getAnnotation().cacheFactoryBean()).append(',');
+            builder.append("@Qualifier(\"" + m.getAnnotation().cacheFactoryBean() + "\") QueryServiceClientCacheFactory<String, " + m.getMethod().getReturnType().toString() + "> ").append(m.getAnnotation().cacheFactoryBean()).append(',');
         });
         if (builder.length() > 1) {
             writer.write(", ");
@@ -198,7 +201,7 @@ public final class QueryClientServiceGenerator {
                     writer.write("new " + val + "();");
                     writeNewLine(writer);
                 } catch (IOException e) {
-                    LOGGER.error("failed to write HeaderConsumer", e);
+                    logger.error("failed to write HeaderConsumer", e);
                 }
                 classes.add(val.toString());
             });
@@ -216,7 +219,7 @@ public final class QueryClientServiceGenerator {
                 writeNewLine(writer);
 
             } catch (IOException cause) {
-                LOGGER.error("failed to write", cause);
+                logger.error("failed to write", cause);
             }
         });
     }
@@ -307,7 +310,7 @@ public final class QueryClientServiceGenerator {
                 writeNewLine(writer);
             }
             for (QueryClientServiceMethodDescriptor.HttpHeaderConsumer h : epd.getHeadersConsumers()) {
-                writer.write("                .headers(httpHeaders -> " + getHeaderConsumerVariable(h) +".accept(httpHeaders, " + h.getName() + "))");
+                writer.write("                .headers(httpHeaders -> " + getHeaderConsumerVariable(h) + ".accept(httpHeaders, " + h.getName() + "))");
                 writeNewLine(writer);
             }
             writer.write("                .retrieve()");
@@ -359,7 +362,7 @@ public final class QueryClientServiceGenerator {
             try {
                 writeMethod(writer, descriptor, method);
             } catch (IOException cause) {
-                LOGGER.error("failed to implements method [" + method.getMethod() + "]", cause);
+                logger.error("failed to implements method [" + method.getMethod() + "]", cause);
             }
         });
     }

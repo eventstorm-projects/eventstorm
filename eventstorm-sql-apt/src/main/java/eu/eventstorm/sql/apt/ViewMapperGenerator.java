@@ -1,48 +1,47 @@
 package eu.eventstorm.sql.apt;
 
-import static eu.eventstorm.sql.apt.Helper.preparedStatementGetter;
-import static eu.eventstorm.sql.apt.Helper.writeGenerated;
-import static eu.eventstorm.sql.apt.Helper.writeNewLine;
-import static eu.eventstorm.sql.apt.Helper.writePackage;
+import eu.eventstorm.sql.Dialect;
+import eu.eventstorm.sql.annotation.ViewColumn;
+import eu.eventstorm.sql.apt.log.Logger;
+import eu.eventstorm.sql.apt.model.ViewDescriptor;
+import eu.eventstorm.sql.apt.model.ViewPropertyDescriptor;
+import eu.eventstorm.sql.jdbc.ResultSetMapper;
 
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.Writer;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.tools.JavaFileObject;
-
-import eu.eventstorm.sql.apt.log.Logger;
-import eu.eventstorm.sql.apt.log.LoggerFactory;
-import eu.eventstorm.sql.apt.model.ViewDescriptor;
-import eu.eventstorm.sql.apt.model.ViewPropertyDescriptor;
-import eu.eventstorm.sql.Dialect;
-import eu.eventstorm.sql.annotation.ViewColumn;
-import eu.eventstorm.sql.jdbc.ResultSetMapper;
+import static eu.eventstorm.sql.apt.Helper.preparedStatementGetter;
+import static eu.eventstorm.sql.apt.Helper.writeGenerated;
+import static eu.eventstorm.sql.apt.Helper.writeNewLine;
+import static eu.eventstorm.sql.apt.Helper.writePackage;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 final class ViewMapperGenerator implements Generator {
 
-    private final Logger logger;
+    private Logger logger;
 
-	ViewMapperGenerator() {
-		logger = LoggerFactory.getInstance().getLogger(ViewMapperGenerator.class);
-	}
+    ViewMapperGenerator() {
+    }
 
     @Override
-    public void generate(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
+    public void generate(ProcessingEnvironment processingEnv, SourceCode sourceCode) {
 
-        sourceCode.forEachView(t -> {
-            try {
-                generate(processingEnvironment, t);
-            } catch (Exception cause) {
-                logger.error("ViewMapperGenerator -> Exception for [" + t + "] -> [" + cause.getMessage() + "]", cause);
-            }
-        });
-
+        try (Logger l = Logger.getLogger(processingEnv, "eu.eventstorm.sql.generator", "ViewMapperGenerator")) {
+            this.logger = l;
+            sourceCode.forEachView(t -> {
+                try {
+                    generate(processingEnv, t);
+                } catch (Exception cause) {
+                    logger.error("ViewMapperGenerator -> Exception for [" + t + "] -> [" + cause.getMessage() + "]", cause);
+                }
+            });
+        }
 
     }
 
@@ -100,7 +99,7 @@ final class ViewMapperGenerator implements Generator {
 
         writeNewLine(writer);
         writer.write("        ");
-        writer.write(descriptor.element().getSimpleName().toString()+ "Impl");
+        writer.write(descriptor.element().getSimpleName().toString() + "Impl");
         writer.write(" pojo = new ");
         writer.write(descriptor.element().getSimpleName().toString() + "Impl();");
         writeNewLine(writer);

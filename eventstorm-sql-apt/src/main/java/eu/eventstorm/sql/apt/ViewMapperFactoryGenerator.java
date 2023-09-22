@@ -1,38 +1,36 @@
 package eu.eventstorm.sql.apt;
 
-import static eu.eventstorm.sql.apt.Helper.writeNewLine;
-
-import java.io.IOException;
-import java.io.Writer;
-import java.util.List;
+import eu.eventstorm.sql.apt.log.Logger;
+import eu.eventstorm.sql.apt.model.ViewDescriptor;
+import eu.eventstorm.sql.jdbc.ResultSetMapper;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.JavaFileObject;
-
-import eu.eventstorm.sql.apt.log.Logger;
-import eu.eventstorm.sql.apt.log.LoggerFactory;
-import eu.eventstorm.sql.apt.model.ViewDescriptor;
-import eu.eventstorm.sql.jdbc.ResultSetMapper;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.List;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 public final class ViewMapperFactoryGenerator implements Generator {
 
-    private final Logger logger;
+    private Logger logger;
 
 	public ViewMapperFactoryGenerator() {
-		logger = LoggerFactory.getInstance().getLogger(ViewMapperFactoryGenerator.class);
 	}
 
-    public void generate(ProcessingEnvironment env, SourceCode sourceCode) {
-        sourceCode.forEachViewByPackage((pack, descriptors) -> {
-            try {
-                create(env, pack, descriptors);
-            } catch (Exception cause) {
-                logger.error("ViewMapperFactoryGenerator -> Exception for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
-            }
-        });
+    public void generate(ProcessingEnvironment processingEnv, SourceCode sourceCode) {
+        try (Logger l = Logger.getLogger(processingEnv, "eu.eventstorm.sql.generator", "ViewMapperFactoryGenerator")) {
+            this.logger = l;
+            sourceCode.forEachViewByPackage((pack, descriptors) -> {
+                try {
+                    create(processingEnv, pack, descriptors);
+                } catch (Exception cause) {
+                    logger.error("ViewMapperFactoryGenerator -> Exception for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
+                }
+            });
+        }
     }
 
     public void create(ProcessingEnvironment env, String pack, List<ViewDescriptor> descriptors) throws IOException {

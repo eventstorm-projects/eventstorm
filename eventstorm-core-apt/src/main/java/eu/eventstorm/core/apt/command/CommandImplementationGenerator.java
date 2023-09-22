@@ -1,62 +1,63 @@
 package eu.eventstorm.core.apt.command;
 
-import static eu.eventstorm.sql.apt.Helper.getReturnType;
-import static eu.eventstorm.sql.apt.Helper.writeGenerated;
-import static eu.eventstorm.sql.apt.Helper.writeNewLine;
-import static eu.eventstorm.sql.apt.Helper.writePackage;
-
-import java.io.IOException;
-import java.io.Writer;
-import java.util.List;
-
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.tools.JavaFileObject;
-
 import eu.eventstorm.core.apt.SourceCode;
 import eu.eventstorm.core.apt.model.AbstractCommandDescriptor;
 import eu.eventstorm.core.apt.model.PropertyDescriptor;
 import eu.eventstorm.sql.apt.log.Logger;
-import eu.eventstorm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.util.ToStringBuilder;
+
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.tools.JavaFileObject;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.List;
+
+import static eu.eventstorm.sql.apt.Helper.getReturnType;
+import static eu.eventstorm.sql.apt.Helper.writeGenerated;
+import static eu.eventstorm.sql.apt.Helper.writeNewLine;
+import static eu.eventstorm.sql.apt.Helper.writePackage;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 public final class CommandImplementationGenerator {
 
-	private static final String TO_STRING_BUILDER = ToStringBuilder.class.getName();
+    private static final String TO_STRING_BUILDER = ToStringBuilder.class.getName();
 
-	private final Logger logger;
-	
-	public CommandImplementationGenerator() {
-		logger = LoggerFactory.getInstance().getLogger(CommandImplementationGenerator.class);
-	}
+    private Logger logger;
 
     public void generateCommand(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
-    	// generate Implementation class;
-        sourceCode.forEachCommand(t -> {
-            try {
-                generate(processingEnvironment, t);
-            } catch (Exception cause) {
-            	logger.error("Exception for [" + t + "] -> [" + cause.getMessage() + "]", cause);
-            }
-        });
-        sourceCode.forEachSagaCommand(t -> {
-            try {
-                generate(processingEnvironment, t);
-            } catch (Exception cause) {
-                logger.error("Exception for [" + t + "] -> [" + cause.getMessage() + "]", cause);
-            }
-        });
+
+        try (Logger logger = Logger.getLogger(processingEnvironment, "eu.eventstorm.event.generator", "CommandImplementationGenerator")) {
+            this.logger = logger;
+
+            sourceCode.forEachCommand(t -> {
+                try {
+                    generate(processingEnvironment, t);
+                } catch (Exception cause) {
+                    logger.error("Exception for [" + t + "] -> [" + cause.getMessage() + "]", cause);
+                }
+            });
+            sourceCode.forEachSagaCommand(t -> {
+                try {
+                    generate(processingEnvironment, t);
+                } catch (Exception cause) {
+                    logger.error("Exception for [" + t + "] -> [" + cause.getMessage() + "]", cause);
+                }
+            });
+
+        }
+
+
     }
-    
+
     public void generateEmbeddedCommand(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
-    	// generate Implementation class;
+        // generate Implementation class;
         sourceCode.forEachEmbeddedCommand(t -> {
             try {
                 generate(processingEnvironment, t);
             } catch (Exception cause) {
-            	logger.error("Exception for [" + t + "] -> [" + cause.getMessage() + "]", cause);
+                logger.error("Exception for [" + t + "] -> [" + cause.getMessage() + "]", cause);
             }
         });
     }
@@ -65,19 +66,19 @@ public final class CommandImplementationGenerator {
 
         // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
         if (env.getElementUtils().getTypeElement(descriptor.fullyQualidiedClassName() + "Impl") != null) {
-            logger.info("Java SourceCode already exist [" +descriptor.fullyQualidiedClassName() + "Impl" + "]");
+            logger.info("Java SourceCode already exist [" + descriptor.fullyQualidiedClassName() + "Impl" + "]");
             return;
         }
-        
+
         JavaFileObject object = env.getFiler().createSourceFile(descriptor.fullyQualidiedClassName() + "Impl");
-        
+
         try (Writer writer = object.openWriter()) {
-        	writeHeader(writer, env, descriptor);
+            writeHeader(writer, env, descriptor);
             writeConstructor(writer, descriptor);
             writeVariables(writer, descriptor);
             writeMethods(writer, descriptor);
             writeToStringBuilder(writer, descriptor);
-            writer.write("}");	
+            writer.write("}");
         }
     }
 
@@ -85,7 +86,7 @@ public final class CommandImplementationGenerator {
     private static void writeHeader(Writer writer, ProcessingEnvironment env, AbstractCommandDescriptor descriptor) throws IOException {
 
         writePackage(writer, env.getElementUtils().getPackageOf(descriptor.element()).toString());
-        writeGenerated(writer,CommandImplementationGenerator.class.getName());
+        writeGenerated(writer, CommandImplementationGenerator.class.getName());
 
         writer.write("final class ");
         writer.write(descriptor.simpleName() + "Impl");
@@ -96,36 +97,36 @@ public final class CommandImplementationGenerator {
     }
 
     private static void writeConstructor(Writer writer, AbstractCommandDescriptor descriptor) throws IOException {
-    	writeNewLine(writer);
+        writeNewLine(writer);
         writer.write("    ");
         writer.write(descriptor.simpleName() + "Impl");
         writer.write("(");
-        
+
         StringBuilder builder = new StringBuilder();
-    	for (PropertyDescriptor ppd : descriptor.properties()) {
-    		builder.append(getReturnType(ppd.getter()));
-    		builder.append(" ");
-    		builder.append(ppd.variable());
-    		builder.append(",");
+        for (PropertyDescriptor ppd : descriptor.properties()) {
+            builder.append(getReturnType(ppd.getter()));
+            builder.append(" ");
+            builder.append(ppd.variable());
+            builder.append(",");
         }
-    	
-    	if (descriptor.properties().size() > 0) {
-    		builder.deleteCharAt(builder.length() -1);	
-    	}
-    	
-    	writer.write(builder.toString());
-    	writer.write(") {");
-    	writeNewLine(writer);
-        
-    	for (PropertyDescriptor ppd : descriptor.properties()) {
-    		 writer.write("        this.");
+
+        if (descriptor.properties().size() > 0) {
+            builder.deleteCharAt(builder.length() - 1);
+        }
+
+        writer.write(builder.toString());
+        writer.write(") {");
+        writeNewLine(writer);
+
+        for (PropertyDescriptor ppd : descriptor.properties()) {
+            writer.write("        this.");
             writer.write(ppd.variable());
             writer.write(" = ");
             writer.write(ppd.variable());
             writer.write(";");
             writeNewLine(writer);
         }
-    	
+
         writer.write("    }");
         writeNewLine(writer);
     }
@@ -152,12 +153,12 @@ public final class CommandImplementationGenerator {
         writerKeyMethod(writer, descriptor);
     }
 
-    
-    private static void writerKeyMethod(Writer writer, AbstractCommandDescriptor descriptor) {
-		
-	}
 
-	private static void writeMethods(Writer writer, List<PropertyDescriptor> descriptors) throws IOException {
+    private static void writerKeyMethod(Writer writer, AbstractCommandDescriptor descriptor) {
+
+    }
+
+    private static void writeMethods(Writer writer, List<PropertyDescriptor> descriptors) throws IOException {
         for (PropertyDescriptor ppd : descriptors) {
             writeGetter(writer, ppd);
         }
@@ -193,7 +194,7 @@ public final class CommandImplementationGenerator {
         writeNewLine(writer);
         writer.write("        " + TO_STRING_BUILDER + " builder = new " + TO_STRING_BUILDER + "(this);");
         writeNewLine(writer);
-       
+
         for (PropertyDescriptor ppd : descriptor.properties()) {
             writer.write("        builder.append(\"");
             writer.write(ppd.name());

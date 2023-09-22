@@ -1,53 +1,58 @@
 package eu.eventstorm.sql.apt;
 
-import static eu.eventstorm.sql.apt.Helper.isPrimitiveType;
-import static eu.eventstorm.sql.apt.Helper.writeGenerated;
-import static eu.eventstorm.sql.apt.Helper.writeNewLine;
-import static eu.eventstorm.sql.apt.Helper.writePackage;
+import eu.eventstorm.sql.apt.log.Logger;
+import eu.eventstorm.sql.apt.model.PojoDescriptor;
+import eu.eventstorm.sql.apt.model.PojoPropertyDescriptor;
+import eu.eventstorm.util.ToStringBuilder;
 
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
 
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.tools.JavaFileObject;
-
-import eu.eventstorm.sql.apt.log.Logger;
-import eu.eventstorm.sql.apt.log.LoggerFactory;
-import eu.eventstorm.sql.apt.model.PojoDescriptor;
-import eu.eventstorm.sql.apt.model.PojoPropertyDescriptor;
-import eu.eventstorm.util.ToStringBuilder;
+import static eu.eventstorm.sql.apt.Helper.isPrimitiveType;
+import static eu.eventstorm.sql.apt.Helper.writeGenerated;
+import static eu.eventstorm.sql.apt.Helper.writeNewLine;
+import static eu.eventstorm.sql.apt.Helper.writePackage;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 final class PojoImplementationGenerator implements Generator {
 
-	private static final String TO_STRING_BUILDER = ToStringBuilder.class.getName();
+    private static final String TO_STRING_BUILDER = ToStringBuilder.class.getName();
 
-	private final Logger logger;
+    private Logger logger;
 
-	PojoImplementationGenerator() {
-		logger = LoggerFactory.getInstance().getLogger(PojoImplementationGenerator.class);
-	}
+    PojoImplementationGenerator() {
+    }
 
     @Override
-    public void generate(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
-        // generate Implementation class;
-        sourceCode.forEach(t -> {
-            try {
-                generate(processingEnvironment, t);
-            } catch (Exception cause) {
-            	logger.error("Exception for [" + t + "] -> [" + cause.getMessage() + "]", cause);
-            }
-        });
+    public void generate(ProcessingEnvironment processingEnv, SourceCode sourceCode) {
+
+        try (Logger l = Logger.getLogger(processingEnv, "eu.eventstorm.sql.generator", "PojoImplementationGenerator")) {
+            this.logger = l;
+            // generate Implementation class;
+            sourceCode.forEach(t -> {
+                try {
+                    generate(processingEnv, t);
+                } catch (Exception cause) {
+                    logger.error("Exception for [" + t + "] -> [" + cause.getMessage() + "]", cause);
+                }
+            });
+
+        }
 
 
     }
 
     private void generate(ProcessingEnvironment env, PojoDescriptor descriptor) throws IOException {
 
-        JavaFileObject object = env.getFiler().createSourceFile(descriptor.fullyQualidiedClassName() + "Impl");
+        String classname = descriptor.fullyQualidiedClassName() + "Impl";
+        logger.info("Create class [" + classname + "]");
+
+        JavaFileObject object = env.getFiler().createSourceFile(classname);
         Writer writer = object.openWriter();
 
         writeHeader(writer, env, descriptor);
@@ -65,7 +70,7 @@ final class PojoImplementationGenerator implements Generator {
     private static void writeHeader(Writer writer, ProcessingEnvironment env, PojoDescriptor descriptor) throws IOException {
 
         writePackage(writer, env.getElementUtils().getPackageOf(descriptor.element()).toString());
-        writeGenerated(writer,PojoImplementationGenerator.class.getName());
+        writeGenerated(writer, PojoImplementationGenerator.class.getName());
 
         writer.write("final class ");
         writer.write(descriptor.simpleName() + "Impl");
@@ -231,7 +236,7 @@ final class PojoImplementationGenerator implements Generator {
         writer.write(") object;");
         writeNewLine(writer);
 
-        List<PojoPropertyDescriptor> businessKeys  = descriptor.businessKeys();
+        List<PojoPropertyDescriptor> businessKeys = descriptor.businessKeys();
 
         if (businessKeys.size() == 0) {
             writer.write("        // no business key -> use the primary keys");
@@ -240,28 +245,28 @@ final class PojoImplementationGenerator implements Generator {
             writer.write("        return ");
             int number = descriptor.ids().size();
             if (number > 0) {
-            	for (int i = 0 ; i < number ; i++) {
+                for (int i = 0; i < number; i++) {
                     writeEqualsPojoPropertyDescriptor(writer, descriptor.ids().get(i));
                     if (i + 1 < number) {
                         writer.write(" && ");
                         writeNewLine(writer);
                         writer.write("           ");
                     }
-                }	
+                }
             } else {
-            	writer.write(" this == other");
-            	writeNewLine(writer);
+                writer.write(" this == other");
+                writeNewLine(writer);
                 writer.write("           ");
             }
-            
+
 
             writer.write(";");
             writeNewLine(writer);
         } else {
             int number = businessKeys.size();
 
-            writer.write("        // " +number + " business key" + ((number >1) ? "s" : "") + " on propert"+ ((number >1) ? "ies" : "y") + " : ");
-            for (int i = 0 ; i < number ; i++) {
+            writer.write("        // " + number + " business key" + ((number > 1) ? "s" : "") + " on propert" + ((number > 1) ? "ies" : "y") + " : ");
+            for (int i = 0; i < number; i++) {
                 writer.write(businessKeys.get(i).name());
                 if (i + 1 < number) {
                     writer.write(", ");
@@ -269,7 +274,7 @@ final class PojoImplementationGenerator implements Generator {
             }
             writeNewLine(writer);
             writer.write("        return ");
-            for (int i = 0 ; i < number ; i++) {
+            for (int i = 0; i < number; i++) {
                 writeEqualsPojoPropertyDescriptor(writer, businessKeys.get(i));
                 if (i + 1 < number) {
                     writer.write(" && ");
@@ -294,7 +299,7 @@ final class PojoImplementationGenerator implements Generator {
             writer.write(" == other.");
             writer.write(ppd.getter().getSimpleName().toString() + "()");
         } else {
-            writer.write(".equals(other.");        
+            writer.write(".equals(other.");
             writer.write(ppd.getter().getSimpleName().toString() + "()");
             writer.write(")");
         }

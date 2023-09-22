@@ -6,8 +6,6 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
 
-import javax.annotation.Nullable;
-
 public final class Streams {
 	
 	private static final byte[] EMPTY = new byte[0];
@@ -21,7 +19,7 @@ public final class Streams {
 	 * Copy the contents of the given InputStream into a new byte array.
 	 * Leaves the stream open when done.
 	 */
-	public static byte[] copyToByteArray(@Nullable InputStream in) throws IOException {
+	public static byte[] copyToByteArray(InputStream in) throws IOException {
 		if (in == null) {
 			return EMPTY;
 		}

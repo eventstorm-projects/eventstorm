@@ -12,10 +12,6 @@ spring:
     hikari:
       password: ''
       username: sa
-      jdbc-url: jdbc:h2:mem:testdb;DATABASE_TO_UPPER=false;mode=ORACLE;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=-1;
-  flyway:
-    ## table: refe_schema_history
-    locations:
-    - classpath:db/migration/batch/h2
+      jdbc-url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;
   autoconfigure:
     exclude: org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration

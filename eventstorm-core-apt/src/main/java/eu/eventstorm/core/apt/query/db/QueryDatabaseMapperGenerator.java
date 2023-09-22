@@ -1,10 +1,16 @@
 package eu.eventstorm.core.apt.query.db;
 
-import static eu.eventstorm.sql.apt.Helper.preparedStatementGetter;
-import static eu.eventstorm.sql.apt.Helper.writeGenerated;
-import static eu.eventstorm.sql.apt.Helper.writeNewLine;
-import static eu.eventstorm.sql.apt.Helper.writePackage;
+import eu.eventstorm.annotation.CqrsQueryDatabaseProperty;
+import eu.eventstorm.core.apt.SourceCode;
+import eu.eventstorm.core.apt.model.QueryDescriptor;
+import eu.eventstorm.core.apt.model.QueryPropertyDescriptor;
+import eu.eventstorm.sql.Dialect;
+import eu.eventstorm.sql.apt.Helper;
+import eu.eventstorm.sql.apt.log.Logger;
+import eu.eventstorm.sql.jdbc.ResultSetMapper;
 
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.Writer;
 import java.sql.ResultSet;
@@ -12,18 +18,10 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.tools.JavaFileObject;
-
-import eu.eventstorm.core.apt.SourceCode;
-import eu.eventstorm.core.apt.model.QueryDescriptor;
-import eu.eventstorm.core.apt.model.QueryPropertyDescriptor;
-import eu.eventstorm.sql.apt.Helper;
-import eu.eventstorm.sql.apt.log.Logger;
-import eu.eventstorm.sql.apt.log.LoggerFactory;
-import eu.eventstorm.annotation.CqrsQueryDatabaseProperty;
-import eu.eventstorm.sql.Dialect;
-import eu.eventstorm.sql.jdbc.ResultSetMapper;
+import static eu.eventstorm.sql.apt.Helper.preparedStatementGetter;
+import static eu.eventstorm.sql.apt.Helper.writeGenerated;
+import static eu.eventstorm.sql.apt.Helper.writeNewLine;
+import static eu.eventstorm.sql.apt.Helper.writePackage;
 
 
 /**
@@ -31,25 +29,29 @@ import eu.eventstorm.sql.jdbc.ResultSetMapper;
  */
 public final class QueryDatabaseMapperGenerator {
 
-    private final Logger logger;
+    private Logger logger;
 
-    public QueryDatabaseMapperGenerator() {
-		logger = LoggerFactory.getInstance().getLogger(QueryDatabaseMapperGenerator.class);
-	}
+    public void generate(ProcessingEnvironment env, SourceCode sourceCode) {
 
-	public void generate(ProcessingEnvironment env, SourceCode sourceCode) {
-		sourceCode.forEachDatabaseViewQuery((descriptor) -> {
-			try {
-				doGenerate(env, descriptor);
-			} catch (Exception cause) {
-				logger.error("QueryDatabaseDescriptorGenerator -> Exception for [" + descriptor + "] -> [" + cause.getMessage() + "]", cause);
-			}
-		});
-	}
+        try (Logger logger = Logger.getLogger(env, "eu.eventstorm.event.query.db", "QueryDatabaseMapperGenerator")) {
+            this.logger = logger;
 
-	private void doGenerate(ProcessingEnvironment env, QueryDescriptor descriptor) throws IOException {
-	    
-	    // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
+
+            sourceCode.forEachDatabaseViewQuery((descriptor) -> {
+                try {
+                    doGenerate(env, descriptor);
+                } catch (Exception cause) {
+                    logger.error("QueryDatabaseDescriptorGenerator -> Exception for [" + descriptor + "] -> [" + cause.getMessage() + "]", cause);
+                }
+            });
+        }
+
+
+    }
+
+    private void doGenerate(ProcessingEnvironment env, QueryDescriptor descriptor) throws IOException {
+
+        // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
         if (env.getElementUtils().getTypeElement(descriptor.fullyQualidiedClassName() + "Mapper") != null) {
             logger.info("Java SourceCode already exist [" + descriptor.fullyQualidiedClassName() + "Mapper" + "]");
             return;
@@ -94,9 +96,9 @@ public final class QueryDatabaseMapperGenerator {
         writer.write("    }");
         writeNewLine(writer);
     }
-    
+
     private void writeVariables(Writer writer, QueryDescriptor descriptor) throws IOException {
-      
+
         for (QueryPropertyDescriptor qpd : descriptor.properties()) {
             if (OffsetDateTime.class.getName().equals(qpd.getter().getReturnType().toString())) {
                 writeNewLine(writer);
@@ -105,7 +107,7 @@ public final class QueryDatabaseMapperGenerator {
                 break;
             }
         }
-        
+
     }
 
     private static void writeMap(Writer writer, QueryDescriptor descriptor) throws IOException {
@@ -122,7 +124,7 @@ public final class QueryDatabaseMapperGenerator {
 
         writeNewLine(writer);
         writer.write("        ");
-        writer.write(descriptor.element().getSimpleName().toString()+ "Builder");
+        writer.write(descriptor.element().getSimpleName().toString() + "Builder");
         writer.write(" builder = new ");
         writer.write(descriptor.element().getSimpleName().toString() + "Builder();");
         writeNewLine(writer);
@@ -130,8 +132,8 @@ public final class QueryDatabaseMapperGenerator {
         int index = 1;
 
         for (QueryPropertyDescriptor vpd : descriptor.properties()) {
-        	
-        	CqrsQueryDatabaseProperty cqrsProperty = vpd.getter().getAnnotation(CqrsQueryDatabaseProperty.class);
+
+            CqrsQueryDatabaseProperty cqrsProperty = vpd.getter().getAnnotation(CqrsQueryDatabaseProperty.class);
 
             if (Helper.isArray(vpd.getter().getReturnType().toString())) {
 //                writer.write("        java.sql.Array array" + index + " = rs."
@@ -173,32 +175,32 @@ public final class QueryDatabaseMapperGenerator {
 //                    writer.write("        }");
 //                    writeNewLine(writer);
 //                }
-            } else  if (OffsetDateTime.class.getName().equals(vpd.getter().getReturnType().toString())) {
+            } else if (OffsetDateTime.class.getName().equals(vpd.getter().getReturnType().toString())) {
                 int i = index++;
-                writer.write("        java.sql.Timestamp tmp"+i+" = rs.getTimestamp(" + i +");");
+                writer.write("        java.sql.Timestamp tmp" + i + " = rs.getTimestamp(" + i + ");");
                 writeNewLine(writer);
-                writer.write("        if (tmp"+i+" != null) {");
+                writer.write("        if (tmp" + i + " != null) {");
                 writeNewLine(writer);
                 writer.write("            builder.with");
                 writer.write(Helper.firstToUpperCase(vpd.name()));
-                writer.write("(" + OffsetDateTime.class.getName()+ ".ofInstant(tmp" + i +".toInstant(), UTC));");
+                writer.write("(" + OffsetDateTime.class.getName() + ".ofInstant(tmp" + i + ".toInstant(), UTC));");
                 writeNewLine(writer);
                 writer.write("        }");
                 writeNewLine(writer);
-            } else  if (LocalDate.class.getName().equals(vpd.getter().getReturnType().toString())) {
+            } else if (LocalDate.class.getName().equals(vpd.getter().getReturnType().toString())) {
                 int i = index++;
-                writer.write("        java.sql.Date tmp"+i+" = rs.getDate(" + i +");");
+                writer.write("        java.sql.Date tmp" + i + " = rs.getDate(" + i + ");");
                 writeNewLine(writer);
-                writer.write("        if (tmp"+i+" != null) {");
+                writer.write("        if (tmp" + i + " != null) {");
                 writeNewLine(writer);
                 writer.write("            builder.with");
                 writer.write(Helper.firstToUpperCase(vpd.name()));
-                writer.write("(tmp" + i +".toLocalDate());");
+                writer.write("(tmp" + i + ".toLocalDate());");
                 writeNewLine(writer);
                 writer.write("        }");
                 writeNewLine(writer);
             } else {
-                
+
                 writer.write("        builder.with");
                 writer.write(Helper.firstToUpperCase(vpd.name()));
                 writer.write("(");

@@ -1,28 +1,27 @@
 package eu.eventstorm.core.apt.analyser;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Function;
-
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.ExecutableElement;
-
 import eu.eventstorm.core.apt.model.EventDescriptor;
 import eu.eventstorm.core.apt.model.PropertyDescriptor;
 import eu.eventstorm.sql.apt.log.Logger;
-import eu.eventstorm.sql.apt.log.LoggerFactory;
+
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
 
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-public final class CqrsEventAnalyser implements Function<Element, EventDescriptor> {
+public final class CqrsEventAnalyser implements Function<Element, EventDescriptor>, AutoCloseable {
 
     private final Logger logger;
 
-    public CqrsEventAnalyser() {
-    	this.logger = LoggerFactory.getInstance().getLogger(CqrsEventAnalyser.class);
+    public CqrsEventAnalyser(ProcessingEnvironment processingEnv) {
+        this.logger = Logger.getLogger(processingEnv, "eu.eventstorm.event.analyser", "CqrsEventAnalyser");
     }
 
     @Override
@@ -68,5 +67,10 @@ public final class CqrsEventAnalyser implements Function<Element, EventDescripto
 
         return new EventDescriptor(element, properties);
     }
-    
+
+    @Override
+    public void close(){
+        logger.close();
+    }
+
 }

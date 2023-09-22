@@ -1,51 +1,49 @@
 package eu.eventstorm.core.apt.query;
 
-import static eu.eventstorm.sql.apt.Helper.isPrimitiveType;
-import static eu.eventstorm.sql.apt.Helper.writeGenerated;
-import static eu.eventstorm.sql.apt.Helper.writeNewLine;
-import static eu.eventstorm.sql.apt.Helper.writePackage;
-
-import java.io.IOException;
-import java.io.Writer;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.tools.JavaFileObject;
-
 import eu.eventstorm.annotation.EqualsAndHashCode;
 import eu.eventstorm.core.apt.SourceCode;
 import eu.eventstorm.core.apt.model.QueryDescriptor;
 import eu.eventstorm.core.apt.model.QueryPropertyDescriptor;
 import eu.eventstorm.sql.apt.log.Logger;
-import eu.eventstorm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.util.ToStringBuilder;
+
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.tools.JavaFileObject;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static eu.eventstorm.sql.apt.Helper.isPrimitiveType;
+import static eu.eventstorm.sql.apt.Helper.writeGenerated;
+import static eu.eventstorm.sql.apt.Helper.writeNewLine;
+import static eu.eventstorm.sql.apt.Helper.writePackage;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 public final class QueryImplementationGenerator {
 
-	private static final String TO_STRING_BUILDER = ToStringBuilder.class.getName();
+    private static final String TO_STRING_BUILDER = ToStringBuilder.class.getName();
 
-	private final Logger logger;
+    private Logger logger;
 
-	public QueryImplementationGenerator() {
-		logger = LoggerFactory.getInstance().getLogger(QueryImplementationGenerator.class);
-	}
+    public void generateClient(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
 
-	public void generateClient(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
-		// generate Implementation class;
-		sourceCode.forEachQueryClient(t -> {
-			try {
-				generate(processingEnvironment, t);
-			} catch (Exception cause) {
-				logger.error("Exception for [" + t + "] -> [" + cause.getMessage() + "]", cause);
-			}
-		});
+        try (Logger logger = Logger.getLogger(processingEnvironment, "eu.eventstorm.event.query", "QueryImplementationGenerator")) {
+            this.logger = logger;
+            sourceCode.forEachQueryClient(t -> {
+                try {
+                    generate(processingEnvironment, t);
+                } catch (Exception cause) {
+                    logger.error("Exception for [" + t + "] -> [" + cause.getMessage() + "]", cause);
+                }
+            });
 
-	}
+        }
+
+
+    }
 
     public void generate(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
         // generate Implementation class;
@@ -53,7 +51,7 @@ public final class QueryImplementationGenerator {
             try {
                 generate(processingEnvironment, t);
             } catch (Exception cause) {
-            	logger.error("Exception for [" + t + "] -> [" + cause.getMessage() + "]", cause);
+                logger.error("Exception for [" + t + "] -> [" + cause.getMessage() + "]", cause);
             }
         });
 
@@ -67,7 +65,7 @@ public final class QueryImplementationGenerator {
             logger.info("Java SourceCode already exist [" + descriptor.fullyQualidiedClassName() + "Impl" + "]");
             return;
         }
-        
+
         JavaFileObject object = env.getFiler().createSourceFile(descriptor.fullyQualidiedClassName() + "Impl");
         Writer writer = object.openWriter();
 
@@ -87,7 +85,7 @@ public final class QueryImplementationGenerator {
     private static void writeHeader(Writer writer, ProcessingEnvironment env, QueryDescriptor descriptor) throws IOException {
 
         writePackage(writer, env.getElementUtils().getPackageOf(descriptor.element()).toString());
-        writeGenerated(writer,QueryImplementationGenerator.class.getName());
+        writeGenerated(writer, QueryImplementationGenerator.class.getName());
 
         writer.write("final class ");
         writer.write(descriptor.simpleName() + "Impl");
@@ -101,7 +99,7 @@ public final class QueryImplementationGenerator {
         writeNewLine(writer);
         writer.write("    ");
         writer.write(descriptor.simpleName() + "Impl");
-        writer.write("("+ descriptor.simpleName() + "Builder builder) {");
+        writer.write("(" + descriptor.simpleName() + "Builder builder) {");
         writeNewLine(writer);
         for (QueryPropertyDescriptor property : descriptor.properties()) {
             writer.write("        this." + property.name() + "= builder." + property.name() + "$$;");
@@ -132,7 +130,7 @@ public final class QueryImplementationGenerator {
         writeMethods(writer, descriptor.properties());
     }
 
-	private static void writeMethods(Writer writer, List<QueryPropertyDescriptor> descriptors) throws IOException {
+    private static void writeMethods(Writer writer, List<QueryPropertyDescriptor> descriptors) throws IOException {
         for (QueryPropertyDescriptor ppd : descriptors) {
             writeGetter(writer, ppd);
         }
@@ -168,7 +166,7 @@ public final class QueryImplementationGenerator {
         writeNewLine(writer);
         writer.write("        " + TO_STRING_BUILDER + " builder = new " + TO_STRING_BUILDER + "(this);");
         writeNewLine(writer);
-       
+
         for (QueryPropertyDescriptor ppd : descriptor.properties()) {
             writer.write("        builder.append(\"");
             writer.write(ppd.name());
@@ -218,7 +216,7 @@ public final class QueryImplementationGenerator {
         writer.write(") object;");
         writeNewLine(writer);
 
-        List<QueryPropertyDescriptor> toEquals  = descriptor.properties().stream().filter(t -> t.getter().getAnnotation(EqualsAndHashCode.class) != null).collect(Collectors.toList());
+        List<QueryPropertyDescriptor> toEquals = descriptor.properties().stream().filter(t -> t.getter().getAnnotation(EqualsAndHashCode.class) != null).collect(Collectors.toList());
 
         if (toEquals.size() == 0) {
             writer.write("        // no @EqualsAndHashCode -> return Identity");
@@ -228,8 +226,8 @@ public final class QueryImplementationGenerator {
             writeNewLine(writer);
         } else {
             int number = toEquals.size();
-            writer.write("        // " +number + " toEquals key" + ((number >1) ? "s" : "") + " on propert"+ ((number >1) ? "ies" : "y") + " : ");
-            for (int i = 0 ; i < number ; i++) {
+            writer.write("        // " + number + " toEquals key" + ((number > 1) ? "s" : "") + " on propert" + ((number > 1) ? "ies" : "y") + " : ");
+            for (int i = 0; i < number; i++) {
                 writer.write(toEquals.get(i).name());
                 if (i + 1 < number) {
                     writer.write(", ");
@@ -237,7 +235,7 @@ public final class QueryImplementationGenerator {
             }
             writeNewLine(writer);
             writer.write("        return ");
-            for (int i = 0 ; i < number ; i++) {
+            for (int i = 0; i < number; i++) {
                 writeEqualsPojoPropertyDescriptor(writer, toEquals.get(i));
                 if (i + 1 < number) {
                     writer.write(" && ");
@@ -255,7 +253,7 @@ public final class QueryImplementationGenerator {
     }
 
     private void writeHashcode(Writer writer, QueryDescriptor descriptor) throws IOException {
-        List<QueryPropertyDescriptor> toEquals  = descriptor.properties().stream().filter(t -> t.getter().getAnnotation(EqualsAndHashCode.class) != null).collect(Collectors.toList());
+        List<QueryPropertyDescriptor> toEquals = descriptor.properties().stream().filter(t -> t.getter().getAnnotation(EqualsAndHashCode.class) != null).collect(Collectors.toList());
 
         if (toEquals.size() == 0) {
             writer.write("        // no @EqualsAndHashCode -> to hashcode");
@@ -271,10 +269,10 @@ public final class QueryImplementationGenerator {
         writer.write("    public int hashCode() {");
         writeNewLine(writer);
         int number = toEquals.size();
-        writer.write("        // " +number + " hashcode key" + ((number >1) ? "s" : "") + " on propert"+ ((number >1) ? "ies" : "y") + " : ");
+        writer.write("        // " + number + " hashcode key" + ((number > 1) ? "s" : "") + " on propert" + ((number > 1) ? "ies" : "y") + " : ");
         writeNewLine(writer);
         writer.write("        return java.util.Objects.hash(");
-        for (int i = 0 ; i < number ; i++) {
+        for (int i = 0; i < number; i++) {
 
             writer.write(toEquals.get(i).name());
             if (i + 1 < number) {

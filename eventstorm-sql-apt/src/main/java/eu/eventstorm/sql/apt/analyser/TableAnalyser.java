@@ -8,12 +8,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 
 import eu.eventstorm.sql.apt.log.Logger;
-import eu.eventstorm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.sql.apt.model.PojoDescriptor;
 import eu.eventstorm.sql.apt.model.PojoPropertyDescriptor;
 import eu.eventstorm.sql.annotation.Column;
@@ -23,19 +23,21 @@ import eu.eventstorm.sql.annotation.Version;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-public final class SqlInterfaceAnalyser implements Function<Element, PojoDescriptor> {
+public final class TableAnalyser implements Function<Element, PojoDescriptor>, AutoCloseable {
 
     private final Logger logger;
 
-    public SqlInterfaceAnalyser() {
-    	this.logger = LoggerFactory.getInstance().getLogger(SqlInterfaceAnalyser.class);
+    public TableAnalyser(ProcessingEnvironment processingEnv) {
+    	this.logger = Logger.getLogger(processingEnv,"eu.eventstorm.sql.analyser","TableAnalyser");
     }
 
     @Override
     public PojoDescriptor apply(Element element) {
 
         try {
-            return doApply(element);
+            PojoDescriptor result =  doApply(element);
+            logger.info(result + "\n");
+            return result;
         } catch (AnalyserException cause) {
             this.logger.error(cause.getMessage(), cause);
             throw cause;
@@ -44,6 +46,10 @@ public final class SqlInterfaceAnalyser implements Function<Element, PojoDescrip
             throw new AnalyserException(cause);
         }
 
+    }
+
+    public void close() {
+        logger.close();
     }
 
     public PojoDescriptor doApply(Element element) {

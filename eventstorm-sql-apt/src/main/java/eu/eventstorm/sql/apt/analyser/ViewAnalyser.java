@@ -1,28 +1,27 @@
 package eu.eventstorm.sql.apt.analyser;
 
+import eu.eventstorm.sql.annotation.ViewColumn;
+import eu.eventstorm.sql.apt.log.Logger;
+import eu.eventstorm.sql.apt.model.ViewDescriptor;
+import eu.eventstorm.sql.apt.model.ViewPropertyDescriptor;
+
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.ExecutableElement;
-
-import eu.eventstorm.sql.apt.log.Logger;
-import eu.eventstorm.sql.apt.log.LoggerFactory;
-import eu.eventstorm.sql.apt.model.ViewDescriptor;
-import eu.eventstorm.sql.apt.model.ViewPropertyDescriptor;
-import eu.eventstorm.sql.annotation.ViewColumn;
-
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-public final class ViewAnalyser implements Function<Element, ViewDescriptor> {
+public final class ViewAnalyser implements Function<Element, ViewDescriptor>, AutoCloseable {
 
     private final Logger logger;
 
-    public ViewAnalyser() {
-    	this.logger = LoggerFactory.getInstance().getLogger(ViewAnalyser.class);
+    public ViewAnalyser(ProcessingEnvironment processingEnv) {
+        this.logger = Logger.getLogger(processingEnv, "eu.eventstorm.sql.analyser", "ViewAnalyser");
     }
 
     @Override
@@ -77,4 +76,8 @@ public final class ViewAnalyser implements Function<Element, ViewDescriptor> {
         return new ViewDescriptor(element, ppds);
     }
 
+    @Override
+    public void close() {
+        logger.close();
+    }
 }

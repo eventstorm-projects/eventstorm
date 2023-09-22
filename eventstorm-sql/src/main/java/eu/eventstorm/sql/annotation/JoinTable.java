@@ -5,23 +5,20 @@ import java.lang.annotation.Target;
 
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 @Target({TYPE})
-@Retention(RUNTIME)
+@Retention(SOURCE)
 public @interface JoinTable {
 
     /**
      * Name for this sql table.
      */
-    String value();    
-    
-    /**
-     * Reference to flyway
-     */
-    FlywayRef flywayRef();
+    String value();
 
+    Versionable versionable() default @Versionable;
 }

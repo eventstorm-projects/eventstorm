@@ -1,45 +1,45 @@
 package eu.eventstorm.core.apt.query.db;
 
-import static eu.eventstorm.sql.apt.Helper.writeGenerated;
-import static eu.eventstorm.sql.apt.Helper.writeNewLine;
-import static eu.eventstorm.sql.apt.Helper.writePackage;
-
-import java.io.IOException;
-import java.io.Writer;
-import java.util.List;
+import eu.eventstorm.annotation.CqrsQueryDatabaseView;
+import eu.eventstorm.core.apt.SourceCode;
+import eu.eventstorm.core.apt.model.DatabaseViewQueryDescriptor;
+import eu.eventstorm.core.apt.model.QueryDescriptor;
+import eu.eventstorm.sql.Module;
+import eu.eventstorm.sql.apt.log.Logger;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.TypeElement;
 import javax.tools.JavaFileObject;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.List;
 
-import eu.eventstorm.core.apt.SourceCode;
-import eu.eventstorm.core.apt.model.DatabaseViewQueryDescriptor;
-import eu.eventstorm.core.apt.model.QueryDescriptor;
-import eu.eventstorm.sql.apt.log.Logger;
-import eu.eventstorm.sql.apt.log.LoggerFactory;
-import eu.eventstorm.annotation.CqrsQueryDatabaseView;
-import eu.eventstorm.sql.Module;
+import static eu.eventstorm.sql.apt.Helper.writeGenerated;
+import static eu.eventstorm.sql.apt.Helper.writeNewLine;
+import static eu.eventstorm.sql.apt.Helper.writePackage;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 public final class QueryDatabaseModuleGenerator {
 
-    private final Logger logger;
-
-    public QueryDatabaseModuleGenerator() {
-		logger = LoggerFactory.getInstance().getLogger(QueryDatabaseModuleGenerator.class);
-	}
+    private Logger logger;
 
     public void generate(ProcessingEnvironment env, SourceCode sourceCode) {
 
-        sourceCode.forEachDatabaseViewQueryPackage((pack, descriptors) -> {
-            try {
-                create(env, pack, descriptors);
-            } catch (Exception cause) {
-                logger.error("QueryDatabaseModuleGenerator -> Exception for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
-            }
-        });
+        try (Logger logger = Logger.getLogger(env, "eu.eventstorm.event.query.db", "QueryDatabaseModuleGenerator")) {
+            this.logger = logger;
+
+            sourceCode.forEachDatabaseViewQueryPackage((pack, descriptors) -> {
+                try {
+                    create(env, pack, descriptors);
+                } catch (Exception cause) {
+                    logger.error("QueryDatabaseModuleGenerator -> Exception for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
+                }
+            });
+
+        }
+
     }
 
     private void create(ProcessingEnvironment env, String pack, List<DatabaseViewQueryDescriptor> descriptors) throws IOException {
@@ -76,7 +76,7 @@ public final class QueryDatabaseModuleGenerator {
 
         for (QueryDescriptor desc : descriptors) {
             if (desc.element().getAnnotation(CqrsQueryDatabaseView.class) != null) {
-                if (((TypeElement)desc.element()).getInterfaces().size() == 0) {
+                if (((TypeElement) desc.element()).getInterfaces().size() == 0) {
                     writer.write(", ");
                     writer.write(desc.simpleName() + "Descriptor.INSTANCE");
                 }
@@ -86,8 +86,8 @@ public final class QueryDatabaseModuleGenerator {
 
         writeNewLine(writer);
         writer.write("    }");
-        
-        
+
+
         writeNewLine(writer);
         writer.write("     public " + classname + "(String name, String catalog, String prefix) {");
         writeNewLine(writer);

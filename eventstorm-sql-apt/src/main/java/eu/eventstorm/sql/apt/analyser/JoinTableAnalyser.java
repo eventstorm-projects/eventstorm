@@ -1,44 +1,43 @@
 package eu.eventstorm.sql.apt.analyser;
 
-import static eu.eventstorm.sql.apt.Helper.isPrimitiveType;
-import static eu.eventstorm.sql.apt.Helper.propertyName;
+import eu.eventstorm.sql.annotation.Column;
+import eu.eventstorm.sql.annotation.JoinColumn;
+import eu.eventstorm.sql.annotation.PrimaryKey;
+import eu.eventstorm.sql.apt.log.Logger;
+import eu.eventstorm.sql.apt.model.PojoDescriptor;
+import eu.eventstorm.sql.apt.model.PojoPropertyDescriptor;
 
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.ExecutableElement;
-
-import eu.eventstorm.sql.apt.log.Logger;
-import eu.eventstorm.sql.apt.log.LoggerFactory;
-import eu.eventstorm.sql.apt.model.PojoDescriptor;
-import eu.eventstorm.sql.apt.model.PojoPropertyDescriptor;
-import eu.eventstorm.sql.annotation.Column;
-import eu.eventstorm.sql.annotation.JoinColumn;
-import eu.eventstorm.sql.annotation.PrimaryKey;
+import static eu.eventstorm.sql.apt.Helper.isPrimitiveType;
+import static eu.eventstorm.sql.apt.Helper.propertyName;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-public final class JoinTableAnalyser implements Function<Element, PojoDescriptor> {
+public final class JoinTableAnalyser implements Function<Element, PojoDescriptor>, AutoCloseable {
 
     private final Logger logger;
 
     private final List<PojoDescriptor> descriptors;
 
-    public JoinTableAnalyser(List<PojoDescriptor> descriptors) {
-    	this.logger = LoggerFactory.getInstance().getLogger(JoinTableAnalyser.class);
-    	this.descriptors = descriptors;
-	}
+    public JoinTableAnalyser(ProcessingEnvironment processingEnv, List<PojoDescriptor> descriptors) {
+        this.logger = Logger.getLogger(processingEnv, "eu.eventstorm.sql.analyser", "JoinTableAnalyser");
+        this.descriptors = descriptors;
+    }
 
-	@Override
+    @Override
     public PojoDescriptor apply(Element element) {
 
         if (ElementKind.INTERFACE != element.getKind()) {
-        	logger.error("element [" + element + "] should be an interface");
+            logger.error("element [" + element + "] should be an interface");
             return null;
         }
 
@@ -51,7 +50,7 @@ public final class JoinTableAnalyser implements Function<Element, PojoDescriptor
         for (Element method : element.getEnclosedElements()) {
 
             if (ElementKind.METHOD != method.getKind()) {
-            	logger.error( "element [" + method + "] in [" + element + "] is not a method, it's [" + element.getKind() + "]");
+                logger.error("element [" + method + "] in [" + element + "] is not a method, it's [" + element.getKind() + "]");
                 return null;
             }
 
@@ -60,11 +59,11 @@ public final class JoinTableAnalyser implements Function<Element, PojoDescriptor
             if (executableElement.getSimpleName().toString().startsWith("set")) {
 
                 if (executableElement.getParameters().size() == 0) {
-                	logger.error( "setter [" + executableElement + "] in [" + element + "] has 0 parameter !");
+                    logger.error("setter [" + executableElement + "] in [" + element + "] has 0 parameter !");
                 }
 
                 if (executableElement.getParameters().size() > 1) {
-                	logger.error( "setter [" + executableElement + "] in [" + element + "] has more than 1 parameter !");
+                    logger.error("setter [" + executableElement + "] in [" + element + "] has more than 1 parameter !");
                 }
 
                 setters.add(executableElement);
@@ -73,13 +72,13 @@ public final class JoinTableAnalyser implements Function<Element, PojoDescriptor
 
             if (executableElement.getSimpleName().toString().startsWith("get")) {
 
-            	if (executableElement.getAnnotation(PrimaryKey.class) != null) {
-            		logger.error("@PrimaryKey should not used for @JoinTable (" + executableElement + ")");
-            	}
+                if (executableElement.getAnnotation(PrimaryKey.class) != null) {
+                    logger.error("@PrimaryKey should not used for @JoinTable (" + executableElement + ")");
+                }
 
-            	JoinColumn joinColumn = executableElement.getAnnotation(JoinColumn.class);
+                JoinColumn joinColumn = executableElement.getAnnotation(JoinColumn.class);
 
-            	if (joinColumn != null) {
+                if (joinColumn != null) {
 
                     validateJoinColumn(executableElement, joinColumn);
 
@@ -89,12 +88,12 @@ public final class JoinTableAnalyser implements Function<Element, PojoDescriptor
 
                 Column column = executableElement.getAnnotation(Column.class);
                 if (column == null) {
-                	logger.error( "getter [" + method + "] in [" + element + "] should have @Column.");
+                    logger.error("getter [" + method + "] in [" + element + "] should have @Column.");
                 } else {
 
                     // check if column nullable.
                     if (column.nullable() && isPrimitiveType(executableElement.getReturnType().toString())) {
-                    	logger.error( "getter [" + method + "] in [" + element + "] indicate a nullable type [" + executableElement.getReturnType() + "] -> it's not a nullable type.");
+                        logger.error("getter [" + method + "] in [" + element + "] indicate a nullable type [" + executableElement.getReturnType() + "] -> it's not a nullable type.");
                     }
                     ppds.add(new PojoPropertyDescriptor(executableElement));
                 }
@@ -110,7 +109,7 @@ public final class JoinTableAnalyser implements Function<Element, PojoDescriptor
             if (!ppd.isPresent()) {
                 Optional<PojoPropertyDescriptor> id = ids.stream().filter(p -> p.name().equals(property)).findFirst();
                 if (!id.isPresent()) {
-                	logger.error("setter [" + s + "] in [" + element + "] is not link to a getter");
+                    logger.error("setter [" + s + "] in [" + element + "] is not link to a getter");
                 } else {
                     checkGetterAndSetterParamerts(id.get(), s);
                     id.get().setSetter(s);
@@ -132,8 +131,12 @@ public final class JoinTableAnalyser implements Function<Element, PojoDescriptor
 
     private void checkGetterAndSetterParamerts(PojoPropertyDescriptor ppd, ExecutableElement setter) {
         if (!setter.getParameters().get(0).asType().toString().equals(ppd.getter().getReturnType().toString())) {
-        	logger.error("setter [" + setter + "] in [" + setter.getEnclosingElement() + "] type error : getter=[" + ppd.getter().getReturnType() + "] and setter=[" + setter.getParameters().get(0).asType().toString() + "]");
+            logger.error("setter [" + setter + "] in [" + setter.getEnclosingElement() + "] type error : getter=[" + ppd.getter().getReturnType() + "] and setter=[" + setter.getParameters().get(0).asType().toString() + "]");
         }
     }
 
+    @Override
+    public void close() {
+        logger.close();
+    }
 }

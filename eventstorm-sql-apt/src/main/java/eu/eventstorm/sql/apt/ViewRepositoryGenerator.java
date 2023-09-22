@@ -1,57 +1,53 @@
 package eu.eventstorm.sql.apt;
 
-import static eu.eventstorm.sql.apt.Helper.toUpperCase;
-import static eu.eventstorm.sql.apt.Helper.writeGenerated;
-import static eu.eventstorm.sql.apt.Helper.writeNewLine;
-import static eu.eventstorm.sql.apt.Helper.writePackage;
-
-import java.io.IOException;
-import java.io.Writer;
-
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.tools.JavaFileObject;
-
-import eu.eventstorm.sql.apt.log.Logger;
-import eu.eventstorm.sql.apt.log.LoggerFactory;
-import eu.eventstorm.sql.apt.model.ViewDescriptor;
 import eu.eventstorm.page.Page;
 import eu.eventstorm.page.PageRequest;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Repository;
+import eu.eventstorm.sql.apt.log.Logger;
+import eu.eventstorm.sql.apt.model.ViewDescriptor;
 import eu.eventstorm.sql.expression.AggregateFunctions;
 import eu.eventstorm.sql.expression.Expressions;
+
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.tools.JavaFileObject;
+import java.io.IOException;
+import java.io.Writer;
+
+import static eu.eventstorm.sql.apt.Helper.toUpperCase;
+import static eu.eventstorm.sql.apt.Helper.writeGenerated;
+import static eu.eventstorm.sql.apt.Helper.writeNewLine;
+import static eu.eventstorm.sql.apt.Helper.writePackage;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 final class ViewRepositoryGenerator implements Generator {
 
-	private static Logger logger;
+    private Logger logger;
 
-	ViewRepositoryGenerator() {
-		logger = LoggerFactory.getInstance().getLogger(ViewRepositoryGenerator.class);
-	}
+    ViewRepositoryGenerator() {
+    }
 
     @Override
-    public void generate(ProcessingEnvironment env, SourceCode code) {
+    public void generate(ProcessingEnvironment processingEnv, SourceCode code) {
 
-        try {
-             // generate Implementation class;
+        try (Logger l = Logger.getLogger(processingEnv, "eu.eventstorm.sql.generator", "ViewRepositoryGenerator")) {
+            this.logger = l;
             code.forEachView(t -> {
                 try {
-                    generate(env, t);
+                    generate(processingEnv, t);
                 } catch (Exception cause) {
                     logger.error("ViewRepositoryGenerator -> Exception for [" + t + "] -> [" + cause.getMessage() + "]", cause);
                 }
             });
-        } finally {
-            logger = null;
         }
+
 
     }
 
     private void generate(ProcessingEnvironment env, ViewDescriptor descriptor) throws IOException {
-        JavaFileObject object = env.getFiler().createSourceFile(descriptor.getPackage() + ".Abstract" + descriptor.simpleName() +"Repository");
+        JavaFileObject object = env.getFiler().createSourceFile(descriptor.getPackage() + ".Abstract" + descriptor.simpleName() + "Repository");
         Writer writer = object.openWriter();
 
         writeHeader(writer, env, descriptor);
@@ -78,7 +74,7 @@ final class ViewRepositoryGenerator implements Generator {
         writer.write("import static ");
         writer.write(descriptor.fullyQualidiedClassName() + "Descriptor.VIEW;");
         writeNewLine(writer);
-    
+
         writer.write("import static ");
         writer.write(Expressions.class.getName() + ".eq;");
         writeNewLine(writer);
@@ -98,7 +94,7 @@ final class ViewRepositoryGenerator implements Generator {
     }
 
     private static void writeVariables(Writer writer, ViewDescriptor descriptor) throws IOException {
-        
+
     }
 
     private static void writeConstructor(Writer writer, ViewDescriptor descriptor) throws IOException {
@@ -575,10 +571,10 @@ final class ViewRepositoryGenerator implements Generator {
 
     private static void generateMethodPage(Writer writer, ViewDescriptor descriptor) throws IOException {
 
-    	if (descriptor.getView().pageable() == false) {
-    		return;
-    	}
-    	
+        if (descriptor.getView().pageable() == false) {
+            return;
+        }
+
         writeNewLine(writer);
         writer.write("    public final ");
         writer.write(Page.class.getName());
@@ -592,7 +588,7 @@ final class ViewRepositoryGenerator implements Generator {
         writer.write("        // create sql for count");
         writeNewLine(writer);
 
-        writer.write("        String sqlCount = select("+AggregateFunctions.class.getName() + ".count(*)).from(VIEW).build();");
+        writer.write("        String sqlCount = select(" + AggregateFunctions.class.getName() + ".count(*)).from(VIEW).build();");
         writeNewLine(writer);
         writer.write("        // create sql for select");
         writeNewLine(writer);

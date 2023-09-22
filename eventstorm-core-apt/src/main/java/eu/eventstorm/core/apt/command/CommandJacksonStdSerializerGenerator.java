@@ -1,102 +1,100 @@
 package eu.eventstorm.core.apt.command;
 
-import static eu.eventstorm.sql.apt.Helper.writeGenerated;
-import static eu.eventstorm.sql.apt.Helper.writeNewLine;
-import static eu.eventstorm.sql.apt.Helper.writePackage;
-
-import java.io.IOException;
-import java.io.Writer;
-
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.tools.JavaFileObject;
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.google.common.collect.ImmutableList;
-
 import eu.eventstorm.core.apt.SourceCode;
 import eu.eventstorm.core.apt.model.AbstractCommandDescriptor;
 import eu.eventstorm.core.apt.model.PropertyDescriptor;
 import eu.eventstorm.sql.apt.Helper;
 import eu.eventstorm.sql.apt.log.Logger;
-import eu.eventstorm.sql.apt.log.LoggerFactory;
+
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.tools.JavaFileObject;
+import java.io.IOException;
+import java.io.Writer;
+
+import static eu.eventstorm.sql.apt.Helper.writeGenerated;
+import static eu.eventstorm.sql.apt.Helper.writeNewLine;
+import static eu.eventstorm.sql.apt.Helper.writePackage;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 public final class CommandJacksonStdSerializerGenerator {
 
-	private final Logger logger;
+    private Logger logger;
 
-	public CommandJacksonStdSerializerGenerator() {
-		logger = LoggerFactory.getInstance().getLogger(CommandJacksonStdSerializerGenerator.class);
-	}
+    public CommandJacksonStdSerializerGenerator() {
+    }
 
-	public void generate(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
-		// generate Implementation class;
-		sourceCode.forEachCommandPackage((pack, list) -> {
-			try {
-				generate(processingEnvironment, pack, list);
-			} catch (Exception cause) {
-				logger.error("Exception for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
-			}
-		});
-	}
-	
-	public void generateEmbedded(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
-		// generate Implementation class;
-		sourceCode.forEachEmbeddedCommandPackage((pack, list) -> {
-			try {
-				generate(processingEnvironment, pack, list);
-			} catch (Exception cause) {
-				logger.error("Exception for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
-			}
-		});
-	}
-	
-	
+    public void generate(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
 
-	private void generate(ProcessingEnvironment env, String pack, ImmutableList<? extends AbstractCommandDescriptor> descriptors) throws IOException {
+        try (Logger logger = Logger.getLogger(processingEnvironment, "eu.eventstorm.event.generator", "CommandJacksonStdSerializerGenerator")) {
+            this.logger = logger;
+            sourceCode.forEachCommandPackage((pack, list) -> {
+                try {
+                    generate(processingEnvironment, pack, list);
+                } catch (Exception cause) {
+                    logger.error("Exception for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
+                }
+            });
+        }
+    }
 
-		for (AbstractCommandDescriptor cd : descriptors) {
-		    
-		    // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
-	        if (env.getElementUtils().getTypeElement(pack + ".json." + cd.simpleName() + "StdSerializer") != null) {
-	            logger.info("Java SourceCode already exist [" +pack + ".json." + cd.simpleName() + "StdSerializer" + "]");
-	            return;
-	        }
-	        
-			JavaFileObject object = env.getFiler().createSourceFile(pack + ".json." + cd.simpleName() + "StdSerializer");
-			Writer writer = object.openWriter();
+    public void generateEmbedded(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
+        // generate Implementation class;
+        sourceCode.forEachEmbeddedCommandPackage((pack, list) -> {
+            try {
+                generate(processingEnvironment, pack, list);
+            } catch (Exception cause) {
+                logger.error("Exception for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
+            }
+        });
+    }
 
-			writeHeader(writer, pack + ".json", cd);
-		//	writeStatic(writer, cd);
-		    writeConstructor(writer, cd);
-			writeMethod(writer, cd);
 
-			writer.write("}");
-			writer.close();
-		}
+    private void generate(ProcessingEnvironment env, String pack, ImmutableList<? extends AbstractCommandDescriptor> descriptors) throws IOException {
 
-	}
+        for (AbstractCommandDescriptor cd : descriptors) {
 
-	private static void writeHeader(Writer writer, String pack, AbstractCommandDescriptor cd) throws IOException {
-		writePackage(writer, pack);
+            // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
+            if (env.getElementUtils().getTypeElement(pack + ".json." + cd.simpleName() + "StdSerializer") != null) {
+                logger.info("Java SourceCode already exist [" + pack + ".json." + cd.simpleName() + "StdSerializer" + "]");
+                return;
+            }
 
-		writeNewLine(writer);
-		writer.write("import " + StdSerializer.class.getName() + ";");
-		writeNewLine(writer);
-		writer.write("import " + JsonGenerator.class.getName() + ";");
-		writeNewLine(writer);
-		writer.write("import " + SerializerProvider.class.getName() + ";");
-		writeNewLine(writer);
-		writer.write("import " + IOException.class.getName() + ";");
-		writeNewLine(writer);
+            JavaFileObject object = env.getFiler().createSourceFile(pack + ".json." + cd.simpleName() + "StdSerializer");
+            Writer writer = object.openWriter();
+
+            writeHeader(writer, pack + ".json", cd);
+            //	writeStatic(writer, cd);
+            writeConstructor(writer, cd);
+            writeMethod(writer, cd);
+
+            writer.write("}");
+            writer.close();
+        }
+
+    }
+
+    private static void writeHeader(Writer writer, String pack, AbstractCommandDescriptor cd) throws IOException {
+        writePackage(writer, pack);
+
+        writeNewLine(writer);
+        writer.write("import " + StdSerializer.class.getName() + ";");
+        writeNewLine(writer);
+        writer.write("import " + JsonGenerator.class.getName() + ";");
+        writeNewLine(writer);
+        writer.write("import " + SerializerProvider.class.getName() + ";");
+        writeNewLine(writer);
+        writer.write("import " + IOException.class.getName() + ";");
+        writeNewLine(writer);
 //		writer.write("import " + DeserializationContext.class.getName() + ";");
 //		writeNewLine(writer);
-		writer.write("import " + cd.fullyQualidiedClassName() + ";");
-		writeNewLine(writer);
+        writer.write("import " + cd.fullyQualidiedClassName() + ";");
+        writeNewLine(writer);
 //		writer.write("import " + cd.fullyQualidiedClassName() + "Builder;");
 //		writeNewLine(writer);
 //		
@@ -104,24 +102,24 @@ public final class CommandJacksonStdSerializerGenerator {
 //		writeImport(writer, cd, LocalDate.class.getName(), Dates.class.getName() + ".parseLocalDate");
 //		writeImport(writer, cd, LocalTime.class.getName(), Dates.class.getName() + ".parseLocalTime");
 
-		writeGenerated(writer, CommandJacksonStdSerializerGenerator.class.getName());
-		
-	    writer.write("@SuppressWarnings(\"serial\")");
-	    writeNewLine(writer);
-		writer.write("final class "+ cd.simpleName() +"StdSerializer extends StdSerializer<"+ cd.simpleName() +"> {");
-		writeNewLine(writer);
-	}
+        writeGenerated(writer, CommandJacksonStdSerializerGenerator.class.getName());
 
-	private static void writeImport(Writer writer, AbstractCommandDescriptor cd, String fcqn, String staticMethod) throws IOException {
-	    for (PropertyDescriptor cpd : cd.properties()) {
+        writer.write("@SuppressWarnings(\"serial\")");
+        writeNewLine(writer);
+        writer.write("final class " + cd.simpleName() + "StdSerializer extends StdSerializer<" + cd.simpleName() + "> {");
+        writeNewLine(writer);
+    }
+
+    private static void writeImport(Writer writer, AbstractCommandDescriptor cd, String fcqn, String staticMethod) throws IOException {
+        for (PropertyDescriptor cpd : cd.properties()) {
             if (fcqn.equals(cpd.getter().getReturnType().toString())) {
                 writer.write("import static " + staticMethod + ";");
                 writeNewLine(writer);
                 break;
             }
         }
-	}
-	
+    }
+
 //	private void writeStatic(Writer writer, AbstractCommandDescriptor cd) throws IOException {
 //
 //		writeNewLine(writer);
@@ -203,56 +201,56 @@ public final class CommandJacksonStdSerializerGenerator {
 //
 //	}
 //
-	
-	private static void writeConstructor(Writer writer, AbstractCommandDescriptor descriptor) throws IOException {
-		writeNewLine(writer);
-		writer.write("    " + descriptor.simpleName() +"StdSerializer");
-		writer.write("() {");
-		writeNewLine(writer);
-		writer.write("        super("+ descriptor.simpleName()+".class);");
-		writeNewLine(writer);
-		writer.write("    }");
-		writeNewLine(writer);
-	}
 
-	private void writeMethod(Writer writer, AbstractCommandDescriptor cd) throws IOException {
-		writeNewLine(writer);
-		writer.write("    @Override");
-		writeNewLine(writer);
-		writer.write("    public void serialize( " + cd.simpleName() + " pojo, JsonGenerator gen, SerializerProvider provider) throws IOException {");
-		writeNewLine(writer);
-		
-		writer.write("        gen.writeStartObject();");
-		writeNewLine(writer);
-		
-		for (PropertyDescriptor propertyDescriptor : cd.properties() ) {
-			String type = Helper.getReturnType(propertyDescriptor.getter());
+    private static void writeConstructor(Writer writer, AbstractCommandDescriptor descriptor) throws IOException {
+        writeNewLine(writer);
+        writer.write("    " + descriptor.simpleName() + "StdSerializer");
+        writer.write("() {");
+        writeNewLine(writer);
+        writer.write("        super(" + descriptor.simpleName() + ".class);");
+        writeNewLine(writer);
+        writer.write("    }");
+        writeNewLine(writer);
+    }
 
-			if (!Helper.isPrimitiveType(type)) {
-				// check if null ...
-				writer.write("        if (null != pojo." + propertyDescriptor.getter().getSimpleName()+"())");
-				writeNewLine(writer);
-				writer.write("    ");
-			}
+    private void writeMethod(Writer writer, AbstractCommandDescriptor cd) throws IOException {
+        writeNewLine(writer);
+        writer.write("    @Override");
+        writeNewLine(writer);
+        writer.write("    public void serialize( " + cd.simpleName() + " pojo, JsonGenerator gen, SerializerProvider provider) throws IOException {");
+        writeNewLine(writer);
 
-			if (Helper.isInteger(type) || Helper.isLong(type) ||Helper.isShort(type) ||Helper.isByte(type)) {
-				writer.write("        gen.writeNumberField(\"" + propertyDescriptor.name() + "\", pojo." + propertyDescriptor.getter().getSimpleName()+"());");
-			} else if (Helper.isString(type)) {
-				writer.write("        gen.writeStringField(\"" + propertyDescriptor.name() + "\", pojo." + propertyDescriptor.getter().getSimpleName()+"());");
-			} else {
-				writer.write("        gen.writeObjectField(\"" + propertyDescriptor.name() + "\", pojo." + propertyDescriptor.getter().getSimpleName()+"());");
-			}
-			writeNewLine(writer);
-		}
-		
-		writer.write("        gen.writeEndObject();");
-		writeNewLine(writer);
-		
-		writeNewLine(writer);
-		writer.write("     }");
-		writeNewLine(writer);
-	}
-	
+        writer.write("        gen.writeStartObject();");
+        writeNewLine(writer);
+
+        for (PropertyDescriptor propertyDescriptor : cd.properties()) {
+            String type = Helper.getReturnType(propertyDescriptor.getter());
+
+            if (!Helper.isPrimitiveType(type)) {
+                // check if null ...
+                writer.write("        if (null != pojo." + propertyDescriptor.getter().getSimpleName() + "())");
+                writeNewLine(writer);
+                writer.write("    ");
+            }
+
+            if (Helper.isInteger(type) || Helper.isLong(type) || Helper.isShort(type) || Helper.isByte(type)) {
+                writer.write("        gen.writeNumberField(\"" + propertyDescriptor.name() + "\", pojo." + propertyDescriptor.getter().getSimpleName() + "());");
+            } else if (Helper.isString(type)) {
+                writer.write("        gen.writeStringField(\"" + propertyDescriptor.name() + "\", pojo." + propertyDescriptor.getter().getSimpleName() + "());");
+            } else {
+                writer.write("        gen.writeObjectField(\"" + propertyDescriptor.name() + "\", pojo." + propertyDescriptor.getter().getSimpleName() + "());");
+            }
+            writeNewLine(writer);
+        }
+
+        writer.write("        gen.writeEndObject();");
+        writeNewLine(writer);
+
+        writeNewLine(writer);
+        writer.write("     }");
+        writeNewLine(writer);
+    }
+
 //	private void writeMethod(Writer writer, AbstractCommandDescriptor cd) throws IOException {
 //		writeNewLine(writer);
 //		writer.write("    @Override");

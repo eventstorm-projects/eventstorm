@@ -6,7 +6,6 @@ import eu.eventstorm.cqrs.PageQueryDescriptors;
 import eu.eventstorm.eventstore.StreamManager;
 import eu.eventstorm.eventstore.memory.InMemoryStreamManagerBuilder;
 import eu.eventstorm.sql.apt.log.Logger;
-import eu.eventstorm.sql.apt.log.LoggerFactory;
 import eu.eventstorm.util.Strings;
 
 import javax.annotation.processing.ProcessingEnvironment;
@@ -28,44 +27,46 @@ import static eu.eventstorm.sql.apt.Helper.writePackage;
  */
 public final class SpringConfigurationGenerator {
 
-    private final Logger logger;
-
+    private Logger logger;
     private ProcessingEnvironment env;
     private SourceCode code;
 
-    public SpringConfigurationGenerator() {
-        logger = LoggerFactory.getInstance().getLogger(SpringConfigurationGenerator.class);
-    }
 
     public void generateCommand(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
-        this.env = processingEnvironment;
-        this.code = sourceCode;
 
-        String className = "EventstormSpringAutoConfiguration";
-        if (!Strings.isEmpty(sourceCode.getCqrsConfiguration().id())) {
-            className += "__" + sourceCode.getCqrsConfiguration().id();
-        }
+        try (Logger logger = Logger.getLogger(processingEnvironment, "eu.eventstorm.event.spring", "SpringConfigurationGenerator")) {
+            this.logger = logger;
 
-        // check due to
-        // "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
-        if (env.getElementUtils().getTypeElement(sourceCode.getCqrsConfiguration().basePackage() + "." + className) != null) {
-            logger.info("Java SourceCode already exist " + sourceCode.getCqrsConfiguration().basePackage() + "." + className);
-            return;
-        }
+            this.env = processingEnvironment;
+            this.code = sourceCode;
 
-        try {
-            JavaFileObject object = env.getFiler().createSourceFile(sourceCode.getCqrsConfiguration().basePackage() + "." + className);
-            try (Writer writer = object.openWriter()) {
-                writeHeader(writer, env, code, className);
-                writeStreamManager(writer, env, code);
-                writeTypeRegistry(writer, env, code);
-                writeCommandModule(writer, env, code);
-                writeQueryModule(writer, env, code);
-                writeQueryDescriptor(writer, code);
-                writer.write("}");
+            String className = "EventstormSpringAutoConfiguration";
+            if (!Strings.isEmpty(sourceCode.getCqrsConfiguration().id())) {
+                className += "__" + sourceCode.getCqrsConfiguration().id();
             }
-        } catch (IOException cause) {
-            logger.error("Exception for [" + cause.getMessage() + "]", cause);
+
+            // check due to
+            // "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
+            if (env.getElementUtils().getTypeElement(sourceCode.getCqrsConfiguration().basePackage() + "." + className) != null) {
+                logger.info("Java SourceCode already exist " + sourceCode.getCqrsConfiguration().basePackage() + "." + className);
+                return;
+            }
+
+            try {
+                JavaFileObject object = env.getFiler().createSourceFile(sourceCode.getCqrsConfiguration().basePackage() + "." + className);
+                try (Writer writer = object.openWriter()) {
+                    writeHeader(writer, env, code, className);
+                    writeStreamManager(writer, env, code);
+                    writeTypeRegistry(writer, env, code);
+                    writeCommandModule(writer, env, code);
+                    writeQueryModule(writer, env, code);
+                    writeQueryDescriptor(writer, code);
+                    writer.write("}");
+                }
+            } catch (IOException cause) {
+                logger.error("Exception for [" + cause.getMessage() + "]", cause);
+            }
+
         }
 
     }

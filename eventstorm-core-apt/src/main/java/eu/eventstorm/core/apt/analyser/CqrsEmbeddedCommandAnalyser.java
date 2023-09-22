@@ -1,27 +1,26 @@
 package eu.eventstorm.core.apt.analyser;
 
+import eu.eventstorm.core.apt.model.EmbeddedCommandDescriptor;
+import eu.eventstorm.core.apt.model.PropertyDescriptor;
+import eu.eventstorm.sql.apt.log.Logger;
+
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.ExecutableElement;
-
-import eu.eventstorm.core.apt.model.EmbeddedCommandDescriptor;
-import eu.eventstorm.core.apt.model.PropertyDescriptor;
-import eu.eventstorm.sql.apt.log.Logger;
-import eu.eventstorm.sql.apt.log.LoggerFactory;
-
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-public final class CqrsEmbeddedCommandAnalyser implements Function<Element, EmbeddedCommandDescriptor> {
+public final class CqrsEmbeddedCommandAnalyser implements Function<Element, EmbeddedCommandDescriptor>, AutoCloseable {
 
 	private final Logger logger;
 
-	public CqrsEmbeddedCommandAnalyser() {
-		this.logger = LoggerFactory.getInstance().getLogger(CqrsEmbeddedCommandAnalyser.class);
+	public CqrsEmbeddedCommandAnalyser(ProcessingEnvironment processingEnv) {
+		this.logger = Logger.getLogger(processingEnv, "eu.eventstorm.event.analyser", "CqrsEmbeddedCommandAnalyser");
 	}
 
 	@Override
@@ -69,4 +68,8 @@ public final class CqrsEmbeddedCommandAnalyser implements Function<Element, Embe
 		return new EmbeddedCommandDescriptor(element, properties);
 	}
 
+	@Override
+	public void close(){
+		logger.close();
+	}
 }

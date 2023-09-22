@@ -3,8 +3,8 @@ package eu.eventstorm.core.apt.analyser;
 import eu.eventstorm.core.apt.model.AbstractCommandDescriptor;
 import eu.eventstorm.core.apt.model.PropertyDescriptor;
 import eu.eventstorm.sql.apt.log.Logger;
-import eu.eventstorm.sql.apt.log.LoggerFactory;
 
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
@@ -17,69 +17,72 @@ import java.util.function.Function;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-abstract class AbstractCommandAnalyser<T extends AbstractCommandDescriptor> implements Function<Element, T> {
+abstract class AbstractCommandAnalyser<T extends AbstractCommandDescriptor> implements Function<Element, T>, AutoCloseable {
 
-	private final Logger logger;
+    private final Logger logger;
 
-	public AbstractCommandAnalyser() {
-		this.logger = LoggerFactory.getInstance().getLogger(AbstractCommandAnalyser.class);
-	}
+    public AbstractCommandAnalyser(ProcessingEnvironment processingEnv) {
+        this.logger = Logger.getLogger(processingEnv, "eu.eventstorm.event.analyser", getClass().getSimpleName());
+    }
 
-	@Override
-	public T apply(Element element) {
+    @Override
+    public T apply(Element element) {
+        try {
+            return doApply(element);
+        } catch (Exception cause) {
+            this.logger.error(cause.getMessage(), cause);
+            // throw new AnalyserException(cause);
+            return null;
+        }
+    }
 
-		try {
-			return doApply(element);
-		} catch (Exception cause) {
-			this.logger.error(cause.getMessage(), cause);
-			// throw new AnalyserException(cause);
-			return null;
-		}
+    public T doApply(Element element) {
 
-	}
+        if (ElementKind.INTERFACE != element.getKind()) {
+            logger.error("element [" + element + "] should be an interface");
+            return null;
+        }
 
-	public T doApply(Element element) {
+        logger.info("Analyse " + element);
 
-		if (ElementKind.INTERFACE != element.getKind()) {
-			logger.error("element [" + element + "] should be an interface");
-			return null;
-		}
+        TypeElement parent = (TypeElement) element;
+        List<PropertyDescriptor> properties = new ArrayList<>();
+        read(parent, properties);
 
-		logger.info("Analyse " + element);
+        return newInstance(element, properties);
+    }
 
-		TypeElement parent = (TypeElement)element;
-		List<PropertyDescriptor> properties = new ArrayList<>();
-		read(parent, properties);
+    private void read(TypeElement element, List<PropertyDescriptor> properties) {
+        for (Element method : element.getEnclosedElements()) {
 
-		return newInstance(element, properties);
-	}
+            if (ElementKind.METHOD != method.getKind()) {
+                logger.error("element [" + method + "] in [" + element + "] is not a method, it's [" + element.getKind() + "]");
+                return;
+            }
 
-	private void read(TypeElement element, List<PropertyDescriptor> properties) {
-		for (Element method : element.getEnclosedElements()) {
+            ExecutableElement executableElement = (ExecutableElement) method;
 
-			if (ElementKind.METHOD != method.getKind()) {
-				logger.error("element [" + method + "] in [" + element + "] is not a method, it's [" + element.getKind() + "]");
-				return;
-			}
+            if (executableElement.getSimpleName().toString().startsWith("get")) {
+                properties.add(new PropertyDescriptor(executableElement));
+                continue;
+            }
 
-			ExecutableElement executableElement = (ExecutableElement) method;
+            throw new IllegalStateException("method [" + method + "] doesn't start with 'get'");
+        }
 
-			if (executableElement.getSimpleName().toString().startsWith("get")) {
-				properties.add(new PropertyDescriptor(executableElement));
-				continue;
-			}
+        element.getInterfaces().forEach(typeMirror -> {
+            if (!"eu.eventstorm.cqrs.Command".equals(typeMirror.toString())) {
+                // skip
+                read((TypeElement) ((DeclaredType) typeMirror).asElement(), properties);
+            }
+        });
+    }
 
-			throw new IllegalStateException("method [" + method + "] doesn't start with 'get'");
-		}
+    protected abstract T newInstance(Element element, List<PropertyDescriptor> properties);
 
-		element.getInterfaces().forEach(typeMirror -> {
-			if (!"eu.eventstorm.cqrs.Command".equals(typeMirror.toString())) {
-				// skip
-				read((TypeElement) ((DeclaredType) typeMirror).asElement(), properties);
-			}
-		});
-	}
-
-	protected abstract T newInstance(Element element, List<PropertyDescriptor> properties);
+    @Override
+    public void close() {
+        logger.close();
+    }
 
 }

@@ -1,21 +1,19 @@
 package eu.eventstorm.sql.apt;
 
-import static eu.eventstorm.sql.apt.Helper.writeGenerated;
-import static eu.eventstorm.sql.apt.Helper.writeNewLine;
-import static eu.eventstorm.sql.apt.Helper.writePackage;
+import eu.eventstorm.sql.apt.log.Logger;
+import eu.eventstorm.sql.apt.model.ViewDescriptor;
+import eu.eventstorm.sql.apt.model.ViewPropertyDescriptor;
+import eu.eventstorm.util.ToStringBuilder;
 
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
 
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.tools.JavaFileObject;
-
-import eu.eventstorm.sql.apt.log.Logger;
-import eu.eventstorm.sql.apt.log.LoggerFactory;
-import eu.eventstorm.sql.apt.model.ViewDescriptor;
-import eu.eventstorm.sql.apt.model.ViewPropertyDescriptor;
-import eu.eventstorm.util.ToStringBuilder;
+import static eu.eventstorm.sql.apt.Helper.writeGenerated;
+import static eu.eventstorm.sql.apt.Helper.writeNewLine;
+import static eu.eventstorm.sql.apt.Helper.writePackage;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -24,24 +22,23 @@ final class ViewImplementationGenerator implements Generator {
 
 	private static final String TO_STRING_BUILDER = ToStringBuilder.class.getName();
 
-	private final Logger logger;
+	private Logger logger;
 
 	ViewImplementationGenerator() {
-		logger = LoggerFactory.getInstance().getLogger(ViewImplementationGenerator.class);
 	}
 
     @Override
-    public void generate(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
-        // generate Implementation class;
-        sourceCode.forEachView(t -> {
-            try {
-                generate(processingEnvironment, t);
-            } catch (Exception cause) {
-            	logger.error("Exception for [" + t + "] -> [" + cause.getMessage() + "]", cause);
-            }
-        });
-
-
+    public void generate(ProcessingEnvironment processingEnv, SourceCode sourceCode) {
+        try (Logger l = Logger.getLogger(processingEnv, "eu.eventstorm.sql.generator", "ViewImplementationGenerator")) {
+            this.logger = l;
+            sourceCode.forEachView(t -> {
+                try {
+                    generate(processingEnv, t);
+                } catch (Exception cause) {
+                    logger.error("Exception for [" + t + "] -> [" + cause.getMessage() + "]", cause);
+                }
+            });
+        }
     }
 
     private void generate(ProcessingEnvironment env, ViewDescriptor descriptor) throws IOException {

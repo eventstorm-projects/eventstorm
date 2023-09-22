@@ -1,43 +1,44 @@
 package eu.eventstorm.sql.apt;
 
+import eu.eventstorm.sql.apt.log.Logger;
+import eu.eventstorm.sql.apt.model.PojoDescriptor;
+import eu.eventstorm.sql.jdbc.Mapper;
+import eu.eventstorm.sql.jdbc.MapperWithAutoIncrement;
+
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.tools.JavaFileObject;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.List;
+
 import static eu.eventstorm.sql.apt.Helper.hasAutoIncrementPK;
 import static eu.eventstorm.sql.apt.Helper.toUpperCase;
 import static eu.eventstorm.sql.apt.Helper.writeGenerated;
 import static eu.eventstorm.sql.apt.Helper.writeNewLine;
 import static eu.eventstorm.sql.apt.Helper.writePackage;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.util.List;
-
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.tools.JavaFileObject;
-
-import eu.eventstorm.sql.apt.log.Logger;
-import eu.eventstorm.sql.apt.log.LoggerFactory;
-import eu.eventstorm.sql.apt.model.PojoDescriptor;
-import eu.eventstorm.sql.jdbc.Mapper;
-import eu.eventstorm.sql.jdbc.MapperWithAutoIncrement;
-
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 final class PojoMapperFactoryGenerator implements Generator {
 
-    private final Logger logger;
+    private Logger logger;
 
-	PojoMapperFactoryGenerator() {
-		logger = LoggerFactory.getInstance().getLogger(PojoMapperFactoryGenerator.class);
-	}
+    PojoMapperFactoryGenerator() {
+    }
 
-    public void generate(ProcessingEnvironment env, SourceCode sourceCode) {
-        sourceCode.forEachByPackage((pack, descriptors) -> {
-            try {
-                create(env, pack, descriptors);
-            } catch (Exception cause) {
-                logger.error("PojoMapperFactoryGenerator -> IOException for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
-            }
-        });
+    public void generate(ProcessingEnvironment processingEnv, SourceCode sourceCode) {
+        try (Logger l = Logger.getLogger(processingEnv, "eu.eventstorm.sql.generator", "PojoMapperFactoryGenerator")) {
+            this.logger = l;
+            sourceCode.forEachByPackage((pack, descriptors) -> {
+                try {
+                    create(processingEnv, pack, descriptors);
+                } catch (Exception cause) {
+                    logger.error("Exception for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
+                }
+            });
+        }
+
     }
 
     private void create(ProcessingEnvironment env, String pack, List<PojoDescriptor> descriptors) throws IOException {

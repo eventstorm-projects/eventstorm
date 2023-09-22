@@ -1,5 +1,13 @@
 package eu.eventstorm.sql.apt;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import eu.eventstorm.sql.apt.log.Logger;
+import eu.eventstorm.sql.apt.model.Desc;
+import eu.eventstorm.sql.apt.model.PojoDescriptor;
+import eu.eventstorm.sql.apt.model.ViewDescriptor;
+
+import javax.annotation.processing.ProcessingEnvironment;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -8,20 +16,7 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import javax.annotation.processing.ProcessingEnvironment;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-
-import eu.eventstorm.sql.apt.log.Logger;
-import eu.eventstorm.sql.apt.log.LoggerFactory;
-import eu.eventstorm.sql.apt.model.Desc;
-import eu.eventstorm.sql.apt.model.PojoDescriptor;
-import eu.eventstorm.sql.apt.model.ViewDescriptor;
-
 public final class SourceCode {
-
-    private final Logger logger = LoggerFactory.getInstance().getLogger(SourceCode.class);
 
     private final ImmutableList<PojoDescriptor> all;
 
@@ -46,6 +41,8 @@ public final class SourceCode {
 
 
     void dump() {
+        Logger logger = Logger.getMainLogger();
+
         logger.info("Result Analysis -----------------------------------------------------------------------------------------");
         logger.info("---------------------------------------------------------------------------------------------------------");
         logger.info("Number of Pojo(s) found : " + descriptors.size());

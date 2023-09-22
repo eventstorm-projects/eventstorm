@@ -1,10 +1,29 @@
 package eu.eventstorm.core.apt.query;
 
-import static eu.eventstorm.sql.apt.Helper.getReturnType;
-import static eu.eventstorm.sql.apt.Helper.writeGenerated;
-import static eu.eventstorm.sql.apt.Helper.writeNewLine;
-import static eu.eventstorm.sql.apt.Helper.writePackage;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import eu.eventstorm.annotation.CqrsQueryPropertyFactory;
+import eu.eventstorm.core.apt.SourceCode;
+import eu.eventstorm.core.apt.model.QueryDescriptor;
+import eu.eventstorm.core.apt.model.QueryPropertyDescriptor;
+import eu.eventstorm.core.json.DeserializerException;
+import eu.eventstorm.core.util.PropertyFactory;
+import eu.eventstorm.core.util.PropertyFactoryType;
+import eu.eventstorm.cqrs.util.Jsons;
+import eu.eventstorm.sql.apt.Helper;
+import eu.eventstorm.sql.apt.log.Logger;
+import eu.eventstorm.sql.type.Json;
+import eu.eventstorm.util.Dates;
+import eu.eventstorm.util.TriConsumer;
 
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.type.MirroredTypeException;
+import javax.lang.model.type.TypeMirror;
+import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.Writer;
 import java.sql.Date;
@@ -15,74 +34,52 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.type.MirroredTypeException;
-import javax.lang.model.type.TypeMirror;
-import javax.tools.JavaFileObject;
-
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-
-import eu.eventstorm.annotation.CqrsQueryPropertyFactory;
-import eu.eventstorm.core.apt.SourceCode;
-import eu.eventstorm.core.apt.model.QueryDescriptor;
-import eu.eventstorm.core.apt.model.QueryPropertyDescriptor;
-import eu.eventstorm.core.util.PropertyFactory;
-import eu.eventstorm.core.util.PropertyFactoryType;
-import eu.eventstorm.cqrs.util.Jsons;
-import eu.eventstorm.sql.apt.Helper;
-import eu.eventstorm.sql.apt.log.Logger;
-import eu.eventstorm.sql.apt.log.LoggerFactory;
-import eu.eventstorm.core.json.DeserializerException;
-import eu.eventstorm.sql.type.Json;
-import eu.eventstorm.util.Dates;
-import eu.eventstorm.util.TriConsumer;
+import static eu.eventstorm.sql.apt.Helper.getReturnType;
+import static eu.eventstorm.sql.apt.Helper.writeGenerated;
+import static eu.eventstorm.sql.apt.Helper.writeNewLine;
+import static eu.eventstorm.sql.apt.Helper.writePackage;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 public final class QueryJacksonStdDeserializerGenerator {
 
-	private final Logger logger;
-
-	public QueryJacksonStdDeserializerGenerator() {
-		logger = LoggerFactory.getInstance().getLogger(QueryJacksonStdDeserializerGenerator.class);
-	}
+	private Logger logger;
 
 	public void generate(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
-		// generate Implementation class;
-		sourceCode.forEachQueryClientPackage((pack, list) -> {
-			try {
-				generate(processingEnvironment, pack, list);
-			} catch (Exception cause) {
-				logger.error("Exception for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
-			}
-		});
-		sourceCode.forEachDatabaseTableQueryPackage((pack, list) -> {
-			try {
-				generate(processingEnvironment, pack, list);
-			} catch (Exception cause) {
-				logger.error("Exception for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
-			}
-		});
-		sourceCode.forEachDatabaseViewQueryPackage((pack, list) -> {
-			try {
-				generate(processingEnvironment, pack, list);
-			} catch (Exception cause) {
-				logger.error("Exception for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
-			}
-		});
-		sourceCode.forEachPojoQueryPackage((pack, list) -> {
-			try {
-				generate(processingEnvironment, pack, list);
-			} catch (Exception cause) {
-				logger.error("Exception for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
-			}
-		});
+
+		try (Logger logger = Logger.getLogger(processingEnvironment, "eu.eventstorm.event.query", "QueryJacksonStdDeserializerGenerator")) {
+			this.logger = logger;
+			sourceCode.forEachQueryClientPackage((pack, list) -> {
+				try {
+					generate(processingEnvironment, pack, list);
+				} catch (Exception cause) {
+					logger.error("Exception for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
+				}
+			});
+			sourceCode.forEachDatabaseTableQueryPackage((pack, list) -> {
+				try {
+					generate(processingEnvironment, pack, list);
+				} catch (Exception cause) {
+					logger.error("Exception for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
+				}
+			});
+			sourceCode.forEachDatabaseViewQueryPackage((pack, list) -> {
+				try {
+					generate(processingEnvironment, pack, list);
+				} catch (Exception cause) {
+					logger.error("Exception for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
+				}
+			});
+			sourceCode.forEachPojoQueryPackage((pack, list) -> {
+				try {
+					generate(processingEnvironment, pack, list);
+				} catch (Exception cause) {
+					logger.error("Exception for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
+				}
+			});
+		}
+
 	}
 
 	

@@ -13,7 +13,6 @@ import eu.eventstorm.cqrs.context.ReactiveCommandContext;
 import eu.eventstorm.cqrs.tracer.Span;
 import eu.eventstorm.cqrs.tracer.Tracer;
 import eu.eventstorm.sql.apt.log.Logger;
-import eu.eventstorm.sql.apt.log.LoggerFactory;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.type.MirroredTypeException;
@@ -31,21 +30,23 @@ import static eu.eventstorm.sql.apt.Helper.writePackage;
  */
 public final class CommandRestControllerImplementationGenerator {
 
-    private final Logger logger;
+    private Logger logger;
 
     public CommandRestControllerImplementationGenerator() {
-        logger = LoggerFactory.getInstance().getLogger(CommandRestControllerImplementationGenerator.class);
     }
 
     public void generate(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
 
-        sourceCode.forEachRestController((name, desc) -> {
-            try {
-                generate(processingEnvironment, name, desc, sourceCode);
-            } catch (Exception cause) {
-                logger.error("Exception for [" + name + "] -> [" + cause.getMessage() + "]", cause);
-            }
-        });
+        try (Logger logger = Logger.getLogger(processingEnvironment, "eu.eventstorm.event.generator", "CommandRestControllerImplementationGenerator")) {
+            this.logger = logger;
+            sourceCode.forEachRestController((name, desc) -> {
+                try {
+                    generate(processingEnvironment, name, desc, sourceCode);
+                } catch (Exception cause) {
+                    logger.error("Exception for [" + name + "] -> [" + cause.getMessage() + "]", cause);
+                }
+            });
+        }
 
     }
 
@@ -217,7 +218,7 @@ public final class CommandRestControllerImplementationGenerator {
         writeNewLine(writer);
         writer.write("            .flatMap(buffer -> {");
         writeNewLine(writer);
-        writer.write("                try (Span ignored = this.tracer.start(\"convert-payload-to-"+rcd.element().getSimpleName().toString()+"\")) {");
+        writer.write("                try (Span ignored = this.tracer.start(\"convert-payload-to-" + rcd.element().getSimpleName().toString() + "\")) {");
         writeNewLine(writer);
         writer.write("                try (java.io.InputStream is = buffer.asInputStream(true)) {");
         writeNewLine(writer);
@@ -306,13 +307,13 @@ public final class CommandRestControllerImplementationGenerator {
 
     private static String getProduces(String[] type) {
         String result = "{";
-        for (int i = 0 ; i < type.length; i++) {
+        for (int i = 0; i < type.length; i++) {
             result += "\"" + type[i] + "\"";
             if (i + 1 != type.length) {
-                result+=",";
+                result += ",";
             }
         }
-        result+="}";
+        result += "}";
         return result;
     }
 

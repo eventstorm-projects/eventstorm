@@ -1,19 +1,17 @@
 package eu.eventstorm.sql.apt;
 
-import static eu.eventstorm.sql.apt.Helper.writeGenerated;
-import static eu.eventstorm.sql.apt.Helper.writeNewLine;
-import static eu.eventstorm.sql.apt.Helper.writePackage;
+import eu.eventstorm.sql.apt.log.Logger;
+import eu.eventstorm.sql.apt.model.PojoDescriptor;
 
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
 
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.tools.JavaFileObject;
-
-import eu.eventstorm.sql.apt.log.Logger;
-import eu.eventstorm.sql.apt.log.LoggerFactory;
-import eu.eventstorm.sql.apt.model.PojoDescriptor;
+import static eu.eventstorm.sql.apt.Helper.writeGenerated;
+import static eu.eventstorm.sql.apt.Helper.writeNewLine;
+import static eu.eventstorm.sql.apt.Helper.writePackage;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -21,23 +19,26 @@ import eu.eventstorm.sql.apt.model.PojoDescriptor;
 final class PojoFactoryGenerator implements Generator {
 
 
-    private final Logger logger;
+    private Logger logger;
 
-	PojoFactoryGenerator() {
-		logger = LoggerFactory.getInstance().getLogger(PojoMapperFactoryGenerator.class);
-	}
-
-    public void generate(ProcessingEnvironment env, SourceCode sourceCode) {
-
-        sourceCode.forEachByPackage((pack, descriptors) -> {
-            try {
-                create(env, pack, descriptors);
-            } catch (Exception cause) {
-                logger.error("PojoFactoryGenerator -> Exception for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
-            }
-        });
+    PojoFactoryGenerator() {
     }
 
+    public void generate(ProcessingEnvironment processingEnv, SourceCode sourceCode) {
+
+        try (Logger l = Logger.getLogger(processingEnv, "eu.eventstorm.sql.generator", "PojoFactoryGenerator")) {
+            this.logger = l;
+            sourceCode.forEachByPackage((pack, descriptors) -> {
+                logger.info("Create factory for package [" + pack + "]");
+                try {
+                    create(processingEnv, pack, descriptors);
+                } catch (Exception cause) {
+                    logger.error("Exception for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
+                }
+            });
+        }
+
+    }
 
 
     private void create(ProcessingEnvironment env, String pack, List<PojoDescriptor> descriptors) throws IOException {
