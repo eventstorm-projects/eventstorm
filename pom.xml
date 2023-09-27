@@ -33,7 +33,7 @@
 
         <com.fasterxml.jackson.version>2.14.2</com.fasterxml.jackson.version>
         <io.zipkin.brave.version>5.16.0</io.zipkin.brave.version>
-        <org.antlr.version>4.13.0</org.antlr.version>
+        <org.antlr.version>4.13.1</org.antlr.version>
         <javax.servlet.version>4.0.1</javax.servlet.version>
         <org.owasp.encoder.version>1.2.3</org.owasp.encoder.version>
         <io.swagger.core.v3.version>2.1.13</io.swagger.core.v3.version>
@@ -268,7 +268,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-resources-plugin</artifactId>
-                    <version>3.2.0</version>
+                    <version>3.3.1</version>
                 </plugin>
 
                 <plugin>
@@ -283,7 +283,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>build-helper-maven-plugin</artifactId>
-                    <version>3.3.0</version>
+                    <version>3.4.0</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -393,7 +393,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.4.0</version>
+                        <version>3.6.0</version>
                         <configuration>
                             <additionalOptions>
                                 <additionalOption>-Xdoclint:none</additionalOption>
@@ -411,7 +411,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>3.0.1</version>
+                        <version>3.1.0</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>

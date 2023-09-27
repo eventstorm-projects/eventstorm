@@ -101,6 +101,14 @@ public final class UnsafeHelper {
 		}
 	}
 
+	public static void putFieldOffset(Object object, Class<?> clazz, String field, Object value) {
+		try {
+			UNSAFE.putObject(object, UNSAFE.objectFieldOffset(clazz.getDeclaredField(field)), value);
+		} catch (NoSuchFieldException | SecurityException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	private static com.sun.management.HotSpotDiagnosticMXBean getHotSpotMBean() {
 		if (hotspotMBean == null) {
 			try {
