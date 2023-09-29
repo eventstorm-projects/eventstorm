@@ -30,6 +30,7 @@ import javax.lang.model.type.TypeMirror;
 import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.Writer;
+import java.lang.annotation.Retention;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -38,6 +39,7 @@ import static eu.eventstorm.sql.apt.Helper.getReturnType;
 import static eu.eventstorm.sql.apt.Helper.writeGenerated;
 import static eu.eventstorm.sql.apt.Helper.writeNewLine;
 import static eu.eventstorm.sql.apt.Helper.writePackage;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -59,6 +61,7 @@ public final class CommandValidatorGenerator {
                         return;
                     }
                     this.variables.clear();
+                    logger.info("generate validator for [" + t + "]");
                     generate(processingEnvironment, t);
                 } catch (Exception cause) {
                     logger.error("Exception for [" + t + "] -> [" + cause.getMessage() + "]", cause);
@@ -142,8 +145,10 @@ public final class CommandValidatorGenerator {
         writeNewLine(writer);
 
         for (PropertyDescriptor ppd : descriptor.properties()) {
+            logger.info("generate validator for PropertyDescriptor [" + ppd + "]");
             for (AnnotationMirror am : ppd.getter().getAnnotationMirrors()) {
-                if (isConstraint(am)) {
+                logger.info("\t -> generate validator for PropertyDescriptor [" + ppd + "] -> " + am);
+                if (isConstraint(logger, am)) {
                     writeMethodPart(writer, descriptor, ppd, am);
                 }
             }
@@ -374,7 +379,7 @@ public final class CommandValidatorGenerator {
         // for @CustomPropertyValidator
         for (PropertyDescriptor ppd : descriptor.properties()) {
             for (AnnotationMirror am : ppd.getter().getAnnotationMirrors()) {
-                if (isConstraint(am)) {
+                if (isConstraint(logger, am)) {
                     //writer.write("    private static final ImmutableList<String> PROPERTIES_" + Helper.toUpperCase(ppd.name()) + " = ");
                     //writer.write(" ImmutableList.of(\""+ ppd.name() + "\");");
                     writer.write("    private static final String PROPERTY_" + Helper.toUpperCase(ppd.name()) + " = ");
@@ -489,9 +494,15 @@ public final class CommandValidatorGenerator {
         }
     }
 
-    private static boolean isConstraint(AnnotationMirror am) {
+    private static boolean isConstraint(Logger logger, AnnotationMirror am) {
         for (AnnotationMirror annotationMirror : am.getAnnotationType().asElement().getAnnotationMirrors()) {
             if (Constraint.class.getName().equals(annotationMirror.getAnnotationType().asElement().toString())) {
+                return true;
+            }
+            if (NotEmpty.class.getName().equals(annotationMirror.getAnnotationType().asElement().toString())) {
+                return true;
+            }
+            if (NotNull.class.getName().equals(annotationMirror.getAnnotationType().asElement().toString())) {
                 return true;
             }
         }
