@@ -73,15 +73,20 @@ public final class CommandValidatorGenerator {
     }
 
     public void generateEmbedded(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
-        // generate Implementation class;
-        sourceCode.forEachEmbeddedCommand(t -> {
-            try {
-                this.variables.clear();
-                generate(processingEnvironment, t);
-            } catch (Exception cause) {
-                logger.error("Exception for [" + t + "] -> [" + cause.getMessage() + "]", cause);
-            }
-        });
+        try (Logger logger = Logger.getLogger(processingEnvironment, "eu.eventstorm.event.generator", "CommandValidatorGeneratorEmbedded")) {
+            this.logger = logger;
+            // generate Implementation class;
+            sourceCode.forEachEmbeddedCommand(t -> {
+                logger.info("generateEmbedded validator for [" + t + "]");
+                try {
+                    this.variables.clear();
+                    generate(processingEnvironment, t);
+                } catch (Exception cause) {
+                    logger.error("Exception for [" + t + "] -> [" + cause.getMessage() + "]", cause);
+                }
+            });
+        }
+
     }
 
     private void generate(ProcessingEnvironment env, AbstractCommandDescriptor descriptor) throws IOException {
