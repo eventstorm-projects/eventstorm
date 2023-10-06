@@ -1,18 +1,6 @@
 package eu.eventstorm.sql.apt;
 
-import eu.eventstorm.sql.annotation.GlobalConfiguration;
-import eu.eventstorm.sql.annotation.JoinTable;
-import eu.eventstorm.sql.annotation.Table;
-import eu.eventstorm.sql.annotation.View;
-import eu.eventstorm.sql.apt.analyser.GlobalConfigurationAnalyser;
-import eu.eventstorm.sql.apt.analyser.JoinTableAnalyser;
-import eu.eventstorm.sql.apt.analyser.TableAnalyser;
-import eu.eventstorm.sql.apt.analyser.ViewAnalyser;
-import eu.eventstorm.sql.apt.liquibase.LiquibaseGenerator;
 import eu.eventstorm.sql.apt.log.Logger;
-import eu.eventstorm.sql.apt.model.GlobalConfigurationDescriptor;
-import eu.eventstorm.sql.apt.model.PojoDescriptor;
-import eu.eventstorm.sql.apt.model.ViewDescriptor;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -20,7 +8,6 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
 import javax.tools.FileObject;
@@ -30,9 +17,7 @@ import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -51,7 +36,7 @@ public final class SqlProcessorTest extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 
-        this.processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE,"Start SqlProcessorTest");
+        this.processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "Start SqlProcessorTest");
 
         if (!firstTime) {
             this.processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "SqlProcessorTest done");
@@ -61,12 +46,11 @@ public final class SqlProcessorTest extends AbstractProcessor {
         }
 
         try (Logger logger = Logger.getLogger(processingEnv, "log", "SqlProcessorTest")) {
-
             try {
-                FileObject temp = processingEnv.getFiler().createResource(StandardLocation.SOURCE_OUTPUT, "", "junit");
+                FileObject temp = processingEnv.getFiler().createResource(StandardLocation.SOURCE_OUTPUT, "junit", "reset.sql");
                 Path reset = Paths.get(temp.toUri()).getParent().getParent().getParent().resolve("generated-sources").resolve("annotations").resolve("junit").resolve("reset.sql");
                 if (Files.exists(reset)) {
-                    copyReset(reset);
+                    copyReset(temp, reset);
                 }
             } catch (IOException e) {
                 logger.error(e.getMessage(), e);
@@ -75,18 +59,16 @@ public final class SqlProcessorTest extends AbstractProcessor {
         }
 
 
-
         return true;
     }
 
-    private void copyReset(Path reset) throws IOException{
-        String content = Files.readString(reset);
-        FileObject object = processingEnv.getFiler().createResource(StandardLocation.SOURCE_OUTPUT, "junit", "reset.sql");
-        try (Writer writer = object.openWriter()) {
+    private void copyReset(FileObject to, Path from) throws IOException {
+        String content = Files.readString(from);
+        try (Writer writer = to.openWriter()) {
             writer.append(content);
         }
-        Files.delete(reset);
-        Files.delete(reset.getParent());
+        Files.delete(from);
+        Files.delete(from.getParent());
     }
 
 }
