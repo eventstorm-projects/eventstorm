@@ -240,14 +240,15 @@ public final class LiquibaseGenerator {
 
         FileObject object = env.getFiler().createResource(StandardLocation.SOURCE_OUTPUT, "junit", "reset.sql");
         try (Writer writer = object.openWriter()) {
-
+            writer.append("SET REFERENTIAL_INTEGRITY false;\n");
             gcd.getDescriptors().forEach(pojo -> {
                 try {
-                    writer.append("TRUNCATE TABLE " + pojo.getTable().value() + ";\n");
+                    writer.append("TRUNCATE TABLE " + pojo.getTable().value() + " RESTART IDENTITY;\n");
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
             });
+            writer.append("SET REFERENTIAL_INTEGRITY false;\n");
         }
     }
 

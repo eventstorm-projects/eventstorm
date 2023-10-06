@@ -6,6 +6,7 @@ import eu.eventstorm.batch.rest.HttpRequestMetaExtractor;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Profile;
 
 import com.google.protobuf.TypeRegistry;
@@ -29,6 +30,7 @@ import eu.eventstorm.sql.tracer.TransactionTracers;
 @EnableAutoConfiguration
 public class DatabaseTestConfiguration {
 
+	@DependsOn("liquibase")
 	@Bean
 	Database database(TransactionManager transactionManager) {
 		return DatabaseBuilder.from(Dialect.Name.H2)
