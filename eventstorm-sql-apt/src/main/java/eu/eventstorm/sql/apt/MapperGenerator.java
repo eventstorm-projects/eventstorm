@@ -11,6 +11,7 @@ import eu.eventstorm.sql.apt.model.PojoPropertyDescriptor;
 import eu.eventstorm.sql.jdbc.Mapper;
 import eu.eventstorm.sql.jdbc.MapperWithAutoIncrement;
 import eu.eventstorm.sql.type.Json;
+import eu.eventstorm.sql.type.Xml;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.JavaFileObject;
@@ -317,6 +318,7 @@ final class MapperGenerator implements Generator {
         if (("java.sql.Blob".equals(type)) ||
                 ("java.sql.Clob".equals(type)) ||
                 (Json.class.getName().equals(type)) ||
+                (Xml.class.getName().equals(type)) ||
                 (String.class.getName().equals(type) &&
                         (column != null && ColumnFormat.UUID.equals(column.format())) || (primaryKey != null && ColumnFormat.UUID.equals(primaryKey.format())))
 

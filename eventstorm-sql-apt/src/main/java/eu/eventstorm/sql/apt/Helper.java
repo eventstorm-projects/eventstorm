@@ -387,7 +387,7 @@ public final class Helper {
 	public static String isDialectType(String type) {
 
 		if (Xml.class.getName().equals(type)) {
-			return "fromJdbcSqlXml";
+			return "fromJdbcXml";
 		}
 
 		if (Json.class.getName().equals(type)) {

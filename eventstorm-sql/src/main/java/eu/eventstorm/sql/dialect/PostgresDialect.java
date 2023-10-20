@@ -10,6 +10,7 @@ import eu.eventstorm.sql.expression.JsonPathFieldsExpression;
 import eu.eventstorm.sql.type.Json;
 import eu.eventstorm.sql.type.Xml;
 import eu.eventstorm.sql.type.postgres.JsonPGobject;
+import eu.eventstorm.sql.type.postgres.XmlPGobject;
 import eu.eventstorm.util.FastByteArrayInputStream;
 import eu.eventstorm.util.Strings;
 import org.postgresql.util.PGobject;
@@ -56,12 +57,20 @@ final class PostgresDialect extends AbstractDialect {
 
     @Override
     public Xml fromJdbcXml(ResultSet rs, int index) {
-        throw new UnsupportedOperationException("to implement");
+        try {
+            return new XmlPGobject(rs.getBytes(index));
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public Xml createXml(FastByteArrayInputStream fbais) {
-        throw new UnsupportedOperationException("to implement");
+        try {
+            return new XmlPGobject(fbais.readAll());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -77,6 +86,15 @@ final class PostgresDialect extends AbstractDialect {
             jsonObject.setType("json");
             jsonObject.setValue(new String(json.write(), StandardCharsets.UTF_8));
             ps.setObject(index, jsonObject);
+        }
+    }
+
+    @Override
+    public void setPreparedStatement(PreparedStatement ps, int index, Xml xml) throws SQLException {
+        if (xml == null) {
+            ps.setNull(index, Types.CLOB);
+        } else {
+            ps.setBinaryStream(index, xml.getBinaryStream());
         }
     }
 

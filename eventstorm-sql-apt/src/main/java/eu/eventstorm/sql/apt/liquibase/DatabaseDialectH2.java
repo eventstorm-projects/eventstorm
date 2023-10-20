@@ -3,6 +3,7 @@ package eu.eventstorm.sql.apt.liquibase;
 import eu.eventstorm.sql.annotation.Column;
 import eu.eventstorm.sql.annotation.PrimaryKey;
 import eu.eventstorm.sql.type.Json;
+import eu.eventstorm.sql.type.Xml;
 
 import java.sql.Blob;
 import java.sql.Clob;
@@ -82,12 +83,12 @@ final class DatabaseDialectH2 implements DatabaseDialect {
 		if (Json.class.getName().equals(javaType)) {
 			return "JSON";
 		}
-		
+
 		if (Blob.class.getName().equals(javaType) || "byte[]".equals(javaType)) {
 			return "BLOB";
 		}
 		
-		if (Clob.class.getName().equals(javaType)) {
+		if (Xml.class.getName().equals(javaType) || Clob.class.getName().equals(javaType)) {
 			return "CLOB";
 		}
 		

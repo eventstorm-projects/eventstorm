@@ -79,6 +79,15 @@ final class H2Dialect extends AbstractDialect {
     }
 
     @Override
+    public void setPreparedStatement(PreparedStatement ps, int index, Xml xml) throws SQLException {
+        if (xml == null) {
+            ps.setNull(index, Types.CLOB);
+        } else {
+            ps.setBinaryStream(index, xml.getBinaryStream());
+        }
+    }
+
+    @Override
     public void setPreparedStatementJsonBinary(PreparedStatement ps, int index, String json) throws SQLException {
         ps.setBytes(index, json.getBytes(StandardCharsets.UTF_8));
     }

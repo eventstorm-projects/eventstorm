@@ -45,7 +45,9 @@ public interface Dialect {
 	String range(int offset, int limit);
 	
 	void setPreparedStatement(PreparedStatement ps, int index, Json json) throws SQLException;
-	
+
+	void setPreparedStatement(PreparedStatement ps, int index, Xml xml) throws SQLException;
+
 	void setPreparedStatement(PreparedStatement ps, int index, Blob blob) throws SQLException;
 	
 	void setPreparedStatement(PreparedStatement ps, int index, Clob clob) throws SQLException;

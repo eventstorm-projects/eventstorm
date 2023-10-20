@@ -3,6 +3,7 @@ package eu.eventstorm.sql.apt.liquibase;
 import eu.eventstorm.sql.annotation.Column;
 import eu.eventstorm.sql.annotation.PrimaryKey;
 import eu.eventstorm.sql.type.Json;
+import eu.eventstorm.sql.type.Xml;
 
 import java.sql.Blob;
 import java.sql.Clob;
@@ -79,6 +80,10 @@ final class DatabaseDialectPostgres implements DatabaseDialect {
 		if (Json.class.getName().equals(javaType)) {
 			return "JSONB";
 		}
+
+		if (Xml.class.getName().equals(javaType)) {
+			return "XML";
+		}
 		
 		if (Blob.class.getName().equals(javaType)|| "byte[]".equals(javaType)) {
 			return "BLOB";
@@ -87,7 +92,8 @@ final class DatabaseDialectPostgres implements DatabaseDialect {
 		if (Clob.class.getName().equals(javaType)) {
 			return "CLOB";
 		}
-		
+
+
 		//LoggerFactory.getInstance().getLogger(FlywayDialectPostgres.class).error("No sql type for java type [" + javaType + "]");
 		return null;
 	}
