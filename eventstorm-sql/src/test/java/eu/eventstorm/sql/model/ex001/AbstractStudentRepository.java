@@ -23,6 +23,10 @@ public abstract class AbstractStudentRepository extends eu.eventstorm.sql.Reposi
 	private final SqlQuery findAll;
 	private final SqlQuery insert;
 	private final SqlQuery update;
+	private final StudentUpdateMapperWrapper01 wrapper01;
+	private final StudentUpdateMapperWrapper02 wrapper02;
+	private final SqlQuery updateWrapper01;
+	private final SqlQuery updateWrapper02;
 
 	protected AbstractStudentRepository(eu.eventstorm.sql.Database database) {
 		super(database);
@@ -32,6 +36,11 @@ public abstract class AbstractStudentRepository extends eu.eventstorm.sql.Reposi
 		this.findByBusinessKey = select(ALL).from(TABLE).where(eq(CODE)).build();
 		this.insert = insert(TABLE, IDS, COLUMNS).build();
 		this.update = update(TABLE, COLUMNS, IDS).build();
+
+		wrapper01 = new StudentUpdateMapperWrapper01();
+		wrapper02 = new StudentUpdateMapperWrapper02();
+		updateWrapper01 = wrapper01.createSqlQuery(update(TABLE, wrapper01.getColumns()));
+		updateWrapper02 = wrapper02.createSqlQuery(update(TABLE, wrapper02.getColumns()));
 	}
 
 	public final eu.eventstorm.sql.model.ex001.Student findById(int id) {
@@ -55,6 +64,16 @@ public abstract class AbstractStudentRepository extends eu.eventstorm.sql.Reposi
 	public final void update(eu.eventstorm.sql.model.ex001.Student pojo) {
 		// execute update
 		executeUpdate(this.update, STUDENT, pojo);
+	}
+
+	public final void updateWrapper01(eu.eventstorm.sql.model.ex001.Student pojo) {
+		// execute update
+		executeUpdate(this.updateWrapper01, wrapper01, pojo);
+	}
+
+	public final void updateWrapper02(eu.eventstorm.sql.model.ex001.StudentAdapter pojo) {
+		// execute update
+		executeUpdate(this.updateWrapper02, wrapper02, pojo);
 	}
 
 	public final eu.eventstorm.sql.model.ex001.Student findByBusinessKey(java.lang.String code) {

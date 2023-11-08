@@ -19,7 +19,7 @@ public final class TransactionTemplate {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(TransactionTemplate.class);
 
-	protected final TransactionManager transactionManager;
+	private final TransactionManager transactionManager;
 
 	public TransactionTemplate(TransactionManager transactionManager) {
 		this.transactionManager = transactionManager;

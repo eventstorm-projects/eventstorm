@@ -5,10 +5,12 @@ import eu.eventstorm.sql.annotation.Column;
 import eu.eventstorm.sql.annotation.CreateTimestamp;
 import eu.eventstorm.sql.annotation.PrimaryKey;
 import eu.eventstorm.sql.annotation.Table;
+import eu.eventstorm.sql.annotation.UpdatableBy;
 
 import java.sql.Timestamp;
 
 @Table(value = "student")
+@UpdatableBy(updateMapper = {StudentUpdateMapperWrapper01.class, StudentUpdateMapperWrapper02.class})
 public interface Student {
 
     @PrimaryKey("id")
