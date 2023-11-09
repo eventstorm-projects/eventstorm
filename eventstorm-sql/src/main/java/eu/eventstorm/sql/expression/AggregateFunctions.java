@@ -1,5 +1,6 @@
 package eu.eventstorm.sql.expression;
 
+import eu.eventstorm.sql.builder.SubSelect;
 import eu.eventstorm.sql.desc.SqlColumn;
 
 /**
@@ -43,8 +44,9 @@ public final class AggregateFunctions {
         return new RowNumberAggregateFunction(overPartition);
     }
 
-    //public static AggregateFunction jsonValue(SqlColumn column, String path) {
-    //    return new JsonValueAggregateFunction(column, path);
-    //}
+    public static AggregateFunction coalesce(SubSelect subSelect, int number) {
+        return new CoalesceAggregateFunction(subSelect, number);
+    }
+
 
 }

@@ -15,14 +15,14 @@ import java.time.OffsetDateTime;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-public class LocalDatabaseEventStore extends AbstractLocalDatabaseEventStore {
+public class OptimizeLocalDatabaseEventStore extends AbstractLocalDatabaseEventStore {
 
 
-    public LocalDatabaseEventStore(Database database, EventStoreProperties eventStoreProperties, StreamManager streamManager) {
+    public OptimizeLocalDatabaseEventStore(Database database, EventStoreProperties eventStoreProperties, StreamManager streamManager) {
         this(database, eventStoreProperties, streamManager, JsonPayloadManager.INSTANCE);
     }
 
-    public LocalDatabaseEventStore(Database database, EventStoreProperties eventStoreProperties, StreamManager streamManager, PayloadManager payloadManager) {
+    public OptimizeLocalDatabaseEventStore(Database database, EventStoreProperties eventStoreProperties, StreamManager streamManager, PayloadManager payloadManager) {
         super(database, eventStoreProperties, streamManager, payloadManager);
     }
 
@@ -31,25 +31,18 @@ public class LocalDatabaseEventStore extends AbstractLocalDatabaseEventStore {
 
         Instant instant = Instant.now();
 
-        Integer revision = this.databaseRepository.lastRevision(candidate.getStream(), candidate.getStreamId());
-
-        if (revision == null) {
-            revision = 0;
-        }
-
         DatabaseEventBuilder builder = new DatabaseEventBuilder()
                 .withStreamId(candidate.getStreamId())
                 .withStream(candidate.getStream())
                 .withTime(Timestamp.from(instant))
                 .withPayload(payloadManager.serialize(candidate))
-                .withRevision(revision + 1)
                 .withEventType(candidate.getMessage().getClass().getSimpleName());
 
         if (correlation != null) {
             builder.withCorrelation(correlation);
         }
 
-        this.databaseRepository.insert(builder.build());
+        Integer revision = this.databaseRepository.optimizeInsert(builder.build());
 
         return Event.newBuilder()
                 .setStreamId(candidate.getStreamId())

@@ -1,5 +1,50 @@
 package eu.eventstorm.sql;
 
+import com.google.common.collect.ImmutableList;
+import eu.eventstorm.page.Filter;
+import eu.eventstorm.page.Page;
+import eu.eventstorm.page.PageImpl;
+import eu.eventstorm.page.PageRequest;
+import eu.eventstorm.page.Range;
+import eu.eventstorm.sql.builder.DeleteBuilder;
+import eu.eventstorm.sql.builder.InsertBuilder;
+import eu.eventstorm.sql.builder.SelectBuilder;
+import eu.eventstorm.sql.builder.SelectBuilderFromSubSelect;
+import eu.eventstorm.sql.builder.SubSelect;
+import eu.eventstorm.sql.builder.UpdateBuilder;
+import eu.eventstorm.sql.desc.DerivedColumn;
+import eu.eventstorm.sql.desc.InsertableSqlPrimaryKey;
+import eu.eventstorm.sql.desc.SqlColumn;
+import eu.eventstorm.sql.desc.SqlPrimaryKey;
+import eu.eventstorm.sql.desc.SqlSingleColumn;
+import eu.eventstorm.sql.desc.SqlTable;
+import eu.eventstorm.sql.expression.Expression;
+import eu.eventstorm.sql.expression.Expressions;
+import eu.eventstorm.sql.id.Identifier;
+import eu.eventstorm.sql.impl.BatchInsert;
+import eu.eventstorm.sql.impl.BatchInsertWithSequence;
+import eu.eventstorm.sql.impl.TransactionContext;
+import eu.eventstorm.sql.impl.TransactionQueryContext;
+import eu.eventstorm.sql.jdbc.Batch;
+import eu.eventstorm.sql.jdbc.InsertMapper;
+import eu.eventstorm.sql.jdbc.InsertMapperWithAutoIncrement;
+import eu.eventstorm.sql.jdbc.PreparedStatementSetter;
+import eu.eventstorm.sql.jdbc.ResultSetMapper;
+import eu.eventstorm.sql.jdbc.ResultSetMappers;
+import eu.eventstorm.sql.jdbc.UpdateMapper;
+import eu.eventstorm.sql.page.SingleSqlEvaluator;
+import eu.eventstorm.sql.page.SqlPageRequestDescriptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Spliterator;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
 import static com.google.common.collect.ImmutableMap.of;
 import static eu.eventstorm.sql.EventstormRepositoryException.PARAM_POJO;
 import static eu.eventstorm.sql.EventstormRepositoryException.PARAM_SQL;
@@ -9,6 +54,7 @@ import static eu.eventstorm.sql.EventstormRepositoryException.Type.INSERT_EXECUT
 import static eu.eventstorm.sql.EventstormRepositoryException.Type.INSERT_GENERATED_KEYS;
 import static eu.eventstorm.sql.EventstormRepositoryException.Type.INSERT_MAPPER;
 import static eu.eventstorm.sql.EventstormRepositoryException.Type.INSERT_RESULT;
+import static eu.eventstorm.sql.EventstormRepositoryException.Type.INSERT_RETURNING_VALUES;
 import static eu.eventstorm.sql.EventstormRepositoryException.Type.PREPARED_STATEMENT_SETTER;
 import static eu.eventstorm.sql.EventstormRepositoryException.Type.SELECT_EXECUTE_QUERY;
 import static eu.eventstorm.sql.EventstormRepositoryException.Type.SELECT_MAPPER;
@@ -25,52 +71,6 @@ import static eu.eventstorm.sql.expression.Expressions.and;
 import static eu.eventstorm.sql.expression.Expressions.eq;
 import static eu.eventstorm.sql.jdbc.PreparedStatementSetters.noParameter;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Spliterator;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-
-import eu.eventstorm.page.Filter;
-import eu.eventstorm.sql.desc.DerivedColumn;
-import eu.eventstorm.sql.desc.SqlColumn;
-import eu.eventstorm.sql.desc.SqlPrimaryKey;
-import eu.eventstorm.sql.desc.SqlSingleColumn;
-import eu.eventstorm.sql.desc.SqlTable;
-import eu.eventstorm.sql.jdbc.Batch;
-import eu.eventstorm.sql.jdbc.InsertMapper;
-import eu.eventstorm.sql.jdbc.InsertMapperWithAutoIncrement;
-import eu.eventstorm.sql.jdbc.PreparedStatementSetter;
-import eu.eventstorm.sql.jdbc.ResultSetMapper;
-import eu.eventstorm.sql.jdbc.ResultSetMappers;
-import eu.eventstorm.sql.jdbc.UpdateMapper;
-import eu.eventstorm.sql.page.SingleSqlEvaluator;
-import eu.eventstorm.sql.page.SqlPageRequestDescriptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.ImmutableList;
-
-import eu.eventstorm.sql.builder.DeleteBuilder;
-import eu.eventstorm.sql.builder.InsertBuilder;
-import eu.eventstorm.sql.builder.SelectBuilder;
-import eu.eventstorm.sql.builder.SelectBuilderFromSubSelect;
-import eu.eventstorm.sql.builder.SubSelect;
-import eu.eventstorm.sql.builder.UpdateBuilder;
-import eu.eventstorm.sql.expression.Expression;
-import eu.eventstorm.sql.expression.Expressions;
-import eu.eventstorm.sql.id.Identifier;
-import eu.eventstorm.sql.impl.BatchInsert;
-import eu.eventstorm.sql.impl.BatchInsertWithSequence;
-import eu.eventstorm.sql.impl.TransactionContext;
-import eu.eventstorm.sql.impl.TransactionQueryContext;
-import eu.eventstorm.page.Page;
-import eu.eventstorm.page.PageImpl;
-import eu.eventstorm.page.PageRequest;
-import eu.eventstorm.page.Range;
-
 /**
  * Repository pattern, subclasses will be generated by apt.
  *
@@ -78,323 +78,338 @@ import eu.eventstorm.page.Range;
  */
 public abstract class Repository {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(Repository.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Repository.class);
 
-	private final Database database;
-	private final Dialect dialect;
+    private final Database database;
+    private final Dialect dialect;
 
-	protected Repository(Database database) {
-		this.database = database;
-		this.dialect = database.dialect();
-	}
+    protected Repository(Database database) {
+        this.database = database;
+        this.dialect = database.dialect();
+    }
 
-	protected final Database database() {
-		return this.database;
-	}
+    protected final Database database() {
+        return this.database;
+    }
 
-	protected final Dialect dialect() {
-		return this.dialect;
-	}
+    protected final Dialect dialect() {
+        return this.dialect;
+    }
 
-	protected final SelectBuilder select(ImmutableList<SqlColumn> columns) {
-		return new SelectBuilder(this.database, columns);
-	}
+    protected final SelectBuilder select(ImmutableList<SqlColumn> columns) {
+        return new SelectBuilder(this.database, columns);
+    }
 
-	protected final SelectBuilder select(DerivedColumn... columns) {
-		return new SelectBuilder(this.database, ImmutableList.copyOf(columns));
-	}
+    protected final SelectBuilder select(DerivedColumn... columns) {
+        return new SelectBuilder(this.database, ImmutableList.copyOf(columns));
+    }
 
-	protected final SelectBuilderFromSubSelect select(SubSelect subSelect) {
-		return new SelectBuilderFromSubSelect(database, subSelect);
-	}
-	
-	protected final InsertBuilder insert(SqlTable table, ImmutableList<SqlPrimaryKey> keys, ImmutableList<SqlSingleColumn> columns) {
-		return new InsertBuilder(this.database, table, keys, columns);
-	}
+    protected final SelectBuilderFromSubSelect select(SubSelect subSelect) {
+        return new SelectBuilderFromSubSelect(database, subSelect);
+    }
 
-	protected final UpdateBuilder update(SqlTable table, ImmutableList<SqlColumn> columns) {
-		return new UpdateBuilder(this.database, table, columns);
-	}
+    protected final InsertBuilder insert(SqlTable table, ImmutableList<SqlPrimaryKey> keys, ImmutableList<SqlSingleColumn> columns) {
+        return new InsertBuilder(this.database, table, keys, columns);
+    }
 
-	protected final UpdateBuilder update(SqlTable table, ImmutableList<? extends SqlColumn> columns, ImmutableList<SqlPrimaryKey> keys) {
-		UpdateBuilder updateBuilder = new UpdateBuilder(this.database, table, columns);
-		if (keys.size() == 1) {
-			return updateBuilder.where(Expressions.eq(keys.get(0)));
-		}
-		if (keys.size() == 2) {
-			return updateBuilder.where(and(eq(keys.get(0)), eq(keys.get(1))));
-		}
-		Expression[] exps = new Expression[keys.size() - 2];
-		for (int i = 2 ; i < keys.size() ; i++) {
-			exps[i-2] = eq(keys.get(i));
-		}
-		return updateBuilder.where(and(eq(keys.get(0)), eq(keys.get(1)), exps));
-	}
-	
-	protected final DeleteBuilder delete(SqlTable table) {
-		return new DeleteBuilder(this.database, table);
-	}
+    protected final InsertBuilder insert(ImmutableList<InsertableSqlPrimaryKey> keys, ImmutableList<SqlSingleColumn> columns, SqlTable table) {
+        return new InsertBuilder(table, keys, columns, this.database);
+    }
 
-	protected final <T> T executeSelect(SqlQuery query, PreparedStatementSetter pss, ResultSetMapper<T> mapper) {
-		try (TransactionQueryContext tqc = database.transactionManager().context().read(query)) {
-			try {
-				pss.set(tqc.preparedStatement());
-			} catch (SQLException cause) {
-				throw new EventstormRepositoryException(SELECT_PREPARED_STATEMENT_SETTER, of(PARAM_SQL, query), cause);
-			}
-			try (ResultSet rs = tqc.preparedStatement().executeQuery()) {
-				return map(rs, mapper, this.database.dialect());
-			} catch (SQLException cause) {
-				throw new EventstormRepositoryException(SELECT_EXECUTE_QUERY, of(PARAM_SQL, query), cause);
-			}
-		}
-	}
+    protected final UpdateBuilder update(SqlTable table, ImmutableList<SqlColumn> columns) {
+        return new UpdateBuilder(this.database, table, columns);
+    }
 
-	protected final <E> void executeInsert(SqlQuery query, InsertMapper<E> im, E pojo) {
-		try (TransactionQueryContext tqc = database.transactionManager().context().write(query)) {
-			doInsert(query, im, pojo, tqc);
-		}
-	}
+    protected final UpdateBuilder update(SqlTable table, ImmutableList<? extends SqlColumn> columns, ImmutableList<SqlPrimaryKey> keys) {
+        UpdateBuilder updateBuilder = new UpdateBuilder(this.database, table, columns);
+        if (keys.size() == 1) {
+            return updateBuilder.where(Expressions.eq(keys.get(0)));
+        }
+        if (keys.size() == 2) {
+            return updateBuilder.where(and(eq(keys.get(0)), eq(keys.get(1))));
+        }
+        Expression[] exps = new Expression[keys.size() - 2];
+        for (int i = 2; i < keys.size(); i++) {
+            exps[i - 2] = eq(keys.get(i));
+        }
+        return updateBuilder.where(and(eq(keys.get(0)), eq(keys.get(1)), exps));
+    }
 
-	private <E> void doInsert(SqlQuery query, InsertMapper<E> im, E pojo, TransactionQueryContext tqc) {
-		try {
-			im.insert(this.database.dialect(), tqc.preparedStatement(), pojo);
-		} catch (SQLException cause) {
-			throw tqc.exception(new EventstormRepositoryException(INSERT_MAPPER, of(PARAM_SQL, query, PARAM_POJO, pojo), cause));
-		}
-		int val;
-		try {
-			val = tqc.preparedStatement().executeUpdate();
-		} catch (SQLException cause) {
-			throw new EventstormRepositoryException(INSERT_EXECUTE_QUERY, of(PARAM_SQL, query, PARAM_POJO, pojo), cause);
-		}
-		if (val != 1) {
-			throw new EventstormRepositoryException(INSERT_RESULT, of(PARAM_SQL, query, PARAM_POJO, pojo));
-		}
-	}
+    protected final DeleteBuilder delete(SqlTable table) {
+        return new DeleteBuilder(this.database, table);
+    }
 
+    protected final <T> T executeSelect(SqlQuery query, PreparedStatementSetter pss, ResultSetMapper<T> mapper) {
+        try (TransactionQueryContext tqc = database.transactionManager().context().read(query)) {
+            try {
+                pss.set(tqc.preparedStatement());
+            } catch (SQLException cause) {
+                throw new EventstormRepositoryException(SELECT_PREPARED_STATEMENT_SETTER, of(PARAM_SQL, query), cause);
+            }
+            try (ResultSet rs = tqc.preparedStatement().executeQuery()) {
+                return map(rs, mapper, this.database.dialect());
+            } catch (SQLException cause) {
+                throw new EventstormRepositoryException(SELECT_EXECUTE_QUERY, of(PARAM_SQL, query), cause);
+            }
+        }
+    }
 
-	protected final <E> void executeInsertAutoIncrement(SqlQuery query, InsertMapperWithAutoIncrement<E> im, E pojo) {
+    protected final <E> void executeInsert(SqlQuery query, InsertMapper<E> im, E pojo) {
+        try (TransactionQueryContext tqc = database.transactionManager().context().write(query)) {
+            doInsert(query, im, pojo, tqc);
+        }
+    }
 
-		try (TransactionQueryContext tqc = database.transactionManager().context().writeAutoIncrement(query)) {
+    protected final <E, F> F executeInsertWithReturning(SqlQuery query, InsertMapper<E> im, E pojo, ResultSetMapper<F> rsm) {
+        try (TransactionQueryContext tqc = database.transactionManager().context().write(query)) {
+            doInsert(query, im, pojo, tqc);
+            try (ResultSet resultSet = tqc.preparedStatement().getGeneratedKeys()) {
+                return rsm.map(dialect, resultSet);
+            } catch (SQLException cause) {
+                throw new EventstormRepositoryException(INSERT_RETURNING_VALUES, of(PARAM_SQL, query, PARAM_POJO, pojo), cause);
+            }
+        }
+    }
 
-			doInsert(query, im, pojo, tqc);
-
-			try (ResultSet rs = tqc.preparedStatement().getGeneratedKeys()) {
-				if (rs.next()) {
-					im.setId(pojo, rs);
-				}
-			} catch (SQLException cause) {
-				throw tqc.exception(new EventstormRepositoryException(INSERT_GENERATED_KEYS, of(), cause));
-			}
-		}
-	}
+    private <E> void doInsert(SqlQuery query, InsertMapper<E> im, E pojo, TransactionQueryContext tqc) {
+        try {
+            im.insert(this.database.dialect(), tqc.preparedStatement(), pojo);
+        } catch (SQLException cause) {
+            throw tqc.exception(new EventstormRepositoryException(INSERT_MAPPER, of(PARAM_SQL, query, PARAM_POJO, pojo), cause));
+        }
+        int val;
+        try {
+            val = tqc.preparedStatement().executeUpdate();
+        } catch (SQLException cause) {
+            throw new EventstormRepositoryException(INSERT_EXECUTE_QUERY, of(PARAM_SQL, query, PARAM_POJO, pojo), cause);
+        }
+        if (val != 1) {
+            throw new EventstormRepositoryException(INSERT_RESULT, of(PARAM_SQL, query, PARAM_POJO, pojo));
+        }
+    }
 
 
-	protected final void execute(SqlQuery query, PreparedStatementSetter pss) {
-		
-		try (TransactionQueryContext tqc = database.transactionManager().context().write(query)) {
-			
-			try {
-				pss.set(tqc.preparedStatement());
-			} catch (SQLException cause) {
-				throw tqc.exception(new EventstormRepositoryException(PREPARED_STATEMENT_SETTER, of(PARAM_SQL, query), cause));
-			}
+    protected final <E> void executeInsertAutoIncrement(SqlQuery query, InsertMapperWithAutoIncrement<E> im, E pojo) {
+
+        try (TransactionQueryContext tqc = database.transactionManager().context().writeAutoIncrement(query)) {
+
+            doInsert(query, im, pojo, tqc);
+
+            try (ResultSet rs = tqc.preparedStatement().getGeneratedKeys()) {
+                if (rs.next()) {
+                    im.setId(pojo, rs);
+                }
+            } catch (SQLException cause) {
+                throw tqc.exception(new EventstormRepositoryException(INSERT_GENERATED_KEYS, of(), cause));
+            }
+        }
+    }
 
 
-			try {
-				tqc.preparedStatement().executeUpdate();
-			} catch (SQLException cause) {
-				throw tqc.exception(new EventstormRepositoryException(UPDATE_EXECUTE_QUERY, of(PARAM_SQL, query), cause));
-			}
-			
-		}
-	}
-	
-	protected final <E> void executeUpdate(SqlQuery query, UpdateMapper<E> um, E pojo) {
+    protected final void execute(SqlQuery query, PreparedStatementSetter pss) {
 
-		try (TransactionQueryContext tqc = database.transactionManager().context().write(query)) {
-			try {
-				um.update(this.database.dialect(), tqc.preparedStatement(), pojo);
-			} catch (SQLException cause) {
-				throw tqc.exception(new EventstormRepositoryException(UPDATE_MAPPER, of(PARAM_SQL, query, PARAM_POJO, pojo), cause));
-			}
+        try (TransactionQueryContext tqc = database.transactionManager().context().write(query)) {
 
-			int val;
+            try {
+                pss.set(tqc.preparedStatement());
+            } catch (SQLException cause) {
+                throw tqc.exception(new EventstormRepositoryException(PREPARED_STATEMENT_SETTER, of(PARAM_SQL, query), cause));
+            }
 
-			try {
-				val = tqc.preparedStatement().executeUpdate();
-			} catch (SQLException cause) {
-				throw tqc.exception(new EventstormRepositoryException(UPDATE_EXECUTE_QUERY, of(PARAM_SQL, query, PARAM_POJO, pojo), cause));
-			}
 
-			if (val != 1) {
-				throw tqc.exception(new EventstormRepositoryException(UPDATE_RESULT, of(PARAM_SQL, query, PARAM_POJO, pojo)));
-			}
-		}
+            try {
+                tqc.preparedStatement().executeUpdate();
+            } catch (SQLException cause) {
+                throw tqc.exception(new EventstormRepositoryException(UPDATE_EXECUTE_QUERY, of(PARAM_SQL, query), cause));
+            }
 
-	}
+        }
+    }
 
-	protected final int executeDelete(SqlQuery query, PreparedStatementSetter pss) {
+    protected final <E> void executeUpdate(SqlQuery query, UpdateMapper<E> um, E pojo) {
 
-		try (TransactionQueryContext tqc = database.transactionManager().context().write(query)) {
-			try {
-				pss.set(tqc.preparedStatement());
-			} catch (SQLException cause) {
-				throw tqc.exception(new EventstormRepositoryException(DELETE_PREPARED_STATEMENT_SETTER, of(PARAM_SQL, query), cause));
-			}
+        try (TransactionQueryContext tqc = database.transactionManager().context().write(query)) {
+            try {
+                um.update(this.database.dialect(), tqc.preparedStatement(), pojo);
+            } catch (SQLException cause) {
+                throw tqc.exception(new EventstormRepositoryException(UPDATE_MAPPER, of(PARAM_SQL, query, PARAM_POJO, pojo), cause));
+            }
 
-			try {
-				return tqc.preparedStatement().executeUpdate();
-			} catch (SQLException cause) {
-				throw tqc.exception(new EventstormRepositoryException(DELETE_EXECUTE_QUERY, of(PARAM_SQL, query), cause));
-			}
+            int val;
 
-		}
+            try {
+                val = tqc.preparedStatement().executeUpdate();
+            } catch (SQLException cause) {
+                throw tqc.exception(new EventstormRepositoryException(UPDATE_EXECUTE_QUERY, of(PARAM_SQL, query, PARAM_POJO, pojo), cause));
+            }
 
-	}
+            if (val != 1) {
+                throw tqc.exception(new EventstormRepositoryException(UPDATE_RESULT, of(PARAM_SQL, query, PARAM_POJO, pojo)));
+            }
+        }
 
-	private static <T> T map(ResultSet rs, ResultSetMapper<T> mapper, Dialect dialect) {
-		boolean value;
+    }
 
-		try {
-			value = rs.next();
-		} catch (SQLException cause) {
-			throw new EventstormRepositoryException(SELECT_NEXT, of(), cause);
-		}
+    protected final int executeDelete(SqlQuery query, PreparedStatementSetter pss) {
 
-		if (value) {
-			try {
-				return mapper.map(dialect, rs);
-			} catch (SQLException cause) {
-				throw new EventstormRepositoryException(SELECT_MAPPER, of(), cause);
-			}
-		} else {
-			return null;
-		}
+        try (TransactionQueryContext tqc = database.transactionManager().context().write(query)) {
+            try {
+                pss.set(tqc.preparedStatement());
+            } catch (SQLException cause) {
+                throw tqc.exception(new EventstormRepositoryException(DELETE_PREPARED_STATEMENT_SETTER, of(PARAM_SQL, query), cause));
+            }
+
+            try {
+                return tqc.preparedStatement().executeUpdate();
+            } catch (SQLException cause) {
+                throw tqc.exception(new EventstormRepositoryException(DELETE_EXECUTE_QUERY, of(PARAM_SQL, query), cause));
+            }
+
+        }
+
+    }
+
+    private static <T> T map(ResultSet rs, ResultSetMapper<T> mapper, Dialect dialect) {
+        boolean value;
+
+        try {
+            value = rs.next();
+        } catch (SQLException cause) {
+            throw new EventstormRepositoryException(SELECT_NEXT, of(), cause);
+        }
+
+        if (value) {
+            try {
+                return mapper.map(dialect, rs);
+            } catch (SQLException cause) {
+                throw new EventstormRepositoryException(SELECT_MAPPER, of(), cause);
+            }
+        } else {
+            return null;
+        }
     }
 
     protected final <E> Batch<E> batch(SqlQuery query, InsertMapper<E> im) {
         return new BatchInsert<>(database, query, im);
     }
-    
-    protected final <E,T> Batch<E> batch(SqlQuery query, InsertMapper<E> im, Identifier<T> identifier, BiConsumer<E, T> identifierSetter) {
+
+    protected final <E, T> Batch<E> batch(SqlQuery query, InsertMapper<E> im, Identifier<T> identifier, BiConsumer<E, T> identifierSetter) {
         return new BatchInsertWithSequence<>(database, query, im, identifier, identifierSetter);
     }
 
-	protected final <T> Stream<T> stream(SqlQuery query, PreparedStatementSetter pss, ResultSetMapper<T> mapper) {
+    protected final <T> Stream<T> stream(SqlQuery query, PreparedStatementSetter pss, ResultSetMapper<T> mapper) {
 
-		TransactionContext tc = database.transactionManager().context();
-		
-		TransactionQueryContext tqc = tc.read(query);
+        TransactionContext tc = database.transactionManager().context();
 
-		try {
-			pss.set(tqc.preparedStatement());
-		} catch (SQLException cause) {
-			try {
-				throw tqc.exception(new EventstormRepositoryException(STREAM_PREPARED_STATEMENT_SETTER, of(PARAM_SQL, query), cause));
-			} finally {
-				tqc.close();
-			}
-		}
+        TransactionQueryContext tqc = tc.read(query);
 
-		ResultSet rs;
-		try {
-			rs = tqc.preparedStatement().executeQuery();
-		} catch (SQLException cause) {
-			try {
-				throw tqc.exception(new EventstormRepositoryException(STREAM_EXECUTE_QUERY, of(), cause));	
-			} finally {
-				tqc.close();
-			}
-		}
+        try {
+            pss.set(tqc.preparedStatement());
+        } catch (SQLException cause) {
+            try {
+                throw tqc.exception(new EventstormRepositoryException(STREAM_PREPARED_STATEMENT_SETTER, of(PARAM_SQL, query), cause));
+            } finally {
+                tqc.close();
+            }
+        }
 
-		
-		Stream<T> stream =  StreamSupport.stream(new Spliterator<T>() {
-			@Override
-			public boolean tryAdvance(Consumer<? super T> action) {
-				try {
-					if (!rs.next()) {
-						return false;
-					}
-				} catch (SQLException cause) {
-					throw tqc.exception(new EventstormRepositoryException(STREAM_NEXT, of(), cause));
-				}
-				try {
-					action.accept(mapper.map(database.dialect(), rs));
-				} catch (SQLException cause) {
-					throw tqc.exception(new EventstormRepositoryException(STREAM_MAPPER, of(), cause));
-				}
-				return true;
-			}
+        ResultSet rs;
+        try {
+            rs = tqc.preparedStatement().executeQuery();
+        } catch (SQLException cause) {
+            try {
+                throw tqc.exception(new EventstormRepositoryException(STREAM_EXECUTE_QUERY, of(), cause));
+            } finally {
+                tqc.close();
+            }
+        }
 
-			@Override
-			public Spliterator<T> trySplit() {
-				return null;
-			}
 
-			@Override
-			public long estimateSize() {
-				return Long.MAX_VALUE;
-			}
+        Stream<T> stream = StreamSupport.stream(new Spliterator<T>() {
+            @Override
+            public boolean tryAdvance(Consumer<? super T> action) {
+                try {
+                    if (!rs.next()) {
+                        return false;
+                    }
+                } catch (SQLException cause) {
+                    throw tqc.exception(new EventstormRepositoryException(STREAM_NEXT, of(), cause));
+                }
+                try {
+                    action.accept(mapper.map(database.dialect(), rs));
+                } catch (SQLException cause) {
+                    throw tqc.exception(new EventstormRepositoryException(STREAM_MAPPER, of(), cause));
+                }
+                return true;
+            }
 
-			@Override
-			public int characteristics() {
-				return Spliterator.NONNULL | Spliterator.IMMUTABLE;
-			}
-			
-			
-		}, false);
-		
+            @Override
+            public Spliterator<T> trySplit() {
+                return null;
+            }
 
-		return stream.onClose(() -> {
-			if (LOGGER.isTraceEnabled()) {
-				LOGGER.trace("stream.onClose() [{}]", tqc);
-			}
-			try {
-				rs.close();
-			} catch (SQLException cause) {
-				LOGGER.warn("onClose() -> failed to closed resultset for stream({})", query);
-			} finally {
-				tqc.close();
-			}
-		});
+            @Override
+            public long estimateSize() {
+                return Long.MAX_VALUE;
+            }
+
+            @Override
+            public int characteristics() {
+                return Spliterator.NONNULL | Spliterator.IMMUTABLE;
+            }
+
+
+        }, false);
+
+
+        return stream.onClose(() -> {
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace("stream.onClose() [{}]", tqc);
+            }
+            try {
+                rs.close();
+            } catch (SQLException cause) {
+                LOGGER.warn("onClose() -> failed to closed resultset for stream({})", query);
+            } finally {
+                tqc.close();
+            }
+        });
 
     }
 
-	protected final <T> Page<T> executeSelectPage(SqlQueryPageable query, ResultSetMapper<T> mapper, PageRequest pageRequest) {
+    protected final <T> Page<T> executeSelectPage(SqlQueryPageable query, ResultSetMapper<T> mapper, PageRequest pageRequest) {
 
-		return executeSelectPage(query, noParameter(), mapper, pageRequest);
-	}
-	
-	protected final <T> Page<T> executeSelectPage(SqlQueryPageable query, PreparedStatementSetter pss, ResultSetMapper<T> mapper, PageRequest pageRequest) {
+        return executeSelectPage(query, noParameter(), mapper, pageRequest);
+    }
 
-		PreparedStatementSetter compose;
-		if (pageRequest.getFilters().isEmpty()) {
-			compose = pss;
-		} else {
-			SqlPageRequestDescriptor descriptor = ((SingleSqlEvaluator)pageRequest.getEvaluator()).getSqlPageRequestDescriptor();
-			compose = ps -> {
-				pss.set(ps);
-				int i = query.getIndex();
-				for (Filter filter : pageRequest.getFilters()) {
-					i = descriptor.getPreparedStatementIndexSetter(filter).set(dialect, ps,i);
-				}
-			};
-		}
+    protected final <T> Page<T> executeSelectPage(SqlQueryPageable query, PreparedStatementSetter pss, ResultSetMapper<T> mapper, PageRequest pageRequest) {
 
-		Long count = executeSelect(query.sqlCount(pageRequest), compose, ResultSetMappers.LONG_NULLABLE);
+        PreparedStatementSetter compose;
+        if (pageRequest.getFilters().isEmpty()) {
+            compose = pss;
+        } else {
+            SqlPageRequestDescriptor descriptor = ((SingleSqlEvaluator) pageRequest.getEvaluator()).getSqlPageRequestDescriptor();
+            compose = ps -> {
+                pss.set(ps);
+                int i = query.getIndex();
+                for (Filter filter : pageRequest.getFilters()) {
+                    i = descriptor.getPreparedStatementIndexSetter(filter).set(dialect, ps, i);
+                }
+            };
+        }
 
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("executeSelectPage -> find count=[{}]", count);
-		}
+        Long count = executeSelect(query.sqlCount(pageRequest), compose, ResultSetMappers.LONG_NULLABLE);
 
-		if (count == null || count == 0) {
-			return Page.empty();
-		}
-		
-		return new PageImpl<>(stream(query.sql(pageRequest), compose , mapper), count, new Range(pageRequest.getOffset(), pageRequest.getOffset() + pageRequest.getSize() -1));
-		
-	}
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("executeSelectPage -> find count=[{}]", count);
+        }
+
+        if (count == null || count == 0) {
+            return Page.empty();
+        }
+
+        return new PageImpl<>(stream(query.sql(pageRequest), compose, mapper), count, new Range(pageRequest.getOffset(), pageRequest.getOffset() + pageRequest.getSize() - 1));
+
+    }
 
 }

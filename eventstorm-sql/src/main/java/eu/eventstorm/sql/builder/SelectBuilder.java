@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import eu.eventstorm.sql.desc.DerivedColumn;
+import eu.eventstorm.sql.expression.MathematicalFunction;
+import eu.eventstorm.sql.expression.MathematicalFunctions;
 import eu.eventstorm.sql.page.SingleSqlEvaluator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -334,6 +336,8 @@ public final class SelectBuilder extends AbstractBuilder {
                 database().dialect().wrap(builder, (SqlColumn) column, alias);
             } else if (column instanceof AggregateFunction) {
                 builder.append(((AggregateFunction)column).build(database().dialect(), alias));
+            } else if (column instanceof MathematicalFunction) {
+                builder.append(((MathematicalFunction)column).build(database().dialect(), alias));
             } else {
                 throw new SqlBuilderException(SELECT, of("column",column));
             }

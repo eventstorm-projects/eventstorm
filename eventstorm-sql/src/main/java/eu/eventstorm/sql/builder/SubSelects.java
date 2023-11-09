@@ -18,5 +18,5 @@ public final class SubSelects {
 	public static SubSelect from(SqlQuery query) {
 		return new SubSelectImpl(query, Strings.EMPTY);
 	}
-	
+
 }
