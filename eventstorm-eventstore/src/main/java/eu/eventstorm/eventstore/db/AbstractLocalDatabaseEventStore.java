@@ -26,7 +26,7 @@ import java.util.stream.Stream;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-abstract class AbstractLocalDatabaseEventStore implements EventStore {
+public abstract class AbstractLocalDatabaseEventStore implements EventStore {
 
     protected static final ZoneId SYSTEM_ZONE_ID = ZoneId.systemDefault();
 

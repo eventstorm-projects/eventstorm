@@ -13,6 +13,7 @@ import eu.eventstorm.cqrs.tracer.Tracer;
 import eu.eventstorm.cqrs.validation.CommandValidationException;
 import eu.eventstorm.cqrs.validation.ReactiveValidator;
 import eu.eventstorm.eventbus.EventBus;
+import eu.eventstorm.eventstore.db.AbstractLocalDatabaseEventStore;
 import eu.eventstorm.eventstore.db.LocalDatabaseEventStore;
 import eu.eventstorm.sql.EventstormRepositoryException;
 import eu.eventstorm.sql.util.TransactionTemplate;
@@ -42,7 +43,7 @@ public abstract class ReactiveLocalDatabaseEventStoreCommandHandler<T extends Co
     private final ReactiveValidator consistencyValidator;
 
     @Autowired
-    private LocalDatabaseEventStore eventStore;
+    private AbstractLocalDatabaseEventStore eventStore;
 
     @Autowired
     private TransactionTemplate transactionTemplate;
