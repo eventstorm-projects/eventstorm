@@ -19,9 +19,9 @@ final class CoalesceAggregateFunction implements AggregateFunction {
 
     @Override
     public String build(Dialect dialect, boolean alias) {
-        return "coalesce(" +
+        return "coalesce((" +
                 subSelect.sql() +
-                ',' +
+                ")," +
                 number +
                 ')';
     }

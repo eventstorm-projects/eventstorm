@@ -28,9 +28,6 @@ import eu.eventstorm.sql.SqlQuery;
 import eu.eventstorm.sql.builder.Order;
 import eu.eventstorm.sql.builder.SubSelects;
 import eu.eventstorm.sql.desc.InsertableSqlPrimaryKey;
-import eu.eventstorm.sql.expression.AggregateFunction;
-import eu.eventstorm.sql.expression.AggregateFunctions;
-import eu.eventstorm.sql.expression.MathematicalFunctions;
 import eu.eventstorm.sql.jdbc.InsertMapper;
 import eu.eventstorm.sql.jdbc.ResultSetMapper;
 import eu.eventstorm.sql.jdbc.ResultSetMappers;
@@ -46,12 +43,6 @@ final class DatabaseRepository extends AbstractDatabaseEventRepository {
 
 	private final SqlQuery optimizeInsert;
 
-	// insert into epvote.krn_event_store(stream, stream_id, revision, time, event_type, payload) select 'ballot', '00001766-6915-6c6b-0064-006400000761',
-// coalesce((select revision+1 from epvote.krn_event_store where stream='ballot' and stream_id='00001766-6915-6c6b-0064-006400000761' order by revision desc limit 1), 0) as revision, now(), 'GeneratedBallot',
-// '{"hash": "A94D372C64EACA17EAE267C3F54F4CE8A92EC0170C9DDE26D4503FED5C15E417", "isNew": true, "voter": "eici-testscharge240", "ballot": "00001766-6915-6c6b-0064-006400000761", "revision": 1, "timestamp": "2022-10-27T15:27:34.549+02:00",
-// "votingPeriod": "00001764-3ba6-65f7-0064-006400000025"}' returning revision;
-
-
 	DatabaseRepository(Database database) {
 		super(database);
 		this.optimizeInsert = insert(of(
@@ -59,7 +50,7 @@ final class DatabaseRepository extends AbstractDatabaseEventRepository {
 						new InsertableSqlPrimaryKey(STREAM_ID),
 						new InsertableSqlPrimaryKey(REVISION, coalesce(SubSelects.from(select(add(REVISION,1)).from(TABLE).where(and(eq(STREAM), eq(STREAM_ID))).orderBy(Order.desc(REVISION)).limit(1).build()), 1))),
 					COLUMNS, TABLE)
-				//.returning(REVISION)
+				.returning(REVISION)
 				.build();
 
 		this.findLastRevisionByAggregateTypeAndAggregateId = select(REVISION).from(TABLE).where(and(eq(STREAM), eq(STREAM_ID))).orderBy(Order.desc(REVISION)).limit(1).build();
