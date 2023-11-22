@@ -162,8 +162,21 @@ public abstract class Repository {
 
     protected final <E, F> F executeInsertWithReturning(SqlQuery query, InsertMapper<E> im, E pojo, ResultSetMapper<F> rsm) {
         try (TransactionQueryContext tqc = database.transactionManager().context().write(query)) {
-            doInsert(query, im, pojo, tqc);
-            try (ResultSet resultSet = tqc.preparedStatement().getGeneratedKeys()) {
+            try {
+                im.insert(this.database.dialect(), tqc.preparedStatement(), pojo);
+            } catch (SQLException cause) {
+                throw tqc.exception(new EventstormRepositoryException(INSERT_MAPPER, of(PARAM_SQL, query, PARAM_POJO, pojo), cause));
+            }
+            boolean val;
+            try {
+                val = tqc.preparedStatement().execute();
+            } catch (SQLException cause) {
+                throw new EventstormRepositoryException(INSERT_EXECUTE_QUERY, of(PARAM_SQL, query, PARAM_POJO, pojo), cause);
+            }
+            if (!val) {
+                throw new EventstormRepositoryException(INSERT_RESULT, of(PARAM_SQL, query, PARAM_POJO, pojo));
+            }
+            try (ResultSet resultSet = tqc.preparedStatement().getResultSet()) {
                 return rsm.map(dialect, resultSet);
             } catch (SQLException cause) {
                 throw new EventstormRepositoryException(INSERT_RETURNING_VALUES, of(PARAM_SQL, query, PARAM_POJO, pojo), cause);
