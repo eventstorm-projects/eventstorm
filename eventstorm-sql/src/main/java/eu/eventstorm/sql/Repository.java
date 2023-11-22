@@ -177,7 +177,7 @@ public abstract class Repository {
                 throw new EventstormRepositoryException(INSERT_RESULT, of(PARAM_SQL, query, PARAM_POJO, pojo));
             }
             try (ResultSet resultSet = tqc.preparedStatement().getResultSet()) {
-                return rsm.map(dialect, resultSet);
+                return map(resultSet, rsm, this.database.dialect());
             } catch (SQLException cause) {
                 throw new EventstormRepositoryException(INSERT_RETURNING_VALUES, of(PARAM_SQL, query, PARAM_POJO, pojo), cause);
             }
