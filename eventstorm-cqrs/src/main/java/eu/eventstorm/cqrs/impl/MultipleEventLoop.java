@@ -17,7 +17,9 @@ import reactor.core.scheduler.Scheduler;
 final class MultipleEventLoop implements EventLoop {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MultipleEventLoop.class);
-			
+
+	private final Scheduler validationScheduler;
+
 	private final ConcurrentHashMap<String, Scheduler> cache = new ConcurrentHashMap<>();
 
 	private final ImmutableMap<String, Scheduler> others;
@@ -26,7 +28,8 @@ final class MultipleEventLoop implements EventLoop {
 	
 	private final Scheduler postScheduler;
 	
-	public MultipleEventLoop(Scheduler defaultScheduler, ImmutableMap<String, Scheduler> others, Scheduler postScheduler) {
+	public MultipleEventLoop(Scheduler validationScheduler, Scheduler defaultScheduler, ImmutableMap<String, Scheduler> others, Scheduler postScheduler) {
+		this.validationScheduler = validationScheduler;
 		this.others = others;
 		this.defaultScheduler = defaultScheduler;
 		this.postScheduler = postScheduler;
@@ -74,5 +77,10 @@ final class MultipleEventLoop implements EventLoop {
 	public Scheduler post() {
 		return postScheduler;
 	}
-	
+
+	@Override
+	public Scheduler validation() {
+		return validationScheduler;
+	}
+
 }

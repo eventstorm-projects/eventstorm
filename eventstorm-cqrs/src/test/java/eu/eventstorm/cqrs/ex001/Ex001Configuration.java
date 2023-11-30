@@ -55,6 +55,9 @@ class Ex001Configuration {
 	
 	@Bean
 	EventLoop eventLoop() {
-		return EventLoops.single(Schedulers.newSingle("event-loop-junit"), Schedulers.newSingle("event-post-junit"));
+		return EventLoops.single(
+				Schedulers.newSingle("event-validation-junit"),
+				Schedulers.newSingle("event-loop-junit"),
+				Schedulers.newSingle("event-post-junit"));
 	}
 }

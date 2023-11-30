@@ -9,23 +9,30 @@ import reactor.core.scheduler.Scheduler;
  */
 final class SingleEventLoop implements EventLoop {
 
-	private final Scheduler defaultScheduler;
-	
-	private final Scheduler postScheduler;
+    private final Scheduler validationScheduler;
+    private final Scheduler defaultScheduler;
 
-	public SingleEventLoop(Scheduler defaultScheduler, Scheduler postScheduler) {
-		this.defaultScheduler = defaultScheduler;
-		this.postScheduler = postScheduler;
-	}
+    private final Scheduler postScheduler;
 
-	@Override
-	public Scheduler get(Command command) {
-		return defaultScheduler;
-	}
+    public SingleEventLoop(Scheduler validationScheduler, Scheduler defaultScheduler, Scheduler postScheduler) {
+        this.validationScheduler = validationScheduler;
+        this.defaultScheduler = defaultScheduler;
+        this.postScheduler = postScheduler;
+    }
 
-	@Override
-	public Scheduler post() {
-		return postScheduler;
-	}
+    @Override
+    public Scheduler get(Command command) {
+        return defaultScheduler;
+    }
+
+    @Override
+    public Scheduler post() {
+        return postScheduler;
+    }
+
+    @Override
+    public Scheduler validation() {
+        return validationScheduler;
+    }
 
 }

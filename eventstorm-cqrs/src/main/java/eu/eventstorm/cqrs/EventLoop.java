@@ -11,4 +11,6 @@ public interface EventLoop {
 
 	Scheduler post();
 
+	Scheduler validation();
+
 }

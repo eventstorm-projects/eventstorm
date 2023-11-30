@@ -86,9 +86,10 @@ public abstract class LocalDatabaseEventStoreCommandHandler<T extends Command> i
     public final Flux<Event> handle(CommandContext context) {
         return Mono.just(context)
                 .doFinally(onFinally(context, context.getCommand()))
+                .publishOn(eventLoop.validation())
                 .handle(this::validate)
                 // if exception in the validation -> skip the eventLoop
-                .filterWhen(t -> Mono.just(true))
+               // .filterWhen(t -> Mono.just(true))
                 .flatMap(this::eventLoopStoreAndEvolution)
                 .flatMapMany(Flux::fromIterable)
                 ;

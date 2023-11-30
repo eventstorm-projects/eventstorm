@@ -80,7 +80,9 @@ public abstract class ReactiveLocalDatabaseEventStoreCommandHandler<T extends Co
 
 
     public final Flux<Event> handle(CommandContext context) {
-        return this.validate(context)
+        return Mono.just(context)
+                .publishOn(eventLoop.validation())
+                .flatMap(this::validate)
                 .flatMap(this::init)
                 .flatMap(this::eventLoopStoreAndEvolution)
                 .flatMap(this::post)
