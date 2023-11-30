@@ -85,12 +85,20 @@ public final class QueryClientServiceGenerator {
             writeNewLine(writer);
             writer.write("import eu.eventstorm.cqrs.QueryServiceClientCacheFactory;");
             writeNewLine(writer);
+
+            writer.write("import org.springframework.http.HttpStatus;");
+            writeNewLine(writer);
+            writer.write("import org.springframework.web.reactive.function.BodyExtractors;");
+            writeNewLine(writer);
+            writer.write("import reactor.core.publisher.Mono;");
+            writeNewLine(writer);
+            writer.write("import reactor.core.scheduler.Schedulers;");
+            writeNewLine(writer);
+
             writer.write("import org.springframework.beans.factory.annotation.Qualifier;");
             writeNewLine(writer);
         }
-
         writeGenerated(writer, QueryClientServiceGenerator.class.getName());
-
 
         /*
         writer.write("@org.springframework.stereotype.Component");
@@ -168,7 +176,26 @@ public final class QueryClientServiceGenerator {
 
             String type = getMonoType(epd);
 
+            writer.write("                .onStatus(HttpStatus::is4xxClientError, error -> {");
+            writeNewLine(writer);
+            writer.write("                   LOGGER.error(\"4XX error -> \" + error.toString());");
+            writeNewLine(writer);
+            writer.write("                   return error.body(BodyExtractors.toMono(String.class)).flatMap(s -> Mono.error(new RuntimeException(s)));");
+            writeNewLine(writer);
+            writer.write("                })");
+            writeNewLine(writer);
+            writer.write("                .onStatus(HttpStatus::is5xxServerError, error -> {");
+            writeNewLine(writer);
+            writer.write("                   LOGGER.error(\"5XX error -> \" + error.toString());");
+            writeNewLine(writer);
+            writer.write("                   return error.body(BodyExtractors.toMono(String.class)).flatMap(s -> Mono.error(new RuntimeException(s)));");
+            writeNewLine(writer);
+            writer.write("                })");
+
+
             writer.write("                .bodyToMono(" + type + ".class)");
+            writeNewLine(writer);
+            writer.write("                .subscribeOn(Schedulers.boundedElastic())");
             writeNewLine(writer);
             writer.write("                .cache()");
             writeNewLine(writer);
