@@ -195,7 +195,7 @@ public final class QueryClientServiceGenerator {
 
             writer.write("                .bodyToMono(" + type + ".class)");
             writeNewLine(writer);
-            writer.write("                .subscribeOn(Schedulers.boundedElastic())");
+            writer.write("                .publishOn(Schedulers.boundedElastic())");
             writeNewLine(writer);
             writer.write("                .cache()");
             writeNewLine(writer);
