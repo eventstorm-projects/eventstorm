@@ -92,8 +92,6 @@ public final class QueryClientServiceGenerator {
             writeNewLine(writer);
             writer.write("import reactor.core.publisher.Mono;");
             writeNewLine(writer);
-            writer.write("import reactor.core.scheduler.Schedulers;");
-            writeNewLine(writer);
 
             writer.write("import org.springframework.beans.factory.annotation.Qualifier;");
             writeNewLine(writer);
@@ -194,8 +192,6 @@ public final class QueryClientServiceGenerator {
 
 
             writer.write("                .bodyToMono(" + type + ".class)");
-            writeNewLine(writer);
-            writer.write("                .publishOn(Schedulers.boundedElastic())");
             writeNewLine(writer);
             writer.write("                .cache()");
             writeNewLine(writer);
