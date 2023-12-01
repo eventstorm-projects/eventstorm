@@ -7,6 +7,7 @@ import eu.eventstorm.core.apt.model.QueryClientServiceDescriptor;
 import eu.eventstorm.core.apt.model.QueryClientServiceMethodDescriptor;
 import eu.eventstorm.sql.apt.log.Logger;
 import eu.eventstorm.util.Strings;
+import reactor.core.scheduler.Schedulers;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.type.MirroredTypeException;
@@ -75,6 +76,14 @@ public final class QueryClientServiceGenerator {
         writeNewLine(writer);
         writer.write("import org.springframework.web.reactive.function.client.WebClient;");
         writeNewLine(writer);
+        writer.write("import reactor.core.scheduler.Schedulers;");
+        writeNewLine(writer);
+        writer.write("import org.springframework.http.HttpStatus;");
+        writeNewLine(writer);
+        writer.write("import org.springframework.web.reactive.function.BodyExtractors;");
+        writeNewLine(writer);
+        writer.write("import reactor.core.publisher.Mono;");
+        writeNewLine(writer);
 
         if (hasCache(descriptor)) {
             writer.write("import java.util.concurrent.CompletableFuture;");
@@ -84,13 +93,6 @@ public final class QueryClientServiceGenerator {
             writer.write("import com.github.benmanes.caffeine.cache.Caffeine;");
             writeNewLine(writer);
             writer.write("import eu.eventstorm.cqrs.QueryServiceClientCacheFactory;");
-            writeNewLine(writer);
-
-            writer.write("import org.springframework.http.HttpStatus;");
-            writeNewLine(writer);
-            writer.write("import org.springframework.web.reactive.function.BodyExtractors;");
-            writeNewLine(writer);
-            writer.write("import reactor.core.publisher.Mono;");
             writeNewLine(writer);
 
             writer.write("import org.springframework.beans.factory.annotation.Qualifier;");
@@ -189,10 +191,14 @@ public final class QueryClientServiceGenerator {
             writer.write("                   return error.body(BodyExtractors.toMono(String.class)).flatMap(s -> Mono.error(new RuntimeException(s)));");
             writeNewLine(writer);
             writer.write("                })");
+            writeNewLine(writer);
 
 
             writer.write("                .bodyToMono(" + type + ".class)");
             writeNewLine(writer);
+            writer.write("                .subscribeOn(Schedulers.boundedElastic())");
+            writeNewLine(writer);
+
             writer.write("                .cache()");
             writeNewLine(writer);
             //writer.write("                .toFuture()");
@@ -347,14 +353,53 @@ public final class QueryClientServiceGenerator {
                 writeNewLine(writer);
             } else if (epd.getMethod().getReturnType().toString().contains("reactor.core.publisher.Flux<")) {
                 String type = getFluxType(epd);
-                writer.write("                .bodyToFlux(" + type + ".class);");
+                writer.write("                .onStatus(HttpStatus::is4xxClientError, error -> {");
+                writeNewLine(writer);
+                writer.write("                   LOGGER.error(\"4XX error -> \" + error.toString());");
+                writeNewLine(writer);
+                writer.write("                   return error.body(BodyExtractors.toMono(String.class)).flatMap(s -> Mono.error(new RuntimeException(s)));");
+                writeNewLine(writer);
+                writer.write("                })");
+                writeNewLine(writer);
+                writer.write("                .onStatus(HttpStatus::is5xxServerError, error -> {");
+                writeNewLine(writer);
+                writer.write("                   LOGGER.error(\"5XX error -> \" + error.toString());");
+                writeNewLine(writer);
+                writer.write("                   return error.body(BodyExtractors.toMono(String.class)).flatMap(s -> Mono.error(new RuntimeException(s)));");
+                writeNewLine(writer);
+                writer.write("                })");
+                writeNewLine(writer);
+                writer.write("                .bodyToFlux(" + type + ".class)");
+                writeNewLine(writer);
+                writer.write("                .subscribeOn(Schedulers.boundedElastic());");
                 writeNewLine(writer);
             } else {
 
                 String type = getMonoType(epd);
 
-                writer.write("                .bodyToMono(" + type + ".class);");
+                writer.write("                .onStatus(HttpStatus::is4xxClientError, error -> {");
                 writeNewLine(writer);
+                writer.write("                   LOGGER.error(\"4XX error -> \" + error.toString());");
+                writeNewLine(writer);
+                writer.write("                   return error.body(BodyExtractors.toMono(String.class)).flatMap(s -> Mono.error(new RuntimeException(s)));");
+                writeNewLine(writer);
+                writer.write("                })");
+                writeNewLine(writer);
+                writer.write("                .onStatus(HttpStatus::is5xxServerError, error -> {");
+                writeNewLine(writer);
+                writer.write("                   LOGGER.error(\"5XX error -> \" + error.toString());");
+                writeNewLine(writer);
+                writer.write("                   return error.body(BodyExtractors.toMono(String.class)).flatMap(s -> Mono.error(new RuntimeException(s)));");
+                writeNewLine(writer);
+                writer.write("                })");
+                writeNewLine(writer);
+
+
+                writer.write("                .bodyToMono(" + type + ".class)");
+                writeNewLine(writer);
+                writer.write("                .subscribeOn(Schedulers.boundedElastic());");
+                writeNewLine(writer);
+
             }
         } else {
             writer.write("        return this." + epd.getMethod().getSimpleName().toString() + ".get(" + loggerParamsValue + ");");
