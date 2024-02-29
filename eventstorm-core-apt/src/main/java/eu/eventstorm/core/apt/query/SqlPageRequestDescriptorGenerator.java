@@ -144,9 +144,9 @@ public final class SqlPageRequestDescriptorGenerator {
         for (QueryPropertyDescriptor property : ed.properties()) {
             String type = Helper.getReturnType(property.getter());
             if (Helper.isInteger(type)) {
-                writer.write("            .put(\"" + property.name() + "\", filter -> (dialect,ps,index) -> { for (String value : filter.getValues()) { ps.setInt(index++, Integer.valueOf(value));} return index; })");
+                writer.write("            .put(\"" + property.name() + "\", filter -> (dialect,ps,index) -> { for (String value : filter.getValues()) { ps.setInt(index++, Integer.parseInt(value));} return index; })");
             } else if (Helper.isLong(type)) {
-                writer.write("            .put(\"" + property.name() + "\", filter -> (dialect,ps,index) -> { for (String value : filter.getValues()) { ps.setLong(index++, Long.valueOf(value));} return index; })");
+                writer.write("            .put(\"" + property.name() + "\", filter -> (dialect,ps,index) -> { for (String value : filter.getValues()) { ps.setLong(index++, Long.parseLong(value));} return index; })");
             } else if (Helper.isBoolean(type)) {
                 writer.write("            .put(\"" + property.name() + "\", filter -> (dialect,ps,index) -> { for (String value : filter.getValues()) { ps.setBoolean(index++, Boolean.valueOf(value));} return index; })");
             } else if (Helper.isByte(type)) {

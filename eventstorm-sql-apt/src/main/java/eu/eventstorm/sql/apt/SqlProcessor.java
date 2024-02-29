@@ -120,8 +120,6 @@ public final class SqlProcessor extends AbstractProcessor {
         new ViewMapperGenerator().generate(processingEnv, sourceCode);
         new ViewMapperFactoryGenerator().generate(processingEnv, sourceCode);
 
-        Set<? extends Element> elements = roundEnvironment.getElementsAnnotatedWith(GlobalConfiguration.class);
-
         List<GlobalConfigurationDescriptor> configs = roundEnvironment.getElementsAnnotatedWith(GlobalConfiguration.class)
                 .stream()
                 .map(new GlobalConfigurationAnalyser(this.processingEnv, sourceCode))

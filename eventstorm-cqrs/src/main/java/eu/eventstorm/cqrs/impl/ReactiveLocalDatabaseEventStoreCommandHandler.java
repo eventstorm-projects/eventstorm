@@ -84,7 +84,9 @@ public abstract class ReactiveLocalDatabaseEventStoreCommandHandler<T extends Co
                 .publishOn(eventLoop.validation())
                 .flatMap(this::validate)
                 .flatMap(this::init)
-                .flatMap(this::eventLoopStoreAndEvolution)
+                .publishOn(eventLoop.get(context.getCommand()))
+                .handle(this::storeAndEvolution)
+                .publishOn(eventLoop.post())
                 .flatMap(this::post)
                 .flatMap(this::publish)
                 .flatMapMany(r -> Flux.fromIterable(r.getT2()));
@@ -110,18 +112,6 @@ public abstract class ReactiveLocalDatabaseEventStoreCommandHandler<T extends Co
         }
         return Mono.just(tuple);
     }
-
-    private Mono<Tuple2<CommandContext, ImmutableList<Event>>> eventLoopStoreAndEvolution(CommandContext ctx) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("eventLoopStoreAndEvolution [{}]", ctx);
-        }
-        return Mono.just(ctx)
-                .publishOn(eventLoop.get(ctx.getCommand()))
-                .handle(this::storeAndEvolution)
-                .publishOn(eventLoop.post())
-                ;
-    }
-
 
     private void storeAndEvolution(CommandContext ctx, SynchronousSink<Tuple2<CommandContext, ImmutableList<Event>>> sink) {
         try (Span ignored = this.tracer.start("decision-store-evolution")) {
