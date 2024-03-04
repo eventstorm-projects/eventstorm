@@ -153,11 +153,11 @@ public final class TransactionTemplate {
 		Page<T> page;
 		try {
 			page = callback.doInTransaction();
+			page.getContent().onClose(new OnCloseRunnable(tx));
 		} catch (Exception cause) {
 			rollbackAndClose(tx);
 			throw cause;
 		}
-		page.getContent().onClose(new OnCloseRunnable(tx));
 		return page;
 	}
 
