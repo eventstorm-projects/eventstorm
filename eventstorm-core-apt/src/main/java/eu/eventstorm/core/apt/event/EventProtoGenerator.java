@@ -215,16 +215,15 @@ public final class EventProtoGenerator {
         for (Protobuf protobuf : protobufs) {
             for (ProtobufMessage message : protobuf.getMessages()) {
                 writeNewLine(writer);
-                writer.write("        if (event.getData().getTypeUrl().equals(\"");
+
+                writer.write("        if (\"");
                 writer.write(configuration.evolutionDataTypeBaseUrl());
                 writer.write("/");
                 writer.write(getStreamName(protobuf));
                 writer.write("/");
-//        		if (!Strings.isEmpty(protobuf.getJavaPackage())) {
-//        			writer.write(protobuf.getJavaPackage() + ".");	
-//        		}
                 writer.write(message.getName());
-                writer.write("\")) {");
+                writer.write("\".equals(event.getData().getTypeUrl())) {");
+
                 writeNewLine(writer);
                 writer.write("            try {");
                 writeNewLine(writer);
