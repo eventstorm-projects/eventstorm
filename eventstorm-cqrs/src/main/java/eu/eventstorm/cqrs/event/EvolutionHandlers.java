@@ -1,57 +1,58 @@
 package eu.eventstorm.cqrs.event;
 
+import com.google.common.collect.ImmutableList;
+import eu.eventstorm.core.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.ImmutableList;
-
-import eu.eventstorm.core.Event;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-public final class EvolutionHandlers implements EvolutionHandler {
+public final class EvolutionHandlers {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(EvolutionHandlers.class);
-	
-	private final ImmutableList<EvolutionHandler> handlers;
+    private static final Logger LOGGER = LoggerFactory.getLogger(EvolutionHandlers.class);
 
-	public EvolutionHandlers(ImmutableList<EvolutionHandler> handlers) {
-		this.handlers = handlers;
-	}
+    private final ImmutableList<EvolutionHandler> handlers;
 
-	@Override
-	public void on(Event event) {
+    public EvolutionHandlers(ImmutableList<EvolutionHandler> handlers) {
+        this.handlers = handlers;
+    }
 
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("on ({},{})", event.getStream(), event.getStreamId());
-		}
-		
-		this.handlers.forEach(h -> h.on(event));
+    public void on(Event event) {
 
-	}
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("on ({},{})", event.getStream(), event.getStreamId());
+        }
 
-	public static Builder newBuilder() {
-		return new Builder();
-	}
+        this.handlers.forEach(h -> {
+                    if (h.isForMe(event.getStream())) {
+                        h.on(event);
+                    }
+                }
+        );
+    }
 
-	public static class Builder {
+    public static Builder newBuilder() {
+        return new Builder();
+    }
 
-		private final ImmutableList.Builder<EvolutionHandler> handlers;
+    public static class Builder {
 
-		private Builder() {
-			this.handlers = ImmutableList.builder();
-		}
+        private final ImmutableList.Builder<EvolutionHandler> handlers;
 
-		public Builder add(EvolutionHandler evolutionHandler) {
-			this.handlers.add(evolutionHandler);
-			return this;
-		}
+        private Builder() {
+            this.handlers = ImmutableList.builder();
+        }
 
-		public EvolutionHandlers build() {
-			return new EvolutionHandlers(handlers.build());
-		}
+        public Builder add(EvolutionHandler evolutionHandler) {
+            this.handlers.add(evolutionHandler);
+            return this;
+        }
 
-	}
+        public EvolutionHandlers build() {
+            return new EvolutionHandlers(handlers.build());
+        }
+
+    }
 
 }

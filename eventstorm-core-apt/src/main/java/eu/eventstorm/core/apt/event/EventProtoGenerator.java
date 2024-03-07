@@ -23,7 +23,9 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Set;
 
 import static eu.eventstorm.sql.apt.Helper.writeGenerated;
 import static eu.eventstorm.sql.apt.Helper.writeNewLine;
@@ -129,6 +131,7 @@ public final class EventProtoGenerator {
         try (Writer writer = object.openWriter()) {
             writeHeader(writer, env, descriptor, ctxs);
             writeMethods(writer, descriptor, ctxs, configuration);
+            writeMethodIsForMe(writer, ctxs, configuration);
             writer.write("}");
         }
 
@@ -196,6 +199,31 @@ public final class EventProtoGenerator {
         }
     }
 
+    private void writeMethodIsForMe(Writer writer, ImmutableList<Protobuf> protobufs, CqrsConfiguration configuration) throws IOException {
+
+        writeNewLine(writer);
+        writer.write("    @Override");
+        writeNewLine(writer);
+        writer.write("    public final boolean isForMe(String name) {");
+
+        Set<String> names = new HashSet<>();
+        // collect streamNames;
+        for (Protobuf protobuf : protobufs) {
+            names.add(getStreamName(protobuf));
+        }
+
+        if (names.size() == 1) {
+            writeNewLine(writer);
+            writer.write("        return \"" + names.iterator().next() +"\".equals(name);");
+        } else {
+            throw new RuntimeException("unsupported");
+        }
+
+        writeNewLine(writer);
+        writer.write("    }");
+        writeNewLine(writer);
+
+    }
     private void writeMethodOnEvent(Writer writer, EventEvolutionDescriptor descriptor, ImmutableList<Protobuf> protobufs, CqrsConfiguration configuration) throws IOException {
         writeNewLine(writer);
         writer.write("    /** {@inheritDoc} */");
@@ -244,11 +272,9 @@ public final class EventProtoGenerator {
             }
         }
         writeNewLine(writer);
-        writer.write("        else {");
+
+        writer.write("        LOGGER.warn(\"no evolution for ({})\", event);");
         writeNewLine(writer);
-        writer.write("            LOGGER.warn(\"no evolution for ({})\", event);");
-        writeNewLine(writer);
-        writer.write("        }");
 
         writeNewLine(writer);
         writer.write("    }");
