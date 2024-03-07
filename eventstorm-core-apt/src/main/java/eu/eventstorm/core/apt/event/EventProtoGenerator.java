@@ -149,6 +149,12 @@ public final class EventProtoGenerator {
         writer.write("import ");
         writer.write(InvalidProtocolBufferException.class.getName());
         writer.write(";");
+        writer.write("import ");
+        writer.write(org.slf4j.Logger.class.getName());
+        writer.write(";");
+        writer.write("import ");
+        writer.write(org.slf4j.LoggerFactory.class.getName());
+        writer.write(";");
         writeNewLine(writer);
 
 
@@ -175,6 +181,11 @@ public final class EventProtoGenerator {
         writer.write(EvolutionHandler.class.getSimpleName());
         writer.write(" {");
         writeNewLine(writer);
+
+        writeNewLine(writer);
+        writer.write("   public static final Logger LOGGER = LoggerFactory.getLogger(Abstract" + descriptor.simpleName() + "EvolutionHandler.class);");
+        writeNewLine(writer);
+
     }
 
     private void writeMethods(Writer writer, EventEvolutionDescriptor descriptor, ImmutableList<Protobuf> protobufs, CqrsConfiguration configuration) throws IOException {
@@ -192,6 +203,14 @@ public final class EventProtoGenerator {
         writer.write("    @Override");
         writeNewLine(writer);
         writer.write("    public final void on(Event event) {");
+
+        writeNewLine(writer);
+        writer.write("        if (LOGGER.isDebugEnabled()) {");
+        writeNewLine(writer);
+        writer.write("            LOGGER.debug(\"on({})\", event);");
+        writeNewLine(writer);
+        writer.write("        }");
+
 
         for (Protobuf protobuf : protobufs) {
             for (ProtobufMessage message : protobuf.getMessages()) {
@@ -225,6 +244,12 @@ public final class EventProtoGenerator {
                 writer.write("        }");
             }
         }
+        writeNewLine(writer);
+        writer.write("        else {");
+        writeNewLine(writer);
+        writer.write("            LOGGER.warn(\"no evolution for ({})\", event);");
+        writeNewLine(writer);
+        writer.write("        }");
 
         writeNewLine(writer);
         writer.write("    }");
