@@ -6,7 +6,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Conditional;
+import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.ZeroCopyHttpOutputMessage;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.eventstorm.batch.file.FileResource;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
@@ -26,6 +30,7 @@ import reactor.core.publisher.Mono;
 @RestController
 public final class FileResourceReactiveController {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(FileResourceReactiveController.class);
 	private final FileResource fileResource;
 	
 	public FileResourceReactiveController(FileResource fileResource) {
@@ -55,12 +60,17 @@ public final class FileResourceReactiveController {
 	
 	@GetMapping(path = "${eu.eventstorm.batch.resource.context-path:}/download/{uuid}")
 	public Mono<Void> download(@PathVariable("uuid") String uuid, ServerHttpResponse response) throws IOException {
+		LOGGER.info("Download [{}]", uuid);
+
+		Path file = fileResource.get(uuid);
+
 		if (response instanceof ZeroCopyHttpOutputMessage) {
 			ZeroCopyHttpOutputMessage zeroCopyResponse = (ZeroCopyHttpOutputMessage) response;
-			Path file = fileResource.get(uuid);
 			return zeroCopyResponse.writeWith(file, 0, Files.size(file));
 		} else {
-			return null;
+			DataBuffer buffer = response.bufferFactory().allocateBuffer((int) Files.size(file));
+			buffer.write(Files.readAllBytes(file));
+			return response.writeWith(Flux.just(buffer));
 		}
 	}
 	
