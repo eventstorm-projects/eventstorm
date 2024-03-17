@@ -1,7 +1,5 @@
 package eu.eventstorm.problem;
 
-import static org.owasp.encoder.Encode.forJava;
-
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.LinkedHashMap;
@@ -42,7 +40,7 @@ public final class ProblemBuilder {
 		return this;
 	}
 	
-	public ProblemBuilder withServletRequest(javax.servlet.http.HttpServletRequest req) {
+	/*public ProblemBuilder withServletRequest(javax.servlet.http.HttpServletRequest req) {
 		this.type = URI.create(forJava(req.getScheme()) + "://" + forJava(req.getServerName()) + ":" + req.getServerPort() + forJava(req.getContextPath()));
 
 		String originalUri = (String) req.getAttribute(javax.servlet.RequestDispatcher.ERROR_REQUEST_URI);
@@ -54,7 +52,7 @@ public final class ProblemBuilder {
 			        + (Strings.isEmpty(req.getQueryString()) ? "" : forJava(req.getQueryString())));
 		}
 		return this;
-	}
+	}*/
 
 	public ProblemBuilder withTraceId(String traceId) {
 		this.traceId = traceId;

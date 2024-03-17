@@ -2,7 +2,6 @@ package eu.eventstorm.sql.tracer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import zipkin2.Span;
 import zipkin2.reporter.Reporter;
 

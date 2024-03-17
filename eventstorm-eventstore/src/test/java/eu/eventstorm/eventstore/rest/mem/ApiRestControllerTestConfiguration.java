@@ -34,20 +34,6 @@ import reactor.core.scheduler.Schedulers;
 @EnableAutoConfiguration
 class ApiRestControllerTestConfiguration implements WebFluxConfigurer {
 
-
-    @Autowired
-    ObjectMapper objectMapper;
-
-    public void configureHttpMessageCodecs(ServerCodecConfigurer configurer) {
-        configurer.defaultCodecs().jackson2JsonEncoder(
-                new Jackson2JsonEncoder(objectMapper)
-        );
-
-        configurer.defaultCodecs().jackson2JsonDecoder(
-                new Jackson2JsonDecoder(objectMapper)
-        );
-    }
-
     @Bean
     EventStore eventStore() {
         return new InMemoryEventStore(new EventStoreProperties());

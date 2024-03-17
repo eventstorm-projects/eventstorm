@@ -1,7 +1,7 @@
 package eu.eventstorm.sql.util;
 
 import com.jayway.jsonpath.JsonPath;
-import net.minidev.json.JSONArray;
+import net.minidev.json.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

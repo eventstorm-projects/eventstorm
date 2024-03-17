@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-@SupportedSourceVersion(SourceVersion.RELEASE_11)
+@SupportedSourceVersion(SourceVersion.RELEASE_17)
 @SupportedAnnotationTypes({"eu.eventstorm.sql.annotation.GlobalConfiguration","eu.eventstorm.sql.annotation.Table","eu.eventstorm.sql.annotation.View"})
 public final class SqlProcessor extends AbstractProcessor {
 

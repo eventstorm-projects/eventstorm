@@ -26,6 +26,7 @@ import eu.eventstorm.sql.impl.TransactionManagerConfiguration;
 import eu.eventstorm.sql.impl.TransactionManagerImpl;
 import eu.eventstorm.sql.tracer.LoggingBraveReporter;
 import eu.eventstorm.sql.tracer.TransactionTracers;
+import zipkin2.reporter.brave.ZipkinSpanHandler;
 
 @Configuration
 public class EventstormPlatformTransactionManagerConfigurationTest {
@@ -37,7 +38,7 @@ public class EventstormPlatformTransactionManagerConfigurationTest {
 
 	@Bean
 	Tracer tracer() {
-		return Tracing.newBuilder().sampler(Sampler.ALWAYS_SAMPLE).spanReporter(new LoggingBraveReporter()).build().tracer();
+		return Tracing.newBuilder().sampler(Sampler.ALWAYS_SAMPLE).addSpanHandler(ZipkinSpanHandler.create(new LoggingBraveReporter())).build().tracer();
 	}
 
 	@Bean(destroyMethod = "close")

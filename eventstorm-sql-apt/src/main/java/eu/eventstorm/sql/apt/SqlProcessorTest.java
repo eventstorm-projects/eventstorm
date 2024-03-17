@@ -22,7 +22,7 @@ import java.util.Set;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-@SupportedSourceVersion(SourceVersion.RELEASE_11)
+@SupportedSourceVersion(SourceVersion.RELEASE_17)
 @SupportedAnnotationTypes({"org.junit.jupiter.api.Test"})
 public final class SqlProcessorTest extends AbstractProcessor {
 
