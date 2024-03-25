@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package eu.eventstorm.core;
+
+option java_multiple_files = true;
+option java_package = "eu.eventstorm.core";
+
+import "google/protobuf/any.proto";
+
+message Event {
+  
+  string        streamId 		= 1;   	// entity-id
+  string        stream   		= 2;   	// entity-name
+  int32         revision 		= 3;   	// revision
+  string        timestamp 		= 4;  	// timestamp
+  string		    correlation		= 5;
+  google.protobuf.Any           data = 6;       // JSON data
+   
+}

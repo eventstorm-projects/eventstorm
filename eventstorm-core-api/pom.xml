@@ -80,42 +80,18 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>com.github.os72</groupId>
-				<artifactId>protoc-jar-maven-plugin</artifactId>
+				<groupId>io.github.ascopes</groupId>
+				<artifactId>protobuf-maven-plugin</artifactId>
+				<version>${protobuf-maven-plugin.version}</version>
+				<configuration>
+					<protocVersion>${com.google.protobuf.version}</protocVersion>
+				</configuration>
 				<executions>
 					<execution>
-						<id>source</id>
-						<phase>generate-sources</phase>
 						<goals>
-							<goal>run</goal>
+							<goal>generate</goal>
+							<goal>generate-test</goal>
 						</goals>
-						<configuration>
-							<protocVersion>${com.google.protobuf.version}</protocVersion>
-       					    <protocArtifact>com.google.protobuf:protoc:${com.google.protobuf.version}</protocArtifact>
-							<includeImports>true</includeImports>
-							<includeStdTypes>true</includeStdTypes>
-							<inputDirectories>
-								<include>src/main/resources</include>
-							</inputDirectories>
-							<outputDirectory>target/generated-sources</outputDirectory>
-							<outputDirectorySuffix>protobuf</outputDirectorySuffix>
-						</configuration>
-					</execution>
-					<execution>
-						<id>test</id>
-						<phase>generate-test-sources</phase>
-						<goals>
-							<goal>run</goal>
-						</goals>
-						<configuration>
-							<protocVersion>${com.google.protobuf.version}</protocVersion>
-							<protocArtifact>com.google.protobuf:protoc:${com.google.protobuf.version}</protocArtifact>
-							<inputDirectories>
-								<include>src/test/resources</include>
-							</inputDirectories>
-							<outputDirectory>target/generated-test-sources</outputDirectory>
-							<outputDirectorySuffix>protobuf</outputDirectorySuffix>
-						</configuration>
 					</execution>
 				</executions>
 			</plugin>

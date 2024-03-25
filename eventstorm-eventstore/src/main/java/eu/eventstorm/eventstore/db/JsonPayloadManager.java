@@ -13,7 +13,7 @@ public final class JsonPayloadManager implements PayloadManager {
 
     public static final PayloadManager INSTANCE = new JsonPayloadManager();
 
-    private static final JsonFormat.Printer PRINTER = JsonFormat.printer().omittingInsignificantWhitespace().includingDefaultValueFields();
+    private static final JsonFormat.Printer PRINTER = JsonFormat.printer().omittingInsignificantWhitespace();
 
     private JsonPayloadManager() {
     }
