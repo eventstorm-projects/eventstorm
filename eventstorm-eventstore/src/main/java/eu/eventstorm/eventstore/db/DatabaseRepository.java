@@ -3,7 +3,6 @@ package eu.eventstorm.eventstore.db;
 import static com.google.common.collect.ImmutableList.of;
 import static eu.eventstorm.eventstore.db.DatabaseEventDescriptor.COLUMNS;
 import static eu.eventstorm.eventstore.db.DatabaseEventDescriptor.EVENT_TYPE;
-import static eu.eventstorm.eventstore.db.DatabaseEventDescriptor.IDS;
 import static eu.eventstorm.eventstore.db.DatabaseEventDescriptor.PAYLOAD;
 import static eu.eventstorm.eventstore.db.DatabaseEventDescriptor.REVISION;
 import static eu.eventstorm.eventstore.db.DatabaseEventDescriptor.STREAM;
@@ -12,18 +11,13 @@ import static eu.eventstorm.eventstore.db.DatabaseEventDescriptor.TABLE;
 import static eu.eventstorm.eventstore.db.DatabaseEventDescriptor.TIME;
 import static eu.eventstorm.sql.builder.Order.asc;
 import static eu.eventstorm.sql.expression.AggregateFunctions.coalesce;
-import static eu.eventstorm.sql.expression.AggregateFunctions.max;
 import static eu.eventstorm.sql.expression.Expressions.and;
 import static eu.eventstorm.sql.expression.Expressions.eq;
 import static eu.eventstorm.sql.expression.MathematicalFunctions.add;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.stream.Stream;
 
-import com.google.common.collect.ImmutableList;
 import eu.eventstorm.sql.Database;
-import eu.eventstorm.sql.Dialect;
 import eu.eventstorm.sql.SqlQuery;
 import eu.eventstorm.sql.builder.Order;
 import eu.eventstorm.sql.builder.SubSelects;

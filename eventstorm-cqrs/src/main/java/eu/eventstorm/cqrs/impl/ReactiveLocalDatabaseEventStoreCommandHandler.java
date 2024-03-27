@@ -14,7 +14,6 @@ import eu.eventstorm.cqrs.validation.CommandValidationException;
 import eu.eventstorm.cqrs.validation.ReactiveValidator;
 import eu.eventstorm.eventbus.EventBus;
 import eu.eventstorm.eventstore.db.AbstractLocalDatabaseEventStore;
-import eu.eventstorm.eventstore.db.LocalDatabaseEventStore;
 import eu.eventstorm.sql.EventstormRepositoryException;
 import eu.eventstorm.sql.util.TransactionTemplate;
 import org.slf4j.Logger;

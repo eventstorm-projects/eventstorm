@@ -27,11 +27,7 @@ public final class TransactionManagerImpl implements TransactionManager {
 
     private final DataSource dataSource;
 
-    private final int defaultIsolationLevel;
-
     private final TransactionHolder transactions;
-
-    private boolean enforceReadOnly = false;
 
     private final TransactionManagerConfiguration configuration;
 
@@ -42,17 +38,14 @@ public final class TransactionManagerImpl implements TransactionManager {
     public TransactionManagerImpl(DataSource dataSource, TransactionManagerConfiguration configuration) {
     	this.dataSource = dataSource;
     	this.configuration = configuration;
+        int defaultIsolationLevel;
         try (Connection conn = dataSource.getConnection()) {
-            this.defaultIsolationLevel = conn.getTransactionIsolation();
+            defaultIsolationLevel = conn.getTransactionIsolation();
         } catch (SQLException cause) {
             throw new TransactionException(CONNECTION_ISOLATION, cause);
         }
         LOGGER.info("Transaction defaultIsolationLevel : [{}]", defaultIsolationLevel);
         this.transactions = new TransactionHolder();
-    }
-
-    public void setEnforceReadOnly(boolean enforceReadOnly) {
-        this.enforceReadOnly = enforceReadOnly;
     }
 
     @Override
@@ -139,10 +132,8 @@ public final class TransactionManagerImpl implements TransactionManager {
     }
     
     void restart(TransactionSupport transaction) {
-    	
-    	if (transaction instanceof AbstractTransaction) {
-    		AbstractTransaction tx =(AbstractTransaction) transaction;
-    		try {
+    	if (transaction instanceof AbstractTransaction tx) {
+            try {
 				if (tx.getConnection().isClosed()) {
 					this.transactions.remove();
 				} else {
@@ -166,20 +157,11 @@ public final class TransactionManagerImpl implements TransactionManager {
 		return (TransactionContext) context;
 	}
 
-	/*protected void prepareTransactionalConnection(Connection con, TransactionDefinition definition)
-            throws SQLException {
-        if (enforceReadOnly && TransactionType.READ_ONLY == definition.getType()) {
-            try (Statement stmt = con.createStatement()) {
-                stmt.executeUpdate("SET TRANSACTION READ ONLY");
-            }
-        }
-    }*/
-
 	public TransactionManagerConfiguration getConfiguration() {
 		return this.configuration;
 	}
 	
-	protected DataSource getDataSource() {
+	DataSource getDataSource() {
 		return this.dataSource;
 	}
 

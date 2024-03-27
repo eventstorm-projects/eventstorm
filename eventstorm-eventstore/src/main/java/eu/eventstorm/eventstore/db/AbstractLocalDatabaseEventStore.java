@@ -4,7 +4,6 @@ import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;
 import eu.eventstorm.core.Event;
-import eu.eventstorm.core.EventCandidate;
 import eu.eventstorm.eventstore.EventStore;
 import eu.eventstorm.eventstore.EventStoreProperties;
 import eu.eventstorm.eventstore.Statistics;
@@ -17,8 +16,6 @@ import eu.eventstorm.sql.util.TransactionTemplate;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.stream.Stream;
@@ -100,27 +97,20 @@ public abstract class AbstractLocalDatabaseEventStore implements EventStore {
 
     }
 
-    private static final class EventResultSetMapper implements ResultSetMapper<Event> {
-
-        private final StreamDefinition definition;
-        private final String streamId;
-
-        private EventResultSetMapper(String streamId, StreamDefinition definition) {
-            this.streamId = streamId;
-            this.definition = definition;
-        }
+    private record EventResultSetMapper(String streamId,
+                                        StreamDefinition definition) implements ResultSetMapper<Event> {
 
         @Override
-        public Event map(Dialect dialect, ResultSet rs) throws SQLException {
-            Message message = definition.getStreamEventDefinition(rs.getString(4)).jsonParse(rs.getString(3));
-            return Event.newBuilder()
-                    .setStreamId(streamId)
-                    .setStream(definition.getName())
-                    .setTimestamp(OffsetDateTime.ofInstant(rs.getTimestamp(1).toInstant(), ZoneId.systemDefault()).toString())
-                    .setRevision(rs.getInt(2))
-                    .setData(Any.pack(message, "event"))
-                    .build();
+            public Event map(Dialect dialect, ResultSet rs) throws SQLException {
+                Message message = definition.getStreamEventDefinition(rs.getString(4)).jsonParse(rs.getString(3));
+                return Event.newBuilder()
+                        .setStreamId(streamId)
+                        .setStream(definition.getName())
+                        .setTimestamp(OffsetDateTime.ofInstant(rs.getTimestamp(1).toInstant(), ZoneId.systemDefault()).toString())
+                        .setRevision(rs.getInt(2))
+                        .setData(Any.pack(message, "event"))
+                        .build();
+            }
         }
-    }
 
 }
