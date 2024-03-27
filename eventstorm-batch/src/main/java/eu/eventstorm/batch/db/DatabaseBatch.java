@@ -48,7 +48,7 @@ public final class DatabaseBatch implements Batch {
 		this.database = database;
 		this.repository = repository;
 		this.template = new TransactionTemplate(database.transactionManager());
-		this.jsonPrinter = JsonFormat.printer().omittingInsignificantWhitespace().usingTypeRegistry(registry);
+		this.jsonPrinter = JsonFormat.printer().omittingInsignificantWhitespace().usingTypeRegistry(registry).alwaysPrintFieldsWithNoPresence();
 	}
 
 	@Override

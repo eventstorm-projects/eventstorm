@@ -18,7 +18,7 @@ final class BatchJobCreatedSerializer extends StdSerializer<BatchJobCreated> {
 	
 	BatchJobCreatedSerializer() {
 		super(BatchJobCreated.class, false);
-		this.printer = JsonFormat.printer().omittingInsignificantWhitespace();
+		this.printer = JsonFormat.printer().omittingInsignificantWhitespace().alwaysPrintFieldsWithNoPresence();
 	}
 
 	@Override

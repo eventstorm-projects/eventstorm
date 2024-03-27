@@ -39,7 +39,7 @@ final class CloudEventSerializer extends StdSerializer<CloudEvent> {
 	CloudEventSerializer(TypeRegistry registry) {
 		super(CloudEvent.class, false);
 		this.registry = registry;
-		this.printer = JsonFormat.printer().usingTypeRegistry(registry).omittingInsignificantWhitespace();
+		this.printer = JsonFormat.printer().usingTypeRegistry(registry).omittingInsignificantWhitespace().alwaysPrintFieldsWithNoPresence();
 		this.descriptors = new ConcurrentHashMap<>();
 	}
 
