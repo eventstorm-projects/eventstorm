@@ -160,6 +160,10 @@ public final class Expressions {
   		return (dialect, alias) -> raw;
     }
 
+    public static Expression arraySingleContains(SqlColumn column) {
+        return new ArraySingleContainsExpression(column);
+    }
+
     public static Expression jsonExists(SqlColumn column, JsonPathExpression expression) {
         return new JsonExistsExpression(column, expression);
     }

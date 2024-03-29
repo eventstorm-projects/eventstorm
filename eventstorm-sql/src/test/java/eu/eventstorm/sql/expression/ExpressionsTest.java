@@ -245,4 +245,11 @@ class ExpressionsTest {
         assertEquals("UPPER(number) LIKE UPPER(?)", Expressions.ilike(number).build(dialect, false));
     }
 
+    @Test
+    void testArraySingleContains() {
+        SqlColumn number = new SqlSingleColumn(table, "number", false, true, true);
+        assertEquals("? = ANY (a.number)", Expressions.arraySingleContains(number).build(dialect, true));
+        assertEquals("? = ANY (number)", Expressions.arraySingleContains(number).build(dialect, false));
+    }
+
 }
