@@ -2,6 +2,7 @@ package eu.eventstorm.sql.apt.liquibase;
 
 import eu.eventstorm.sql.annotation.Column;
 import eu.eventstorm.sql.annotation.PrimaryKey;
+import eu.eventstorm.sql.apt.log.Logger;
 import eu.eventstorm.sql.type.Json;
 import eu.eventstorm.sql.type.Xml;
 
@@ -18,6 +19,7 @@ final class DatabaseDialectH2 implements DatabaseDialect {
 
 	static final DatabaseDialect INSTANCE = new DatabaseDialectH2();
 
+	static Logger logger;
 	@Override
 	public String toSqlType(String javaType, PrimaryKey column) {
 		
@@ -33,7 +35,7 @@ final class DatabaseDialectH2 implements DatabaseDialect {
 			return "VARCHAR(" + column.length() + ")";
 		}
 		
-		//LoggerFactory.getInstance().getLogger(FlywayDialectH2.class).error("No sql type for java type (PrimaryKey) [" + javaType + "]");
+		logger.error("No sql type for java type (PrimaryKey) [" + javaType + "]");
 		return null;
 	}
 	
@@ -91,8 +93,12 @@ final class DatabaseDialectH2 implements DatabaseDialect {
 		if (Xml.class.getName().equals(javaType) || Clob.class.getName().equals(javaType)) {
 			return "CLOB";
 		}
+
+		if ("long[]".equals(javaType) || "java.lang.Long[]".equals(javaType)) {
+			return "BIGINT ARRAY";
+		}
 		
-		//LoggerFactory.getInstance().getLogger(FlywayDialectH2.class).error("No sql type for java type [" + javaType + "]");
+		logger.error("No sql type for java type [" + javaType + "]");
 		return null;
 	}
 
@@ -113,7 +119,7 @@ final class DatabaseDialectH2 implements DatabaseDialect {
 			return "BIGINT auto_increment";
 		}
 
-		//LoggerFactory.getInstance().getLogger(FlywayDialectH2.class).error("No sql AUTO INCREMENT type for java type [" + javaType + "]");
+		logger.error("No sql AUTO INCREMENT type for java type [" + javaType + "]");
 
 		return null;
 	}

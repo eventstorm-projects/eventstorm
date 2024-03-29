@@ -174,6 +174,17 @@ final class H2Dialect extends AbstractDialect {
         return visitor.toString();
     }
 
+    @Override
+    public String toSql(int type) {
+        if (type == Types.BIGINT) {
+            return "BIGINT";
+        }
+        if (type == Types.INTEGER) {
+            return "INTEGER";
+        }
+        throw new UnsupportedOperationException("Unsupported [" + type + "]");
+    }
+
     private static class H2JsonPathVisitor extends AbstractJsonPathVisitor {
         @Override
         public void visit(JsonPathFieldsExpression expression) {

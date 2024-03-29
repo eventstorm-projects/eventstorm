@@ -247,6 +247,14 @@ public final class Helper {
 			return "setBytes";
 		}
 
+		if ("long[]".equals(type) || "java.lang.Long[]".equals(type)) {
+			return "setArray";
+		}
+
+		if ("int[]".equals(type) || "java.lang.Integer[]".equals(type)) {
+			return "setArray";
+		}
+
 		throw new UnsupportedOperationException("Helper.preparedStatementSetter -> type not supported -> [" + type + "]");
 	}
 
@@ -311,6 +319,15 @@ public final class Helper {
 		if ("byte[]".equals(type)) {
 			return "getBytes";
 		}
+
+		if ("long[]".equals(type) || "java.lang.Long[]".equals(type)) {
+			return "getArray";
+		}
+
+		if ("int[]".equals(type) || "java.lang.Integer[]".equals(type)) {
+			return "getArray";
+		}
+
 		throw new UnsupportedOperationException("Helper.preparedStatementGetter -> type not supported -> [" + type + "]");
 	}
 
@@ -382,6 +399,18 @@ public final class Helper {
 		// not for byte[]
 		return "long[]".equals(type) || "java.lang.Long[]".equals(type) || "int[]".equals(type) || "java.lang.Integer[]".equals(type) || "short[]".equals(type)
 		        || "java.lang.Short[]".equals(type);
+	}
+
+
+	public static int getArrayType(String type) {
+		if ("long[]".equals(type) || "java.lang.Long[]".equals(type)) {
+			return java.sql.Types.BIGINT;
+		}
+
+		if ("int[]".equals(type) || "java.lang.Integer[]".equals(type)) {
+			return java.sql.Types.INTEGER;
+		}
+		return java.sql.Types.OTHER;
 	}
 
 	public static String isDialectType(String type) {

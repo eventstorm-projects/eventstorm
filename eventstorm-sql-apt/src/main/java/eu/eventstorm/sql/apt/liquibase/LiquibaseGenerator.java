@@ -43,6 +43,10 @@ public final class LiquibaseGenerator {
         try (Logger l = Logger.getLogger(processingEnv, "eu.eventstorm.sql.generator", "LiquibaseGenerator")) {
             this.logger = l;
 
+            DatabaseDialectH2.logger = l;
+            DatabaseDialectOracle.logger = l;
+            DatabaseDialectPostgres.logger = l;
+
             for (GlobalConfigurationDescriptor gcd : configs) {
                 try {
                     generate(processingEnv, gcd);

@@ -61,6 +61,7 @@ final class PojoImplementationGenerator implements Generator {
         writeMethods(writer, descriptor);
         writeToStringBuilder(writer, descriptor);
         writeEquals(writer, descriptor);
+        writeHashCode(writer, descriptor);
 
         writer.write("}");
         writer.close();
@@ -120,8 +121,6 @@ final class PojoImplementationGenerator implements Generator {
 
     private static void writeGetter(Writer writer, PojoPropertyDescriptor ppd) throws IOException {
         writeNewLine(writer);
-        writer.write("    /** {@inheritDoc} */");
-        writeNewLine(writer);
         writer.write("    @Override");
         writeNewLine(writer);
         writer.write("    public ");
@@ -144,8 +143,6 @@ final class PojoImplementationGenerator implements Generator {
             return;
         }
 
-        writeNewLine(writer);
-        writer.write("    /** {@inheritDoc} */");
         writeNewLine(writer);
         writer.write("    @Override");
         writeNewLine(writer);
@@ -171,8 +168,6 @@ final class PojoImplementationGenerator implements Generator {
     }
 
     private static void writeToStringBuilder(Writer writer, PojoDescriptor descriptor) throws IOException {
-        writeNewLine(writer);
-        writer.write("    /** {@inheritDoc} */");
         writeNewLine(writer);
         writer.write("    @Override");
         writeNewLine(writer);
@@ -204,8 +199,6 @@ final class PojoImplementationGenerator implements Generator {
 
     private static void writeEquals(Writer writer, PojoDescriptor descriptor) throws IOException {
 
-        writeNewLine(writer);
-        writer.write("    /** {@inheritDoc} */");
         writeNewLine(writer);
         writer.write("    @Override");
         writeNewLine(writer);
@@ -290,6 +283,54 @@ final class PojoImplementationGenerator implements Generator {
         writeNewLine(writer);
 
     }
+
+    private static void writeHashCode(Writer writer, PojoDescriptor descriptor) throws IOException {
+
+        writeNewLine(writer);
+        writer.write("    @Override");
+        writeNewLine(writer);
+        writer.write("    public int hashCode() {");
+        writeNewLine(writer);
+
+        List<PojoPropertyDescriptor> businessKeys = descriptor.businessKeys();
+
+        if (businessKeys.isEmpty()) {
+            writer.write("        // no business key -> hashcode");
+            writeNewLine(writer);
+            writer.write("        return super.hashCode();");
+            writeNewLine(writer);
+        } else {
+            int number = businessKeys.size();
+            writer.write("        // " + number + " business key" + ((number > 1) ? "s" : "") + " on propert" + ((number > 1) ? "ies" : "y") + " : ");
+            for (int i = 0; i < number; i++) {
+                writer.write(businessKeys.get(i).name());
+                if (i + 1 < number) {
+                    writer.write(", ");
+                }
+            }
+            writeNewLine(writer);
+
+            if (businessKeys.size() == 1) {
+                writer.write("        return eu.eventstorm.util.hash.HashCodes.hash(this." + businessKeys.get(0).name() + ");");
+            }  else {
+                writer.write("        return eu.eventstorm.util.hash.HashCodes.hash(");
+                for (int i = 0; i < number; i++) {
+                    writer.write("this." + businessKeys.get(i).name());
+                    if (i + 1 < number) {
+                        writer.write(", ");
+                    }
+                }
+                writer.write(");");
+            }
+
+            writeNewLine(writer);
+        }
+
+        writer.write("    }");
+        writeNewLine(writer);
+
+    }
+
 
 
     static void writeEqualsPojoPropertyDescriptor(Writer writer, PojoPropertyDescriptor ppd) throws IOException {

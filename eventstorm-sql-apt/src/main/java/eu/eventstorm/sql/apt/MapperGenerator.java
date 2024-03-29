@@ -21,6 +21,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import static eu.eventstorm.sql.apt.Helper.writeNewLine;
+
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
@@ -61,7 +63,7 @@ final class MapperGenerator implements Generator {
         writeSetId(writer, descriptor);
 
 
-        Helper.writeNewLine(writer);
+        writeNewLine(writer);
         writer.write("}");
         writer.close();
     }
@@ -69,7 +71,7 @@ final class MapperGenerator implements Generator {
     private static void writeHeader(Writer writer, ProcessingEnvironment env, PojoDescriptor descriptor) throws IOException {
 
         Helper.writePackage(writer, env.getElementUtils().getPackageOf(descriptor.element()).toString());
-        Helper.writeNewLine(writer);
+        writeNewLine(writer);
 
         Helper.writeGenerated(writer, MapperGenerator.class.getName());
 
@@ -87,20 +89,20 @@ final class MapperGenerator implements Generator {
         writer.write(descriptor.element().getSimpleName().toString());
         writer.write(">");
         writer.write(" {");
-        Helper.writeNewLine(writer);
+        writeNewLine(writer);
     }
 
     private static void writeConstructor(Writer writer, PojoDescriptor descriptor) throws IOException {
-        Helper.writeNewLine(writer);
+        writeNewLine(writer);
         writer.write("    ");
         writer.write(descriptor.simpleName() + "Mapper() {");
-        Helper.writeNewLine(writer);
+        writeNewLine(writer);
         writer.write("    }");
-        Helper.writeNewLine(writer);
+        writeNewLine(writer);
     }
 
     private static void writeMap(Writer writer, PojoDescriptor descriptor) throws IOException {
-        Helper.writeNewLine(writer);
+        writeNewLine(writer);
         writer.write("    public ");
         writer.write(descriptor.element().getSimpleName().toString());
         writer.write(" map(");
@@ -111,12 +113,12 @@ final class MapperGenerator implements Generator {
         writer.write(SQLException.class.getName());
         writer.write(" {");
 
-        Helper.writeNewLine(writer);
+        writeNewLine(writer);
         writer.write("        ");
         writer.write(descriptor.element().getSimpleName().toString());
         writer.write(" pojo = new ");
         writer.write(descriptor.element().getSimpleName().toString() + "Impl();");
-        Helper.writeNewLine(writer);
+        writeNewLine(writer);
 
         int index = 1;
 
@@ -128,7 +130,7 @@ final class MapperGenerator implements Generator {
             writer.write("(");
             writer.write("" + index++);
             writer.write("));");
-            Helper.writeNewLine(writer);
+            writeNewLine(writer);
         }
 
         for (PojoPropertyDescriptor ppd : descriptor.properties()) {
@@ -136,11 +138,11 @@ final class MapperGenerator implements Generator {
             if (Helper.isArray(ppd.getter().getReturnType().toString())) {
                 writer.write("        java.sql.Array array" + index + " = rs."
                         + Helper.preparedStatementGetter(ppd.getter().getReturnType().toString()) + "(" + index + ");");
-                Helper.writeNewLine(writer);
+                writeNewLine(writer);
                 writer.write("        pojo." + ppd.setter().getSimpleName().toString() + "(array" + index
                         + " == null ? null : (" + ppd.getter().getReturnType().toString() + ")array" + index
                         + ".getArray());");
-                Helper.writeNewLine(writer);
+                writeNewLine(writer);
                 index++;
 
             } else if (ppd.getter().getReturnType().toString().equals("java.sql.Blob")) {
@@ -170,17 +172,17 @@ final class MapperGenerator implements Generator {
                     writer.write("" + index++);
                     writer.write(")));");
                 }*/
-                Helper.writeNewLine(writer);
+                writeNewLine(writer);
                 if (ppd.getter().getAnnotation(Column.class).nullable()
                         && !isAPrimitive(ppd.getter().getReturnType().toString())) {
                     writer.write("        if (rs.wasNull()) {");
-                    Helper.writeNewLine(writer);
+                    writeNewLine(writer);
                     writer.write("            pojo.");
                     writer.write(ppd.setter().getSimpleName().toString());
                     writer.write("(null);");
-                    Helper.writeNewLine(writer);
+                    writeNewLine(writer);
                     writer.write("        }");
-                    Helper.writeNewLine(writer);
+                    writeNewLine(writer);
                 }
             } else {
                 writer.write("        pojo.");
@@ -201,32 +203,32 @@ final class MapperGenerator implements Generator {
                     writer.write("" + index++);
                     writer.write("));");
                 }
-                Helper.writeNewLine(writer);
+                writeNewLine(writer);
                 if (ppd.getter().getAnnotation(Column.class).nullable()
                         && !isAPrimitive(ppd.getter().getReturnType().toString())) {
                     writer.write("        if (rs.wasNull()) {");
-                    Helper.writeNewLine(writer);
+                    writeNewLine(writer);
                     writer.write("            pojo.");
                     writer.write(ppd.setter().getSimpleName().toString());
                     writer.write("(null);");
-                    Helper.writeNewLine(writer);
+                    writeNewLine(writer);
                     writer.write("        }");
-                    Helper.writeNewLine(writer);
+                    writeNewLine(writer);
                 }
             }
         }
 
         writer.write("        return pojo;");
 
-        Helper.writeNewLine(writer);
+        writeNewLine(writer);
         writer.write("    }");
-        Helper.writeNewLine(writer);
+        writeNewLine(writer);
 
     }
 
     private static void writeInsert(Writer writer, PojoDescriptor descriptor, ProcessingEnvironment env) throws IOException {
 
-        Helper.writeNewLine(writer);
+        writeNewLine(writer);
         writer.write("    public void insert(");
         writer.write(Dialect.class.getName());
         writer.write(" dialect, ");
@@ -236,7 +238,7 @@ final class MapperGenerator implements Generator {
         writer.write(" pojo) throws ");
         writer.write(SQLException.class.getName());
         writer.write(" {");
-        Helper.writeNewLine(writer);
+        writeNewLine(writer);
 
         int index = 1;
 
@@ -245,27 +247,27 @@ final class MapperGenerator implements Generator {
                 writer.write("        // Primary Key [");
                 writer.write(ppd.name());
                 writer.write("] is auto increment -> skip");
-                Helper.writeNewLine(writer);
+                writeNewLine(writer);
                 continue;
             }
             writePsProperty(writer, ppd, index++);
-            Helper.writeNewLine(writer);
+            writeNewLine(writer);
         }
 
         for (PojoPropertyDescriptor ppd : descriptor.properties()) {
             if (ppd.getter().getAnnotation(Column.class).insertable()) {
                 writePsProperty(writer, ppd, index++);
-                Helper.writeNewLine(writer);
+                writeNewLine(writer);
             }
         }
 
         writer.write("    }");
-        Helper.writeNewLine(writer);
+        writeNewLine(writer);
     }
 
     private static void writeUpdate(Writer writer, PojoDescriptor descriptor) throws IOException {
 
-        Helper.writeNewLine(writer);
+        writeNewLine(writer);
         writer.write("    public void update(");
         writer.write(Dialect.class.getName());
         writer.write(" dialect, ");
@@ -275,28 +277,28 @@ final class MapperGenerator implements Generator {
         writer.write(" pojo) throws ");
         writer.write(SQLException.class.getName());
         writer.write(" {");
-        Helper.writeNewLine(writer);
+        writeNewLine(writer);
 
         int index = 1;
 
         for (PojoPropertyDescriptor ppd : descriptor.properties()) {
             if (ppd.getter().getAnnotation(Column.class).updatable()) {
                 writePsProperty(writer, ppd, index++);
-                Helper.writeNewLine(writer);
+                writeNewLine(writer);
             }
         }
 
         // for the where
         writer.write("        //set primary key");
-        Helper.writeNewLine(writer);
+        writeNewLine(writer);
         for (PojoPropertyDescriptor ppd : descriptor.ids()) {
             writePsProperty(writer, ppd, index++);
-            Helper.writeNewLine(writer);
+            writeNewLine(writer);
         }
 
-        Helper.writeNewLine(writer);
+        writeNewLine(writer);
         writer.write("    }");
-        Helper.writeNewLine(writer);
+        writeNewLine(writer);
     }
 
     private static void writePsProperty(Writer writer, PojoPropertyDescriptor ppd, int index) throws IOException {
@@ -310,7 +312,7 @@ final class MapperGenerator implements Generator {
                 writer.write("        if (pojo.");
                 writer.write(ppd.getter().getSimpleName().toString());
                 writer.write("() != null) {");
-                Helper.writeNewLine(writer);
+                writeNewLine(writer);
                 writer.write("    ");
             }
         }
@@ -326,12 +328,26 @@ final class MapperGenerator implements Generator {
             writer.write("        dialect.setPreparedStatement(ps, " + index + ", pojo.");
             writer.write(ppd.getter().getSimpleName().toString());
             writer.write("());");
-            Helper.writeNewLine(writer);
+            writeNewLine(writer);
         } else if (String.class.getName().equals(type) && (column != null && ColumnFormat.JSONB.equals(column.format()))) {
             writer.write("        dialect.setPreparedStatementJsonBinary(ps, " + index + ", pojo.");
             writer.write(ppd.getter().getSimpleName().toString());
             writer.write("());");
-            Helper.writeNewLine(writer);
+            writeNewLine(writer);
+        } else if (Helper.isArray(type)) {
+            writer.write("            java.sql.Array array = ps.getConnection().createArrayOf(dialect.toSql("+Helper.getArrayType(type)+"), ");
+            writer.write("pojo.");
+            writer.write(ppd.getter().toString());
+            writer.write(");");
+            writeNewLine(writer);
+            writer.write("        ps.");
+            writer.write(Helper.preparedStatementSetter(ppd.getter().getReturnType().toString()));
+            writer.write("(");
+            writer.write("" + index);
+            writer.write(", ");
+            writer.write(" array");
+            writer.write(");");
+            writeNewLine(writer);
         } else {
             writer.write("        ps.");
             writer.write(Helper.preparedStatementSetter(ppd.getter().getReturnType().toString()));
@@ -345,16 +361,16 @@ final class MapperGenerator implements Generator {
 
         if (column != null && column.nullable()) {
             if (String.class.getName().equals(type) && ColumnFormat.JSONB.equals(column.format())) {
-                Helper.writeNewLine(writer);
+                writeNewLine(writer);
                 writer.write("        } else {");
-                Helper.writeNewLine(writer);
+                writeNewLine(writer);
                 writer.write("            dialect.setPreparedStatementJsonBinary(ps, " + index + ");");
-                Helper.writeNewLine(writer);
+                writeNewLine(writer);
                 writer.write("        }");
             } else if (!"eu.eventstorm.sql.type.Json".equals(type)) {
-                Helper.writeNewLine(writer);
+                writeNewLine(writer);
                 writer.write("        } else {");
-                Helper.writeNewLine(writer);
+                writeNewLine(writer);
                 writer.write("            ps.setNull(");
                 writer.write("" + index);
                 writer.write(", ");
@@ -368,7 +384,7 @@ final class MapperGenerator implements Generator {
                     writer.write(Helper.nullableType(type));
                 }
                 writer.write(");");
-                Helper.writeNewLine(writer);
+                writeNewLine(writer);
                 writer.write("        }");
             }
         }
@@ -396,17 +412,17 @@ final class MapperGenerator implements Generator {
             writer.write(" rs) throws ");
             writer.write(SQLException.class.getName());
             writer.write(" {");
-            Helper.writeNewLine(writer);
+            writeNewLine(writer);
             writer.write("        pojo.");
             writer.write(ppd.setter().getSimpleName().toString());
             writer.write("(rs.");
             writer.write(Helper.preparedStatementGetter(ppd.getter().getReturnType().toString()));
             writer.write("(" + index++ + "));");
-            Helper.writeNewLine(writer);
+            writeNewLine(writer);
         }
 
         writer.write("    }");
-        Helper.writeNewLine(writer);
+        writeNewLine(writer);
 
     }
 

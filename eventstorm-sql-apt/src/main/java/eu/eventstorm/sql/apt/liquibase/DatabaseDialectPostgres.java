@@ -2,6 +2,7 @@ package eu.eventstorm.sql.apt.liquibase;
 
 import eu.eventstorm.sql.annotation.Column;
 import eu.eventstorm.sql.annotation.PrimaryKey;
+import eu.eventstorm.sql.apt.log.Logger;
 import eu.eventstorm.sql.type.Json;
 import eu.eventstorm.sql.type.Xml;
 
@@ -17,6 +18,8 @@ import java.sql.Timestamp;
 final class DatabaseDialectPostgres implements DatabaseDialect {
 
 	static final DatabaseDialect INSTANCE = new DatabaseDialectPostgres();
+
+	static Logger logger;
 
 	@Override
 	public String toSqlType(String javaType, PrimaryKey column) {
@@ -34,7 +37,7 @@ final class DatabaseDialectPostgres implements DatabaseDialect {
 			return "VARCHAR(" + column.length() + ")";
 		}
 		
-		//LoggerFactory.getInstance().getLogger(FlywayDialectPostgres.class).error("No sql type for java type (PrimaryKey) [" + javaType + "]");
+		logger.error("No sql type for java type (PrimaryKey) [" + javaType + "]");
 		return null;
 	}
 	
@@ -93,8 +96,15 @@ final class DatabaseDialectPostgres implements DatabaseDialect {
 			return "CLOB";
 		}
 
+		if ("long[]".equals(javaType) || "java.lang.Long[]".equals(javaType)) {
+			return "int8[]";
+		}
 
-		//LoggerFactory.getInstance().getLogger(FlywayDialectPostgres.class).error("No sql type for java type [" + javaType + "]");
+		if ("int[]".equals(javaType) || "java.lang.Integer[]".equals(javaType)) {
+			return "int4[]";
+		}
+
+		logger.error("No sql type for java type [" + javaType + "]");
 		return null;
 	}
 
@@ -117,7 +127,7 @@ final class DatabaseDialectPostgres implements DatabaseDialect {
 			return "BIGSERIAL";
 		}
 
-		//LoggerFactory.getInstance().getLogger(FlywayDialectPostgres.class).error("No sql AUTO INCREMENT type for java type [" + javaType + "]");
+		logger.error("No sql AUTO INCREMENT type for java type [" + javaType + "]");
 
 		return null;
 	}

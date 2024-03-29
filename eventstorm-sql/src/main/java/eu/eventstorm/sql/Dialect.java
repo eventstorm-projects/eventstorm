@@ -74,4 +74,5 @@ public interface Dialect {
 
 	String toSql(JsonPathExpression expression);
 
+	String toSql(int type);
 }

@@ -203,6 +203,17 @@ final class OracleDialect extends AbstractDialect {
         return visitor.toString();
     }
 
+    @Override
+    public String toSql(int type) {
+        if (type == Types.BIGINT) {
+            return "NUMBER(19)";
+        }
+        if (type == Types.INTEGER) {
+            return "NUMBER(10)";
+        }
+        throw new UnsupportedOperationException("Unsupported [" + type + "]");
+    }
+
     private static class OracleJsonPathVisitor extends AbstractJsonPathVisitor {
         @Override
         public void visit(JsonPathFieldsExpression expression) {

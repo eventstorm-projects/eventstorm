@@ -196,6 +196,17 @@ final class PostgresDialect extends AbstractDialect {
         return visitor.toString();
     }
 
+    @Override
+    public String toSql(int type) {
+        if (type == Types.BIGINT) {
+            return "int8";
+        }
+        if (type == Types.INTEGER) {
+            return "int4";
+        }
+        throw new UnsupportedOperationException("Unsupported [" + type + "]");
+    }
+
   /*  static String rewritePath(String path) {
         String[] splits = path.split("\\.");
         StringBuilder builder = new StringBuilder();
