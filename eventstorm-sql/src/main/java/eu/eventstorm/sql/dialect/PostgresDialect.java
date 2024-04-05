@@ -36,7 +36,7 @@ final class PostgresDialect extends AbstractDialect {
 
     @Override
     public String nextVal(SqlSequence sequence) {
-        return "SELECT " + prefix(sequence) + ".nextval from dual";
+        return "SELECT nextval('" + prefix(sequence) + "')'";
     }
 
     @Override
