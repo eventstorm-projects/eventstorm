@@ -335,7 +335,7 @@ final class MapperGenerator implements Generator {
             writer.write("());");
             writeNewLine(writer);
         } else if (Helper.isArray(type)) {
-            writer.write("            java.sql.Array array = ps.getConnection().createArrayOf(dialect.toSql("+Helper.getArrayType(type)+"), ");
+            writer.write("        java.sql.Array array = ps.getConnection().createArrayOf(dialect.toSql("+Helper.getArrayType(type)+"), ");
             writer.write("pojo.");
             writer.write(ppd.getter().toString());
             writer.write(");");

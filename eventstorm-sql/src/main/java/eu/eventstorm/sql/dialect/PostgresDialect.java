@@ -94,9 +94,9 @@ final class PostgresDialect extends AbstractDialect {
     @Override
     public void setPreparedStatement(PreparedStatement ps, int index, Xml xml) throws SQLException {
         if (xml == null) {
-            ps.setNull(index, Types.CLOB);
+            ps.setNull(index, 0,"xml");
         } else {
-            ps.setBinaryStream(index, xml.getBinaryStream());
+            ps.setObject(index, xml);
         }
     }
 
