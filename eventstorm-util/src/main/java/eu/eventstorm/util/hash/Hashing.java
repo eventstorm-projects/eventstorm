@@ -1,6 +1,5 @@
 package eu.eventstorm.util.hash;
 
-import eu.eventstorm.util.Jvm;
 import eu.eventstorm.util.unsafe.UnsafeHelper;
 import eu.eventstorm.util.unsafe.UnsafeString;
 
@@ -15,13 +14,8 @@ public final class Hashing {
 	}
 	
 	public static long xx(long seed, String value) {
-		if (Jvm.isJava8()) {
-			char[] op = UnsafeString.getChars(value);
-			return XX_HASH_INSTANCE.xxHash64(seed, UnsafeHelper.arrayCharBaseOffset(), op.length * 2L, op);
-		} else {
-			byte[] op = UnsafeString.getBytes(value);
-			return XX_HASH_INSTANCE.xxHash64(seed, UnsafeHelper.arrayByteBaseOffset(), op.length, op);
-		}
+		byte[] op = UnsafeString.getBytes(value);
+		return XX_HASH_INSTANCE.xxHash64(seed, UnsafeHelper.arrayByteBaseOffset(), op.length, op);
 	}
 	
 	public static long xx(long seed, HashReader reader) {

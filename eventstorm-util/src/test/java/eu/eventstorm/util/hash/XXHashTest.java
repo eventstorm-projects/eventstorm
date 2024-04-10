@@ -2,7 +2,6 @@ package eu.eventstorm.util.hash;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import eu.eventstorm.util.Jvm;
 import org.junit.jupiter.api.Test;
 
 import eu.eventstorm.util.unsafe.UnsafeHelper;
@@ -15,19 +14,11 @@ class XXHashTest {
 		String value_1 = "Hello World !";
 		String value_2 = "Hello World !Hello World !Hello World !Hello World !Hello World !Hello World !Hello World !";
 
-		if (Jvm.isJava8()) {
-			assertEquals(-7739591154577084421l, Hashing.xx(123456, value_1));
-			//assertEquals(-7739591154577084421l, Hashing.xx(123456, new HashReader4String(UnsafeString.getChars(value))));
+		assertEquals(8404568533873697733l, Hashing.xx(123456, value_1));
+		assertEquals(8404568533873697733l, Hashing.xx(123456, new HashReader4Byte(UnsafeString.getBytes(value_1))));
 
-			assertEquals(2875214966217480447l, Hashing.xx(123456, value_2));
-			//assertEquals(2875214966217480447l, Hashing.xx(123456, new HashReader4String(UnsafeString.getChars(value))));
-		} else {
-			assertEquals(8404568533873697733l, Hashing.xx(123456, value_1));
-			assertEquals(8404568533873697733l, Hashing.xx(123456, new HashReader4Byte(UnsafeString.getBytes(value_1))));
-
-			assertEquals(-2982664739075951601l, Hashing.xx(123456, value_2));
-			assertEquals(-2982664739075951601l, Hashing.xx(123456, new HashReader4Byte(UnsafeString.getBytes(value_2))));
-		}
+		assertEquals(-2982664739075951601l, Hashing.xx(123456, value_2));
+		assertEquals(-2982664739075951601l, Hashing.xx(123456, new HashReader4Byte(UnsafeString.getBytes(value_2))));
 
 	}
 

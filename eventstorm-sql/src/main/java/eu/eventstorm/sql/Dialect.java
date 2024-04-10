@@ -9,6 +9,7 @@ import eu.eventstorm.sql.type.Json;
 import eu.eventstorm.sql.type.Xml;
 import eu.eventstorm.util.FastByteArrayInputStream;
 
+import java.io.InputStream;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.PreparedStatement;
@@ -38,7 +39,7 @@ public interface Dialect {
 
 	Xml fromJdbcXml(ResultSet rs, int index) throws SQLException;
 
-	Xml createXml(FastByteArrayInputStream fbais);
+	Xml createXml(InputStream is);
 	
 	String limit(int limit);
 

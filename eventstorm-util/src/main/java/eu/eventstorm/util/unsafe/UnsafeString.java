@@ -1,6 +1,5 @@
 package eu.eventstorm.util.unsafe;
 
-import eu.eventstorm.util.Jvm;
 import sun.misc.Unsafe;
 
 /**
@@ -22,32 +21,17 @@ public final class UnsafeString {
     }
 
     public final static String valueOf(char[] chars) {
-        if (Jvm.isJava8()) {
-            String mutable = new String();// an empty string to hack
-            UNSAFE.putObject(mutable, VALUE_OFFSET, chars);
-            return mutable;
-        } else {
-            return new String(chars);
-        }
+        return new String(chars);
     }
 
     public final static String valueOf(byte[] chars) {
-        if (Jvm.isJava9OrPlus()) {
-            String mutable = new String();// an empty string to hack
-            UNSAFE.putObject(mutable, VALUE_OFFSET, chars);
-            return mutable;
-        } else {
-            return new String(chars);
-        }
+        String mutable = new String();// an empty string to hack
+        UNSAFE.putObject(mutable, VALUE_OFFSET, chars);
+        return mutable;
     }
 
     public final static char[] getChars(String s) {
-        if (Jvm.isJava8()) {
-            return (char[]) UNSAFE.getObject(s, VALUE_OFFSET);
-        } else {
-            return s.toCharArray();
-        }
-
+        return s.toCharArray();
     }
 
     public final static byte[] getBytes(String s) {

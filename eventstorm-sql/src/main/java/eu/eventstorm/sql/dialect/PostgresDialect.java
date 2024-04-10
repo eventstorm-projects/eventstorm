@@ -15,6 +15,8 @@ import eu.eventstorm.util.FastByteArrayInputStream;
 import eu.eventstorm.util.Strings;
 import org.postgresql.util.PGobject;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.sql.Blob;
 import java.sql.Clob;
@@ -65,10 +67,10 @@ final class PostgresDialect extends AbstractDialect {
     }
 
     @Override
-    public Xml createXml(FastByteArrayInputStream fbais) {
+    public Xml createXml(InputStream is) {
         try {
-            return new XmlPGobject(fbais.readAll());
-        } catch (SQLException e) {
+            return new XmlPGobject(is.readAllBytes());
+        } catch (SQLException | IOException e) {
             throw new RuntimeException(e);
         }
     }

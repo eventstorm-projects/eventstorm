@@ -17,6 +17,8 @@ import eu.eventstorm.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.sql.Blob;
 import java.sql.Clob;
@@ -64,8 +66,12 @@ final class H2Dialect extends AbstractDialect {
     }
 
     @Override
-    public Xml createXml(FastByteArrayInputStream fbais) {
-        return new BlobXml(fbais.readAll());
+    public Xml createXml(InputStream is) {
+        try {
+            return new BlobXml(is.readAllBytes());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 

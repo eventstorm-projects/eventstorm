@@ -72,8 +72,12 @@ final class OracleDialect extends AbstractDialect {
     }
 
     @Override
-    public Xml createXml(FastByteArrayInputStream fbais) {
-        return new BlobXml(fbais.readAll());
+    public Xml createXml(InputStream fbais) {
+        try {
+            return new BlobXml(fbais.readAllBytes());
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     @Override
