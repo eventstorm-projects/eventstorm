@@ -1,5 +1,7 @@
 package eu.eventstorm.util.hash;
 
+import com.google.common.base.Objects;
+
 public final class HashCodes {
 
     private HashCodes() {
@@ -12,6 +14,10 @@ public final class HashCodes {
         } else {
             return 31 * code.hashCode();
         }
+    }
+
+    public static int hash(Object ... codes) {
+        return Objects.hashCode(codes);
     }
 
 }
