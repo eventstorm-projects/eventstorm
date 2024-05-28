@@ -7,7 +7,6 @@ public final class HashCodes {
     private HashCodes() {
     }
 
-
     public static int hash(String code) {
         if (code == null) {
             return 0;
