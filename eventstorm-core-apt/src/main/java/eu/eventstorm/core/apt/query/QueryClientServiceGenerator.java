@@ -78,7 +78,7 @@ public final class QueryClientServiceGenerator {
         writeNewLine(writer);
         writer.write("import reactor.core.scheduler.Schedulers;");
         writeNewLine(writer);
-        writer.write("import org.springframework.http.HttpStatus;");
+        writer.write("import org.springframework.http.HttpStatusCode;");
         writeNewLine(writer);
         writer.write("import org.springframework.web.reactive.function.BodyExtractors;");
         writeNewLine(writer);
@@ -176,7 +176,7 @@ public final class QueryClientServiceGenerator {
 
             String type = getMonoType(epd);
 
-            writer.write("                .onStatus(HttpStatus::is4xxClientError, error -> {");
+            writer.write("                .onStatus(HttpStatusCode::is4xxClientError, error -> {");
             writeNewLine(writer);
             writer.write("                   LOGGER.error(\"4XX error -> \" + error.toString());");
             writeNewLine(writer);
@@ -184,7 +184,7 @@ public final class QueryClientServiceGenerator {
             writeNewLine(writer);
             writer.write("                })");
             writeNewLine(writer);
-            writer.write("                .onStatus(HttpStatus::is5xxServerError, error -> {");
+            writer.write("                .onStatus(HttpStatusCode::is5xxServerError, error -> {");
             writeNewLine(writer);
             writer.write("                   LOGGER.error(\"5XX error -> \" + error.toString());");
             writeNewLine(writer);
@@ -353,7 +353,7 @@ public final class QueryClientServiceGenerator {
                 writeNewLine(writer);
             } else if (epd.getMethod().getReturnType().toString().contains("reactor.core.publisher.Flux<")) {
                 String type = getFluxType(epd);
-                writer.write("                .onStatus(HttpStatus::is4xxClientError, error -> {");
+                writer.write("                .onStatus(HttpStatusCode::is4xxClientError, error -> {");
                 writeNewLine(writer);
                 writer.write("                   LOGGER.error(\"4XX error -> \" + error.toString());");
                 writeNewLine(writer);
@@ -361,7 +361,7 @@ public final class QueryClientServiceGenerator {
                 writeNewLine(writer);
                 writer.write("                })");
                 writeNewLine(writer);
-                writer.write("                .onStatus(HttpStatus::is5xxServerError, error -> {");
+                writer.write("                .onStatus(HttpStatusCode::is5xxServerError, error -> {");
                 writeNewLine(writer);
                 writer.write("                   LOGGER.error(\"5XX error -> \" + error.toString());");
                 writeNewLine(writer);
@@ -377,7 +377,7 @@ public final class QueryClientServiceGenerator {
 
                 String type = getMonoType(epd);
 
-                writer.write("                .onStatus(HttpStatus::is4xxClientError, error -> {");
+                writer.write("                .onStatus(HttpStatusCode::is4xxClientError, error -> {");
                 writeNewLine(writer);
                 writer.write("                   LOGGER.error(\"4XX error -> \" + error.toString());");
                 writeNewLine(writer);
@@ -385,7 +385,7 @@ public final class QueryClientServiceGenerator {
                 writeNewLine(writer);
                 writer.write("                })");
                 writeNewLine(writer);
-                writer.write("                .onStatus(HttpStatus::is5xxServerError, error -> {");
+                writer.write("                .onStatus(HttpStatusCode::is5xxServerError, error -> {");
                 writeNewLine(writer);
                 writer.write("                   LOGGER.error(\"5XX error -> \" + error.toString());");
                 writeNewLine(writer);
