@@ -216,7 +216,7 @@ public final class EventProtoGenerator {
             writeNewLine(writer);
             writer.write("        return \"" + names.iterator().next() +"\".equals(name);");
         } else {
-            throw new RuntimeException("unsupported");
+            throw new RuntimeException("Multiple names [" + names + "] -> unsupported");
         }
 
         writeNewLine(writer);
