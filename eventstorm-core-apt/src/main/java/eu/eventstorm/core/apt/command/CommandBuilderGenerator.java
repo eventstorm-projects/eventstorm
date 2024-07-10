@@ -30,6 +30,7 @@ public final class CommandBuilderGenerator {
     private ProcessingEnvironment env;
     private SourceCode code;
     private final Map<String, String> holders;
+    private final Map<String,String> map = new HashMap<>();
 
     public CommandBuilderGenerator() {
         this.holders = new HashMap<>();
@@ -223,7 +224,11 @@ public final class CommandBuilderGenerator {
                 newBuilder = ImmutableList.class.getName() + ".Builder<Long>";
                 writer.write(newBuilder);
             } else {
-                newBuilder = genereteJoinBuilder(cd, cpd, subtype);
+                newBuilder = map.get(subtype);
+                if (Strings.isEmpty(newBuilder)) {
+                    newBuilder = genereteJoinBuilder(cd, cpd, subtype);
+                    map.put(subtype, newBuilder);
+                }
                 writer.write(newBuilder);
                 writer.write("<" + returnType);
                 writer.write(">");

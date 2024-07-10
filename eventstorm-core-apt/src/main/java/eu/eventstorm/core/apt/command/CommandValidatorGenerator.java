@@ -303,11 +303,11 @@ public final class CommandValidatorGenerator {
             } else {
                 writer.write(var.getT1());
                 writer.write(" validatorCustom" + Helper.firstToUpperCase(var.getT2().name()));
-                if (i + 1 < variables.size()) {
-                    writer.write(",");
-                    writeNewLine(writer);
-                    writer.write("                 ");
-                }
+            }
+            if (i + 1 < variables.size()) {
+                writer.write(",");
+                writeNewLine(writer);
+                writer.write("                 ");
             }
         }
 
