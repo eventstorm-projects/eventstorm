@@ -127,7 +127,7 @@ public final class LiquibaseGenerator {
             write(entry.getKey() + "-0" + i++ + "-JOIN_TABLES.sql", temp.get(ItemJoinTable.class.getSimpleName()), gcd, env, changelogMaster);
         }
 
-        if (temp.containsKey(ItemIndex.class.getSimpleName())) {
+        if (temp.containsKey(ItemBusinessKey.class.getSimpleName())) {
             write(entry.getKey() + "-0" + i++ + "-BKS.sql", temp.get(ItemBusinessKey.class.getSimpleName()), gcd, env, changelogMaster);
         }
 
@@ -150,7 +150,9 @@ public final class LiquibaseGenerator {
     }
 
     private void write(String filename, List<Item> items, GlobalConfigurationDescriptor gcd, ProcessingEnvironment env, Writer changelogMaster) throws IOException {
-
+        if (items == null) {
+            return;
+        }
         changelogMaster.append("  - include:\n");
         changelogMaster.append("      file: " + filename + "\n");
         changelogMaster.append("      relativeToChangelogFile: true\n");
@@ -164,6 +166,7 @@ public final class LiquibaseGenerator {
                     item.write(writer, DatabaseDialects.get(db));
                 }
             }
+
         }
     }
 
