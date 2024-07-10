@@ -11,7 +11,7 @@ public class DatabaseProperties {
 
     private Dialect.Name dialect;
     private String catalog;
-    private TransactionProperties tx;
+    private TransactionProperties tx = new TransactionProperties();
 
     public Dialect.Name getDialect() {
         return dialect;
