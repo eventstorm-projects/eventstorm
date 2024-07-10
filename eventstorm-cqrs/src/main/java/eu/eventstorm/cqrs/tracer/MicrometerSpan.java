@@ -1,16 +1,16 @@
 package eu.eventstorm.cqrs.tracer;
 
-import brave.Tracer;
+import io.micrometer.tracing.Tracer;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-final class BraveSpan implements Span {
+final class MicrometerSpan implements Span {
 
-    private final brave.Span span;
+    private final io.micrometer.tracing.Span span;
     private final Tracer.SpanInScope scope;
 
-    public BraveSpan(Tracer.SpanInScope scope, brave.Span newSpan) {
+    public MicrometerSpan(Tracer.SpanInScope scope, io.micrometer.tracing.Span newSpan) {
         this.scope = scope;
         this.span = newSpan;
     }
@@ -20,7 +20,7 @@ final class BraveSpan implements Span {
         try {
             scope.close();
         } finally {
-            this.span.finish();
+            this.span.end();
         }
     }
 }

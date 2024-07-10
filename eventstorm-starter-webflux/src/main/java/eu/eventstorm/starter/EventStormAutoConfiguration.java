@@ -29,7 +29,7 @@ import eu.eventstorm.problem.ProblemModule;
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 @Configuration
-@EnableConfigurationProperties(UniversalUniqueIdentifierDefinitionProperties.class)
+@EnableConfigurationProperties({UniversalUniqueIdentifierDefinitionProperties.class, DatabaseProperties.class})
 public class EventStormAutoConfiguration {
 
 	@Bean
