@@ -14,7 +14,9 @@ import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import static eu.eventstorm.sql.apt.Helper.getReturnType;
 import static eu.eventstorm.sql.apt.Helper.writeGenerated;
@@ -30,7 +32,7 @@ public final class CommandBuilderGenerator {
     private ProcessingEnvironment env;
     private SourceCode code;
     private final Map<String, String> holders;
-
+    private final Map<String,String> map = new HashMap<>();
     public CommandBuilderGenerator() {
         this.holders = new HashMap<>();
     }
@@ -223,7 +225,11 @@ public final class CommandBuilderGenerator {
                 newBuilder = ImmutableList.class.getName() + ".Builder<Long>";
                 writer.write(newBuilder);
             } else {
-                newBuilder = genereteJoinBuilder(cd, cpd, subtype);
+                newBuilder = map.get(subtype);
+                if (Strings.isEmpty(newBuilder)) {
+                    newBuilder = genereteJoinBuilder(cd, cpd, subtype);
+                    map.put(subtype, newBuilder);
+                }
                 writer.write(newBuilder);
                 writer.write("<" + returnType);
                 writer.write(">");
