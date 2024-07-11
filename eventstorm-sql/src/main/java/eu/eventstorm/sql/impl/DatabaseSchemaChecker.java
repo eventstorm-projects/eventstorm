@@ -1,17 +1,16 @@
 package eu.eventstorm.sql.impl;
 
 
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 import eu.eventstorm.sql.Descriptor;
 import eu.eventstorm.sql.Module;
 import eu.eventstorm.sql.desc.SqlColumn;
 import eu.eventstorm.sql.desc.SqlPrimaryKey;
 import eu.eventstorm.sql.desc.SqlSingleColumn;
 import eu.eventstorm.sql.desc.SqlTable;
-import eu.eventstorm.util.Strings;
+
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -43,16 +42,20 @@ final class DatabaseSchemaChecker {
     }
 
     private static boolean checkColumn(DatabaseMetaData meta, Module module, SqlTable table, SqlColumn column) throws SQLException {
-        String catalog = Strings.isEmpty(module.catalog()) ? null : module.catalog();
-        try (ResultSet res = meta.getColumns(catalog, null,  module.getTableName(table), column.name())) {
-        	return res.next();
+        try (ResultSet res = meta.getColumns(null, null, module.getTableName(table).toUpperCase(), column.name().toUpperCase())) {
+            return res.next();
         }
     }
 
     private static boolean checkTable(DatabaseMetaData meta, Module module, SqlTable table) throws SQLException {
-        String catalog = Strings.isEmpty(module.catalog()) ? null : module.catalog();
-        try (ResultSet res = meta.getTables(catalog, null, module.getTableName(table), null )) {
-        	return res.next();
+        String name = module.getTableName(table).toUpperCase();
+        try (ResultSet res = meta.getTables(null, null, null, new String[]{"TABLE"})) {
+            while (res.next()) {
+                if (name.equals(res.getString("TABLE_NAME").toUpperCase())) {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }

@@ -32,9 +32,9 @@ public class ItemForeignKey extends Item {
 
     @Override
     void write(Writer writer, DatabaseDialect dialect) throws IOException {
-
         String name;
         Column anno = propertyDescriptor.getter().getAnnotation(Column.class);
+
         if (anno != null) {
             name = anno.value();
         } else {

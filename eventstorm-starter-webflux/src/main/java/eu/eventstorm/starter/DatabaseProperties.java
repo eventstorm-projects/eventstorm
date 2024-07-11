@@ -10,7 +10,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class DatabaseProperties {
 
     private Dialect.Name dialect;
-    private String catalog;
     private TransactionProperties tx = new TransactionProperties();
 
     public Dialect.Name getDialect() {
@@ -19,14 +18,6 @@ public class DatabaseProperties {
 
     public void setDialect(Dialect.Name dialect) {
         this.dialect = dialect;
-    }
-
-    public String getCatalog() {
-        return catalog;
-    }
-
-    public void setCatalog(String catalog) {
-        this.catalog = catalog;
     }
 
     public TransactionProperties getTx() {

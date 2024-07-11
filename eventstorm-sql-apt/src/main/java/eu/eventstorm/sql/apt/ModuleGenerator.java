@@ -63,7 +63,20 @@ final class ModuleGenerator implements Generator {
     private static void writeConstructor(Writer writer, ProcessingEnvironment env, String classname, List<PojoDescriptor> descriptors) throws IOException {
 
         writeNewLine(writer);
-        writer.write("     public " + classname + "(String name, String catalog) {");
+        writer.write("    public " + classname + "(String name) {");
+        writeNewLine(writer);
+        writer.write("         super(name");
+
+        for (PojoDescriptor desc : descriptors) {
+            writer.write(", ");
+            writer.write(desc.simpleName() + "Descriptor.INSTANCE");
+        }
+        writer.write(");");
+        writeNewLine(writer);
+        writer.write("    }");
+
+        writeNewLine(writer);
+        writer.write("    public " + classname + "(String name, String catalog) {");
         writeNewLine(writer);
         writer.write("         super(name, catalog");
 
@@ -78,7 +91,7 @@ final class ModuleGenerator implements Generator {
 
 
         writeNewLine(writer);
-        writer.write("     public " + classname + "(String name, String catalog, String prefix) {");
+        writer.write("    public " + classname + "(String name, String catalog, String prefix) {");
         writeNewLine(writer);
         writer.write("         super(name, catalog, prefix");
 
