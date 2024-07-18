@@ -224,10 +224,10 @@ public final class CommandBuilderGenerator {
                 newBuilder = ImmutableList.class.getName() + ".Builder<Long>";
                 writer.write(newBuilder);
             } else {
-                newBuilder = map.get(subtype);
+                newBuilder = map.get(cd.simpleName()+"_"+subtype);
                 if (Strings.isEmpty(newBuilder)) {
                     newBuilder = genereteJoinBuilder(cd, cpd, subtype);
-                    map.put(subtype, newBuilder);
+                    map.put(cd.simpleName()+"_"+subtype, newBuilder);
                 }
                 writer.write(newBuilder);
                 writer.write("<" + returnType);
