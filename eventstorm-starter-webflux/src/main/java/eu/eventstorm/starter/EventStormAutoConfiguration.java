@@ -5,6 +5,8 @@ import com.google.protobuf.TypeRegistry;
 import eu.eventstorm.cloudevents.json.jackson.CloudEventsModule;
 import eu.eventstorm.core.id.StreamIdGenerator;
 import eu.eventstorm.core.id.StreamIdGeneratorFactory;
+import eu.eventstorm.core.id.UniversalUniqueIdentifierGenerator;
+import eu.eventstorm.core.id.UniversalUniqueIdentifiers;
 import eu.eventstorm.core.protobuf.DescriptorModule;
 import eu.eventstorm.cqrs.Command;
 import eu.eventstorm.cqrs.CommandGateway;
@@ -98,6 +100,12 @@ public  class EventStormAutoConfiguration {
     @Bean
     StreamIdGenerator streamIdGenerator(UniversalUniqueIdentifierDefinitionProperties definition) {
         return StreamIdGeneratorFactory.uuid(definition);
+    }
+
+    @ConditionalOnProperty(name = "eu.eventstorm.uuid.enabled", havingValue = "true")
+    @Bean
+    UniversalUniqueIdentifierGenerator universalUniqueIdentifierGenerator(UniversalUniqueIdentifierDefinitionProperties def) {
+        return () -> UniversalUniqueIdentifiers.generate(def);
     }
 
     @Bean
