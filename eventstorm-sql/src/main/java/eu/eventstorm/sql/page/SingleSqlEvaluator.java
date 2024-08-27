@@ -26,6 +26,8 @@ public final class SingleSqlEvaluator implements EvaluatorDefinition {
         EXPRESSIONS.put(Operator.LESSER_EQUALS, (col, filter) -> Expressions.le(col));
         EXPRESSIONS.put(Operator.LESSER, (col, filter) -> Expressions.lt(col));
         EXPRESSIONS.put(Operator.CONTAINS, (col, filter) -> Expressions.like(col));
+        EXPRESSIONS.put(Operator.STARTS_WITH, (col, filter) -> Expressions.like(col));
+        EXPRESSIONS.put(Operator.ENDS_WITH, (col, filter) -> Expressions.like(col));
     }
 
     private final SqlPageRequestDescriptor descriptor;
@@ -66,6 +68,21 @@ public final class SingleSqlEvaluator implements EvaluatorDefinition {
             }
             return array;
         }
+        if (Operator.STARTS_WITH == operator) {
+            List<String> array = new ArrayList<>();
+            for (String item : values) {
+                array.add(item + '%');
+            }
+            return array;
+        }
+        if (Operator.ENDS_WITH == operator) {
+            List<String> array = new ArrayList<>();
+            for (String item : values) {
+                array.add('%' + item);
+            }
+            return array;
+        }
+
         return values;
     }
 }
