@@ -13,7 +13,9 @@ public enum Operator {
     GREATER,
     LESSER_EQUALS,
     LESSER,
-    CONTAINS
+    CONTAINS,
+    STARTS_WITH,
+    ENDS_WITH,
     ;
 
     private static final ImmutableMap<String,Operator> ALL;
@@ -27,6 +29,8 @@ public enum Operator {
                 .put("[lt]", Operator.LESSER)
                 .put("[le]", Operator.LESSER_EQUALS)
                 .put("[cnt]", Operator.CONTAINS)
+                .put("[sw]", Operator.STARTS_WITH)
+                .put("[ew]", Operator.ENDS_WITH)
                 .build();
     }
 
