@@ -29,4 +29,12 @@ class StringsTest {
 		assertFalse(Strings.isEmpty("  bob  "));
 	}
 
+	@Test
+	void testIsNotEmpty() {
+		assertFalse(Strings.isNotEmpty(null));
+		assertFalse(Strings.isNotEmpty(""));
+		assertTrue(Strings.isNotEmpty(" "));
+		assertTrue(Strings.isNotEmpty("bob"));
+		assertTrue(Strings.isNotEmpty("  bob  "));
+	}
 }

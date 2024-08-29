@@ -6,9 +6,9 @@ package eu.eventstorm.util;
 public final class Strings {
 
     /**
-	 * Empty String.
-	 */
-	public static final String EMPTY = "";
+     * Empty String.
+     */
+    public static final String EMPTY = "";
 
 
     // private constructor.
@@ -32,4 +32,9 @@ public final class Strings {
     public static boolean isEmpty(CharSequence cs) {
         return cs == null || cs.length() == 0;
     }
+
+    public static boolean isNotEmpty(CharSequence cs) {
+        return !isEmpty(cs);
+    }
+
 }

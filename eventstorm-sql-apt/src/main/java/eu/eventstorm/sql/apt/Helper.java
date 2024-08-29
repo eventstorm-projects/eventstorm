@@ -138,12 +138,8 @@ public final class Helper {
 	}
 
 	public static void writeGenerated(Writer writer, String clazz) throws IOException {
-		//writeNewLine(writer);
-		//writer.write("import javax.annotation.Generated;");
-		//writeNewLine(writer);
-		//writeNewLine(writer);
 		writeNewLine(writer);
-		writer.write("//javax.annotation.Generated(\"" + clazz + "\")");
+		writer.write("@jakarta.annotation.Generated(\"" + clazz + "\")");
 		writeNewLine(writer);
 	}
 

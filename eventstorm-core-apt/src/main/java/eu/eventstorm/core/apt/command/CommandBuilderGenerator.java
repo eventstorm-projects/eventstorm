@@ -14,9 +14,7 @@ import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import static eu.eventstorm.sql.apt.Helper.getReturnType;
 import static eu.eventstorm.sql.apt.Helper.writeGenerated;

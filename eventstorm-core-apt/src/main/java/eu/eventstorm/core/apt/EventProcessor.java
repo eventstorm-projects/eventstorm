@@ -59,6 +59,7 @@ import eu.eventstorm.core.apt.query.db.QueryDatabaseMapperFactoryGenerator;
 import eu.eventstorm.core.apt.query.db.QueryDatabaseMapperGenerator;
 import eu.eventstorm.core.apt.query.db.QueryDatabaseModuleGenerator;
 import eu.eventstorm.core.apt.query.els.ElasticIndexDefinitionGenerator;
+import eu.eventstorm.core.apt.query.els.ElasticRepositoryGenerator;
 import eu.eventstorm.core.apt.spring.SpringConfigurationGenerator;
 import eu.eventstorm.sql.annotation.Table;
 import eu.eventstorm.sql.apt.Helper;
@@ -273,9 +274,10 @@ public class EventProcessor extends AbstractProcessor {
         //	Query
         new QueryImplementationGenerator().generate(this.processingEnv, sourceCode);
         new QueryBuilderGenerator().generate(processingEnv, sourceCode);
-//		
-        //  Quere / ELS
+
+        //  Query / ELS
         new ElasticIndexDefinitionGenerator().generate(processingEnv, sourceCode);
+        new ElasticRepositoryGenerator().generate(processingEnv, sourceCode);
 
         // Query / Database View and Table
         new QueryDatabaseDescriptorGenerator().generate(processingEnv, sourceCode);

@@ -78,21 +78,16 @@ public final class QueryJacksonStdDeserializerGenerator {
                     logger.error("Exception for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
                 }
             });
+            sourceCode.forEachElsQueryPackage((pack, list) -> {
+                try {
+                    generate(processingEnvironment, pack, list);
+                } catch (Exception cause) {
+                    logger.error("Exception for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
+                }
+            });
         }
 
     }
-
-
-//	public void generateEmbedded(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
-//		// generate Implementation class;
-//		sourceCode.forEachEmbeddedCommandPackage((pack, list) -> {
-//			try {
-//				generate(processingEnvironment, pack, list);
-//			} catch (Exception cause) {
-//				logger.error("Exception for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
-//			}
-//		});
-//	}
 
     private void generate(ProcessingEnvironment env, String pack, ImmutableList<? extends QueryDescriptor> descriptors) throws IOException {
 

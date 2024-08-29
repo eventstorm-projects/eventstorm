@@ -47,9 +47,9 @@ public final class ElasticIndexDefinitionGenerator {
             return;
         }
 
-        FileObject object = env.getFiler().createResource(StandardLocation.CLASS_OUTPUT, "",
+        FileObject object = env.getFiler().createResource(StandardLocation.SOURCE_OUTPUT, "els",
                 //env.getElementUtils().getPackageOf(descriptor.element()).toString(),
-                "els/" + descriptor.indice().name() + ".json");
+                descriptor.indice().name() + ".json");
         Writer writer = object.openWriter();
 
         writer.write("{");

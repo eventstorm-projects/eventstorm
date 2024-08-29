@@ -1,8 +1,11 @@
 package eu.eventstorm.core.apt.analyser;
 
+import eu.eventstorm.annotation.els.Id;
 import eu.eventstorm.core.apt.model.ElsQueryDescriptor;
 import eu.eventstorm.core.apt.model.QueryPropertyDescriptor;
+import eu.eventstorm.sql.annotation.PrimaryKey;
 import eu.eventstorm.sql.apt.log.Logger;
+import eu.eventstorm.sql.apt.model.PojoPropertyDescriptor;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
@@ -48,6 +51,8 @@ public final class CqrsQueryElasticSearchAnalyser implements Function<Element, E
 
         List<QueryPropertyDescriptor> properties = new ArrayList<>();
 
+        QueryPropertyDescriptor queryId = null;
+
         for (Element method : element.getEnclosedElements()) {
 
             if (ElementKind.METHOD != method.getKind()) {
@@ -58,14 +63,28 @@ public final class CqrsQueryElasticSearchAnalyser implements Function<Element, E
             ExecutableElement executableElement = (ExecutableElement) method;
 
             if (executableElement.getSimpleName().toString().startsWith("get")) {
+
+                Id id = executableElement.getAnnotation(Id.class);
+                if (id != null) {
+                    queryId = new QueryPropertyDescriptor(executableElement);
+                    properties.add(queryId);
+                    continue;
+                }
+
                 properties.add(new QueryPropertyDescriptor(executableElement));
                 continue;
             }
 
-            throw new IllegalStateException("method [" + method + "] does'nt start with 'get'");
+
+            throw new IllegalStateException("method [" + method + "] doesn't start with 'get'");
         }
 
-        return new ElsQueryDescriptor(element, properties);
+        if (queryId == null) {
+            throw new IllegalStateException("no @Id for the ELS Query + [" + element + "]");
+
+        }
+
+        return new ElsQueryDescriptor(element, queryId, properties);
     }
 
     @Override

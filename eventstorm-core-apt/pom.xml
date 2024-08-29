@@ -25,6 +25,13 @@
 
 		<dependency>
 			<groupId>eu.eventstorm</groupId>
+			<artifactId>eventstorm-els</artifactId>
+			<version>${project.version}</version>
+			<optional>true</optional>
+		</dependency>
+
+		<dependency>
+			<groupId>eu.eventstorm</groupId>
 			<artifactId>eventstorm-cloudevents</artifactId>
 			<version>${project.version}</version>
 		</dependency>

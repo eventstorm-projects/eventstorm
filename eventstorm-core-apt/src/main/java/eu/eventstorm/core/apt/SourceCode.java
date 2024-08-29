@@ -58,6 +58,7 @@ public final class SourceCode {
     private final ImmutableMap<String, ImmutableList<DatabaseViewQueryDescriptor>> queriesDatabaseViewPackages;
     private final ImmutableMap<String, ImmutableList<DatabaseTableQueryDescriptor>> queriesDatabaseTablePackages;
     private final ImmutableMap<String, ImmutableList<PojoQueryDescriptor>> queriesPojoPackages;
+    private final ImmutableMap<String, ImmutableList<ElsQueryDescriptor>> queriesElsPackages;
     private final ImmutableMap<String, ImmutableList<QueryDescriptor>> queriesPackages;
 
     private final ImmutableMap<String, QueryClientDescriptor> clientQueries;
@@ -110,6 +111,8 @@ public final class SourceCode {
         this.queriesPojo = queriesPojo.stream().collect(toImmutableMap(PojoQueryDescriptor::fullyQualidiedClassName, identity()));
         this.queriesPojoPackages = mapByPackage(env, this.queriesPojo);
 
+        this.queriesElsPackages = mapByPackage(env, this.queriesElasticSearch);
+
         this.clientQueries = clientQueries.stream().collect(toImmutableMap(QueryClientDescriptor::fullyQualidiedClassName, identity()));
         this.clientQueriesPackages = mapByPackage(env, this.clientQueries);
 
@@ -117,6 +120,7 @@ public final class SourceCode {
         builder.addAll(queriesDatabase);
         builder.addAll(queriesTableDatabase);
         builder.addAll(queriesPojo);
+        builder.addAll(queriesElasticSearch);
         builder.addAll(clientQueries);
         this.queriesPackages = mapByPackage(env, builder.build().stream().collect(toImmutableMap(QueryDescriptor::fullyQualidiedClassName, identity())));
 
@@ -195,6 +199,10 @@ public final class SourceCode {
 
     public void forEachPojoQueryPackage(BiConsumer<String, ImmutableList<PojoQueryDescriptor>> consumer) {
         this.queriesPojoPackages.forEach(consumer);
+    }
+
+    public void forEachElsQueryPackage(BiConsumer<String, ImmutableList<ElsQueryDescriptor>> consumer) {
+        this.queriesElsPackages.forEach(consumer);
     }
 
     public void forEachQueryPackage(BiConsumer<String, ImmutableList<QueryDescriptor>> consumer) {
