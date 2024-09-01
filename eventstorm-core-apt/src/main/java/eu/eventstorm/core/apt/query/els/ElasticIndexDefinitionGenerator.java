@@ -69,7 +69,8 @@ public final class ElasticIndexDefinitionGenerator {
         writer.write("  \"properties\": {");
         writeNewLine(writer);
 
-        for (QueryPropertyDescriptor qpd : descriptor.properties()) {
+        for (int i = 0; i < descriptor.properties().size(); i++) {
+            QueryPropertyDescriptor qpd = descriptor.properties().get(i);
             writer.write("    \"" + qpd.name() + "\" : {");
             writeNewLine(writer);
             //writer.write("         \"type\" : " + qpd.name() + "\" : {");
@@ -79,12 +80,18 @@ public final class ElasticIndexDefinitionGenerator {
 
             writeNewLine(writer);
             writer.write("    }");
-            writeNewLine(writer);
+            
 
+            if (i + 1 < descriptor.properties().size()) {
+                writer.write(",");
+                writeNewLine(writer);
+            }
+            writeNewLine(writer);
 //			"original_language": {
 //			"type": "keyword"
 //		},
         }
+
         writer.write("  }");
 
     }

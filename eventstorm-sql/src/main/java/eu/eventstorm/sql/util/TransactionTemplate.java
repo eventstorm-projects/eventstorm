@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 
 import java.lang.ref.Cleaner;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 /**
@@ -140,6 +141,25 @@ public final class TransactionTemplate {
         } catch (Exception cause) {
             rollbackAndClose(tx);
             throw cause;
+        }
+    }
+
+    public <T> void stream(TransactionCallback<Stream<T>> callback, Consumer<T> consumer) {
+
+        if (transactionManager.hasCurrent()) {
+            try (Stream<T> stream = executeInExistingTx(callback)) {
+                stream.forEach(consumer);
+            }
+        }
+
+        try (Transaction tx = transactionManager.newTransactionReadOnly()) {
+            try (Stream<T> stream = callback.doInTransaction()) {
+                stream.forEach(consumer);
+                tx.commit();
+            } catch (Exception cause) {
+                rollbackAndClose(tx);
+                throw cause;
+            }
         }
     }
 
