@@ -28,15 +28,38 @@ rangeEnd
 	: integer;
 		
 filter
-	: 'filter' equal filterContent
+	: 'filter' equal filterExpression
 	;
-	
-filterContent
-	: filterItem (',' filterItem)*
-	;	
-	
+
+filterExpression
+    : filterExpressionOr
+    | filterExpressionAnd
+    | filterItems
+    ;
+
+filterExpressionOr
+    : LPAREN filterExpressionLeft RPAREN'or' LPAREN filterExpressionRight RPAREN
+    ;
+
+filterExpressionAnd
+    : LPAREN filterExpressionLeft RPAREN 'and' LPAREN filterExpressionRight RPAREN
+    ;
+
+filterExpressionLeft
+    :  filterExpression
+    ;
+
+filterExpressionRight
+    :  filterExpression
+    ;
+
+
+filterItems
+    : filterItem (',' filterItem)*
+    ;
+
 filterItem
-	: property op value	
+	: property op value
 	;
 
 sort 
@@ -111,3 +134,11 @@ IDENTIFIER
 STRING
    :  '\'' ('\'\'' | ~ ('\''))* '\''
    ;
+
+LPAREN
+    : '('
+    ;
+
+RPAREN
+    : ')'
+    ;

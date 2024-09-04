@@ -29,8 +29,8 @@
         <ch.qos.logback.version>1.5.6</ch.qos.logback.version>
 
         <com.google.guava.version>33.3.0-jre</com.google.guava.version>
-        <com.google.protobuf.version>4.27.3</com.google.protobuf.version>
-        <protobuf-maven-plugin.version>2.4.4</protobuf-maven-plugin.version>
+        <com.google.protobuf.version>4.28.0</com.google.protobuf.version>
+        <protobuf-maven-plugin.version>2.4.5</protobuf-maven-plugin.version>
 
         <com.fasterxml.jackson.version>2.17.2</com.fasterxml.jackson.version>
         <io.zipkin.version>3.4.0</io.zipkin.version>
@@ -114,7 +114,7 @@
 
             <dependency>
                 <groupId>com.google.protobuf</groupId>
-                <artifactId>protobuf-java</artifactId>
+                <artifactId>protobuf-bom</artifactId>
                 <version>${com.google.protobuf.version}</version>
                 <type>pom</type>
                 <scope>import</scope>

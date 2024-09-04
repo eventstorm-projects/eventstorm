@@ -1,6 +1,6 @@
 package eu.eventstorm.sql.page;
 
-import eu.eventstorm.page.Filter;
+import eu.eventstorm.page.SinglePropertyFilter;
 import eu.eventstorm.sql.desc.SqlColumn;
 
 /**
@@ -10,6 +10,6 @@ public interface SqlPageRequestDescriptor {
 
 	SqlColumn get(String property);
 	
-	PreparedStatementIndexSetter getPreparedStatementIndexSetter(Filter filter);
+	PreparedStatementIndexSetter getPreparedStatementIndexSetter(SinglePropertyFilter filter);
 
 }

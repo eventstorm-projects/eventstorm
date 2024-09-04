@@ -1,10 +1,10 @@
 package eu.eventstorm.sql.page;
 
 import com.google.common.collect.ImmutableList;
-import eu.eventstorm.page.Filter;
 import eu.eventstorm.page.Operator;
 import eu.eventstorm.page.Page;
 import eu.eventstorm.page.PageRequest;
+import eu.eventstorm.page.SinglePropertyFilter;
 import eu.eventstorm.page.Sort;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Dialect;
@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static eu.eventstorm.page.Filters.newProperty;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -84,7 +85,7 @@ class PageTest {
 				throw new IllegalStateException();
 			}
 			@Override
-			public PreparedStatementIndexSetter getPreparedStatementIndexSetter(Filter filter) {
+			public PreparedStatementIndexSetter getPreparedStatementIndexSetter(SinglePropertyFilter filter) {
 				return (dialect, ps, index) -> {
 					ps.setString(index, filter.getRaw());
 					return index+1;
@@ -170,7 +171,7 @@ class PageTest {
 		  try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
 			  
 			  PageRequest pageable = PageRequest.of("airport", 0, 10)
-					  .withFilter("type", Operator.EQUALS, "small_airport")
+					  .withFilter(newProperty("type", Operator.EQUALS, "small_airport"))
 					  .withEvaluator(new SingleSqlEvaluator(descriptor))
 					  .build();
 			  Page<Airport> page = this.repo.findAll(pageable);
@@ -196,7 +197,7 @@ class PageTest {
 		  
 		  Page<Airport> page = transactionTemplate.page(() -> this.repo.findAll(
 				  PageRequest.of("airport", 0, 10)
-						  .withFilter("type", Operator.EQUALS, "small_airport")
+						  .withFilter(newProperty("type", Operator.EQUALS, "small_airport"))
 						  .withEvaluator(new SingleSqlEvaluator(descriptor))
 						  .build()));
 
@@ -221,7 +222,7 @@ class PageTest {
 		  
 		  try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
 			  page = transactionTemplate.page(() -> this.repo.findAll( PageRequest.of("airport", 0, 10)
-					  .withFilter("type", Operator.EQUALS, "small_airport")
+					  .withFilter(newProperty("type", Operator.EQUALS, "small_airport"))
 					  .withEvaluator(new SingleSqlEvaluator(descriptor))
 					  .build()));
 
@@ -248,7 +249,7 @@ class PageTest {
 
 		  try (Transaction tx = db.transactionManager().newTransactionReadOnly()) {
 			  page = transactionTemplate.page(() -> this.repo.findAll(PageRequest.of("airport", 0, 10)
-							  .withFilter("type", Operator.EQUALS, "small_airport")
+							  .withFilter(newProperty("type", Operator.EQUALS, "small_airport"))
 					          .withSort(Sort.desc("id"))
 							  .withEvaluator(new SingleSqlEvaluator(descriptor))
 							  .build()));

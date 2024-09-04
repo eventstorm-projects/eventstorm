@@ -15,7 +15,9 @@ public interface PageRequest {
 
 	int getOffset();
 
-	List<Filter> getFilters();
+	Filter getFilter();
+
+	void setFilter(Filter filter);
 
 	List<Sort> getSorts();
 

@@ -8,7 +8,7 @@ import com.google.common.collect.ImmutableMap;
 public final class PageRequestException extends RuntimeException {
 
 	public enum Type  {
-		EMPTY, PARSING, INVALID_OP
+		EMPTY, PARSING, INVALID_OP, FILTER_ALREADY_SET
 	}
 
 	private final Type type;
@@ -39,7 +39,7 @@ public final class PageRequestException extends RuntimeException {
 	private static String build(Type type, ImmutableMap<String, Object> params, Throwable cause) {
 		StringBuilder builder = new StringBuilder(256);
 		builder.append("type=[").append(type).append("]");
-		if (params != null && params.size() > 0) {
+		if (params != null && !params.isEmpty()) {
 			builder.append(", params:{");
 			params.forEach((key, value) -> builder.append("[").append(key).append("]=[")
 					.append(value).append("] "));

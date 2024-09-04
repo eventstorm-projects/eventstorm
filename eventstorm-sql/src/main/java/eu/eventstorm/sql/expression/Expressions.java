@@ -136,6 +136,10 @@ public final class Expressions {
         return new LogicalExpression("OR", ImmutableList.<Expression>builder().add(left).add(right).addAll(Arrays.asList(others)).build());
     }
 
+    public static Expression or(ImmutableList<Expression> expressions) {
+        return new LogicalExpression("OR", expressions);
+    }
+
     public static Expression in(SqlColumn column, SubSelect value) {
 		return new InSubSelectExpression(column, value, false);
     }

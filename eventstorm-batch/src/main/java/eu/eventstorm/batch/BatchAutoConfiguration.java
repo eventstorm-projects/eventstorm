@@ -1,15 +1,24 @@
 package eu.eventstorm.batch;
 
+import com.google.common.collect.ImmutableList;
+import com.google.protobuf.TypeRegistry;
+import com.google.protobuf.util.JsonFormat;
 import eu.eventstorm.annotation.CqrsConfiguration;
 import eu.eventstorm.batch.config.BatchExecutionProperties;
-import eu.eventstorm.batch.db.DatabaseExecutionQuery;
+import eu.eventstorm.batch.config.BatchProperties;
+import eu.eventstorm.batch.config.ResourceProperties;
+import eu.eventstorm.batch.db.DatabaseBatch;
 import eu.eventstorm.batch.db.DatabaseExecutionQueryRepository;
-import eu.eventstorm.batch.db.json.QueryModule;
+import eu.eventstorm.batch.db.DatabaseExecutionRepository;
 import eu.eventstorm.batch.file.FileResource;
+import eu.eventstorm.batch.json.BatchModule;
+import eu.eventstorm.batch.memory.InMemoryBatch;
+import eu.eventstorm.core.protobuf.DescriptorModule;
 import eu.eventstorm.cqrs.PageQueryDescriptors;
+import eu.eventstorm.cqrs.batch.BatchJobCreated;
 import eu.eventstorm.cqrs.web.HttpPageRequestHandlerMethodArgumentResolver;
+import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.util.TransactionTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -18,20 +27,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-
-import com.google.common.collect.ImmutableList;
-import com.google.protobuf.TypeRegistry;
-import com.google.protobuf.util.JsonFormat;
-
-import eu.eventstorm.batch.config.BatchProperties;
-import eu.eventstorm.batch.config.ResourceProperties;
-import eu.eventstorm.batch.db.DatabaseBatch;
-import eu.eventstorm.batch.db.DatabaseExecutionRepository;
-import eu.eventstorm.batch.json.BatchModule;
-import eu.eventstorm.batch.memory.InMemoryBatch;
-import eu.eventstorm.core.protobuf.DescriptorModule;
-import eu.eventstorm.cqrs.batch.BatchJobCreated;
-import eu.eventstorm.sql.Database;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
 import org.springframework.web.reactive.result.method.annotation.ArgumentResolverConfigurer;
 

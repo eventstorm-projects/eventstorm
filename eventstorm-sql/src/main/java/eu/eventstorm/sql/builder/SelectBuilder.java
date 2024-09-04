@@ -7,9 +7,9 @@ import static eu.eventstorm.sql.expression.Expressions.and;
 import java.util.ArrayList;
 import java.util.List;
 
+import eu.eventstorm.page.EmptyFilter;
 import eu.eventstorm.sql.desc.DerivedColumn;
 import eu.eventstorm.sql.expression.MathematicalFunction;
-import eu.eventstorm.sql.expression.MathematicalFunctions;
 import eu.eventstorm.sql.page.SingleSqlEvaluator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -142,12 +142,12 @@ public final class SelectBuilder extends AbstractBuilder {
 	
 	void appendWherePage(StringBuilder builder, PageRequest pageRequest) {
 
-		if (where != null && pageRequest.getFilters().size() > 0) {
-			appendWhere(Expressions.and(this.where, and(toExpressions(pageRequest))), builder);
+		if (where != null && pageRequest.getFilter()!= EmptyFilter.INSTANCE) {
+			appendWhere(Expressions.and(this.where, toExpressions(pageRequest)), builder);
 		} else if (where != null) {
 			appendWhere(this.where, builder);
-		} else if (pageRequest.getFilters().size() > 0) {
-			appendWhere(and(toExpressions(pageRequest)), builder);
+		} else if (pageRequest.getFilter() != EmptyFilter.INSTANCE) {
+			appendWhere(toExpressions(pageRequest), builder);
 		}	
 	}
 
@@ -165,7 +165,7 @@ public final class SelectBuilder extends AbstractBuilder {
         return builder.build();
     }
 
-	private ImmutableList<Expression> toExpressions(PageRequest pageRequest) {
+	private Expression toExpressions(PageRequest pageRequest) {
         SingleSqlEvaluator evaluator = (SingleSqlEvaluator) pageRequest.getEvaluator();
         return evaluator.toExpressions(pageRequest);
     }
