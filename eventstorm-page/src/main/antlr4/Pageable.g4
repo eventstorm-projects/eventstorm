@@ -86,16 +86,17 @@ property
 	: IDENTIFIER;
    
 op
-	: '[eq]'
-	| '[neq]'
-	| '[gt]'
-	| '[ge]'
-	| '[lt]'
-	| '[le]'
-	| '[cnt]'
-	| '[in]'
-	| '[sw]'
-    | '[ew]'
+	: '[eq]'    // equals
+	| '[neq]'   // not equals
+	| '[gt]'    // greater than
+	| '[ge]'    // greater than or equals
+	| '[lt]'    // less than
+	| '[le]'    // less than or equals
+	| '[cnt]'   // contains
+	| '[in]'    // in
+	| '[nin]'   // not in
+	| '[sw]'    // starts with
+    | '[ew]'    // ends with
 	;
 
 value

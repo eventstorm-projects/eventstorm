@@ -9,13 +9,14 @@ public enum Operator {
 
     EQUALS,
     IN,
+    NOT_IN,
     GREATER_EQUALS,
     GREATER,
     LESSER_EQUALS,
     LESSER,
     CONTAINS,
     STARTS_WITH,
-    ENDS_WITH,
+    ENDS_WITH
     ;
 
     private static final ImmutableMap<String,Operator> ALL;
@@ -24,6 +25,7 @@ public enum Operator {
         ALL = ImmutableMap.<String,Operator>builder()
                 .put("[eq]", Operator.EQUALS)
                 .put("[in]", Operator.IN)
+                .put("[nin]", Operator.NOT_IN)
                 .put("[ge]", Operator.GREATER_EQUALS)
                 .put("[gt]", Operator.GREATER)
                 .put("[lt]", Operator.LESSER)
