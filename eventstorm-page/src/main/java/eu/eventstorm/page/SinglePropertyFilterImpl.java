@@ -7,14 +7,14 @@ import java.util.List;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-final class FilterImpl implements Filter {
+final class SinglePropertyFilterImpl implements SinglePropertyFilter {
 
 	private final String property;
 	private final Operator operator;
 	private final String raw;
-	private final List<String> values;
-	
-	public FilterImpl(String property, Operator operator, String raw, List<String> values) {
+	private List<String> values;
+
+	public SinglePropertyFilterImpl(String property, Operator operator, String raw, List<String> values) {
 		this.property = property;
 		this.operator = operator;
 		this.raw = raw;
@@ -41,6 +41,10 @@ final class FilterImpl implements Filter {
 		return this.values;
 	}
 
+	public void setValues(List<String> values) {
+		this.values = values;
+	}
+
 	@Override
 	public String toString() {
 		return new ToStringBuilder(true)
@@ -51,4 +55,8 @@ final class FilterImpl implements Filter {
 				.toString();
 	}
 
+	@Override
+	public void accept(FilterVisitor visitor) {
+		visitor.visit(this);
+	}
 }

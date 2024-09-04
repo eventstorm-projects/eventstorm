@@ -39,7 +39,7 @@
         <io.swagger.core.v3.version>2.1.13</io.swagger.core.v3.version>
 
         <org.springframework.boot.version>2.7.18</org.springframework.boot.version>
-        <org.springframework.version>5.3.32</org.springframework.version>
+        <org.springframework.version>5.3.39</org.springframework.version>
 
         <org.junit.jupiter.version>5.10.2</org.junit.jupiter.version>
         <com.h2database.version>2.2.224</com.h2database.version>
@@ -104,7 +104,7 @@
 
             <dependency>
                 <groupId>com.google.protobuf</groupId>
-                <artifactId>protobuf-java</artifactId>
+                <artifactId>protobuf-bom</artifactId>
                 <version>${com.google.protobuf.version}</version>
                 <type>pom</type>
                 <scope>import</scope>

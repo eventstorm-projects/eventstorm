@@ -7,7 +7,7 @@ import eu.eventstorm.core.apt.model.QueryDescriptor;
 import eu.eventstorm.core.apt.model.QueryPropertyDescriptor;
 import eu.eventstorm.cqrs.PageQueryDescriptor;
 import eu.eventstorm.cqrs.PageQueryDescriptors;
-import eu.eventstorm.page.Filter;
+import eu.eventstorm.page.SinglePropertyFilter;
 import eu.eventstorm.sql.annotation.Column;
 import eu.eventstorm.sql.annotation.ColumnFormat;
 import eu.eventstorm.sql.apt.Helper;
@@ -98,7 +98,7 @@ public final class SqlPageRequestDescriptorGenerator {
         writeNewLine(writer);
         writer.write("import " + SqlColumn.class.getName() + ";");
         writeNewLine(writer);
-        writer.write("import " + Filter.class.getName() + ";");
+        writer.write("import " + SinglePropertyFilter.class.getName() + ";");
         writeNewLine(writer);
         writer.write("import " + PageQueryDescriptor.class.getName() + ";");
         writeNewLine(writer);
@@ -135,9 +135,9 @@ public final class SqlPageRequestDescriptorGenerator {
         writeNewLine(writer);
 
         writeNewLine(writer);
-        writer.write("    private static final ImmutableMap<String, Function<Filter, PreparedStatementIndexSetter>> PREPARED_STATEMENT_INDEX_SETTERS");
+        writer.write("    private static final ImmutableMap<String, Function<SinglePropertyFilter, PreparedStatementIndexSetter>> PREPARED_STATEMENT_INDEX_SETTERS");
         writeNewLine(writer);
-        writer.write("        = ImmutableMap.<String, Function<Filter, PreparedStatementIndexSetter>>builder()");
+        writer.write("        = ImmutableMap.<String, Function<SinglePropertyFilter, PreparedStatementIndexSetter>>builder()");
         writeNewLine(writer);
 
         // private static final Function<String,String> COUNTRY = t -> t;
@@ -201,9 +201,9 @@ public final class SqlPageRequestDescriptorGenerator {
         writeNewLine(writer);
         writer.write("    @Override");
         writeNewLine(writer);
-        writer.write("    public PreparedStatementIndexSetter getPreparedStatementIndexSetter(Filter filter) {");
+        writer.write("    public PreparedStatementIndexSetter getPreparedStatementIndexSetter(SinglePropertyFilter filter) {");
         writeNewLine(writer);
-        writer.write("        Function<Filter, PreparedStatementIndexSetter> function = PREPARED_STATEMENT_INDEX_SETTERS.get(filter.getProperty());");
+        writer.write("        Function<SinglePropertyFilter, PreparedStatementIndexSetter> function = PREPARED_STATEMENT_INDEX_SETTERS.get(filter.getProperty());");
         writeNewLine(writer);
         writer.write("        if (function == null) {");
         writeNewLine(writer);

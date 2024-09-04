@@ -1,6 +1,6 @@
 package eu.eventstorm.page;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +13,7 @@ public final class PageRequestBuilder {
 	private final String query;
 	private final int offset;
 	private final int size;
-	private final List<Filter> filters = new ArrayList<>(4);
+	private Filter filter;
 	private final List<Sort> sorts = new ArrayList<>(4);
 	private EvaluatorDefinition evaluator;
 	
@@ -24,16 +24,14 @@ public final class PageRequestBuilder {
 	}
 	  
 	public PageRequest build() {
-		return new PageRequestImpl(query, offset, size, filters, sorts, evaluator);
+		return new PageRequestImpl(query, offset, size, filter == null ? EmptyFilter.INSTANCE : filter, sorts, evaluator);
 	}
 
-	public PageRequestBuilder withFilter(String property, Operator operator, String raw, List<String> values) {
-		filters.add(new FilterImpl(property, operator, raw, values));
-		return this;
-	}
-
-	public PageRequestBuilder withFilter(String property, Operator operator, String raw) {
-		filters.add(new FilterImpl(property, operator, raw, ImmutableList.of(raw)));
+	public PageRequestBuilder withFilter(Filter filter) {
+		if (this.filter != null) {
+			throw new PageRequestException(PageRequestException.Type.FILTER_ALREADY_SET, ImmutableMap.of("filter", filter));
+		}
+		this.filter = filter;
 		return this;
 	}
 
