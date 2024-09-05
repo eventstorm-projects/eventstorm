@@ -21,8 +21,6 @@ import static eu.eventstorm.sql.apt.Helper.writePackage;
  */
 public final class ElasticRepositoryGenerator {
 
-    private static final String TO_STRING_BUILDER = ToStringBuilder.class.getName();
-
     private Logger logger;
 
     public void generate(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
@@ -65,32 +63,6 @@ public final class ElasticRepositoryGenerator {
         //writer.write("import " + SqlQuery.class.getName() + ";");
         writeNewLine(writer);
 
-        /*for (PojoPropertyDescriptor id : descriptor.ids()) {
-            writer.write("import static ");
-            writer.write(descriptor.fullyQualidiedClassName() + "Descriptor.");
-            writer.write(toUpperCase(id.name()));
-            writer.write(";");
-            writeNewLine(writer);
-        }
-        */
-
-
-        /*for (PojoPropertyDescriptor bk : descriptor.businessKeys()) {
-            writer.write("import static ");
-            writer.write(descriptor.fullyQualidiedClassName() + "Descriptor.");
-            writer.write(toUpperCase(bk.name()));
-            writer.write(";");
-            writeNewLine(writer);
-        }
-
-        writer.write("import static ");
-        writer.write(Expressions.class.getName() + ".eq;");
-        writeNewLine(writer);
-        writer.write("import static ");
-        writer.write(Expressions.class.getName() + ".and;");
-        writeNewLine(writer);
-*/
-
         writeGenerated(writer, ElasticRepositoryGenerator.class.getName());
 
         writer.write("public abstract class Abstract");
@@ -110,15 +82,6 @@ public final class ElasticRepositoryGenerator {
         writer.write("        super(client);");
         writeNewLine(writer);
 
-
-        //generateFindById(writer, descriptor);
-        //generateFindByIdForUpdate(writer, descriptor);
-        //generateFindByBusinessKey(writer, descriptor);
-        //generateInsert(writer, descriptor);
-        //generateUpdate(writer, descriptor);
-        //generateDelete(writer, descriptor);
-
-
         writer.write("    }");
         writeNewLine(writer);
     }
@@ -127,10 +90,12 @@ public final class ElasticRepositoryGenerator {
     private static void writeMethods(Writer writer, ElsQueryDescriptor descriptor) throws IOException {
         generateMethodFindById(writer, descriptor);
         generateMethodInsert(writer, descriptor);
+        generateMethodUpdate(writer, descriptor);
+        generateMethodPartialUpdate(writer, descriptor);
+
         /*
         generateMethodFindByIdForUpdate(writer, descriptor);
 
-        generateMethodUpdate(writer, descriptor);
         generateMethodBatch(writer, descriptor);
         generateMethodFindByBusinessKey(writer, descriptor);
         generateMethodDelete(writer, descriptor);
@@ -165,31 +130,29 @@ public final class ElasticRepositoryGenerator {
         writer.write("    }");
         writeNewLine(writer);
     }
-    /*
-    private static void generateFindById(Writer writer, ElsQueryDescriptor descriptor) throws IOException {
 
-
-        writer.write("        this.findById = select(ALL).from(TABLE).where(");
-
-        if (descriptor.ids().size() == 1) {
-            writer.write("eq(");
-            writer.write(toUpperCase(descriptor.ids().get(0).name()));
-            writer.write(")");
-        } else {
-            StringBuilder builder = new StringBuilder();
-            builder.append("and(");
-            for (PojoPropertyDescriptor id : descriptor.ids()) {
-                builder.append("eq(");
-                builder.append(toUpperCase(id.name()));
-                builder.append("),");
-            }
-            builder.deleteCharAt(builder.length() - 1);
-            builder.append(")");
-            writer.write(builder.toString());
-        }
-        writer.write(").build();");
+    private static void generateMethodUpdate(Writer writer, ElsQueryDescriptor descriptor) throws IOException {
+        writeNewLine(writer);
+        writer.write("    public final Mono<co.elastic.clients.elasticsearch.core.UpdateResponse<"+ descriptor.element().toString() +">>");
+        writer.write(" update(String id, "+descriptor.element().toString()+" pojo) {");
         writeNewLine(writer);
 
-    }*/
+        writer.write("        return super.doUpdate(\"" + descriptor.indice().name()+"\", id, pojo, "+descriptor.element().toString()+".class);");
+        writeNewLine(writer);
+        writer.write("    }");
+        writeNewLine(writer);
+    }
+
+    private static void generateMethodPartialUpdate(Writer writer, ElsQueryDescriptor descriptor) throws IOException {
+        writeNewLine(writer);
+        writer.write("    public final Mono<co.elastic.clients.elasticsearch.core.UpdateResponse<"+ descriptor.element().toString() +">>");
+        writer.write(" partialUpdate(String id, java.util.Map<String, Object> partialDocument) {");
+        writeNewLine(writer);
+
+        writer.write("        return super.doPartialUpdate(\"" + descriptor.indice().name()+"\", id, partialDocument, "+descriptor.element().toString()+".class);");
+        writeNewLine(writer);
+        writer.write("    }");
+        writeNewLine(writer);
+    }
 
 }
