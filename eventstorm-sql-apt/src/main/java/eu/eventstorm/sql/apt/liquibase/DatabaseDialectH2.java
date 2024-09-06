@@ -1,6 +1,7 @@
 package eu.eventstorm.sql.apt.liquibase;
 
 import eu.eventstorm.sql.annotation.Column;
+import eu.eventstorm.sql.annotation.ColumnFormat;
 import eu.eventstorm.sql.annotation.PrimaryKey;
 import eu.eventstorm.sql.apt.log.Logger;
 import eu.eventstorm.sql.type.Json;
@@ -32,7 +33,11 @@ final class DatabaseDialectH2 implements DatabaseDialect {
 		}
 		
 		if (String.class.getName().equals(javaType)) {
-			return "VARCHAR(" + column.length() + ")";
+			if (column.format() == ColumnFormat.UUID) {
+				return "VARCHAR(36)";
+			} else {
+				return "VARCHAR(" + column.length() + ")";
+			}
 		}
 		
 		logger.error("No sql type for java type (PrimaryKey) [" + javaType + "]");
@@ -59,7 +64,11 @@ final class DatabaseDialectH2 implements DatabaseDialect {
 		}
 		
 		if (String.class.getName().equals(javaType)) {
-			return "VARCHAR(" + column.length() + ")";
+			if (column.format() == ColumnFormat.UUID) {
+				return "VARCHAR(36)";
+			} else {
+				return "VARCHAR(" + column.length() + ")";
+			}
 		}
 
 		if (Timestamp.class.getName().equals(javaType)) {

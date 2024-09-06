@@ -65,7 +65,11 @@ final class DatabaseDialectPostgres implements DatabaseDialect {
         }
 
         if (String.class.getName().equals(javaType)) {
-            return "VARCHAR(" + column.length() + ")";
+            if (column.format() == ColumnFormat.UUID) {
+                return "UUID";
+            } else {
+                return "VARCHAR(" + column.length() + ")";
+            }
         }
 
         if (Timestamp.class.getName().equals(javaType)) {
