@@ -83,6 +83,7 @@ import java.util.stream.Collectors;
 @SupportedSourceVersion(SourceVersion.RELEASE_11)
 @SupportedAnnotationTypes({"eu.eventstorm.annotation.CqrsCommand", "eu.eventstorm.annotation.CqrsQuery"
         , "eu.eventstorm.annotation.CqrsQueryPojo", "eu.eventstorm.annotation.CqrsQueryClient"
+        , "eu.eventstorm.annotation.CqrsQueryClientService"
         , "eu.eventstorm.annotation.CqrsBatchCommand", "eu.eventstorm.annotation.CqrsQueryDatabaseView"})
 public class EventProcessor extends AbstractProcessor {
 
