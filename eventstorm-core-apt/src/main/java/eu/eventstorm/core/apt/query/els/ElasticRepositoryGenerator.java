@@ -3,6 +3,8 @@ package eu.eventstorm.core.apt.query.els;
 import eu.eventstorm.core.apt.SourceCode;
 import eu.eventstorm.core.apt.model.ElsQueryDescriptor;
 import eu.eventstorm.cqrs.els.ElsRepository;
+import eu.eventstorm.page.Page;
+import eu.eventstorm.page.PageRequest;
 import eu.eventstorm.sql.apt.log.Logger;
 import eu.eventstorm.util.ToStringBuilder;
 import reactor.core.publisher.Mono;
@@ -89,6 +91,7 @@ public final class ElasticRepositoryGenerator {
 
     private static void writeMethods(Writer writer, ElsQueryDescriptor descriptor) throws IOException {
         generateMethodFindById(writer, descriptor);
+        generateMethodFind(writer, descriptor);
         generateMethodInsert(writer, descriptor);
         generateMethodUpdate(writer, descriptor);
         generateMethodPartialUpdate(writer, descriptor);
@@ -113,6 +116,21 @@ public final class ElasticRepositoryGenerator {
         writeNewLine(writer);
 
         writer.write("        return super.doFindById(\"" + descriptor.indice().name()+"\", id, " + descriptor.simpleName() + ".class);");
+        writeNewLine(writer);
+        writer.write("    }");
+        writeNewLine(writer);
+
+    }
+
+    private static void generateMethodFind(Writer writer, ElsQueryDescriptor descriptor) throws IOException {
+
+        writeNewLine(writer);
+        writer.write("    public final Mono<" + Page.class.getName() + "<");
+        writer.write(descriptor.element().toString());
+        writer.write(">> find("+ PageRequest.class.getName()  +" pageRequest) {");
+        writeNewLine(writer);
+
+        writer.write("        return super.doSelectPage(\"" + descriptor.indice().name()+"\", pageRequest, " + descriptor.simpleName() + ".class);");
         writeNewLine(writer);
         writer.write("    }");
         writeNewLine(writer);

@@ -38,6 +38,12 @@
 
         <dependency>
             <groupId>eu.eventstorm</groupId>
+            <artifactId>eventstorm-page</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>eu.eventstorm</groupId>
             <artifactId>eventstorm-test</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
