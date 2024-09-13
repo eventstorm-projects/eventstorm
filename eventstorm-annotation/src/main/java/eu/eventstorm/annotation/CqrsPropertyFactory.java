@@ -14,7 +14,7 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
  */
 @Target({METHOD})
 @Retention(SOURCE)
-public @interface CqrsQueryPropertyFactory {
+public @interface CqrsPropertyFactory {
 
     Class<? extends PropertyFactory> factory();
 

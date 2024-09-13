@@ -22,6 +22,7 @@ import eu.eventstorm.sql.apt.Helper;
 import eu.eventstorm.sql.apt.log.Logger;
 import eu.eventstorm.util.tuple.Tuple2;
 import eu.eventstorm.util.tuple.Tuples;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
@@ -30,7 +31,6 @@ import javax.lang.model.type.TypeMirror;
 import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.Writer;
-import java.lang.annotation.Retention;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -39,20 +39,22 @@ import static eu.eventstorm.sql.apt.Helper.getReturnType;
 import static eu.eventstorm.sql.apt.Helper.writeGenerated;
 import static eu.eventstorm.sql.apt.Helper.writeNewLine;
 import static eu.eventstorm.sql.apt.Helper.writePackage;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 public final class CommandValidatorGenerator {
 
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(CommandValidatorGenerator.class);
     private Logger logger;
+    private ProcessingEnvironment env;
 
     private final List<Tuple2<String, PropertyDescriptor>> variables = new ArrayList<Tuple2<String, PropertyDescriptor>>();
 
     public void generate(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
 
         try (Logger logger = Logger.getLogger(processingEnvironment, "eu.eventstorm.event.generator", "CommandValidatorGenerator")) {
+            this.env = processingEnvironment;
             this.logger = logger;
             sourceCode.forEachCommand(t -> {
                 try {
@@ -75,6 +77,7 @@ public final class CommandValidatorGenerator {
     public void generateEmbedded(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
         try (Logger logger = Logger.getLogger(processingEnvironment, "eu.eventstorm.event.generator", "CommandValidatorGeneratorEmbedded")) {
             this.logger = logger;
+            this.env = processingEnvironment;
             // generate Implementation class;
             sourceCode.forEachEmbeddedCommand(t -> {
                 logger.info("generateEmbedded validator for [" + t + "]");
@@ -174,7 +177,7 @@ public final class CommandValidatorGenerator {
             if (returnType.startsWith(List.class.getName())) {
                 String targetClass = returnType.substring(15, returnType.length() - 1);
 
-                if (Helper.isString(targetClass)) {
+                if (Helper.isString(targetClass) || Helper.isInteger(targetClass) || Helper.isLong(targetClass) || Helper.isEnum(env, targetClass)) {
 
                 } else {
                     writeListImtepValidator(writer, descriptor, ppd);
@@ -451,13 +454,16 @@ public final class CommandValidatorGenerator {
 
                 String targetClass = returnType.substring(15, returnType.length() - 1);
 
-                if (Helper.isString(targetClass)) {
-
+                if (Helper.isEnum(env, targetClass)) {
+                    logger.info("List of enum [" + targetClass + "]-> SKIP: ");
+                } else if (Helper.isString(targetClass) || Helper.isInteger(targetClass)) {
+                    logger.info("List of [" + targetClass + "]-> SKIP: ");
                 } else {
                     String validatorClassName = returnType.substring(15, returnType.lastIndexOf(".")) + ".validator." +
                             returnType.substring(returnType.lastIndexOf(".") + 1, returnType.length() - 1) + "Validator";
                     variables.add(Tuples.of(validatorClassName, ppd));
                     writer.write("    private final " + validatorClassName + " $$listValidator" + Helper.firstToUpperCase(ppd.name()) + ";");
+                    writeNewLine(writer);
                 }
             }
         }
