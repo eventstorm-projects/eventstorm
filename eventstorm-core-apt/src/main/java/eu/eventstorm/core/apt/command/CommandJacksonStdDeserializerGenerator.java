@@ -6,12 +6,14 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import eu.eventstorm.annotation.CqrsPropertyFactory;
 import eu.eventstorm.core.apt.SourceCode;
 import eu.eventstorm.core.apt.model.AbstractCommandDescriptor;
 import eu.eventstorm.core.apt.model.CommandDescriptor;
 import eu.eventstorm.core.apt.model.EmbeddedCommandDescriptor;
 import eu.eventstorm.core.apt.model.PropertyDescriptor;
 import eu.eventstorm.core.json.DeserializerException;
+import eu.eventstorm.core.util.PropertyFactoryType;
 import eu.eventstorm.sql.apt.Helper;
 import eu.eventstorm.sql.apt.log.Logger;
 import eu.eventstorm.util.Dates;
@@ -38,14 +40,16 @@ import static eu.eventstorm.sql.apt.Helper.writePackage;
 public final class CommandJacksonStdDeserializerGenerator {
 
     private Logger logger;
+    private ProcessingEnvironment env;
 
-    public void generate(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
+    public void generate(ProcessingEnvironment env, SourceCode sourceCode) {
 
-        try (Logger logger = Logger.getLogger(processingEnvironment, "eu.eventstorm.event.generator", "CommandJacksonStdDeserializerGenerator")) {
+        try (Logger logger = Logger.getLogger(env, "eu.eventstorm.event.generator", "CommandJacksonStdDeserializerGenerator")) {
             this.logger = logger;
+            this.env = env;
             sourceCode.forEachCommandPackage((pack, list) -> {
                 try {
-                    generate(processingEnvironment, pack, list, sourceCode);
+                    generate(env, pack, list, sourceCode);
                 } catch (Exception cause) {
                     logger.error("Exception for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
                 }
@@ -53,15 +57,19 @@ public final class CommandJacksonStdDeserializerGenerator {
         }
     }
 
-    public void generateEmbedded(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
+    public void generateEmbedded(ProcessingEnvironment env, SourceCode sourceCode) {
         // generate Implementation class;
-        sourceCode.forEachEmbeddedCommandPackage((pack, list) -> {
-            try {
-                generate(processingEnvironment, pack, list, sourceCode);
-            } catch (Exception cause) {
-                logger.error("Exception for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
-            }
-        });
+        try (Logger logger = Logger.getLogger(env, "eu.eventstorm.event.generator", "CommandJacksonStdDeserializerGeneratorEmbedded")) {
+            this.logger = logger;
+            this.env = env;
+            sourceCode.forEachEmbeddedCommandPackage((pack, list) -> {
+                try {
+                    generate(env, pack, list, sourceCode);
+                } catch (Exception cause) {
+                    logger.error("Exception for [" + pack + "] -> [" + cause.getMessage() + "]", cause);
+                }
+            });
+        }
     }
 
 
@@ -220,23 +228,12 @@ public final class CommandJacksonStdDeserializerGenerator {
 
                 } else {
 
-                    String fcqnTargetSimpleName = fcqnTarget.substring(fcqnTarget.lastIndexOf('.') + 1);
-                    writer.write(cd.fullyQualidiedClassName() + "__" + fcqnTargetSimpleName + "__Builder childBuilder = builder.with" + Helper.firstToUpperCase(cpd.name()) + "();");
-                    writeNewLine(writer);
-                    writer.write("				ctxt.setAttribute(\"" + fcqnTarget + "\", childBuilder);");
-                    writeNewLine(writer);
-                    writer.write("				parser.nextToken();");
-                    writeNewLine(writer);
-                    writer.write("                while (parser.currentToken() != JsonToken.END_ARRAY) {");
-                    writeNewLine(writer);
-                    writer.write("                    if (parser.nextToken() == JsonToken.START_OBJECT) {");
-                    writeNewLine(writer);
-                    writer.write("                        childBuilder.and(ctxt.readValue(parser, " + fcqnTarget + ".class));");
-                    writeNewLine(writer);
-                    writer.write("                    }");
-                    writeNewLine(writer);
-                    writer.write("                }");
-                    writeNewLine(writer);
+                    if (Helper.isEnum(env, fcqnTarget)) {
+                        writeParseListEnum(writer, cd, cpd, fcqnTarget);
+                        //writeParseEnum();
+                    } else {
+                        writeParseList(writer, cd, cpd, fcqnTarget);
+                    }
                 }
 
             } else if (returnType.equals(Map.class.getName() + "<java.lang.String,java.lang.String>")) {
@@ -300,7 +297,18 @@ public final class CommandJacksonStdDeserializerGenerator {
                     } else if (LocalTime.class.getName().equals(returnType)) {
                         writer.write("parseLocalTime(parser.nextTextValue())");
                     } else if (Helper.isEnum(cpd.getter().getReturnType())) {
-                        writer.write(cpd.getter().getReturnType().toString() + ".valueOf(parser.nextTextValue())");
+                        CqrsPropertyFactory factory = cpd.getter().getAnnotation(CqrsPropertyFactory.class);
+                        if (factory == null) {
+                            writer.write(cpd.getter().getReturnType().toString() + ".valueOf(parser.nextTextValue())");
+                        } else {
+                            if (PropertyFactoryType.STRING == factory.type()) {
+                                writer.write(cpd.name().toUpperCase() + "_FACTORY.apply(parser.nextTextValue())");
+                            } else if (PropertyFactoryType.INTEGER == factory.type()) {
+                                writer.write(cpd.name().toUpperCase() + "_FACTORY.apply(parser.nextIntValue(0))");
+                            } else {
+                                writer.write(cpd.name().toUpperCase() + "_FACTORY.apply(parser.nextLongValue(0l))");
+                            }
+                        }
                     } else {
                         throw new UnsupportedOperationException("Type not supported [" + returnType + "]");
                     }
@@ -388,6 +396,43 @@ public final class CommandJacksonStdDeserializerGenerator {
         writer.write("        return builder.build();");
         writeNewLine(writer);
         writer.write("     }");
+        writeNewLine(writer);
+    }
+
+    private void writeParseListEnum(Writer writer, AbstractCommandDescriptor cd, PropertyDescriptor cpd, String fcqnTarget) throws IOException {
+        writer.write(ImmutableList.class.getName() + ".Builder<" + fcqnTarget + "> childBuilder = builder.with" + Helper.firstToUpperCase(cpd.name()) + "();");
+        writeNewLine(writer);
+        writer.write("				ctxt.setAttribute(\"" + fcqnTarget + "\", childBuilder);");
+        writeNewLine(writer);
+        writer.write("				parser.nextToken();");
+        writeNewLine(writer);
+        writer.write("                while (parser.currentToken() != JsonToken.END_ARRAY) {");
+        writeNewLine(writer);
+        writer.write("                    childBuilder.add(" + fcqnTarget + ".valueOf(parser.nextTextValue()));");
+        writeNewLine(writer);
+        writer.write("                    parser.nextToken();");
+        writeNewLine(writer);
+        writer.write("                }");
+        writeNewLine(writer);
+    }
+
+    private void writeParseList(Writer writer, AbstractCommandDescriptor cd, PropertyDescriptor cpd, String fcqnTarget) throws IOException {
+        String fcqnTargetSimpleName = fcqnTarget.substring(fcqnTarget.lastIndexOf('.') + 1);
+        writer.write(cd.fullyQualidiedClassName() + "__" + fcqnTargetSimpleName + "__Builder childBuilder = builder.with" + Helper.firstToUpperCase(cpd.name()) + "();");
+        writeNewLine(writer);
+        writer.write("				ctxt.setAttribute(\"" + fcqnTarget + "\", childBuilder);");
+        writeNewLine(writer);
+        writer.write("				parser.nextToken();");
+        writeNewLine(writer);
+        writer.write("                while (parser.currentToken() != JsonToken.END_ARRAY) {");
+        writeNewLine(writer);
+        writer.write("                    if (parser.nextToken() == JsonToken.START_OBJECT) {");
+        writeNewLine(writer);
+        writer.write("                        childBuilder.and(ctxt.readValue(parser, " + fcqnTarget + ".class));");
+        writeNewLine(writer);
+        writer.write("                    }");
+        writeNewLine(writer);
+        writer.write("                }");
         writeNewLine(writer);
     }
 }

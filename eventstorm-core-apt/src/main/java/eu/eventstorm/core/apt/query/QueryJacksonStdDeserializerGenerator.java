@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import eu.eventstorm.annotation.CqrsQueryPropertyFactory;
+import eu.eventstorm.annotation.CqrsPropertyFactory;
 import eu.eventstorm.core.apt.SourceCode;
 import eu.eventstorm.core.apt.model.QueryDescriptor;
 import eu.eventstorm.core.apt.model.QueryPropertyDescriptor;
@@ -226,7 +226,7 @@ public final class QueryJacksonStdDeserializerGenerator {
                     writeNewLine(writer);
                     writer.write("				" + Jsons.class.getName() + ".ignoreField(parser);");
                 } else if (Helper.isEnum(cpd.getter().getReturnType())) {
-                    CqrsQueryPropertyFactory factory = cpd.getter().getAnnotation(CqrsQueryPropertyFactory.class);
+                    CqrsPropertyFactory factory = cpd.getter().getAnnotation(CqrsPropertyFactory.class);
                     if (factory == null) {
                         writer.write("				builder.with" + Helper.firstToUpperCase(cpd.name()) + "(" + cpd.getter().getReturnType().toString() + ".valueOf(parser.nextTextValue()));");
                     } else {
@@ -282,7 +282,7 @@ public final class QueryJacksonStdDeserializerGenerator {
         writeNewLine(writer);
 
         for (QueryPropertyDescriptor cpd : cd.properties()) {
-            CqrsQueryPropertyFactory factory = cpd.getter().getAnnotation(CqrsQueryPropertyFactory.class);
+            CqrsPropertyFactory factory = cpd.getter().getAnnotation(CqrsPropertyFactory.class);
             if (factory != null) {
                 writer.write("    private static final " + PropertyFactory.class.getName() + "<");
                 if (PropertyFactoryType.INTEGER == factory.type()) {
@@ -373,7 +373,7 @@ public final class QueryJacksonStdDeserializerGenerator {
         writeNewLine(writer);
     }
 
-    private static TypeMirror getFactory(CqrsQueryPropertyFactory factory) {
+    private static TypeMirror getFactory(CqrsPropertyFactory factory) {
         try {
             factory.factory(); // this should throw
         } catch (MirroredTypeException mte) {

@@ -58,16 +58,20 @@ public final class CommandBuilderGenerator {
 
     }
 
-    public void generateEmbeddedCommand(ProcessingEnvironment processingEnvironment, SourceCode sourceCode) {
-        this.env = processingEnvironment;
-        this.code = sourceCode;
-        sourceCode.forEachEmbeddedCommand(t -> {
-            try {
-                generate(processingEnvironment, t);
-            } catch (Exception cause) {
-                logger.error("Exception for [" + t + "] -> [" + cause.getMessage() + "]", cause);
-            }
-        });
+    public void generateEmbeddedCommand(ProcessingEnvironment processingEnv, SourceCode sourceCode) {
+        try (Logger logger = Logger.getLogger(processingEnv, "eu.eventstorm.event.generator", "CommandBuilderGeneratorEmbedded")) {
+            this.logger = logger;
+            this.env = processingEnv;
+            this.code = sourceCode;
+
+            sourceCode.forEachEmbeddedCommand(t -> {
+                try {
+                    generate(processingEnv, t);
+                } catch (Exception cause) {
+                    logger.error("Exception for [" + t + "] -> [" + cause.getMessage() + "]", cause);
+                }
+            });
+        }
     }
 
     private void generate(ProcessingEnvironment env, AbstractCommandDescriptor cd) throws IOException {
@@ -134,6 +138,10 @@ public final class CommandBuilderGenerator {
                 } else if (Helper.isLong(target)) {
                     writer.write(ImmutableList.class.getName());
                     writer.write(".Builder<Long> ");
+                    newInstance = " = " + ImmutableList.class.getName() + ".builder();";
+                } else if (Helper.isEnum(env, target)) {
+                    writer.write(ImmutableList.class.getName());
+                    writer.write(".Builder<" + target + "> ");
                     newInstance = " = " + ImmutableList.class.getName() + ".builder();";
                 } else {
                     String classname = cd.simpleName() + "__" + target.substring(target.lastIndexOf('.') + 1) + "__Builder<" + parent + ">";
@@ -222,11 +230,14 @@ public final class CommandBuilderGenerator {
             } else if (Helper.isLong(subtype)) {
                 newBuilder = ImmutableList.class.getName() + ".Builder<Long>";
                 writer.write(newBuilder);
+            } else if (Helper.isEnum(env, subtype)) {
+                newBuilder = ImmutableList.class.getName() + ".Builder<" + subtype + ">";
+                writer.write(newBuilder);
             } else {
-                newBuilder = map.get(subtype);
+                newBuilder = map.get(cd.simpleName() + "_" + subtype);
                 if (Strings.isEmpty(newBuilder)) {
                     newBuilder = genereteJoinBuilder(cd, cpd, subtype);
-                    map.put(subtype, newBuilder);
+                    map.put(cd.simpleName() + "_" + subtype, newBuilder);
                 }
                 writer.write(newBuilder);
                 writer.write("<" + returnType);
@@ -314,41 +325,29 @@ public final class CommandBuilderGenerator {
 
                 if (type.startsWith("java.util.List")) {
 
-                    String target2 = type.substring(15, type.length() - 1);
-                    String classname2 = ecd.simpleName() + "__" + target2.substring(target.lastIndexOf('.') + 1) + "__Builder<" + classname + "<T>>";
+                    String subType = type.substring(15, type.length() - 1);
+                    String classname2;
 
+                    if (Helper.isString(subType)) {
+                        classname2 = ImmutableList.class.getName() + ".Builder<String>";
+                    } else if (Helper.isInteger(subType)) {
+                        classname2 = ImmutableList.class.getName() + ".Builder<Integer>";
+                    } else if (Helper.isLong(subType)) {
+                        classname2 = ImmutableList.class.getName() + ".Builder<Long>";
+                    } else if (Helper.isEnum(env, subType)) {
+                        classname2 = ImmutableList.class.getName() + ".Builder<" + subType + ">";
+                    } else {
+                        classname2 = ecd.simpleName() + "__" + subType.substring(target.lastIndexOf('.') + 1) + "__Builder<" + classname + "<T>>";
+                    }
                     writer.write("    public " + classname2 + " with");
                     writer.write(Helper.firstToUpperCase(ppd.name()));
                     writer.write("(");
-//		        	writer.write(type);
-//			    	writer.write(' ');
-//			        writer.write(ppd.variable());
                     writer.write(") {");
                     writeNewLine(writer);
-//			        writer.write("        this." + ppd.variable() + "$$ = " + ppd.variable() + ";");
-//			        writeNewLine(writer);
                     writer.write("        return this." + ppd.variable() + "$$;");
                     writeNewLine(writer);
                     writer.write("    }");
                     writeNewLine(writer);
-
-
-//	            	writer.write(classname);
-//		        	
-//		            
-//		        	writer.write("    public ***************");
-//		        	writeNewLine(writer);
-//		        	
-//		        	writer.write("    public ***************");
-//		        	writeNewLine(writer);
-//		        	
-//		        	writer.write("    " + type);
-//		        	writeNewLine(writer);
-//		        	writer.write("    " + ppd);
-//		        	writeNewLine(writer);
-//		        	
-//		        	writer.write("    public ***************");
-//		        	writeNewLine(writer);
 
 
                 } else {

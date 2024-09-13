@@ -228,7 +228,13 @@ public final class CommandJacksonStdSerializerGenerator {
 
             if (!Helper.isPrimitiveType(type)) {
                 // check if null ...
-                writer.write("        if (null != pojo." + propertyDescriptor.getter().getSimpleName() + "())");
+                writer.write("        if ((null != pojo." + propertyDescriptor.getter().getSimpleName() + "())");
+
+                if (propertyDescriptor.getter().getReturnType().toString().startsWith("java.util.List")) {
+                    writer.write(" && (!pojo." + propertyDescriptor.getter().getSimpleName() + "().isEmpty()) ");
+                }
+
+                writer.write(")");
                 writeNewLine(writer);
                 writer.write("    ");
             }
