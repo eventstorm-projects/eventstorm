@@ -1,4 +1,4 @@
-package eu.eventstorm.core.apt.query;
+package eu.eventstorm.core.apt.query.db;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -35,7 +35,7 @@ import static eu.eventstorm.sql.apt.Helper.writePackage;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-public final class SqlPageRequestDescriptorGenerator {
+public final class PageRequestDatabaseDescriptorGenerator {
 
     private Logger logger;
 
@@ -114,7 +114,7 @@ public final class SqlPageRequestDescriptorGenerator {
         writer.write("import " + descriptor.fullyQualidiedClassName() + ";");
         writeNewLine(writer);
 
-        writeGenerated(writer, SqlPageRequestDescriptorGenerator.class.getName());
+        writeGenerated(writer, PageRequestDatabaseDescriptorGenerator.class.getName());
         writer.write("@SuppressWarnings(\"serial\")");
         writeNewLine(writer);
         writer.write("public final class " + descriptor.simpleName() + "SqlPageRequestDescriptor implements SqlPageRequestDescriptor {");

@@ -28,7 +28,6 @@
 				<configuration>
 					<source>${maven.compiler.source}</source>
 					<target>${maven.compiler.target}</target>
-					<forceJavacCompilerUse>true</forceJavacCompilerUse>
 					<encoding>UTF-8</encoding>
 					<fork>true</fork>
 					<proc>none</proc>

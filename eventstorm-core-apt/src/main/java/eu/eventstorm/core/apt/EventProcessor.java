@@ -46,19 +46,21 @@ import eu.eventstorm.core.apt.model.QueryClientDescriptor;
 import eu.eventstorm.core.apt.model.QueryClientServiceDescriptor;
 import eu.eventstorm.core.apt.model.RestControllerDescriptor;
 import eu.eventstorm.core.apt.model.SagaCommandDescriptor;
-import eu.eventstorm.core.apt.query.PageQueryDescriptorsGenerator;
+import eu.eventstorm.core.apt.query.db.QueryDatabasePageDescriptorsGenerator;
 import eu.eventstorm.core.apt.query.QueryBuilderGenerator;
 import eu.eventstorm.core.apt.query.QueryImplementationGenerator;
 import eu.eventstorm.core.apt.query.QueryJacksonModuleGenerator;
 import eu.eventstorm.core.apt.query.QueryJacksonStdDeserializerGenerator;
 import eu.eventstorm.core.apt.query.QueryJacksonStdSerializerGenerator;
-import eu.eventstorm.core.apt.query.SqlPageRequestDescriptorGenerator;
+import eu.eventstorm.core.apt.query.db.PageRequestDatabaseDescriptorGenerator;
 import eu.eventstorm.core.apt.query.client.QueryClientGeneratorFacade;
 import eu.eventstorm.core.apt.query.db.QueryDatabaseDescriptorGenerator;
 import eu.eventstorm.core.apt.query.db.QueryDatabaseMapperFactoryGenerator;
 import eu.eventstorm.core.apt.query.db.QueryDatabaseMapperGenerator;
 import eu.eventstorm.core.apt.query.db.QueryDatabaseModuleGenerator;
 import eu.eventstorm.core.apt.query.els.ElasticIndexDefinitionGenerator;
+import eu.eventstorm.core.apt.query.els.ElasticPageQueryDescriptorsGenerator;
+import eu.eventstorm.core.apt.query.els.ElasticPageRequestDescriptorGenerator;
 import eu.eventstorm.core.apt.query.els.ElasticRepositoryGenerator;
 import eu.eventstorm.core.apt.spring.SpringConfigurationGenerator;
 import eu.eventstorm.sql.annotation.Table;
@@ -279,6 +281,8 @@ public class EventProcessor extends AbstractProcessor {
         //  Query / ELS
         new ElasticIndexDefinitionGenerator().generate(processingEnv, sourceCode);
         new ElasticRepositoryGenerator().generate(processingEnv, sourceCode);
+        new ElasticPageQueryDescriptorsGenerator().generate(processingEnv, sourceCode);
+        new ElasticPageRequestDescriptorGenerator().generate(processingEnv, sourceCode);
 
         // Query / Database View and Table
         new QueryDatabaseDescriptorGenerator().generate(processingEnv, sourceCode);
@@ -290,8 +294,8 @@ public class EventProcessor extends AbstractProcessor {
         new QueryJacksonStdSerializerGenerator().generate(processingEnv, sourceCode);
         new QueryJacksonStdDeserializerGenerator().generate(processingEnv, sourceCode);
         new QueryJacksonModuleGenerator().generate(processingEnv, sourceCode);
-        new SqlPageRequestDescriptorGenerator().generate(processingEnv, sourceCode);
-        new PageQueryDescriptorsGenerator().generate(processingEnv, sourceCode);
+        new PageRequestDatabaseDescriptorGenerator().generate(processingEnv, sourceCode);
+        new QueryDatabasePageDescriptorsGenerator().generate(processingEnv, sourceCode);
 
         // Query Client
         QueryClientGeneratorFacade.generate(processingEnv, sourceCode);

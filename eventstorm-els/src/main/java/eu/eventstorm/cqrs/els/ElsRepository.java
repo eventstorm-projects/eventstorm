@@ -2,15 +2,21 @@ package eu.eventstorm.cqrs.els;
 
 import co.elastic.clients.elasticsearch.ElasticsearchAsyncClient;
 import co.elastic.clients.elasticsearch._types.Refresh;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch.core.IndexResponse;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.UpdateRequest;
 import co.elastic.clients.elasticsearch.core.UpdateResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
+import eu.eventstorm.cqrs.els.page.ElsEvaluatorDefinition;
+import eu.eventstorm.page.FilterVisitor;
 import eu.eventstorm.page.Page;
 import eu.eventstorm.page.PageImpl;
 import eu.eventstorm.page.PageRequest;
 import eu.eventstorm.page.Range;
+import eu.eventstorm.page.SinglePropertyFilter;
+import eu.eventstorm.sql.page.SingleSqlEvaluator;
+import eu.eventstorm.sql.page.SqlPageRequestDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
@@ -94,15 +100,26 @@ public abstract class ElsRepository {
 
     protected final <T> Mono<Page<T>> doSelectPage(String index, PageRequest pageRequest, Class<T> clazz) {
 
-        SearchRequest request = new SearchRequest.Builder()
+        Query.Builder queryBuilder = new Query.Builder();
+
+
+        pageRequest.getFilter().accept(new FilterVisitor() {
+            @Override
+            public void visit(SinglePropertyFilter filter) {
+                queryBuilder.match(t -> t.field(filter.getProperty()).query(filter.getValues().get(0)));
+            }
+        });
+
+        SearchRequest.Builder builder = new SearchRequest.Builder()
                 .index(index(index))
-                // TODO
-                //.query(pageRequest.getFilter().getBuilder())
+                .query(queryBuilder.build())
                 .size(pageRequest.getSize())
                 .from(pageRequest.getOffset())
-                .build();
+                ;
 
-        return Mono.fromFuture(this.elasticsearchAsyncClient.search(request, clazz))
+
+
+        return Mono.fromFuture(this.elasticsearchAsyncClient.search(builder.build(), clazz))
                 .map(response -> {
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug("executeSelectPage -> find count=[{}]", response.hits().total().value());

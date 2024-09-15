@@ -38,7 +38,7 @@
 
         <dependency>
             <groupId>eu.eventstorm</groupId>
-            <artifactId>eventstorm-page</artifactId>
+            <artifactId>eventstorm-cqrs</artifactId>
             <version>${project.version}</version>
         </dependency>
 

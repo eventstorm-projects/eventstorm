@@ -1,10 +1,9 @@
-package eu.eventstorm.core.apt.query;
+package eu.eventstorm.core.apt.query.els;
 
 import com.google.common.collect.ImmutableMap;
 import eu.eventstorm.core.apt.SourceCode;
 import eu.eventstorm.cqrs.PageQueryDescriptor;
 import eu.eventstorm.cqrs.PageQueryDescriptors;
-import eu.eventstorm.cqrs.web.SqlPageQueryDescriptor;
 import eu.eventstorm.sql.apt.log.Logger;
 
 import javax.annotation.processing.ProcessingEnvironment;
@@ -20,18 +19,18 @@ import static eu.eventstorm.sql.apt.Helper.writePackage;
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-public final class PageQueryDescriptorsGenerator {
+public final class ElasticPageQueryDescriptorsGenerator {
 
     private Logger logger;
 
-    public PageQueryDescriptorsGenerator() {
+    public ElasticPageQueryDescriptorsGenerator() {
     }
 
     public void generate(ProcessingEnvironment env, SourceCode sourceCode) {
-        try (Logger logger = Logger.getLogger(env, "eu.eventstorm.event.query", "PageQueryDescriptorsGenerator")) {
+        try (Logger logger = Logger.getLogger(env, "eu.eventstorm.event.query.els", "PageQueryDescriptorsGenerator")) {
             this.logger = logger;
 
-            String fcqn = sourceCode.getCqrsConfiguration().basePackage() + ".EventstormPageQueryDescriptors";
+            String fcqn = sourceCode.getCqrsConfiguration().basePackage() + ".EventstormElsPageQueryDescriptors";
 
             // check due to "org.aspectj.org.eclipse.jdt.internal.compiler.apt.dispatch.BatchFilerImpl.createSourceFile(BatchFilerImpl.java:149)"
             if (env.getElementUtils().getTypeElement(fcqn) != null) {
@@ -40,12 +39,14 @@ public final class PageQueryDescriptorsGenerator {
             }
 
             AtomicInteger counter = new AtomicInteger(0);
-            sourceCode.forEachDatabaseViewQuery(item -> counter.incrementAndGet());
-            sourceCode.forEachDatabaseTableQuery(item -> counter.incrementAndGet());
+            sourceCode.forEachElasticSearchQuery(item -> counter.incrementAndGet());
 
             if (counter.get() == 0) {
-                logger.info("No Database Queries found => skip");
+                logger.info("No ELS Queries found => skip");
                 return;
+            } else {
+                logger.info("ELS Queries found => [" + counter.get() + "]");
+
             }
 
             try {
@@ -72,21 +73,19 @@ public final class PageQueryDescriptorsGenerator {
     private static void writeHeader(Writer writer, String pack) throws IOException {
         writePackage(writer, pack);
 
-
         writer.write("import " + ImmutableMap.class.getName() + ";");
         writeNewLine(writer);
         writer.write("import " + PageQueryDescriptor.class.getName() + ";");
         writeNewLine(writer);
         writer.write("import " + PageQueryDescriptors.class.getName() + ";");
         writeNewLine(writer);
-        writer.write("import " + SqlPageQueryDescriptor.class.getName() + ";");
+        writer.write("import eu.eventstorm.cqrs.els.page.ElsPageQueryDescriptor;");
         writeNewLine(writer);
 
-
-        writeGenerated(writer, PageQueryDescriptorsGenerator.class.getName());
+        writeGenerated(writer, ElasticPageQueryDescriptorsGenerator.class.getName());
         writer.write("@SuppressWarnings(\"serial\")");
         writeNewLine(writer);
-        writer.write("final class EventstormPageQueryDescriptors implements PageQueryDescriptors {");
+        writer.write("final class EventstormElsPageQueryDescriptors implements PageQueryDescriptors {");
         writeNewLine(writer);
     }
 
@@ -97,19 +96,10 @@ public final class PageQueryDescriptorsGenerator {
         writer.write("    private static final ImmutableMap<String, PageQueryDescriptor> DESCRIPTORS = ImmutableMap.<String, PageQueryDescriptor>builder() ");
         writeNewLine(writer);
 
-        sourceCode.forEachDatabaseViewQuery(query -> {
+        sourceCode.forEachElasticSearchQuery(query -> {
             try {
-                writer.write("        .put(\"" + query.fullyQualidiedClassName() + "\", new SqlPageQueryDescriptor(");
-                writer.write("\n            new " + query.fullyQualidiedClassName() + "SqlPageRequestDescriptor()))");
-                writeNewLine(writer);
-            } catch (IOException cause) {
-                logger.error("failed to generate [" + query + "]", cause);
-            }
-        });
-        sourceCode.forEachDatabaseTableQuery(query -> {
-            try {
-                writer.write("        .put(\"" + query.fullyQualidiedClassName() + "\", new SqlPageQueryDescriptor(");
-                writer.write("\n            new " + query.fullyQualidiedClassName() + "SqlPageRequestDescriptor()))");
+                writer.write("        .put(\"" + query.fullyQualidiedClassName() + "\", new ElsPageQueryDescriptor(");
+                writer.write("\n            new " + query.fullyQualidiedClassName() + "ElsPageRequestDescriptor()))");
                 writeNewLine(writer);
             } catch (IOException cause) {
                 logger.error("failed to generate [" + query + "]", cause);

@@ -131,33 +131,60 @@ public final class SpringConfigurationGenerator {
 
     private void writeQueryDescriptor(Writer writer, SourceCode sourceCode) {
 
+        // database query
         AtomicInteger counter = new AtomicInteger(0);
         sourceCode.forEachDatabaseViewQuery(dq -> counter.incrementAndGet());
         sourceCode.forEachDatabaseTableQuery(dq -> counter.incrementAndGet());
-        if (counter.get() == 0) {
-            return;
+        if (counter.get() > 0) {
+            String suffix;
+            if (!Strings.isEmpty(sourceCode.getCqrsConfiguration().id())) {
+                suffix = "_" + sourceCode.getCqrsConfiguration().id();
+            } else {
+                suffix = "";
+            }
+
+            try {
+                writeNewLine(writer);
+                writer.write("    @Bean");
+                writeNewLine(writer);
+                writer.write("    " + PageQueryDescriptors.class.getName() + " databasePageQueryDescriptors" + suffix + "() {");
+                writeNewLine(writer);
+                writer.write("       return new EventstormPageQueryDescriptors();");
+                writeNewLine(writer);
+                writer.write("    }");
+                writeNewLine(writer);
+
+            } catch (Exception cause) {
+                logger.error("Exception for [writeQueryDescriptor] -> [" + cause.getMessage() + "]", cause);
+            }
         }
 
-        String suffix;
-        if (!Strings.isEmpty(sourceCode.getCqrsConfiguration().id())) {
-            suffix = "_" + sourceCode.getCqrsConfiguration().id();
-        } else {
-            suffix = "";
-        }
 
-        try {
-            writeNewLine(writer);
-            writer.write("    @Bean");
-            writeNewLine(writer);
-            writer.write("    " + PageQueryDescriptors.class.getName() + " pageQueryDescriptors" + suffix + "() {");
-            writeNewLine(writer);
-            writer.write("       return new EventstormPageQueryDescriptors();");
-            writeNewLine(writer);
-            writer.write("    }");
-            writeNewLine(writer);
+        // els query
+        counter.set(0);
+        sourceCode.forEachElasticSearchQuery(ep -> counter.incrementAndGet());
+        if (counter.get() > 0) {
+            String suffix;
+            if (!Strings.isEmpty(sourceCode.getCqrsConfiguration().id())) {
+                suffix = "_" + sourceCode.getCqrsConfiguration().id();
+            } else {
+                suffix = "";
+            }
 
-        } catch (Exception cause) {
-            logger.error("Exception for [writeQueryDescriptor] -> [" + cause.getMessage() + "]", cause);
+            try {
+                writeNewLine(writer);
+                writer.write("    @Bean");
+                writeNewLine(writer);
+                writer.write("    " + PageQueryDescriptors.class.getName() + " elsPageQueryDescriptors" + suffix + "() {");
+                writeNewLine(writer);
+                writer.write("       return new EventstormElsPageQueryDescriptors();");
+                writeNewLine(writer);
+                writer.write("    }");
+                writeNewLine(writer);
+
+            } catch (Exception cause) {
+                logger.error("Exception for [writeQueryDescriptor] -> [" + cause.getMessage() + "]", cause);
+            }
         }
     }
 
