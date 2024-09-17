@@ -8,16 +8,12 @@ import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.UpdateRequest;
 import co.elastic.clients.elasticsearch.core.UpdateResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
-import eu.eventstorm.cqrs.els.page.ElsEvaluatorDefinition;
+import co.elastic.clients.json.JsonpUtils;
 import eu.eventstorm.cqrs.els.page.ElsFilterVisitor;
-import eu.eventstorm.page.FilterVisitor;
 import eu.eventstorm.page.Page;
 import eu.eventstorm.page.PageImpl;
 import eu.eventstorm.page.PageRequest;
 import eu.eventstorm.page.Range;
-import eu.eventstorm.page.SinglePropertyFilter;
-import eu.eventstorm.sql.page.SingleSqlEvaluator;
-import eu.eventstorm.sql.page.SqlPageRequestDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
@@ -110,12 +106,15 @@ public abstract class ElsRepository {
                 .index(index(index))
                 .query(queryBuilder.build())
                 .size(pageRequest.getSize())
-                .from(pageRequest.getOffset())
-                ;
+                .from(pageRequest.getOffset());
 
+        SearchRequest request = builder.build();
 
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("executeSelectPage -> query =[{}]", JsonpUtils.toString(request));
+        }
 
-        return Mono.fromFuture(this.elasticsearchAsyncClient.search(builder.build(), clazz))
+        return Mono.fromFuture(this.elasticsearchAsyncClient.search(request, clazz))
                 .map(response -> {
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug("executeSelectPage -> find count=[{}]", response.hits().total().value());
