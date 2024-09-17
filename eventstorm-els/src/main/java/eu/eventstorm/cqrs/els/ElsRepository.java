@@ -9,6 +9,7 @@ import co.elastic.clients.elasticsearch.core.UpdateRequest;
 import co.elastic.clients.elasticsearch.core.UpdateResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import eu.eventstorm.cqrs.els.page.ElsEvaluatorDefinition;
+import eu.eventstorm.cqrs.els.page.ElsFilterVisitor;
 import eu.eventstorm.page.FilterVisitor;
 import eu.eventstorm.page.Page;
 import eu.eventstorm.page.PageImpl;
@@ -102,13 +103,8 @@ public abstract class ElsRepository {
 
         Query.Builder queryBuilder = new Query.Builder();
 
-
-        pageRequest.getFilter().accept(new FilterVisitor() {
-            @Override
-            public void visit(SinglePropertyFilter filter) {
-                queryBuilder.match(t -> t.field(filter.getProperty()).query(filter.getValues().get(0)));
-            }
-        });
+        ElsFilterVisitor visitor = new ElsFilterVisitor(queryBuilder);
+        pageRequest.getFilter().accept(visitor);
 
         SearchRequest.Builder builder = new SearchRequest.Builder()
                 .index(index(index))
