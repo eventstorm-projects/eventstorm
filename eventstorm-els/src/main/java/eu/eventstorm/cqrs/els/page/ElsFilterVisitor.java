@@ -1,6 +1,8 @@
 package eu.eventstorm.cqrs.els.page;
 
 import co.elastic.clients.elasticsearch._types.FieldValue;
+import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.MatchQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch._types.query_dsl.TermsQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.TermsQueryField;
@@ -28,6 +30,7 @@ public final class ElsFilterVisitor implements FilterVisitor {
     static {
         EXPRESSIONS = ImmutableMap.<Operator, BiConsumer<Query.Builder, SinglePropertyFilter>>builder()
                 .put(Operator.IN, (builder, filter) -> {
+
                     TermsQueryField termsQueryField;
                     if (!filter.getValues().isEmpty()) {
                         termsQueryField = new TermsQueryField.Builder()
@@ -43,17 +46,25 @@ public final class ElsFilterVisitor implements FilterVisitor {
                     }
 
                     TermsQuery termsQuery = new TermsQuery.Builder()
-                            .field(filter.getProperty())
+                            .field(filter.getProperty()+".keyword")
                             .terms(termsQueryField)
                             .build();
 
                     builder.terms(termsQuery);
+                })
+                .put(Operator.CONTAINS, (builder, filter) -> {
+                    MatchQuery matchQuery = new MatchQuery.Builder()
+                            .field(filter.getProperty())
+                            .query(filter.getRaw().substring(1, filter.getRaw().length() - 1))
+                            .build();
+                    builder.match(matchQuery);
                 })
                 .build();
     }
 
 
     private final Query.Builder builder;
+
 
     public ElsFilterVisitor(Query.Builder builder) {
         this.builder = builder;
@@ -73,8 +84,8 @@ public final class ElsFilterVisitor implements FilterVisitor {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("visitBegin - AndFilter [{}]", filter);
         }
+        BoolQuery.Builder boolQuery = new BoolQuery.Builder();
 
-        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
@@ -106,7 +117,7 @@ public final class ElsFilterVisitor implements FilterVisitor {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("visitBegin [{}]", filter);
         }
-        throw new UnsupportedOperationException("not implemented");
+
     }
 
     @Override
@@ -114,6 +125,6 @@ public final class ElsFilterVisitor implements FilterVisitor {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("visitEnd [{}]", filter);
         }
-        throw new UnsupportedOperationException("not implemented");
+
     }
 }
