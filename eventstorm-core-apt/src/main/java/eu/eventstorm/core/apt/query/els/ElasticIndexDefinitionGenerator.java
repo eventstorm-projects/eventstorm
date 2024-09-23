@@ -1,6 +1,10 @@
 package eu.eventstorm.core.apt.query.els;
 
+import eu.eventstorm.annotation.els.Date;
+import eu.eventstorm.annotation.els.Id;
 import eu.eventstorm.annotation.els.Keyword;
+import eu.eventstorm.annotation.els.Nested;
+import eu.eventstorm.annotation.els.Number;
 import eu.eventstorm.annotation.els.Text;
 import eu.eventstorm.core.apt.SourceCode;
 import eu.eventstorm.core.apt.model.ElsQueryDescriptor;
@@ -54,11 +58,16 @@ public final class ElasticIndexDefinitionGenerator {
 
         writer.write("{");
         writeNewLine(writer);
-        writer.write("  \"dynamic\": \"STRICT\",");
+        writer.write("  \"mappings\": {");
         writeNewLine(writer);
+        writer.write("    \"dynamic\": \"false\",");
+        writeNewLine(writer);
+
 
         appendProperties(writer, descriptor);
 
+        writer.write("  }");
+        writeNewLine(writer);
         writer.write("}");
         writer.close();
 
@@ -66,52 +75,76 @@ public final class ElasticIndexDefinitionGenerator {
 
     private void appendProperties(Writer writer, ElsQueryDescriptor descriptor) throws IOException {
 
-        writer.write("  \"properties\": {");
+        writer.write("    \"properties\": {");
         writeNewLine(writer);
 
         for (int i = 0; i < descriptor.properties().size(); i++) {
             QueryPropertyDescriptor qpd = descriptor.properties().get(i);
-            writer.write("    \"" + qpd.name() + "\" : {");
+            writer.write("      \"" + qpd.name() + "\": {");
             writeNewLine(writer);
-            //writer.write("         \"type\" : " + qpd.name() + "\" : {");
-
-            writePropertyKeyword(writer, qpd);
-            writePropertyText(writer, qpd);
-
+            writeProperty(writer, qpd);
             writeNewLine(writer);
-            writer.write("    }");
-            
+            writer.write("      }");
 
             if (i + 1 < descriptor.properties().size()) {
                 writer.write(",");
-                writeNewLine(writer);
             }
             writeNewLine(writer);
-//			"original_language": {
-//			"type": "keyword"
-//		},
         }
 
-        writer.write("  }");
+        writer.write("    }");
+        writeNewLine(writer);
+
 
     }
 
-    private void writePropertyKeyword(Writer writer, QueryPropertyDescriptor propertyDescriptor) throws IOException {
+    private void writeProperty(Writer writer, QueryPropertyDescriptor propertyDescriptor) throws IOException {
         Keyword keyword = propertyDescriptor.getter().getAnnotation(Keyword.class);
-        if (keyword == null) {
+        if (keyword != null) {
+            writer.write("        \"type\": \"text\",");
+            writeNewLine(writer);
+            writer.write("        \"fields\": {");
+            writeNewLine(writer);
+            writer.write("          \"keyword\": {");
+            writeNewLine(writer);
+
+            writer.write("            \"type\": \"keyword\",");
+            writeNewLine(writer);
+            writer.write("            \"ignore_above\": 256");
+            writeNewLine(writer);
+            writer.write("          }");
+            writeNewLine(writer);
+            writer.write("        }");
+
             return;
         }
-        writer.write("      \"type\" : \"keyword\"");
-
-    }
-
-    private void writePropertyText(Writer writer, QueryPropertyDescriptor propertyDescriptor) throws IOException {
         Text text = propertyDescriptor.getter().getAnnotation(Text.class);
-        if (text == null) {
+        if (text != null) {
+            writer.write("        \"type\": \"text\"");
             return;
         }
-        writer.write("      \"type\" : \"keyword\"");
+        Number number = propertyDescriptor.getter().getAnnotation(Number.class);
+        if (number != null) {
+            writer.write("        \"type\": \"" + number.type().getValue() + "\"");
+            return;
+        }
+        Nested nested = propertyDescriptor.getter().getAnnotation(Nested.class);
+        if (nested != null) {
+            writer.write("        \"dynamic\": \"true\",");
+            writeNewLine(writer);
+            writer.write("        \"type\": \"nested\"");
+            return;
+        }
+        Id id = propertyDescriptor.getter().getAnnotation(Id.class);
+        if (id != null) {
+            writer.write("        \"type\": \"keyword\"");
+            return;
+        }
+        Date date = propertyDescriptor.getter().getAnnotation(Date.class);
+        if (date != null) {
+            writer.write("        \"type\": \"date\"");
+            return;
+        }
     }
-
 
 }

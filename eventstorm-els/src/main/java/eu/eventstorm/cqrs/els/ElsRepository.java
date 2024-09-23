@@ -97,14 +97,12 @@ public abstract class ElsRepository {
 
     protected final <T> Mono<Page<T>> doSelectPage(String index, PageRequest pageRequest, Class<T> clazz) {
 
-        Query.Builder queryBuilder = new Query.Builder();
-
-        ElsFilterVisitor visitor = new ElsFilterVisitor(queryBuilder);
+        ElsFilterVisitor visitor = new ElsFilterVisitor();
         pageRequest.getFilter().accept(visitor);
 
         SearchRequest.Builder builder = new SearchRequest.Builder()
                 .index(index(index))
-                .query(queryBuilder.build())
+                .query(visitor.getQuery())
                 .size(pageRequest.getSize())
                 .from(pageRequest.getOffset());
 

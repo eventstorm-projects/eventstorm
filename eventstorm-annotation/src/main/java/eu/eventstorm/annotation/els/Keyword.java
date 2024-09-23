@@ -9,7 +9,7 @@ import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 /**
- * https://www.elastic.co/guide/en/elasticsearch/reference/current/date.html
+ * https://www.elastic.co/guide/en/elasticsearch/reference/current/keyword.html
  *
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */

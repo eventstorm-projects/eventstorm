@@ -16,7 +16,7 @@ import eu.eventstorm.page.SinglePropertyFilter;
 import org.slf4j.Logger;
 
 import java.util.Arrays;
-import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -25,11 +25,11 @@ public final class ElsFilterVisitor implements FilterVisitor {
 
     private static final Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ElsFilterVisitor.class);
 
-    private static final ImmutableMap<Operator, BiConsumer<Query.Builder, SinglePropertyFilter>> EXPRESSIONS;
+    private static final ImmutableMap<Operator, Function<SinglePropertyFilter, Query>> EXPRESSIONS;
 
     static {
-        EXPRESSIONS = ImmutableMap.<Operator, BiConsumer<Query.Builder, SinglePropertyFilter>>builder()
-                .put(Operator.IN, (builder, filter) -> {
+        EXPRESSIONS = ImmutableMap.<Operator, Function<SinglePropertyFilter, Query>>builder()
+                .put(Operator.IN, filter -> {
 
                     TermsQueryField termsQueryField;
                     if (!filter.getValues().isEmpty()) {
@@ -45,29 +45,29 @@ public final class ElsFilterVisitor implements FilterVisitor {
                                 .build();
                     }
 
-                    TermsQuery termsQuery = new TermsQuery.Builder()
-                            .field(filter.getProperty()+".keyword")
+                    return new TermsQuery.Builder()
+                            .field(filter.getProperty() + ".keyword")
                             .terms(termsQueryField)
-                            .build();
+                            .build()
+                            ._toQuery();
 
-                    builder.terms(termsQuery);
                 })
-                .put(Operator.CONTAINS, (builder, filter) -> {
-                    MatchQuery matchQuery = new MatchQuery.Builder()
+                .put(Operator.CONTAINS, filter -> {
+                    return new MatchQuery.Builder()
                             .field(filter.getProperty())
                             .query(filter.getRaw().substring(1, filter.getRaw().length() - 1))
-                            .build();
-                    builder.match(matchQuery);
+                            .build()
+                            ._toQuery();
                 })
                 .build();
     }
 
+    private Query query;
 
-    private final Query.Builder builder;
+    private BoolQuery.Builder boolQuery;
 
 
-    public ElsFilterVisitor(Query.Builder builder) {
-        this.builder = builder;
+    public ElsFilterVisitor() {
     }
 
     @Override
@@ -75,8 +75,12 @@ public final class ElsFilterVisitor implements FilterVisitor {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("visitSinglePropertyFilter [{}]", filter);
         }
-
-        EXPRESSIONS.get(filter.getOperator()).accept(builder, filter);
+        Query query = EXPRESSIONS.get(filter.getOperator()).apply(filter);
+        if (boolQuery != null) {
+            boolQuery.must(query);
+        } else {
+            this.query = query;;
+        }
     }
 
     @Override
@@ -84,8 +88,7 @@ public final class ElsFilterVisitor implements FilterVisitor {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("visitBegin - AndFilter [{}]", filter);
         }
-        BoolQuery.Builder boolQuery = new BoolQuery.Builder();
-
+        boolQuery = new BoolQuery.Builder();
     }
 
     @Override
@@ -93,8 +96,8 @@ public final class ElsFilterVisitor implements FilterVisitor {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("visitEnd [{}]", filter);
         }
+        query = boolQuery.build()._toQuery();
 
-        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
@@ -126,5 +129,9 @@ public final class ElsFilterVisitor implements FilterVisitor {
             LOGGER.debug("visitEnd [{}]", filter);
         }
 
+    }
+
+    public Query getQuery() {
+        return query;
     }
 }
