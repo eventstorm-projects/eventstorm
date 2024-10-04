@@ -5,6 +5,7 @@ import eu.eventstorm.sql.annotation.PrimaryKey;
 import eu.eventstorm.sql.type.Json;
 import eu.eventstorm.sql.type.Xml;
 
+import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
@@ -93,6 +94,9 @@ final class DatabaseDialectPostgres implements DatabaseDialect {
 			return "CLOB";
 		}
 
+		if (BigDecimal.class.getName().equals(javaType)) {
+			return "NUMERIC";
+		}
 
 		//LoggerFactory.getInstance().getLogger(FlywayDialectPostgres.class).error("No sql type for java type [" + javaType + "]");
 		return null;

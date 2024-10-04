@@ -5,6 +5,7 @@ import eu.eventstorm.sql.annotation.PrimaryKey;
 import eu.eventstorm.sql.type.Json;
 import eu.eventstorm.sql.type.Xml;
 
+import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
@@ -91,8 +92,11 @@ final class DatabaseDialectH2 implements DatabaseDialect {
 		if (Xml.class.getName().equals(javaType) || Clob.class.getName().equals(javaType)) {
 			return "CLOB";
 		}
-		
-		//LoggerFactory.getInstance().getLogger(FlywayDialectH2.class).error("No sql type for java type [" + javaType + "]");
+
+		if (BigDecimal.class.getName().equals(javaType)) {
+			return "DECFLOAT";
+		}
+
 		return null;
 	}
 

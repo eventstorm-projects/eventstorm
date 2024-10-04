@@ -2,6 +2,7 @@ package eu.eventstorm.sql.apt;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.math.BigDecimal;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ExecutableElement;
@@ -231,6 +232,10 @@ public final class Helper {
 			return "setTimestamp";
 		}
 
+		if ("java.sql.BigDecimal".equals(type)) {
+			return "setBigDecimal";
+		}
+
 		if ("byte[]".equals(type)) {
 			return "setBytes";
 		}
@@ -291,6 +296,10 @@ public final class Helper {
 		if ("java.sql.Clob".equals(type)) {
 			return "getClob";
 		}
+
+		if ("java.math.BigDecimal".equals(type)) {
+			return "getBigDecimal";
+		}
 		
 		if (Json.class.getName().equals(type)) {
 			return "getString";
@@ -339,6 +348,10 @@ public final class Helper {
 
 		if ("java.lang.Boolean".equals(type)) {
 			return "java.sql.Types.BOOLEAN";
+		}
+
+		if ("java.math.BigDecimal".equals(type)) {
+			return "java.sql.Types.NUMERIC";
 		}
 
 		if ("eu.eventstorm.sql.type.Xml".equals(type)) {
