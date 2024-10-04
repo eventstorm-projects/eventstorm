@@ -232,7 +232,7 @@ public final class Helper {
 			return "setTimestamp";
 		}
 
-		if ("java.sql.BigDecimal".equals(type)) {
+		if ("java.math.BigDecimal".equals(type)) {
 			return "setBigDecimal";
 		}
 
