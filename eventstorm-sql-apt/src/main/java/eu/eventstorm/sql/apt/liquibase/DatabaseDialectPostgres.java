@@ -7,6 +7,7 @@ import eu.eventstorm.sql.apt.log.Logger;
 import eu.eventstorm.sql.type.Json;
 import eu.eventstorm.sql.type.Xml;
 
+import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
@@ -110,6 +111,10 @@ final class DatabaseDialectPostgres implements DatabaseDialect {
 
         if ("int[]".equals(javaType) || "java.lang.Integer[]".equals(javaType)) {
             return "int4[]";
+        }
+
+        if (BigDecimal.class.getName().equals(javaType)) {
+            return "NUMERIC";
         }
 
         logger.error("No sql type for java type [" + javaType + "]");

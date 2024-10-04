@@ -7,6 +7,7 @@ import eu.eventstorm.sql.apt.log.Logger;
 import eu.eventstorm.sql.type.Json;
 import eu.eventstorm.sql.type.Xml;
 
+import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
@@ -101,6 +102,10 @@ final class DatabaseDialectH2 implements DatabaseDialect {
 		
 		if (Xml.class.getName().equals(javaType) || Clob.class.getName().equals(javaType)) {
 			return "CLOB";
+		}
+
+		if (BigDecimal.class.getName().equals(javaType)) {
+			return "DECFLOAT";
 		}
 
 		if ("long[]".equals(javaType) || "java.lang.Long[]".equals(javaType)) {

@@ -225,6 +225,10 @@ public final class Helper {
             return "setTimestamp";
         }
 
+        if ("java.math.BigDecimal".equals(type)) {
+            return "setBigDecimal";
+        }
+
         if ("byte[]".equals(type)) {
             return "setBytes";
         }
@@ -298,6 +302,10 @@ public final class Helper {
             return "getString";
         }
 
+        if ("java.math.BigDecimal".equals(type)) {
+            return "getBigDecimal";
+        }
+
         if ("byte[]".equals(type)) {
             return "getBytes";
         }
@@ -362,6 +370,10 @@ public final class Helper {
 
         if ("java.sql.Clob".equals(type)) {
             return "java.sql.Types.CLOB";
+        }
+
+        if ("java.math.BigDecimal".equals(type)) {
+            return "java.sql.Types.NUMERIC";
         }
 
         throw new UnsupportedOperationException("Helper.nullableType -> type not supported -> [" + type + "]");
