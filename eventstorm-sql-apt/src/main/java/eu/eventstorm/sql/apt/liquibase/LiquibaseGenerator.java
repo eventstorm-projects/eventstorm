@@ -86,6 +86,7 @@ public final class LiquibaseGenerator {
                 if (compareVersions(v.getX(), "1.0.0") <= 0) {
                     writer.append("  - include:\n");
                     writer.append("      file: " + v.getY() + "\n");
+                    writer.append("      relativeToChangelogFile: true\n");
                     iterator.remove();
                 } else {
                     break;
