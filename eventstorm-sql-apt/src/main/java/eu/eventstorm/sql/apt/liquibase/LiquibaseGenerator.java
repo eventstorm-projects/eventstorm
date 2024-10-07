@@ -162,12 +162,25 @@ public final class LiquibaseGenerator {
         try (Writer writer = object.openWriter()) {
             writer.append("--liquibase formatted sql\n");
             for (Db db : gcd.getGlobalConfiguration().databases()) {
-                writer.append("--changeset autogenerate dbms:" + db.name().toLowerCase() + "\n");
+                writer.append("--changeset autogenerate dbms:" + liquibaseDb(db) + "\n");
                 for (Item item : items) {
                     item.write(writer, DatabaseDialects.get(db));
                 }
             }
 
+        }
+    }
+
+    private static String liquibaseDb(Db db) {
+        switch (db) {
+            case H2:
+                return "h2";
+            case POSTGRES:
+                return "postgresql";
+            case ORACLE:
+                return "oracle";
+            default:
+                return "h2";
         }
     }
 
