@@ -1,5 +1,6 @@
 package eu.eventstorm.sql.apt.liquibase;
 
+import com.google.common.collect.ImmutableSet;
 import eu.eventstorm.sql.annotation.Column;
 import eu.eventstorm.sql.annotation.ColumnFormat;
 import eu.eventstorm.sql.annotation.PrimaryKey;
@@ -18,6 +19,111 @@ import java.sql.Timestamp;
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
 final class DatabaseDialectH2 implements DatabaseDialect {
+
+	// from https://www.h2database.com/html/advanced.html#keywords
+	private static final ImmutableSet<String> KEYWORDS = ImmutableSet.<String>builder()
+			.add("ALL")
+			.add("AND")
+			.add("ANY")
+			.add("ARRAY")
+			.add("AS")
+			.add("ASYMMETRIC")
+			.add("AUTHORIZATION")
+			.add("BETWEEN")
+			.add("BOTH")
+			.add("CASE")
+			.add("CAST")
+			.add("CHECK")
+			.add("CONSTRAINT")
+			.add("CROSS")
+			.add("CURRENT_CATALOG")
+			.add("CURRENT_DATE")
+			.add("CURRENT_PATH")
+			.add("CURRENT_ROLE")
+			.add("CURRENT_SCHEMA")
+			.add("CURRENT_TIME")
+			.add("CURRENT_TIMESTAMP")
+			.add("CURRENT_USER")
+			.add("DAY")
+			.add("DEFAULT")
+			.add("DISTINCT")
+			.add("ELSE")
+			.add("END")
+			.add("EXCEPT")
+			.add("EXISTS")
+			.add("FALSE")
+			.add("FETCH")
+			.add("FOR")
+			.add("FOREIGN")
+			.add("FROM")
+			.add("FULL")
+			.add("GROUP")
+			.add("GROUPS")
+			.add("HAVING")
+			.add("HOUR")
+			.add("IF")
+			.add("ILIKE")
+			.add("IN")
+			.add("INNER")
+			.add("INTERSECT")
+			.add("INTERVAL")
+			.add("IS")
+			.add("JOIN")
+			.add("KEY")
+			.add("LEADING")
+			.add("LEFT")
+			.add("LIKE")
+			.add("LIMIT")
+			.add("LOCALTIME")
+			.add("LOCALTIMESTAMP")
+			.add("MINUS")
+			.add("MINUTE")
+			.add("MONTH")
+			.add("NATURAL")
+			.add("NOT")
+			.add("NULL")
+			.add("OFFSET")
+			.add("ON")
+			.add("OR")
+			.add("ORDER")
+			.add("OVER")
+			.add("PARTITION")
+			.add("PRIMARY")
+			.add("QUALIFY")
+			.add("RANGE")
+			.add("REGEXP")
+			.add("RIGHT")
+			.add("ROW")
+			.add("ROWNUM")
+			.add("ROWS")
+			.add("SECOND")
+			.add("SELECT")
+			.add("SESSION_USER")
+			.add("SET")
+			.add("SOME")
+			.add("SYMMETRIC")
+			.add("SYSTEM_USER")
+			.add("TABLE")
+			.add("TO")
+			.add("TOP")
+			.add("")
+			.add("TRAILING")
+			.add("TRUE")
+			.add("UESCAPE")
+			.add("UNION")
+			.add("UNIQUE")
+			.add("UNKNOWN")
+			.add("USER")
+			.add("USING")
+			.add("VALUE")
+			.add("VALUES")
+			.add("WHEN")
+			.add("WHERE")
+			.add("WINDOW")
+			.add("WITH")
+			.add("YEAR")
+			.add("_ROWID_")
+			.build();
 
 	static final DatabaseDialect INSTANCE = new DatabaseDialectH2();
 
@@ -118,7 +224,9 @@ final class DatabaseDialectH2 implements DatabaseDialect {
 
 	@Override
 	public String wrap(String value) {
-		//return "\"" + value + "\"";
+		if (KEYWORDS.contains(value.toUpperCase())) {
+			return "\"" + value + "\"";
+		}
 		return value;
 	}
 

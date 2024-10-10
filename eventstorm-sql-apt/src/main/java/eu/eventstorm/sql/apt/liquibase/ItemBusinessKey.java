@@ -1,8 +1,6 @@
 package eu.eventstorm.sql.apt.liquibase;
 
-import eu.eventstorm.sql.annotation.BusinessKey;
 import eu.eventstorm.sql.annotation.Column;
-import eu.eventstorm.sql.annotation.Index;
 import eu.eventstorm.sql.apt.model.PojoDescriptor;
 
 import java.io.IOException;
