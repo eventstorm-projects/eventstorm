@@ -10,7 +10,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class DatabaseProperties {
 
     private Dialect.Name dialect;
-    private TransactionProperties tx = new TransactionProperties();
+    private TransactionManagerProperties tx = new TransactionManagerProperties();
 
     public Dialect.Name getDialect() {
         return dialect;
@@ -20,23 +20,27 @@ public class DatabaseProperties {
         this.dialect = dialect;
     }
 
-    public TransactionProperties getTx() {
+    public TransactionManagerProperties getTx() {
         return tx;
     }
 
-    public void setTx(TransactionProperties tx) {
+    public void setTx(TransactionManagerProperties tx) {
         this.tx = tx;
     }
 
-    public static class TransactionProperties {
-        private boolean tracing = false;
+    public static class TransactionManagerProperties {
+        private TransactionManagerTracingType tracing = TransactionManagerTracingType.NO_OP;
 
-        public boolean isTracing() {
+        public TransactionManagerTracingType getTracing() {
             return tracing;
         }
 
-        public void setTracing(boolean tracing) {
+        public void setTracing(TransactionManagerTracingType tracing) {
             this.tracing = tracing;
         }
+    }
+
+    public enum TransactionManagerTracingType {
+        NO_OP, DEBUG, MICROMETER;
     }
 }

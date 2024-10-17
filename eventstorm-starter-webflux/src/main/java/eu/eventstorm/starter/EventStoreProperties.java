@@ -1,6 +1,5 @@
 package eu.eventstorm.starter;
 
-import eu.eventstorm.sql.Dialect;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**

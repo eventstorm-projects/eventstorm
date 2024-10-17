@@ -19,25 +19,37 @@ import eu.eventstorm.cqrs.web.PageModule;
 import eu.eventstorm.eventbus.EventBus;
 import eu.eventstorm.eventbus.NoEventBus;
 import eu.eventstorm.problem.ProblemModule;
+import eu.eventstorm.sql.Database;
+import eu.eventstorm.sql.TransactionManager;
+import eu.eventstorm.sql.impl.DatabaseBuilder;
+import eu.eventstorm.sql.impl.TransactionManagerConfiguration;
+import eu.eventstorm.sql.impl.TransactionManagerImpl;
+import eu.eventstorm.sql.tracer.TransactionTracers;
+import eu.eventstorm.sql.util.TransactionTemplate;
 import io.micrometer.tracing.Tracer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import javax.sql.DataSource;
 import java.util.List;
 import java.util.Optional;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
  */
-@Configuration
+
+@AutoConfiguration
 @EnableConfigurationProperties({UniversalUniqueIdentifierDefinitionProperties.class, DatabaseProperties.class, EventStoreProperties.class})
-public  class EventStormAutoConfiguration {
+class EventStormAutoConfiguration {
 
     @Bean
     Module problemModule() {
@@ -116,7 +128,32 @@ public  class EventStormAutoConfiguration {
         } else {
             return NoOpTracer.INSTANCE;
         }
+    }
 
+    @Bean
+    TransactionManager eventStormTransactionManager(DatabaseProperties properties, DataSource dataSource, Optional<Tracer> tracer) {
+        TransactionManagerConfiguration configuration;
+        switch (properties.getTx().getTracing()) {
+            case DEBUG -> configuration = new TransactionManagerConfiguration(TransactionTracers.debug());
+            case NO_OP -> configuration = new TransactionManagerConfiguration(TransactionTracers.noOp());
+            case MICROMETER ->
+                    configuration = new TransactionManagerConfiguration(TransactionTracers.micrometer(tracer.orElseThrow()));
+            default -> throw new IllegalStateException();
+        }
+        return new TransactionManagerImpl(dataSource, configuration);
+    }
+
+    @Bean
+    TransactionTemplate transactionTemplate(TransactionManager transactionManager) {
+        return new TransactionTemplate(transactionManager);
+    }
+
+    @Bean
+    public Database database(DatabaseProperties properties, TransactionManager transactionManager, DatabaseConfigurer configurer) {
+        DatabaseBuilder builder = DatabaseBuilder.from(properties.getDialect())
+                .withTransactionManager(transactionManager);
+        configurer.configure(builder);
+        return builder.build();
     }
 
 }
