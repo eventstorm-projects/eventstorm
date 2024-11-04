@@ -2,7 +2,6 @@ package eu.eventstorm.cqrs.els;
 
 import co.elastic.clients.elasticsearch.ElasticsearchAsyncClient;
 import co.elastic.clients.elasticsearch._types.Refresh;
-import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch.core.IndexResponse;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.UpdateRequest;
@@ -101,7 +100,7 @@ public abstract class ElsRepository {
         pageRequest.getFilter().accept(visitor);
 
         SearchRequest.Builder builder = new SearchRequest.Builder()
-                .index(index(index))
+                .index(indexResolver.apply(index))
                 .query(visitor.getQuery())
                 .size(pageRequest.getSize())
                 .from(pageRequest.getOffset());
@@ -123,10 +122,6 @@ public abstract class ElsRepository {
 
                 });
 
-    }
-
-    protected String index(String index) {
-        return index;
     }
 
 }

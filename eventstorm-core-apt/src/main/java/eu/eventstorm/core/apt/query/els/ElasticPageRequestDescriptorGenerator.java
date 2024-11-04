@@ -44,10 +44,7 @@ public final class ElasticPageRequestDescriptorGenerator {
 
         try (Logger logger = Logger.getLogger(processingEnvironment, "eu.eventstorm.event.query", "ElasticPageRequestDescriptorGenerator")) {
             this.logger = logger;
-            logger.info("************************************** ->");
             sourceCode.forEachElsQueryPackage((pack, list) -> {
-                logger.info("************************************** ->" + pack);
-                logger.info("************************************** ->" + list);
                 try {
                     generate(processingEnvironment, pack, list);
                 } catch (Exception cause) {
