@@ -28,11 +28,15 @@ import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import javax.net.ssl.SSLException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -67,7 +71,7 @@ public class NettyTransportHttpClient implements TransportHttpClient {
     }
 
     @Override
-    public Response performRequest(String endpointId, @Nullable Node node, Request request, TransportOptions transportOptions) throws IOException {
+    public Response performRequest(String endpointId, @Nullable Node node, Request request, TransportOptions transportOptions) {
         try {
             return performRequestAsync(endpointId, node, request, transportOptions).get();
         } catch (InterruptedException | ExecutionException e) {
@@ -94,7 +98,6 @@ public class NettyTransportHttpClient implements TransportHttpClient {
         // init the body
         ByteBuf body = initBody(request);
 
-
         FullHttpRequest nettyRequest = new DefaultFullHttpRequest(
                 HttpVersion.HTTP_1_1,
                 HttpMethod.valueOf(request.method()),
@@ -103,12 +106,12 @@ public class NettyTransportHttpClient implements TransportHttpClient {
         );
 
         HttpHeaders nettyHeaders = nettyRequest.headers();
+
         // Netty doesn't set Content-Length automatically with FullRequest.
         nettyHeaders.set(HttpHeaderNames.CONTENT_LENGTH, body.readableBytes());
 
         // handle basic auth
         appendAuthentication(nettyHeaders, clientConfiguration);
-
 
         int port = node.uri().getPort();
         if (port == -1) {
@@ -118,7 +121,7 @@ public class NettyTransportHttpClient implements TransportHttpClient {
         nettyHeaders.set(HttpHeaderNames.HOST, node.uri().getHost() + ":" + port);
 
         request.headers().forEach(nettyHeaders::set);
-        options.headers().stream().forEach((kv) -> nettyHeaders.set(kv.getKey(), kv.getValue()));
+        options.headers().forEach((kv) -> nettyHeaders.set(kv.getKey(), kv.getValue()));
 
         ChannelFuture future0 = bootstrap.connect(node.uri().getHost(), port);
         future0.addListener((ChannelFutureListener) future1 -> {
@@ -258,13 +261,11 @@ public class NettyTransportHttpClient implements TransportHttpClient {
         }
 
         @Override
-        protected void channelRead0(ChannelHandlerContext ctx, HttpObject msg) throws Exception {
+        protected void channelRead0(ChannelHandlerContext ctx, HttpObject msg)  {
             if (msg instanceof HttpResponse) {
                 this.response = (HttpResponse) msg;
 
-            } else if (msg instanceof HttpContent) {
-                System.err.flush();
-                HttpContent content = (HttpContent) msg;
+            } else if (msg instanceof HttpContent content) {
                 ByteBuf buf = content.content();
                 if (buf.readableBytes() > 0) {
                     buf.retain();
@@ -282,7 +283,7 @@ public class NettyTransportHttpClient implements TransportHttpClient {
         }
 
         @Override
-        public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
             promise.completeExceptionally(cause);
             ctx.close();
         }
@@ -299,6 +300,14 @@ public class NettyTransportHttpClient implements TransportHttpClient {
     }
 
     private static Bootstrap initBootstrap(NioEventLoopGroup workerGroup, Node node, CompletableFuture<Response> promise) {
+        SslContext sslContext;
+        try {
+            sslContext = SslContextBuilder.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE)
+                    .build();
+        } catch (SSLException cause) {
+            throw new NettyException("Failed to create SSL context", cause);
+        }
+
         Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(workerGroup)
                 .channel(NioSocketChannel.class)
@@ -307,9 +316,9 @@ public class NettyTransportHttpClient implements TransportHttpClient {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
                         ChannelPipeline pipeline = ch.pipeline();
-                        //  if (node.uri().getScheme().equals("https")) {
-                        //      pipeline.addLast(sslContext.newHandler(ch.alloc()));
-                        //  }
+                          if (node.uri().getScheme().equals("https")) {
+                              pipeline.addLast(sslContext.newHandler(ch.alloc()));
+                         }
                         pipeline.addLast(new HttpClientCodec());
                         pipeline.addLast(new ChannelHandler(node, promise));
                     }
@@ -329,7 +338,7 @@ public class NettyTransportHttpClient implements TransportHttpClient {
 
 
     private void appendAuthentication(HttpHeaders nettyHeaders, NettyTransportHttpClientConfiguration clientConfiguration) {
-        if (Strings.EMPTY == basicAuth) {
+        if (Strings.EMPTY.equals(basicAuth)) {
             return;
         }
         nettyHeaders.set(HttpHeaderNames.AUTHORIZATION, basicAuth);

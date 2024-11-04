@@ -47,7 +47,7 @@ final class NettyInputStreamBinaryData implements BinaryData {
     }
 
     @Override
-    public InputStream asInputStream() throws IOException {
+    public InputStream asInputStream() {
         consume();
         return inputStream;
     }
