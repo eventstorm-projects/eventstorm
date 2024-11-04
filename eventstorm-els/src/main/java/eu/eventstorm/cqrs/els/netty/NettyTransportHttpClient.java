@@ -30,6 +30,7 @@ import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.SslProvider;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.util.concurrent.Future;
 import org.slf4j.Logger;
@@ -302,7 +303,9 @@ public class NettyTransportHttpClient implements TransportHttpClient {
     private static Bootstrap initBootstrap(NioEventLoopGroup workerGroup, Node node, CompletableFuture<Response> promise) {
         SslContext sslContext;
         try {
-            sslContext = SslContextBuilder.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE)
+            sslContext = SslContextBuilder.forClient()
+                    .trustManager(InsecureTrustManagerFactory.INSTANCE)
+                    .sslProvider(SslProvider.JDK)
                     .build();
         } catch (SSLException cause) {
             throw new NettyException("Failed to create SSL context", cause);
