@@ -60,10 +60,19 @@ public class NettyTransportHttpClient implements TransportHttpClient {
     private final NioEventLoopGroup workerGroup = new NioEventLoopGroup();
     private final NettyTransportHttpClientConfiguration clientConfiguration;
     private final String basicAuth;
+    private final SslContext sslContext;
 
     public NettyTransportHttpClient(NettyTransportHttpClientConfiguration clientConfiguration) {
         this.clientConfiguration = clientConfiguration;
         this.basicAuth = initBasicAuth(clientConfiguration);
+        try {
+            sslContext = SslContextBuilder.forClient()
+                    .trustManager(InsecureTrustManagerFactory.INSTANCE)
+                    .sslProvider(SslProvider.JDK)
+                    .build();
+        } catch (SSLException cause) {
+            throw new NettyException("Failed to create SSL context", cause);
+        }
     }
 
     @Override
@@ -262,7 +271,7 @@ public class NettyTransportHttpClient implements TransportHttpClient {
         }
 
         @Override
-        protected void channelRead0(ChannelHandlerContext ctx, HttpObject msg)  {
+        protected void channelRead0(ChannelHandlerContext ctx, HttpObject msg) {
             if (msg instanceof HttpResponse) {
                 this.response = (HttpResponse) msg;
 
@@ -300,17 +309,7 @@ public class NettyTransportHttpClient implements TransportHttpClient {
         };
     }
 
-    private static Bootstrap initBootstrap(NioEventLoopGroup workerGroup, Node node, CompletableFuture<Response> promise) {
-        SslContext sslContext;
-        try {
-            sslContext = SslContextBuilder.forClient()
-                    .trustManager(InsecureTrustManagerFactory.INSTANCE)
-                    .sslProvider(SslProvider.JDK)
-                    .build();
-        } catch (SSLException cause) {
-            throw new NettyException("Failed to create SSL context", cause);
-        }
-
+    private Bootstrap initBootstrap(NioEventLoopGroup workerGroup, Node node, CompletableFuture<Response> promise) {
         Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(workerGroup)
                 .channel(NioSocketChannel.class)
@@ -319,9 +318,12 @@ public class NettyTransportHttpClient implements TransportHttpClient {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
                         ChannelPipeline pipeline = ch.pipeline();
-                          if (node.uri().getScheme().equals("https")) {
-                              pipeline.addLast(sslContext.newHandler(ch.alloc()));
-                         }
+                        if (node.uri().getScheme().equals("https")) {
+                            if (LOGGER.isDebugEnabled()) {
+                                LOGGER.debug("enabling SSL for uri : [{}]", node.uri());
+                            }
+                            pipeline.addLast(sslContext.newHandler(ch.alloc()));
+                        }
                         pipeline.addLast(new HttpClientCodec());
                         pipeline.addLast(new ChannelHandler(node, promise));
                     }
