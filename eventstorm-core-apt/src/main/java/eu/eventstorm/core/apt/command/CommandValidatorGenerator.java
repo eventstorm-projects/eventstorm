@@ -285,7 +285,7 @@ public final class CommandValidatorGenerator {
         } else {
             writer.write("        this.validatorCustom" + Helper.firstToUpperCase(Helper.firstToUpperCase(ppd.name())));
         }
-        writer.write(".validate(PROPERTIES_");
+        writer.write(".validate(PROPERTY_");
         writer.write(Helper.toUpperCase(ppd.name()) + ", ");
         writer.write("command." + ppd.getter().getSimpleName().toString() + "(), context);");
         writeNewLine(writer);
