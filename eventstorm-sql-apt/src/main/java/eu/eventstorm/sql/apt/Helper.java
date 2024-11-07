@@ -376,6 +376,15 @@ public final class Helper {
             return "java.sql.Types.NUMERIC";
         }
 
+        if ("long[]".equals(type) || "java.lang.Long[]".equals(type)) {
+            return "java.sql.Types.ARRAY";
+        }
+
+        if ("int[]".equals(type) || "java.lang.Integer[]".equals(type)) {
+            return "java.sql.Types.ARRAY";
+        }
+
+
         throw new UnsupportedOperationException("Helper.nullableType -> type not supported -> [" + type + "]");
 
     }

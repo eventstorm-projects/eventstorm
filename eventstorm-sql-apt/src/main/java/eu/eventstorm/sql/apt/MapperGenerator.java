@@ -139,9 +139,7 @@ final class MapperGenerator implements Generator {
                 writer.write("        java.sql.Array array" + index + " = rs."
                         + Helper.preparedStatementGetter(ppd.getter().getReturnType().toString()) + "(" + index + ");");
                 writeNewLine(writer);
-                writer.write("        pojo." + ppd.setter().getSimpleName().toString() + "(array" + index
-                        + " == null ? null : (" + ppd.getter().getReturnType().toString() + ")array" + index
-                        + ".getArray());");
+                writer.write("        pojo." + ppd.setter().getSimpleName().toString() + "(eu.eventstorm.sql.util.Arrays.convert(array" + index + ","+ ppd.getter().getReturnType().toString() +".class));");
                 writeNewLine(writer);
                 index++;
 
