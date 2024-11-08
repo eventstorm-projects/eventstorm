@@ -143,6 +143,7 @@ class EventStormAutoConfiguration {
         return new TransactionManagerImpl(dataSource, configuration);
     }
 
+    @ConditionalOnMissingBean
     @Bean
     TransactionTemplate transactionTemplate(TransactionManager transactionManager) {
         return new TransactionTemplate(transactionManager);
