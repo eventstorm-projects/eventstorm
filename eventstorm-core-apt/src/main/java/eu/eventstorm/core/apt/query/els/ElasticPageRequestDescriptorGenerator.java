@@ -2,33 +2,29 @@ package eu.eventstorm.core.apt.query.els;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import eu.eventstorm.annotation.els.Date;
+import eu.eventstorm.annotation.els.Id;
+import eu.eventstorm.annotation.els.Keyword;
+import eu.eventstorm.annotation.els.Nested;
+import eu.eventstorm.annotation.els.Number;
+import eu.eventstorm.annotation.els.Text;
 import eu.eventstorm.core.apt.SourceCode;
 import eu.eventstorm.core.apt.model.ElsQueryDescriptor;
 import eu.eventstorm.core.apt.model.QueryDescriptor;
 import eu.eventstorm.core.apt.model.QueryPropertyDescriptor;
 import eu.eventstorm.cqrs.PageQueryDescriptor;
 import eu.eventstorm.cqrs.PageQueryDescriptors;
+import eu.eventstorm.cqrs.els.page.ElsField;
+import eu.eventstorm.cqrs.els.page.ElsFieldType;
 import eu.eventstorm.page.SinglePropertyFilter;
-import eu.eventstorm.sql.annotation.Column;
-import eu.eventstorm.sql.annotation.ColumnFormat;
-import eu.eventstorm.sql.apt.Helper;
 import eu.eventstorm.sql.apt.log.Logger;
-import eu.eventstorm.sql.desc.SqlColumn;
-import eu.eventstorm.sql.page.PreparedStatementIndexSetter;
-import eu.eventstorm.sql.page.SqlPageRequestDescriptor;
-import eu.eventstorm.sql.page.SqlPageRequestDescriptorException;
-import eu.eventstorm.sql.type.Json;
-import eu.eventstorm.sql.util.Dates;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.Writer;
-import java.sql.Date;
-import java.sql.Timestamp;
 import java.util.function.Function;
 
-import static eu.eventstorm.sql.apt.Helper.toUpperCase;
 import static eu.eventstorm.sql.apt.Helper.writeGenerated;
 import static eu.eventstorm.sql.apt.Helper.writeNewLine;
 import static eu.eventstorm.sql.apt.Helper.writePackage;
@@ -96,11 +92,14 @@ public final class ElasticPageRequestDescriptorGenerator {
         writeNewLine(writer);
         writer.write("import " + PageQueryDescriptors.class.getName() + ";");
         writeNewLine(writer);
+        writer.write("import " + ElsField.class.getName() + ";");
+        writeNewLine(writer);
+        writer.write("import " + ElsFieldType.class.getName() + ";");
+        writeNewLine(writer);
         writer.write("import " + descriptor.fullyQualidiedClassName() + ";");
         writeNewLine(writer);
         writer.write("import eu.eventstorm.cqrs.els.page.ElsPageRequestDescriptor;");
         writeNewLine(writer);
-
 
 
         writeGenerated(writer, ElasticPageRequestDescriptorGenerator.class.getName());
@@ -113,22 +112,17 @@ public final class ElasticPageRequestDescriptorGenerator {
 
     private void writeStatic(Writer writer, QueryDescriptor ed) throws IOException {
 
-   /*     writeNewLine(writer);
-        writer.write("    private static final ImmutableMap<String, SqlColumn> VALUES = ImmutableMap.<String, SqlColumn>builder() ");
+        writeNewLine(writer);
+        writer.write("    private static final ImmutableMap<String, ElsField> VALUES = ImmutableMap.<String, ElsField>builder() ");
         writeNewLine(writer);
         for (QueryPropertyDescriptor property : ed.properties()) {
-            writer.write("        .put(\"" + property.name() + "\", " + ed.fullyQualidiedClassName() + "Descriptor." + toUpperCase(property.name()) + ")");
+            writer.write("        .put(\"" + property.name() + "\", new ElsField(\""+property.name()+"\",ElsFieldType." + convert(property).name() + "))");
             writeNewLine(writer);
         }
         writer.write("        .build();");
         writeNewLine(writer);
 
-        writeNewLine(writer);
-        writer.write("    private static final ImmutableMap<String, Function<SinglePropertyFilter, PreparedStatementIndexSetter>> PREPARED_STATEMENT_INDEX_SETTERS");
-        writeNewLine(writer);
-        writer.write("        = ImmutableMap.<String, Function<SinglePropertyFilter, PreparedStatementIndexSetter>>builder()");
-        writeNewLine(writer);
-
+        /*
         // private static final Function<String,String> COUNTRY = t -> t;
         for (QueryPropertyDescriptor property : ed.properties()) {
             String type = Helper.getReturnType(property.getter());
@@ -175,17 +169,16 @@ public final class ElasticPageRequestDescriptorGenerator {
     }
 
     private void writeMethodGet(Writer writer, QueryDescriptor ed) throws IOException {
-  /*      writeNewLine(writer);
+        writeNewLine(writer);
         writer.write("    @Override");
         writeNewLine(writer);
-        writer.write("    public SqlColumn get(String property) {");
+        writer.write("    public ElsField get(String property) {");
         writeNewLine(writer);
         writer.write("        return VALUES.get(property);");
         writeNewLine(writer);
         writer.write("    }");
         writeNewLine(writer);
 
-   */
     }
 
     private void writeMethodExpression(Writer writer, QueryDescriptor ed) throws IOException {
@@ -208,6 +201,28 @@ public final class ElasticPageRequestDescriptorGenerator {
         writeNewLine(writer);
 
        */
+    }
+
+    private static ElsFieldType convert(QueryPropertyDescriptor property) {
+        if (property.getter().getAnnotation(Keyword.class) != null) {
+            return ElsFieldType.KEYWORD;
+        }
+        if (property.getter().getAnnotation(Text.class) != null) {
+            return ElsFieldType.TEXT;
+        }
+        if (property.getter().getAnnotation(Number.class) != null) {
+            return ElsFieldType.NUMBER;
+        }
+        if (property.getter().getAnnotation(Nested.class) != null) {
+            return ElsFieldType.NESTED;
+        }
+        if (property.getter().getAnnotation(Id.class) != null) {
+            return ElsFieldType.ID;
+        }
+        if (property.getter().getAnnotation(Date.class) != null) {
+            return ElsFieldType.DATE;
+        }
+        throw new IllegalStateException("Unknown property [" + property + "]");
     }
 
 }

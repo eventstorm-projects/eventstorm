@@ -8,7 +8,9 @@ import co.elastic.clients.elasticsearch.core.UpdateRequest;
 import co.elastic.clients.elasticsearch.core.UpdateResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.json.JsonpUtils;
+import eu.eventstorm.cqrs.PageQueryDescriptors;
 import eu.eventstorm.cqrs.els.page.ElsFilterVisitor;
+import eu.eventstorm.cqrs.els.page.ElsPageRequestDescriptor;
 import eu.eventstorm.page.Page;
 import eu.eventstorm.page.PageImpl;
 import eu.eventstorm.page.PageRequest;
@@ -27,14 +29,16 @@ public abstract class ElsRepository {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElsRepository.class);
 
     private final ElasticsearchAsyncClient elasticsearchAsyncClient;
+    private final PageQueryDescriptors pageQueryDescriptors;
     private final Function<String, String> indexResolver;
 
-    protected ElsRepository(ElasticsearchAsyncClient elasticsearchAsyncClient) {
-        this(elasticsearchAsyncClient, index -> index);
+    protected ElsRepository(ElasticsearchAsyncClient elasticsearchAsyncClient, PageQueryDescriptors pageQueryDescriptors) {
+        this(elasticsearchAsyncClient, pageQueryDescriptors, index -> index);
     }
 
-    protected ElsRepository(ElasticsearchAsyncClient elasticsearchAsyncClient, Function<String, String> indexResolver) {
+    protected ElsRepository(ElasticsearchAsyncClient elasticsearchAsyncClient, PageQueryDescriptors pageQueryDescriptors, Function<String, String> indexResolver) {
         this.elasticsearchAsyncClient = elasticsearchAsyncClient;
+        this.pageQueryDescriptors = pageQueryDescriptors;
         this.indexResolver = indexResolver;
     }
 
@@ -96,7 +100,7 @@ public abstract class ElsRepository {
 
     protected final <T> Mono<Page<T>> doSelectPage(String index, PageRequest pageRequest, Class<T> clazz) {
 
-        ElsFilterVisitor visitor = new ElsFilterVisitor();
+        ElsFilterVisitor visitor = new ElsFilterVisitor((ElsPageRequestDescriptor) pageQueryDescriptors.get(clazz.getName()));
         pageRequest.getFilter().accept(visitor);
 
         SearchRequest.Builder builder = new SearchRequest.Builder()

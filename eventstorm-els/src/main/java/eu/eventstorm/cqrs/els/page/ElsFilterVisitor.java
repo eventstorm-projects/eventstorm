@@ -16,6 +16,7 @@ import eu.eventstorm.page.SinglePropertyFilter;
 import org.slf4j.Logger;
 
 import java.util.Arrays;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
@@ -25,11 +26,13 @@ public final class ElsFilterVisitor implements FilterVisitor {
 
     private static final Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ElsFilterVisitor.class);
 
-    private static final ImmutableMap<Operator, Function<SinglePropertyFilter, Query>> EXPRESSIONS;
+    private static final ImmutableMap<Operator, BiFunction<SinglePropertyFilter, ElsPageRequestDescriptor, Query>> EXPRESSIONS;
 
     static {
-        EXPRESSIONS = ImmutableMap.<Operator, Function<SinglePropertyFilter, Query>>builder()
-                .put(Operator.IN, filter -> {
+        EXPRESSIONS = ImmutableMap.<Operator, BiFunction<SinglePropertyFilter, ElsPageRequestDescriptor, Query>>builder()
+                .put(Operator.IN, (filter,desc) -> {
+
+                    ElsField field = desc.get(filter.getProperty());
 
                     TermsQueryField termsQueryField;
                     if (!filter.getValues().isEmpty()) {
@@ -40,25 +43,19 @@ public final class ElsFilterVisitor implements FilterVisitor {
                         String raw = filter.getRaw().substring(1, filter.getRaw().length() - 1);
                         termsQueryField = new TermsQueryField.Builder()
                                 .value(Arrays.stream(raw.split(";"))
-                                        .map(s -> {
-                                            if (s.indexOf("\"") == 0) {
-                                                return s.substring(1, s.length() - 1);
-                                            } else {
-                                                return s;
-                                            }
-                                        })
+                                        .map(field::unwrap)
                                         .map(FieldValue::of).toList())
                                 .build();
                     }
 
                     return new TermsQuery.Builder()
-                            .field(filter.getProperty() + ".keyword")
+                            .field(field.termQueryField())
                             .terms(termsQueryField)
                             .build()
                             ._toQuery();
 
                 })
-                .put(Operator.CONTAINS, filter -> {
+                .put(Operator.CONTAINS, (filter,desc) -> {
                     return new MatchQuery.Builder()
                             .field(filter.getProperty())
                             .query(filter.getRaw().substring(1, filter.getRaw().length() - 1))
@@ -68,12 +65,15 @@ public final class ElsFilterVisitor implements FilterVisitor {
                 .build();
     }
 
+    private final ElsPageRequestDescriptor elsPageRequestDescriptor;
+
     private Query query;
 
     private BoolQuery.Builder boolQuery;
 
 
-    public ElsFilterVisitor() {
+    public ElsFilterVisitor(ElsPageRequestDescriptor elsPageRequestDescriptor) {
+        this.elsPageRequestDescriptor = elsPageRequestDescriptor;
     }
 
     @Override
@@ -81,7 +81,7 @@ public final class ElsFilterVisitor implements FilterVisitor {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("visitSinglePropertyFilter [{}]", filter);
         }
-        Query query = EXPRESSIONS.get(filter.getOperator()).apply(filter);
+        Query query = EXPRESSIONS.get(filter.getOperator()).apply(filter, elsPageRequestDescriptor);
         if (boolQuery != null) {
             boolQuery.must(query);
         } else {
