@@ -40,7 +40,13 @@ public final class ElsFilterVisitor implements FilterVisitor {
                         String raw = filter.getRaw().substring(1, filter.getRaw().length() - 1);
                         termsQueryField = new TermsQueryField.Builder()
                                 .value(Arrays.stream(raw.split(";"))
-                                        .map(s -> s.substring(1, s.length() - 1))
+                                        .map(s -> {
+                                            if (s.indexOf("\"") == 0) {
+                                                return s.substring(1, s.length() - 1);
+                                            } else {
+                                                return s;
+                                            }
+                                        })
                                         .map(FieldValue::of).toList())
                                 .build();
                     }
