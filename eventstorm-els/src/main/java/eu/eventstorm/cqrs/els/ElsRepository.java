@@ -10,7 +10,7 @@ import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.json.JsonpUtils;
 import eu.eventstorm.cqrs.PageQueryDescriptors;
 import eu.eventstorm.cqrs.els.page.ElsFilterVisitor;
-import eu.eventstorm.cqrs.els.page.ElsPageRequestDescriptor;
+import eu.eventstorm.cqrs.els.page.ElsPageQueryDescriptor;
 import eu.eventstorm.page.Page;
 import eu.eventstorm.page.PageImpl;
 import eu.eventstorm.page.PageRequest;
@@ -100,7 +100,8 @@ public abstract class ElsRepository {
 
     protected final <T> Mono<Page<T>> doSelectPage(String index, PageRequest pageRequest, Class<T> clazz) {
 
-        ElsFilterVisitor visitor = new ElsFilterVisitor((ElsPageRequestDescriptor) pageQueryDescriptors.get(clazz.getName()));
+
+        ElsFilterVisitor visitor = new ElsFilterVisitor(((ElsPageQueryDescriptor) pageQueryDescriptors.get(clazz.getName())).getPageRequestDescriptor());
         pageRequest.getFilter().accept(visitor);
 
         SearchRequest.Builder builder = new SearchRequest.Builder()
