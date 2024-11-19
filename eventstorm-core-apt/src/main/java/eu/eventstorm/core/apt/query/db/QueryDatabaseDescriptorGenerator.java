@@ -116,7 +116,7 @@ public final class QueryDatabaseDescriptorGenerator {
         writer.write("(\"");
         writer.write(descriptor.element().getAnnotation(CqrsQueryDatabaseView.class).view().value());
         writer.write("\", \"");
-        writer.write(AliasGenerator.generate());
+        writer.write(AliasGenerator.generate("e_"));
         writer.write("\");");
         writeNewLine(writer);
     }

@@ -127,7 +127,7 @@ final class PojoDescriptorGenerator implements Generator {
         }
 
         writer.write("\", \"");
-        writer.write(AliasGenerator.generate());
+        writer.write(AliasGenerator.generate("s_"));
         writer.write("\");");
         writeNewLine(writer);
     }

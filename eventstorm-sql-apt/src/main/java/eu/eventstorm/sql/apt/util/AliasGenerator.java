@@ -7,26 +7,26 @@ public final class AliasGenerator {
 	private AliasGenerator() {
 	}
 	
-	public static String generate() {
+	public static String generate(String prefix) {
 		
 		if (alias == null) {
 			alias = "a";
-			return alias;
+			return prefix + alias;
 		}
 
 		else if ("z".equals(alias)) {
 			alias = "aa";
-			return alias;
+			return prefix + alias;
 		}
 
 		else if ("zz".equals(alias)) {
 			alias = "aaa";
-			return alias;
+			return prefix + alias;
 		}
 
 		else if ("zzz".equals(alias)) {
 			alias = "aaa";
-			return alias;
+			return prefix + alias;
 		}
 
 		StringBuilder builder = new StringBuilder();
@@ -37,7 +37,7 @@ public final class AliasGenerator {
 		builder.append((char) (alias.charAt(alias.length() - 1) + 1));
 
 		alias = builder.toString();
-		return alias;
+		return prefix + alias;
 	}
 	
 }
