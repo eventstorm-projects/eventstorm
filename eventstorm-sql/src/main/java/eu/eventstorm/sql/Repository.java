@@ -1,11 +1,14 @@
 package eu.eventstorm.sql;
 
 import com.google.common.collect.ImmutableList;
+import eu.eventstorm.page.EmptyFilter;
 import eu.eventstorm.page.Filter;
+import eu.eventstorm.page.FilterVisitor;
 import eu.eventstorm.page.Page;
 import eu.eventstorm.page.PageImpl;
 import eu.eventstorm.page.PageRequest;
 import eu.eventstorm.page.Range;
+import eu.eventstorm.page.SinglePropertyFilter;
 import eu.eventstorm.sql.builder.DeleteBuilder;
 import eu.eventstorm.sql.builder.InsertBuilder;
 import eu.eventstorm.sql.builder.SelectBuilder;
@@ -40,6 +43,7 @@ import org.slf4j.LoggerFactory;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Spliterator;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -398,16 +402,24 @@ public abstract class Repository {
     protected final <T> Page<T> executeSelectPage(SqlQueryPageable query, PreparedStatementSetter pss, ResultSetMapper<T> mapper, PageRequest pageRequest) {
 
         PreparedStatementSetter compose;
-        if (pageRequest.getFilters().isEmpty()) {
+        if (pageRequest.getFilter() == EmptyFilter.INSTANCE) {
             compose = pss;
         } else {
             SqlPageRequestDescriptor descriptor = ((SingleSqlEvaluator) pageRequest.getEvaluator()).getSqlPageRequestDescriptor();
             compose = ps -> {
                 pss.set(ps);
-                int i = query.getIndex();
-                for (Filter filter : pageRequest.getFilters()) {
-                    i = descriptor.getPreparedStatementIndexSetter(filter).set(dialect, ps, i);
-                }
+                AtomicInteger index = new AtomicInteger(query.getIndex());
+
+                pageRequest.getFilter().accept(new FilterVisitor() {
+                    @Override
+                    public void visit(SinglePropertyFilter filter) {
+                        try {
+                            index.set(descriptor.getPreparedStatementIndexSetter(filter).set(dialect, ps, index.get()));
+                        } catch (SQLException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                });
             };
         }
 
@@ -422,6 +434,8 @@ public abstract class Repository {
         }
 
         return new PageImpl<>(stream(query.sql(pageRequest), compose, mapper), count, new Range(pageRequest.getOffset(), pageRequest.getOffset() + pageRequest.getSize() - 1));
+
+
 
     }
 

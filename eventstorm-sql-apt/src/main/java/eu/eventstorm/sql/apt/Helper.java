@@ -2,8 +2,11 @@ package eu.eventstorm.sql.apt;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.math.BigDecimal;
 
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
@@ -101,20 +104,6 @@ public final class Helper {
 //			// it's primitive
 //			return element.getReturnType().toString();
 //		}
-	}
-
-	public static boolean isEnum(TypeMirror typeMirror) {
-		if (TypeKind.DECLARED == typeMirror.getKind()) {
-			for (TypeMirror supertype : Helper.getTypes().directSupertypes(typeMirror)) {
-				DeclaredType declared = (DeclaredType)supertype;
-				if (Enum.class.getName().equals(declared.asElement().toString())) {
-					return true;
-				}
-			}
-			return false;
-		} else {
-			return false;
-		}
 	}
 		
 	public static void writeNewLine(Writer writer) throws IOException {
@@ -243,6 +232,10 @@ public final class Helper {
 			return "setTimestamp";
 		}
 
+		if ("java.math.BigDecimal".equals(type)) {
+			return "setBigDecimal";
+		}
+
 		if ("byte[]".equals(type)) {
 			return "setBytes";
 		}
@@ -303,6 +296,10 @@ public final class Helper {
 		if ("java.sql.Clob".equals(type)) {
 			return "getClob";
 		}
+
+		if ("java.math.BigDecimal".equals(type)) {
+			return "getBigDecimal";
+		}
 		
 		if (Json.class.getName().equals(type)) {
 			return "getString";
@@ -351,6 +348,10 @@ public final class Helper {
 
 		if ("java.lang.Boolean".equals(type)) {
 			return "java.sql.Types.BOOLEAN";
+		}
+
+		if ("java.math.BigDecimal".equals(type)) {
+			return "java.sql.Types.NUMERIC";
 		}
 
 		if ("eu.eventstorm.sql.type.Xml".equals(type)) {
@@ -438,6 +439,32 @@ public final class Helper {
 	
 	public static boolean isString(String type) {
 		return "java.lang.String".equals(type);
+	}
+
+	public static boolean isEnum(ProcessingEnvironment env, String type) {
+		TypeMirror typeMirror;
+		try {
+			TypeElement typeElement = env.getElementUtils().getTypeElement(type);
+			typeMirror = Helper.getTypes().getDeclaredType(typeElement);
+        } catch (Exception e) {
+            return false;
+        }
+		return isEnum(typeMirror);
+
+    }
+
+	public static boolean isEnum(TypeMirror typeMirror) {
+		if (TypeKind.DECLARED == typeMirror.getKind()) {
+			for (TypeMirror supertype : Helper.getTypes().directSupertypes(typeMirror)) {
+				DeclaredType declared = (DeclaredType)supertype;
+				if (Enum.class.getName().equals(declared.asElement().toString())) {
+					return true;
+				}
+			}
+			return false;
+		} else {
+			return false;
+		}
 	}
 
 }

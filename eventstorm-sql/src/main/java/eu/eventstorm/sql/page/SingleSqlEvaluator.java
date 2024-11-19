@@ -1,22 +1,32 @@
 package eu.eventstorm.sql.page;
 
 import com.google.common.collect.ImmutableList;
+import eu.eventstorm.page.AndFilter;
 import eu.eventstorm.page.EvaluatorDefinition;
-import eu.eventstorm.page.Filter;
+import eu.eventstorm.page.FilterVisitor;
+import eu.eventstorm.page.MultiAndFilter;
 import eu.eventstorm.page.Operator;
+import eu.eventstorm.page.OrFilter;
 import eu.eventstorm.page.PageRequest;
+import eu.eventstorm.page.SinglePropertyFilter;
 import eu.eventstorm.sql.desc.SqlColumn;
 import eu.eventstorm.sql.expression.Expression;
 import eu.eventstorm.sql.expression.Expressions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.function.BiFunction;
 
 public final class SingleSqlEvaluator implements EvaluatorDefinition {
 
-    private static final EnumMap<Operator, BiFunction<SqlColumn, Filter,Expression >> EXPRESSIONS = new EnumMap<>(Operator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SingleSqlEvaluator.class);
+
+    private static final EnumMap<Operator, BiFunction<SqlColumn, SinglePropertyFilter, Expression>> EXPRESSIONS = new EnumMap<>(Operator.class);
 
     static {
         EXPRESSIONS.put(Operator.EQUALS, (col, filter) -> Expressions.eq(col));
@@ -28,6 +38,7 @@ public final class SingleSqlEvaluator implements EvaluatorDefinition {
         EXPRESSIONS.put(Operator.CONTAINS, (col, filter) -> Expressions.like(col));
         EXPRESSIONS.put(Operator.STARTS_WITH, (col, filter) -> Expressions.like(col));
         EXPRESSIONS.put(Operator.ENDS_WITH, (col, filter) -> Expressions.like(col));
+        EXPRESSIONS.put(Operator.NOT_IN, (col, filter) -> Expressions.not(Expressions.in(col, filter.getValues().size())));
     }
 
     private final SqlPageRequestDescriptor descriptor;
@@ -36,23 +47,71 @@ public final class SingleSqlEvaluator implements EvaluatorDefinition {
         this.descriptor = sqlPageRequestDescriptor;
     }
 
-    public ImmutableList<Expression> toExpressions(PageRequest pageRequest) {
+    public Expression toExpressions(PageRequest pageRequest) {
 
-        ImmutableList.Builder<Expression> expressionBuilder = ImmutableList.builder();
-
-        for (Filter filter : pageRequest.getFilters()) {
-
-            SqlColumn column = descriptor.get(filter.getProperty());
-            BiFunction<SqlColumn, Filter, Expression> builder = EXPRESSIONS.get(filter.getOperator());
-
-            if (builder == null) {
-                throw new RuntimeException("Operator [" + filter.getOperator() + "] not supported");
-            }
-
-            expressionBuilder.add(builder.apply(column, filter));
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("toExpressions for [{}]", pageRequest);
         }
 
-        return expressionBuilder.build();
+        Deque<FilterBuilder> stack = new ArrayDeque<>();
+        FilterBuilder builder = new FilterBuilderAnd();
+        stack.offer(builder);
+
+        pageRequest.getFilter().accept(new FilterVisitor() {
+            @Override
+            public void visit(SinglePropertyFilter filter) {
+                SqlColumn column = descriptor.get(filter.getProperty());
+                BiFunction<SqlColumn, SinglePropertyFilter, Expression> builder = EXPRESSIONS.get(filter.getOperator());
+
+                if (builder == null) {
+                    throw new RuntimeException("Operator [" + filter.getOperator() + "] not supported");
+                }
+                stack.peekLast().add(builder.apply(column, filter));
+            }
+
+            @Override
+            public void visitBegin(MultiAndFilter filter) {
+                stack.add(new FilterBuilderAnd());
+            }
+
+            @Override
+            public void visitBegin(AndFilter filter) {
+                stack.add(new FilterBuilderAnd());
+            }
+
+            @Override
+            public void visitBegin(OrFilter filter) {
+                stack.add(new FilterBuilderOr());
+            }
+
+            @Override
+            public void visitEnd(MultiAndFilter filter) {
+                FilterBuilder builder = stack.pollLast();
+                Expression multi = builder.build();
+                stack.peekLast().add(multi);
+            }
+
+            @Override
+            public void visitEnd(AndFilter filter) {
+                FilterBuilder builder = stack.pollLast();
+                Expression multi = builder.build();
+                stack.peekLast().add(multi);
+            }
+
+            @Override
+            public void visitEnd(OrFilter filter) {
+                FilterBuilder builder = stack.pollLast();
+                Expression multi = builder.build();
+                stack.peekLast().add(multi);
+            }
+        });
+
+        Expression expression = stack.getFirst().build();
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("toExpressions result [{}]", expression);
+        }
+
+        return expression;
     }
 
     public SqlPageRequestDescriptor getSqlPageRequestDescriptor() {
@@ -85,4 +144,48 @@ public final class SingleSqlEvaluator implements EvaluatorDefinition {
 
         return values;
     }
+
+
+    private abstract static class FilterBuilder {
+
+        private final ImmutableList.Builder<Expression> expressions = ImmutableList.builder();
+
+        public Expression build() {
+
+            ImmutableList<Expression> expressions = this.expressions.build();
+
+            if (expressions.isEmpty()) {
+                throw new IllegalStateException("Empty expression");
+            }
+
+            return doBuild(expressions);
+        }
+
+        protected abstract Expression doBuild(ImmutableList<Expression> expressions);
+
+        public void add(Expression expression) {
+            expressions.add(expression);
+        }
+    }
+
+    private static class FilterBuilderAnd extends FilterBuilder {
+        @Override
+        protected Expression doBuild(ImmutableList<Expression> expressions) {
+            if (expressions.size() == 1) {
+                return expressions.get(0);
+            }
+            return Expressions.and(expressions);
+        }
+    }
+
+    private static class FilterBuilderOr extends FilterBuilder {
+        @Override
+        protected Expression doBuild(ImmutableList<Expression> expressions) {
+            if (expressions.size() == 1) {
+                throw new IllegalStateException("[or] must have 2 or more expressions");
+            }
+            return Expressions.or(expressions);
+        }
+    }
+
 }

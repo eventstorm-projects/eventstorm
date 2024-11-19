@@ -1,29 +1,26 @@
 package eu.eventstorm.sql.builder;
 
-import static com.google.common.collect.ImmutableMap.of;
-import static eu.eventstorm.sql.builder.SqlBuilderException.Type.SELECT;
-import static eu.eventstorm.sql.expression.Expressions.and;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import eu.eventstorm.sql.desc.DerivedColumn;
-import eu.eventstorm.sql.expression.MathematicalFunction;
-import eu.eventstorm.sql.expression.MathematicalFunctions;
-import eu.eventstorm.sql.page.SingleSqlEvaluator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.ImmutableList;
-
+import eu.eventstorm.page.EmptyFilter;
+import eu.eventstorm.page.PageRequest;
 import eu.eventstorm.sql.Database;
 import eu.eventstorm.sql.Query;
+import eu.eventstorm.sql.desc.DerivedColumn;
 import eu.eventstorm.sql.desc.SqlColumn;
 import eu.eventstorm.sql.desc.SqlTable;
 import eu.eventstorm.sql.expression.AggregateFunction;
 import eu.eventstorm.sql.expression.Expression;
 import eu.eventstorm.sql.expression.Expressions;
-import eu.eventstorm.page.PageRequest;
+import eu.eventstorm.sql.expression.MathematicalFunction;
+import eu.eventstorm.sql.page.SingleSqlEvaluator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.google.common.collect.ImmutableMap.of;
+import static eu.eventstorm.sql.builder.SqlBuilderException.Type.SELECT;
 
 /**
  * @author <a href="mailto:jacques.militello@gmail.com">Jacques Militello</a>
@@ -142,12 +139,12 @@ public final class SelectBuilder extends AbstractBuilder {
 	
 	void appendWherePage(StringBuilder builder, PageRequest pageRequest) {
 
-		if (where != null && pageRequest.getFilters().size() > 0) {
-			appendWhere(Expressions.and(this.where, and(toExpressions(pageRequest))), builder);
+		if (where != null && pageRequest.getFilter()!= EmptyFilter.INSTANCE) {
+			appendWhere(Expressions.and(this.where, toExpressions(pageRequest)), builder);
 		} else if (where != null) {
 			appendWhere(this.where, builder);
-		} else if (pageRequest.getFilters().size() > 0) {
-			appendWhere(and(toExpressions(pageRequest)), builder);
+		} else if (pageRequest.getFilter() != EmptyFilter.INSTANCE) {
+			appendWhere(toExpressions(pageRequest), builder);
 		}	
 	}
 
@@ -165,7 +162,7 @@ public final class SelectBuilder extends AbstractBuilder {
         return builder.build();
     }
 
-	private ImmutableList<Expression> toExpressions(PageRequest pageRequest) {
+	private Expression toExpressions(PageRequest pageRequest) {
         SingleSqlEvaluator evaluator = (SingleSqlEvaluator) pageRequest.getEvaluator();
         return evaluator.toExpressions(pageRequest);
     }
