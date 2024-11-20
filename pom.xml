@@ -40,7 +40,7 @@
         <io.swagger.core.v3.version>2.1.13</io.swagger.core.v3.version>
 
         <org.springframework.boot.version>3.3.5</org.springframework.boot.version>
-        <org.springframework.version>6.1.14</org.springframework.version>
+        <org.springframework.version>6.1.15</org.springframework.version>
 
         <org.junit.jupiter.version>5.11.3</org.junit.jupiter.version>
         <com.h2database.version>2.3.232</com.h2database.version>
