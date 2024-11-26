@@ -37,6 +37,8 @@ final class DatabaseDialectPostgres implements DatabaseDialect {
         if (String.class.getName().equals(javaType)) {
             if (column.format() == ColumnFormat.UUID) {
                 return "UUID";
+            } else if (column.format() == ColumnFormat.TEXT) {
+                return "TEXT";
             } else {
                 return "VARCHAR(" + column.length() + ")";
             }
@@ -68,6 +70,8 @@ final class DatabaseDialectPostgres implements DatabaseDialect {
         if (String.class.getName().equals(javaType)) {
             if (column.format() == ColumnFormat.UUID) {
                 return "UUID";
+            } else if (column.format() == ColumnFormat.TEXT) {
+                return "TEXT";
             } else {
                 return "VARCHAR(" + column.length() + ")";
             }

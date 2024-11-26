@@ -5,6 +5,6 @@ package eu.eventstorm.sql.annotation;
  */
 public enum ColumnFormat {
 
-    NONE, UUID, JSONB
+    NONE, UUID, JSONB, TEXT
 
 }
