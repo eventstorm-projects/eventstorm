@@ -85,7 +85,7 @@ public abstract class ElsRepository {
 
     protected final <T, E> Mono<UpdateResponse<T>> doPartialUpdate(String index, String id, E document, Class<T> clazz) {
         return Mono.fromFuture(this.elasticsearchAsyncClient.update(new UpdateRequest.Builder<T, E>()
-                        .index(index)
+                        .index(indexResolver.apply(index))
                         .id(id)
                         .doc(document)
                         .refresh(Refresh.True)
