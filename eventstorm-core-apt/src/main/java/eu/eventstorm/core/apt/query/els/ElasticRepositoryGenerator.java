@@ -2,6 +2,7 @@ package eu.eventstorm.core.apt.query.els;
 
 import eu.eventstorm.core.apt.SourceCode;
 import eu.eventstorm.core.apt.model.ElsQueryDescriptor;
+import eu.eventstorm.cqrs.PageQueryDescriptors;
 import eu.eventstorm.cqrs.els.ElsRepository;
 import eu.eventstorm.page.Page;
 import eu.eventstorm.page.PageRequest;
@@ -60,8 +61,8 @@ public final class ElasticRepositoryGenerator {
 
         writer.write("import ");
         writer.write(Mono.class.getName() + ";");
-        //writeNewLine(writer);
-        //writer.write("import " + SqlQuery.class.getName() + ";");
+        writeNewLine(writer);
+        writer.write("import " + PageQueryDescriptors.class.getName() + ";");
         writeNewLine(writer);
 
         writeGenerated(writer, ElasticRepositoryGenerator.class.getName());
@@ -77,9 +78,9 @@ public final class ElasticRepositoryGenerator {
     private static void writeConstructor(Writer writer, ElsQueryDescriptor descriptor) throws IOException {
         writer.write("    protected Abstract");
         writer.write(descriptor.simpleName() + "Repository(");
-        writer.write("co.elastic.clients.elasticsearch.ElasticsearchAsyncClient client) {");
+        writer.write("co.elastic.clients.elasticsearch.ElasticsearchAsyncClient client, PageQueryDescriptors pageQueryDescriptors) {");
         writeNewLine(writer);
-        writer.write("        super(client);");
+        writer.write("        super(client, pageQueryDescriptors);");
         writeNewLine(writer);
 
         writer.write("    }");
@@ -87,9 +88,9 @@ public final class ElasticRepositoryGenerator {
 
         writer.write("    protected Abstract");
         writer.write(descriptor.simpleName() + "Repository(");
-        writer.write("co.elastic.clients.elasticsearch.ElasticsearchAsyncClient client, java.util.function.Function<String, String> indexResolver) {");
+        writer.write("co.elastic.clients.elasticsearch.ElasticsearchAsyncClient client, PageQueryDescriptors pageQueryDescriptors, java.util.function.Function<String, String> indexResolver) {");
         writeNewLine(writer);
-        writer.write("        super(client, indexResolver);");
+        writer.write("        super(client, pageQueryDescriptors, indexResolver);");
         writeNewLine(writer);
 
         writer.write("    }");

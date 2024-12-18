@@ -14,6 +14,10 @@ public final class ElsPageQueryDescriptor implements PageQueryDescriptor {
         this.pageRequestDescriptor = pageRequestDescriptor;
     }
 
+    public ElsPageRequestDescriptor getPageRequestDescriptor() {
+        return pageRequestDescriptor;
+    }
+
     @Override
     public EvaluatorDefinition getEvaluator() {
         return new ElsEvaluatorDefinition(this.pageRequestDescriptor);

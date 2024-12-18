@@ -2,42 +2,36 @@ package eu.eventstorm.sql.apt.util;
 
 public final class AliasGenerator {
 
-	private static String alias = null;
-	
-	private AliasGenerator() {
-	}
-	
-	public static String generate() {
-		
-		if (alias == null) {
-			alias = "a";
-			return alias;
-		}
+    private static String alias = null;
 
-		else if ("z".equals(alias)) {
-			alias = "aa";
-			return alias;
-		}
+    private AliasGenerator() {
+    }
 
-		else if ("zz".equals(alias)) {
-			alias = "aaa";
-			return alias;
-		}
+    public static String generate(String prefix) {
 
-		else if ("zzz".equals(alias)) {
-			alias = "aaa";
-			return alias;
-		}
+        if (alias == null) {
+            alias = "a";
+            return prefix + alias;
+        } else if ("z".equals(alias)) {
+            alias = "aa";
+            return prefix + alias;
+        } else if ("zz".equals(alias)) {
+            alias = "aaa";
+            return prefix + alias;
+        } else if ("zzz".equals(alias)) {
+            alias = "aaa";
+            return prefix + alias;
+        }
 
-		StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder();
 
-		if (alias.length() > 1) {
-			builder.append(alias.substring(0, alias.length() - 2));
-		}
-		builder.append((char) (alias.charAt(alias.length() - 1) + 1));
+        if (alias.length() > 1) {
+            builder.append(alias.substring(0, alias.length() - 2));
+        }
+        builder.append((char) (alias.charAt(alias.length() - 1) + 1));
 
-		alias = builder.toString();
-		return alias;
-	}
-	
+        alias = builder.toString();
+        return prefix + alias;
+    }
+
 }
